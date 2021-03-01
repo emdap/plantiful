@@ -1,29 +1,33 @@
 # plantiful
 
-## Project setup
-```
-npm install
-```
+CSS plant forms using data from Trefle API.
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## Targeted visualized fields
 
-### Compiles and minifies for production
-```
-npm run build
-```
+These are the properties that will contribute to the appearance of the generated plant form. The below properties are contained within the ```main_species``` property when retrieving a specific plant.
 
-### Run your unit tests
-```
-npm run test:unit
-```
+* flower
+  - color
 
-### Lints and fixes files
-```
-npm run lint
-```
+* foliage
+  - texture ```fine```, ```medium```, ```coarse```
+  - color
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+* specifications
+  - average_height
+  - shape_and_orientation
+
+* growth
+  - spread
+
+## Other fields
+
+Informational fields that will be displayed or referenced, separate from the generated plant form. 
+
+* common_name
+
+* scientific_name
+
+* family_common_name
+
+* image_url
