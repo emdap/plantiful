@@ -1,102 +1,137 @@
 <template>
-  <div id="app">
-    <span v-if="loading">
-      Loading ...
-    </span>
-    <input
-      id="plant-search"
-      type="text"
-      v-model="searchQuery"
-      placeholder="Type in a search, or leave blank for all plants"
-    />
-    <button
-      for="plant-search"
-      :disabled="!searchUpdated"
-      @click="plantSearch(1)"
+  <div id="app" class="flex flex-row h-screen">
+    <div id="search-window" class="flex h-full w-5/12">
+      <div class="flex flex-grow flex-col">
+        <div id="search-bar">
+          <input
+            id="search-input"
+            class="p-2 w-5/12 text-center"
+            type="text"
+            v-model="searchQuery"
+            placeholder="Enter search terms (optional)"
+            @keyup.enter="plantSearch(1)"
+          />
+          <button
+            :disabled="!searchUpdated"
+            @click="plantSearch(1)"
+            class="btn-primary"
+          >
+            Search plants
+          </button>
+        </div>
+        <template v-if="plantList.length || loadingList">
+          <div
+            id="page-nav"
+            :class="loadingList ? 'text-gray-200' : 'text-green-800'"
+          >
+            <h3>Page {{ currentPage }} of {{ lastPage }}</h3>
+            <span class="text-sm">
+              <button
+                :disabled="currentPage == 1"
+                @click="iteratePage('first')"
+              >
+                First page
+              </button>
+              <button :disabled="currentPage == 1" @click="iteratePage('prev')">
+                Previous page
+              </button>
+              <button
+                :disabled="currentPage == lastPage"
+                @click="iteratePage('next')"
+              >
+                Next page
+              </button>
+              <button
+                :disabled="currentPage == lastPage"
+                @click="iteratePage('last')"
+              >
+                Last page
+              </button>
+            </span>
+          </div>
+          <span v-if="loadingList">
+            Loading ...
+          </span>
+          <div v-else id="search-results" class="flex-grow overflow-auto">
+            <div
+              v-for="(plant, index) in plantList"
+              :key="`plant ${index}`"
+              @click="selectPlant(plant.id)"
+              class="cursor-pointer hover:bg-green-200"
+            >
+              <h3>{{ plant.common_name }}</h3>
+              <h5>{{ plant.scientific_name }}</h5>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+    <div
+      id="active-plant"
+      v-if="plantList.length"
+      class="p-4 w-7/12 flex h-full"
     >
-      Search plants
-      <br />
-    </button>
-    <template v-if="plantList.length">
-      <button :disabled="currentPage == 1" @click="iteratePage('first')">
-        First page
-      </button>
-      <button :disabled="currentPage == 1" @click="iteratePage('prev')">
-        Previous page
-      </button>
-      <button :disabled="currentPage == lastPage" @click="iteratePage('next')">
-        Next page
-      </button>
-      <button :disabled="currentPage == lastPage" @click="iteratePage('last')">
-        Last page
-      </button>
-      <div style="float: left">
-        <div
-          v-for="(plant, index) in plantList"
-          :key="`plant ${index}`"
-          @click="selectPlant(plant.id)"
-        >
-          <h3>{{ plant.common_name }}</h3>
-          <h5>{{ plant.scientific_name }}</h5>
-        </div>
+      <span v-if="!showActivePlant">
+        {{ activePlantMessage }}
+      </span>
+      <div v-else-if="!loadingPlant" class="flex-col flex-grow">
+        <h1>{{ activePlant.common_name }}</h1>
+        <h3>{{ activePlant.scientific_name }}</h3>
+        <img :src="activePlant.image_url" class="h-2/5 inline" />
+        <ul>
+          <li>
+            <strong> Flower colors: </strong>
+            <span
+              v-for="(color, index) in activePlant.main_species.flower.color"
+              :key="`flower ${index}`"
+            >
+              <span v-if="index != 0">, </span>
+              <span :style="`color: ${color}`"> {{ color }} </span>
+            </span>
+          </li>
+          <li>
+            <strong> Foliage texture: </strong>
+            <span> {{ activePlant.main_species.foliage.texture }} </span>
+          </li>
+          <li>
+            <strong> Foliage colors: </strong>
+            <span
+              v-for="(color, index) in activePlant.main_species.foliage.color"
+              :key="`foliage ${index}`"
+            >
+              <span v-if="index != 0">, </span>
+              <span :style="`color: ${color}`"> {{ color }} </span>
+            </span>
+          </li>
+          <li>
+            <strong> Average height: </strong>
+            <span>
+              {{ activePlant.main_species.specifications.average_height }} cm
+            </span>
+          </li>
+          <li>
+            <strong> Shape and orientation: </strong>
+            <span>
+              {{
+                activePlant.main_species.specifications.shape_and_orientation
+              }}
+            </span>
+          </li>
+          <li>
+            <strong>
+              Growth spread:
+            </strong>
+            <span> {{ activePlant.main_species.growth.spread }} </span>
+          </li>
+        </ul>
+        <button class="btn-primary">
+          Grow
+        </button>
       </div>
-      <div style="float: right">
-        <span v-if="!showActivePlant">
-          {{ activePlantMessage }}
-        </span>
-        <div v-else-if="!loading">
-          <h1>{{ activePlant.common_name }}</h1>
-          <h3>{{ activePlant.scientific_name }}</h3>
-          <img :src="activePlant.image_url" style="max-width: 500px" />
-          <ul>
-            <li>
-              <strong> Flower colors: </strong>
-              <span
-                v-for="(color, index) in activePlant.main_species.flower.color"
-                :key="`flower ${index}`"
-              >
-                <span v-if="index != 0">, </span>
-                <span :style="`color: ${color}`"> {{ color }} </span>
-              </span>
-            </li>
-            <li>
-              <strong> Foliage texture: </strong>
-              <span> {{ activePlant.main_species.foliage.texture }} </span>
-            </li>
-            <li>
-              <strong> Foliage colors: </strong>
-              <span
-                v-for="(color, index) in activePlant.main_species.foliage.color"
-                :key="`foliage ${index}`"
-              >
-                <span v-if="index != 0">, </span>
-                <span :style="`color: ${color}`"> {{ color }} </span>
-              </span>
-            </li>
-            <li>
-              <strong> Average height: </strong>
-              <span>
-                {{ activePlant.main_species.specifications.average_height }} cm
-              </span>
-            </li>
-            <li>
-              <strong> Shape and orientation: </strong>
-              <span>
-                {{
-                  activePlant.main_species.specifications.shape_and_orientation
-                }}
-              </span>
-            </li>
-            <li>
-              <strong>
-                Growth spread:
-              </strong>
-              <span> {{ activePlant.main_species.growth.spread }} </span>
-            </li>
-          </ul>
-        </div>
+      <div v-else>
+        Loading ...
       </div>
-    </template>
+    </div>
   </div>
 </template>
 
@@ -120,8 +155,9 @@ export default class App extends Vue {
   public showActivePlant = false
   public pageLinks = {} as PageLinks
   public searchUpdated = true
-  // TODO: extract messages to fixture, add loading messages
-  public loading = false
+  // TODO: extract messages to fixture, add loadingList messages
+  public loadingList = false
+  public loadingPlant = false
   public activePlantMessage = "Click on a plant name to see more information."
   // TODO: create interface for plant object/response
   public plantList = []
@@ -138,11 +174,15 @@ export default class App extends Vue {
 
   // used on initial search, or when jumping to non-consecutive page
   public plantSearch(getPage: number) {
+    if (!this.searchUpdated && getPage == this.currentPage) {
+      return
+    }
     this.showActivePlant = false
     if (!this.searchUpdated && this.cacheAndFetch(this.currentPage, getPage)) {
       return
     }
 
+    this.searchUpdated = false
     const query = this.formatQuery()
     // page not cached, make API call
     this.getPlants(getPage, query)
@@ -172,7 +212,7 @@ export default class App extends Vue {
     }
 
     const apiLink = this.pageLinks[link]
-    this.loading = true
+    this.loadingList = true
     getLink(apiLink)
       .then((response: any) => {
         this.handleAPISuccess(getPage, response)
@@ -198,7 +238,7 @@ export default class App extends Vue {
   }
 
   public getPlants(page: number, query: string) {
-    this.loading = true
+    this.loadingList = true
     let apiFunc: Function
     if (this.searchQuery.length) {
       apiFunc = searchPlants
@@ -219,7 +259,7 @@ export default class App extends Vue {
     this.currentPage = page
     this.plantList = response.data
     this.pageLinks = response.links
-    this.loading = false
+    this.loadingList = false
     // TODO: really only need to set this the first time
     this.lastPage = Math.ceil(response.meta.total / 30)
   }
@@ -227,26 +267,25 @@ export default class App extends Vue {
   public handleAPIError(error: Error) {
     // TODO: more error handling
     console.error(error)
-    this.loading = false
+    this.loadingList = false
   }
 
   public selectPlant(id: number) {
-    this.loading = true
+    this.loadingPlant = true
     // TODO: response type
     getPlant(id).then((response: any) => {
       console.log(
         response.data.main_species,
         response.data.main_species == null
       )
-      this.loading = false
+      this.loadingPlant = false
       if (response.data.main_species == null) {
-        console.log("null")
         this.activePlantMessage =
           "Sorry, this plant does not have enough information to enable display. Please select another."
+        this.showActivePlant = false
         return
       }
       this.activePlant = response.data
-      this.loading = false
       this.showActivePlant = true
     })
   }
