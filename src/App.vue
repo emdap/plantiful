@@ -3,15 +3,32 @@
     <span v-if="loading">
       Loading ...
     </span>
-    <button v-if="!plantList.length" @click="getPlantPage(1)">
-      Show plants
+    <input
+      id="plant-search"
+      type="text"
+      v-model="searchQuery"
+      placeholder="Type in a search, or leave blank for all plants"
+    />
+    <button
+      for="plant-search"
+      :disabled="!searchUpdated"
+      @click="plantSearch(1)"
+    >
+      Search plants
+      <br />
     </button>
-    <template v-else>
-      <button v-if="currentPage != 1" @click="getPlantPage(currentPage - 1)">
-        Previous plants
+    <template v-if="plantList.length">
+      <button :disabled="currentPage == 1" @click="iteratePage('first')">
+        First page
       </button>
-      <button v-if="hasNextPage" @click="getPlantPage(currentPage + 1)">
-        More plants
+      <button :disabled="currentPage == 1" @click="iteratePage('prev')">
+        Previous page
+      </button>
+      <button :disabled="currentPage == lastPage" @click="iteratePage('next')">
+        Next page
+      </button>
+      <button :disabled="currentPage == lastPage" @click="iteratePage('last')">
+        Last page
       </button>
       <div style="float: left">
         <div
@@ -25,7 +42,7 @@
       </div>
       <div style="float: right">
         <span v-if="!showActivePlant">
-          Click on a plant name to see more information.
+          {{ activePlantMessage }}
         </span>
         <div v-else-if="!loading">
           <h1>{{ activePlant.common_name }}</h1>
@@ -86,52 +103,193 @@
 <script lang="ts">
 import Vue from "vue"
 import Component from "vue-class-component"
-import { listPlants, getPlant } from "@/services/plants"
+import { listPlants, getPlant, getLink, searchPlants } from "@/services/plants"
+import {
+  FilterParams,
+  FilterType,
+  Filter,
+  PageLinks,
+  PageLinkKey
+} from "@/store/interfaces"
+import { Watch } from "vue-property-decorator"
 
 @Component({})
 export default class App extends Vue {
-  public currentPage = 1
-  public hasNextPage = true
-  public loading = false
+  public currentPage = 0
+  public lastPage = 0
   public showActivePlant = false
+  public pageLinks = {} as PageLinks
+  public searchUpdated = true
+  // TODO: extract messages to fixture, add loading messages
+  public loading = false
+  public activePlantMessage = "Click on a plant name to see more information."
   // TODO: create interface for plant object/response
   public plantList = []
   public cachedPlantList = {} as { [key: number]: any }
   public activePlant = {}
+  public filterParams = {} as FilterParams
+  public searchQuery = ""
 
-  public getPlantPage(getPage: number) {
-    if (this.plantList.length) {
-      // cache current page
-      this.cachedPlantList[this.currentPage] = this.plantList
+  public mounted() {
+    // TODO: allow changeable filter
+    this.addFilterParam("flower_color", "null", false)
+    this.addFilterParam("foliage_color", "null", false)
+  }
+
+  // used on initial search, or when jumping to non-consecutive page
+  public plantSearch(getPage: number) {
+    this.showActivePlant = false
+    if (!this.searchUpdated && this.cacheAndFetch(this.currentPage, getPage)) {
+      return
     }
-    console.log(this.currentPage, this.cachedPlantList)
-    if (this.cachedPlantList[getPage]) {
-      this.plantList = this.cachedPlantList[getPage]
-      this.currentPage = getPage
+
+    const query = this.formatQuery()
+    // page not cached, make API call
+    this.getPlants(getPage, query)
+  }
+
+  //TODO: make global API function that directs to handlers/catchers; rename current catchers to be specific to page-changes
+  public iteratePage(link: PageLinkKey) {
+    // Trefle provides direct links to specific pages, use that when possible instead of re-constructing query
+    let getPage = this.currentPage
+    switch (link) {
+      case "prev":
+        getPage--
+        break
+      case "next":
+        getPage++
+        break
+      case "first":
+        getPage = 1
+        break
+      case "last":
+        getPage = this.lastPage
+        break
+    }
+
+    if (this.cacheAndFetch(this.currentPage, getPage)) {
+      return
+    }
+
+    const apiLink = this.pageLinks[link]
+    this.loading = true
+    getLink(apiLink)
+      .then((response: any) => {
+        this.handleAPISuccess(getPage, response)
+      })
+      .catch((error: Error) => {
+        this.handleAPIError(error)
+      })
+  }
+
+  // TODO: add cache and fetch for plants
+  public cacheAndFetch(cachePage: number, fetchPage: number): boolean {
+    // cache the current page, update plant list to previously cached page (if exists)
+    if (cachePage && !this.cachedPlantList[cachePage]) {
+      this.cachedPlantList[cachePage] = this.plantList
+    }
+    const cachedPage = this.cachedPlantList[fetchPage]
+    if (cachedPage) {
+      this.plantList = cachedPage
+      this.currentPage = fetchPage
+      return true
+    }
+    return false
+  }
+
+  public getPlants(page: number, query: string) {
+    this.loading = true
+    let apiFunc: Function
+    if (this.searchQuery.length) {
+      apiFunc = searchPlants
     } else {
-      this.loading = true
-      // TODO: response type
-      listPlants(getPage)
-        .then((response: any) => {
-          this.plantList = response.data
-          this.hasNextPage = response.links.self != response.links.last
-          this.currentPage = getPage
-        })
-        .catch((error: Error) => {
-          console.error(error)
-        })
-        .finally(() => (this.loading = false))
+      apiFunc = listPlants
     }
+    // TODO: response type
+    apiFunc(page, query)
+      .then((response: any) => {
+        this.handleAPISuccess(page, response)
+      })
+      .catch((error: Error) => {
+        this.handleAPIError(error)
+      })
+  }
+
+  public handleAPISuccess(page: number, response: any) {
+    this.currentPage = page
+    this.plantList = response.data
+    this.pageLinks = response.links
+    this.loading = false
+    // TODO: really only need to set this the first time
+    this.lastPage = Math.ceil(response.meta.total / 30)
+  }
+
+  public handleAPIError(error: Error) {
+    // TODO: more error handling
+    console.error(error)
+    this.loading = false
   }
 
   public selectPlant(id: number) {
     this.loading = true
     // TODO: response type
     getPlant(id).then((response: any) => {
+      console.log(
+        response.data.main_species,
+        response.data.main_species == null
+      )
+      this.loading = false
+      if (response.data.main_species == null) {
+        console.log("null")
+        this.activePlantMessage =
+          "Sorry, this plant does not have enough information to enable display. Please select another."
+        return
+      }
       this.activePlant = response.data
       this.loading = false
       this.showActivePlant = true
     })
+  }
+
+  public addFilterParam(apiKey: string, value: string, include: boolean) {
+    const filterType = include ? "filter" : "filter_not"
+    let addToFilter = this.filterParams[filterType]
+    if (!addToFilter) {
+      addToFilter = this.filterParams[filterType] = {}
+    }
+    if (!addToFilter[apiKey]) {
+      addToFilter[apiKey] = []
+    }
+    addToFilter[apiKey].push(value.toString())
+  }
+
+  public formatFilterParams(): string {
+    let filterQuery = ""
+    for (const filterType of Object.keys(this.filterParams)) {
+      const filter = this.filterParams[filterType as FilterType] as Filter
+      console.log(filter, this.filterParams)
+      for (const filterKey of Object.keys(filter)) {
+        filterQuery = `${filterQuery}&${filterType}[${filterKey}]=${filter[
+          filterKey
+        ].join()}`
+      }
+    }
+    return filterQuery
+  }
+
+  public formatQuery(): string {
+    let query = ""
+    if (this.searchQuery.length) {
+      query = `&q=${this.searchQuery}`
+    }
+    query += this.formatFilterParams()
+    console.log(query)
+    return query
+  }
+
+  @Watch("searchQuery")
+  onSearchChanged() {
+    this.searchUpdated = true
   }
 }
 </script>
