@@ -144,7 +144,11 @@ import {
   FilterType,
   Filter,
   PageLinks,
-  PageLinkKey
+  PageLinkKey,
+  PlantListResponse,
+  PlantResponseData,
+  PlantResponse,
+  PlantResponseSnippet
 } from "@/store/interfaces"
 import { Watch } from "vue-property-decorator"
 
@@ -159,10 +163,10 @@ export default class App extends Vue {
   public loadingList = false
   public loadingPlant = false
   public activePlantMessage = "Click on a plant name to see more information."
-  // TODO: create interface for plant object/response
-  public plantList = []
-  public cachedPlantList = {} as { [key: number]: any }
-  public activePlant = {}
+
+  public plantList = [] as PlantResponseSnippet[]
+  public cachedPlantList = {} as { [key: number]: PlantResponseSnippet[] }
+  public activePlant = {} as PlantResponseData
   public filterParams = {} as FilterParams
   public searchQuery = ""
 
@@ -214,8 +218,8 @@ export default class App extends Vue {
     const apiLink = this.pageLinks[link]
     this.loadingList = true
     getLink(apiLink)
-      .then((response: any) => {
-        this.handleAPISuccess(getPage, response)
+      .then((response: PlantListResponse | PlantResponse) => {
+        this.handleAPISuccess(getPage, response as PlantListResponse)
       })
       .catch((error: Error) => {
         this.handleAPIError(error)
@@ -245,9 +249,8 @@ export default class App extends Vue {
     } else {
       apiFunc = listPlants
     }
-    // TODO: response type
     apiFunc(page, query)
-      .then((response: any) => {
+      .then((response: PlantListResponse) => {
         this.handleAPISuccess(page, response)
       })
       .catch((error: Error) => {
@@ -255,7 +258,7 @@ export default class App extends Vue {
       })
   }
 
-  public handleAPISuccess(page: number, response: any) {
+  public handleAPISuccess(page: number, response: PlantListResponse) {
     this.currentPage = page
     this.plantList = response.data
     this.pageLinks = response.links
@@ -273,11 +276,7 @@ export default class App extends Vue {
   public selectPlant(id: number) {
     this.loadingPlant = true
     // TODO: response type
-    getPlant(id).then((response: any) => {
-      console.log(
-        response.data.main_species,
-        response.data.main_species == null
-      )
+    getPlant(id).then((response: PlantResponse) => {
       this.loadingPlant = false
       if (response.data.main_species == null) {
         this.activePlantMessage =
