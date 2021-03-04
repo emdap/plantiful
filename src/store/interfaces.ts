@@ -17,9 +17,9 @@ export type PageLinks = {
 
 export interface GrowBasis {
   position: GrowPosition
-  rotation: GrowRotation
-  height: number
-  width: number
+  rotation?: GrowRotation
+  height: number | string
+  width: number | string
   transitionSpeed?: number
   zIndex?: number
   tabIndex?: number
@@ -39,8 +39,8 @@ export interface GrowShape extends GrowBasis {
 
 export interface GrowPosition {
   top: number
-  right: number
-  bottom: number
+  right?: number
+  bottom?: number
   left: number
 }
 
