@@ -1,5 +1,5 @@
 <template>
-  <div id="plant-search">
+  <div id="plant-search" class="flex flex-row h-screen">
     <widget initHeight="full" initWidth="41%">
       <search-bar />
       <loading
@@ -11,9 +11,9 @@
         <plant-list />
       </template>
     </widget>
-    <widget v-if="plantList.length || loadingPlant" initWidth="59%">
+    <widget v-if="plantList.length || plantLoading" initWidth="59%">
       <loading
-        v-if="loadingPlant"
+        v-if="plantLoading"
         :loadingText="messages.activePlant.loading"
       />
       <active-plant v-else />

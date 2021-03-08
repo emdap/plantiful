@@ -1,17 +1,17 @@
 <template>
-  <div
-    id="search-results"
-    class="flex-grow overflow-auto text-gr"
-    :class="{ 'text-gray-500 cursor-wait': garden.plantListLoading }"
-  >
+  <div id="search-results" class="flex-grow overflow-auto">
     <div
       v-for="(plant, index) in plantList"
       :key="`plant ${index}`"
       @click="selectPlant(plant.id)"
-      class="cursor-pointer hover:bg-green-200"
+      :class="
+        plantListLoading
+          ? 'text-gray-300 cursor-wait'
+          : 'cursor-pointer hover:bg-green-200'
+      "
     >
-      <h3>{{ activePlant.common_name }}</h3>
-      <h5>{{ activePlant.scientific_name }}</h5>
+      <h3>{{ plant.common_name }}</h3>
+      <h5>{{ plant.scientific_name }}</h5>
     </div>
   </div>
 </template>

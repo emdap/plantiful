@@ -1,7 +1,7 @@
 <template>
   <div
     id="page-nav"
-    :class="loadingPlantList ? 'text-gray-200' : 'text-green-800'"
+    :class="plantListLoading ? 'text-gray-300' : 'text-green-800'"
   >
     <h3>Page {{ currentPage }} of {{ lastPage }}</h3>
     <button

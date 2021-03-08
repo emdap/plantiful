@@ -1,12 +1,12 @@
 <template>
-  <div id="search-bar">
+  <div id="search-bar" class="shadow-sm flex mx-4 mb-2">
     <input
       id="search-input"
-      class="p-2 w-5/12 text-center"
+      class="p-2 flex-grow text-center"
       type="text"
       v-model="searchQuery"
       :placeholder="messages.searchBar.placeholder"
-      :label="messages.searchBar.placeholder"
+      :title="messages.searchBar.placeholder"
       @keyup.enter="plantSearch(1)"
     />
     <button
