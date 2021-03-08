@@ -36,7 +36,7 @@
 
 <script lang="ts">
 import { GrowBasis } from "@/store/interfaces"
-import { Prop, Ref, Watch } from "vue-property-decorator"
+import { Prop, Watch } from "vue-property-decorator"
 import Vue from "vue"
 import Component from "vue-class-component"
 

@@ -22,7 +22,6 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
 import Component from "vue-class-component"
 import Widget from "@/components/Widget.vue"
 import Loading from "@/components/Loading.vue"

@@ -1,10 +1,4 @@
-import {
-  Module,
-  VuexModule,
-  getModule,
-  Action,
-  Mutation
-} from "vuex-module-decorators"
+import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
 import store from "@/store"
 import {
   Plant,
@@ -12,7 +6,6 @@ import {
   PlantListResponse,
   PageLinks,
   SearchPlantsPayload,
-  PageLinkKey,
   GardenState
 } from "@/store/interfaces"
 import { listPlants, getPlant, getLink, searchPlants } from "@/services/plants"
