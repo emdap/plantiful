@@ -12,7 +12,7 @@ export type FilterType = "filter" | "filter_not"
 export type PageLinkKey = "first" | "prev" | "next" | "last"
 
 export type PageLinks = {
-  [key in PageLinkKey]: string
+  [key in PageLinkKey]?: string
 }
 
 export interface GrowBasis {
@@ -63,7 +63,7 @@ export interface BorderAttribute {
 }
 
 // for API response interfaces, only targetting fields that are used
-export interface PlantResponseSnippet {
+export interface PlantSnippet {
   id: number
   common_name: string
   scientific_name: string
@@ -74,7 +74,7 @@ export interface PlantResponseSnippet {
 
 export type LeafTexture = "fine" | "medium" | "coarse"
 
-export interface MainSpecies extends PlantResponseSnippet {
+export interface MainSpecies extends PlantSnippet {
   flower: {
     color: null | string[]
   }
@@ -96,17 +96,28 @@ export interface MainSpecies extends PlantResponseSnippet {
 }
 
 export interface PlantListResponse {
-  data: PlantResponseSnippet[]
+  data: PlantSnippet[]
   links: PageLinks
   meta: {
     total: number
   }
 }
 
-export interface PlantResponseData extends PlantResponseSnippet {
+export interface Plant extends PlantSnippet {
   main_species: MainSpecies
 }
 
 export interface PlantResponse {
-  data: PlantResponseData
+  data: Plant
+}
+
+export interface SearchPlantsPayload {
+  page: number
+  filter: string
+  query: string
+}
+
+export interface RootState {
+  garden: {}
+  grow: {}
 }

@@ -18,34 +18,40 @@
           Search plants
         </button>
       </div>
-      <template v-if="plantList.length || loadingList">
+      <template v-if="plantList.length || loadingPlantList">
         <div
           id="page-nav"
-          :class="loadingList ? 'text-gray-200' : 'text-green-800'"
+          :class="loadingPlantList ? 'text-gray-200' : 'text-green-800'"
         >
-          <h3>Page {{ currentPage }} of {{ lastPage }}</h3>
+          <h3>Page {{ garden.currentPage }} of {{ garden.lastPage }}</h3>
           <span class="text-sm">
-            <button :disabled="currentPage == 1" @click="iteratePage('first')">
+            <button
+              :disabled="disablePageButton('first')"
+              @click="iteratePage('prev')"
+            >
               First page
             </button>
-            <button :disabled="currentPage == 1" @click="iteratePage('prev')">
+            <button
+              :disabled="disablePageButton('first')"
+              @click="iteratePage('prev')"
+            >
               Previous page
             </button>
             <button
-              :disabled="currentPage == lastPage"
+              :disabled="disablePageButton('next')"
               @click="iteratePage('next')"
             >
               Next page
             </button>
             <button
-              :disabled="currentPage == lastPage"
+              :disabled="disablePageButton('next')"
               @click="iteratePage('last')"
             >
               Last page
             </button>
           </span>
         </div>
-        <span v-if="loadingList">
+        <span v-if="loadingPlantList">
           Loading ...
         </span>
         <div v-else id="search-results" class="flex-grow overflow-auto">
@@ -68,7 +74,7 @@
         v-if="plantList.length"
         class="p-4 flex-grow overflow-auto"
       >
-        <span v-if="!showActivePlant">
+        <span v-if="!activePlant">
           {{ activePlantMessage }}
         </span>
         <div v-else-if="!loadingPlant" class="flex-col">
@@ -144,12 +150,15 @@ import {
   PageLinks,
   PageLinkKey,
   PlantListResponse,
-  PlantResponseData,
+  Plant,
   PlantResponse,
-  PlantResponseSnippet
+  PlantSnippet,
+  SearchPlantsPayload
 } from "@/store/interfaces"
 import { listPlants, getPlant, getLink, searchPlants } from "@/services/plants"
+import garden from "@/store/modules/garden"
 import Widget from "@/components/Widget.vue"
+import Search from "./components/Search.vue"
 
 @Component({
   components: {
@@ -157,21 +166,13 @@ import Widget from "@/components/Widget.vue"
   }
 })
 export default class App extends Vue {
-  public currentPage = 0
-  public lastPage = 0
-  public showActivePlant = false
-  public pageLinks = {} as PageLinks
   public searchUpdated = true
-  // TODO: extract messages to fixture, add loadingList messages
-  public loadingList = false
-  public loadingPlant = false
+  // TODO: extract messages to fixture, add loadingPlantList messages
   public activePlantMessage = "Click on a plant name to see more information."
 
-  public plantList = [] as PlantResponseSnippet[]
-  public cachedPlantList = {} as { [key: number]: PlantResponseSnippet[] }
-  public activePlant = {} as PlantResponseData
   public filterParams = {} as FilterParams
   public searchQuery = ""
+  public garden = garden
 
   public mounted() {
     // TODO: allow changeable filter
@@ -179,117 +180,78 @@ export default class App extends Vue {
     this.addFilterParam("foliage_color", "null", false)
   }
 
-  // used on initial search, or when jumping to non-consecutive page
-  public plantSearch(getPage: number) {
-    if (!this.searchUpdated && getPage == this.currentPage) {
-      return
-    }
-    this.showActivePlant = false
-    if (!this.searchUpdated && this.cacheAndFetch(this.currentPage, getPage)) {
-      return
-    }
-
-    this.searchUpdated = false
-    const query = this.formatQuery()
-    // page not cached, make API call
-    this.getPlants(getPage, query)
+  public get plantList() {
+    return garden.plantList
   }
 
-  //TODO: make global API function that directs to handlers/catchers; rename current catchers to be specific to page-changes
-  public iteratePage(link: PageLinkKey) {
-    // Trefle provides direct links to specific pages, use that when possible instead of re-constructing query
-    let getPage = this.currentPage
-    switch (link) {
-      case "prev":
-        getPage--
-        break
-      case "next":
-        getPage++
-        break
-      case "first":
-        getPage = 1
-        break
-      case "last":
-        getPage = this.lastPage
-        break
-    }
-
-    if (this.cacheAndFetch(this.currentPage, getPage)) {
-      return
-    }
-
-    const apiLink = this.pageLinks[link]
-    this.loadingList = true
-    getLink(apiLink)
-      .then((response: PlantListResponse | PlantResponse) => {
-        this.handleAPISuccess(getPage, response as PlantListResponse)
-      })
-      .catch((error: Error) => {
-        this.handleAPIError(error)
-      })
+  public get loadingPlantList() {
+    return garden.loading.plantList
   }
 
-  // TODO: add cache and fetch for plants
-  public cacheAndFetch(cachePage: number, fetchPage: number): boolean {
-    // cache the current page, update plant list to previously cached page (if exists)
-    if (cachePage && !this.cachedPlantList[cachePage]) {
-      this.cachedPlantList[cachePage] = this.plantList
+  public get loadingPlant() {
+    return garden.loading.plant
+  }
+
+  public get activePlant() {
+    return garden.activePlant
+  }
+
+  public disablePageButton(page: "prev" | "next"): boolean {
+    if (page == "prev" && garden.currentPage == 1) {
+      return true
     }
-    const cachedPage = this.cachedPlantList[fetchPage]
-    if (cachedPage) {
-      this.plantList = cachedPage
-      this.currentPage = fetchPage
+    if (page == "next" && garden.lastPage == garden.currentPage) {
       return true
     }
     return false
   }
 
-  public getPlants(page: number, query: string) {
-    this.loadingList = true
-    let apiFunc: Function
-    if (this.searchQuery.length) {
-      apiFunc = searchPlants
-    } else {
-      apiFunc = listPlants
+  // used on initial search, or when jumping to non-consecutive page
+  public plantSearch(page: number) {
+    if (!this.searchUpdated && page == garden.currentPage) {
+      return
     }
-    apiFunc(page, query)
-      .then((response: PlantListResponse) => {
-        this.handleAPISuccess(page, response)
-      })
-      .catch((error: Error) => {
-        this.handleAPIError(error)
-      })
+
+    this.searchUpdated = false
+    // page not cached, make API call
+    const payload: SearchPlantsPayload = {
+      page,
+      filter: this.formatFilterParams(),
+      query: this.searchQuery
+    }
+
+    const newSearch = true // set this to false if page jumping (need to implement)
+    garden.getPlantList(payload, newSearch)
   }
 
-  public handleAPISuccess(page: number, response: PlantListResponse) {
-    this.currentPage = page
-    this.plantList = response.data
-    this.pageLinks = response.links
-    this.loadingList = false
-    // TODO: really only need to set this the first time
-    this.lastPage = Math.ceil(response.meta.total / 30)
-  }
-
-  public handleAPIError(error: Error) {
-    // TODO: more error handling
-    console.error(error)
-    this.loadingList = false
+  public iteratePage(link: PageLinkKey) {
+    // Trefle provides direct links to specific pages, use that when possible instead of re-constructing query
+    let page = garden.currentPage
+    switch (link) {
+      case "prev":
+        page--
+        break
+      case "next":
+        page++
+        break
+      case "first":
+        page = 1
+        break
+      case "last":
+        page = garden.lastPage
+        break
+    }
+    const apiLink = garden.pageLinks[link]
+    if (apiLink) {
+      garden.getPageByLink({ page, apiLink })
+    } else {
+      // TODO: handle error
+      console.error("no link for", link)
+    }
   }
 
   public selectPlant(id: number) {
-    this.loadingPlant = true
-    // TODO: response type
-    getPlant(id).then((response: PlantResponse) => {
-      this.loadingPlant = false
-      if (response.data.main_species == null) {
-        this.activePlantMessage =
-          "Sorry, this plant does not have enough information to enable display. Please select another."
-        this.showActivePlant = false
-        return
-      }
-      this.activePlant = response.data
-      this.showActivePlant = true
-    })
+    garden.getOnePlant(id)
   }
 
   public addFilterParam(apiKey: string, value: string, include: boolean) {
@@ -308,7 +270,6 @@ export default class App extends Vue {
     let filterQuery = ""
     for (const filterType of Object.keys(this.filterParams)) {
       const filter = this.filterParams[filterType as FilterType] as Filter
-      console.log(filter, this.filterParams)
       for (const filterKey of Object.keys(filter)) {
         filterQuery = `${filterQuery}&${filterType}[${filterKey}]=${filter[
           filterKey
@@ -316,16 +277,6 @@ export default class App extends Vue {
       }
     }
     return filterQuery
-  }
-
-  public formatQuery(): string {
-    let query = ""
-    if (this.searchQuery.length) {
-      query = `&q=${this.searchQuery}`
-    }
-    query += this.formatFilterParams()
-    console.log(query)
-    return query
   }
 
   @Watch("searchQuery")

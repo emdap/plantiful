@@ -1,4 +1,4 @@
-import { create, ApiResponse } from "apisauce"
+import { create, ApiResponse, ApiErrorResponse, ApiOkResponse } from "apisauce"
 import { AxiosRequestConfig } from "axios"
 
 const PLANT_API = process.env.VUE_APP_PLANT_API
@@ -18,15 +18,20 @@ const tokenAPI = create({
 plantAPI.addAsyncRequestTransform(async (request: AxiosRequestConfig) => {
   // initialize token
   if (!JWT) {
+    // TODO: type
     const tokenResponse = (await tokenAPI.get("/jwt")) as ApiResponse<any>
     JWT = tokenResponse.data.token
   }
   request.headers.Authorization = `Bearer ${JWT}`
 })
 
-export const resolve = (response: ApiResponse<any>): any => {
+// TODO - understand what this <S, E> actually means
+export const resolve = <S, E>(response: ApiResponse<S, E>): any => {
   if (response.ok) {
     return response.data
+  } else {
+    // TODO -- handle 401s here
+    throw "error"
   }
 }
 

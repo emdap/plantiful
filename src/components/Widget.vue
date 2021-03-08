@@ -196,7 +196,6 @@ export default class Widget extends Vue {
   @Watch("dock")
   dockChanged(docked: boolean) {
     if (!docked) {
-      console.log(this.$el.getBoundingClientRect().left)
       // update position so that won't snap when undocking
       this.styleAttributes.position.top = this.$el.getBoundingClientRect().top
       this.styleAttributes.position.left = this.$el.getBoundingClientRect().left

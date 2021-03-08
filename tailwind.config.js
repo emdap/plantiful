@@ -57,6 +57,13 @@ module.exports = {
         ".btn-primary:disabled": {
           color: theme("colors.green.300"),
           background: theme("colors.green.100")
+        },
+        // TODO: Extend theme properly instead of adding utilities
+        ".border-right-1": {
+          "border-width": "0 1px 0 0"
+        },
+        ".outline-green:focus": {
+          outlineColor: theme("colors.green.300")
         }
       })
     })
