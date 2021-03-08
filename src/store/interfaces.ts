@@ -15,6 +15,16 @@ export type PageLinks = {
   [key in PageLinkKey]?: string
 }
 
+export interface PageButton {
+  text: string
+  nav: PageLinkKey
+}
+
+export interface ActivePlantInfo {
+  text: string
+  value?: number | string | null
+}
+
 export interface GrowBasis {
   position: GrowPosition
   rotation?: GrowRotation
@@ -115,9 +125,24 @@ export interface SearchPlantsPayload {
   page: number
   filter: string
   query: string
+  newSearch: boolean
 }
 
 export interface RootState {
   garden: {}
   grow: {}
+}
+
+export interface GardenState {
+  plantList: PlantSnippet[]
+  pageLinks: PageLinks
+  activePlant: Plant | null
+  currentPage: number
+  lastPage: number
+  pageCache: Record<number, PlantListResponse>
+  plantCache: Record<number, Plant>
+  loading: {
+    plantList: boolean
+    plant: boolean
+  }
 }

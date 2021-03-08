@@ -12,7 +12,8 @@ import {
   PlantListResponse,
   PageLinks,
   SearchPlantsPayload,
-  PageLinkKey
+  PageLinkKey,
+  GardenState
 } from "@/store/interfaces"
 import { listPlants, getPlant, getLink, searchPlants } from "@/services/plants"
 
@@ -22,7 +23,7 @@ import { listPlants, getPlant, getLink, searchPlants } from "@/services/plants"
   name: "garden",
   store
 })
-class GardenModule extends VuexModule {
+export default class GardenModule extends VuexModule implements GardenState {
   plantList: PlantSnippet[] = []
   pageLinks: PageLinks = {}
   activePlant: Plant | null = null
@@ -38,7 +39,7 @@ class GardenModule extends VuexModule {
   readonly resultsPerPage: number = 20
 
   @Action
-  public async getPlantList(payload: SearchPlantsPayload, newSearch: boolean) {
+  public async getPlantList(payload: SearchPlantsPayload) {
     let apiFunc: (payload: SearchPlantsPayload) => Promise<PlantListResponse>
     // different API endpoint if user has a search query (?q="onion")
     if (payload.query.length) {
@@ -47,7 +48,9 @@ class GardenModule extends VuexModule {
       apiFunc = listPlants
     }
 
-    if (newSearch) this.CLEAR_PAGE_CACHE()
+    if (payload.newSearch) {
+      this.CLEAR_PAGE_CACHE()
+    }
 
     let pageData!: PlantListResponse
     if (this.pageCache[payload.page]) {
@@ -161,5 +164,3 @@ class GardenModule extends VuexModule {
     console.error(error)
   }
 }
-
-export default getModule(GardenModule)
