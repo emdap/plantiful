@@ -1,5 +1,5 @@
 <template>
-  <div id="search-bar" class="shadow-sm flex mx-4 mb-2">
+  <div id="search-bar" class="shadow-sm flex  mb-2">
     <input
       id="search-input"
       class="p-2 flex-grow text-center"
@@ -7,11 +7,11 @@
       v-model="searchQuery"
       :placeholder="messages.searchBar.placeholder"
       :title="messages.searchBar.placeholder"
-      @keyup.enter="plantSearch(1)"
+      @keyup.enter="plantSearch()"
     />
     <button
       :disabled="!searchUpdated"
-      @click="plantSearch(1)"
+      @click="plantSearch()"
       class="btn-primary"
     >
       Search plants
