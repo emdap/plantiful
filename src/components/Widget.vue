@@ -7,20 +7,15 @@
     @focus="inFocus = true"
     @blur="inFocus = false"
   >
-    <div class="flex flex-grow flex-col">
+    <div v-if="!error" class="flex flex-grow flex-col">
       <div class="move-widget flex flex-row mb-1">
-        <button :disabled="dock" @click="dock = !dock">
+        <button :disabled="widgetState.docked" @click="dockWidget()">
           D
         </button>
-        <button
-          @mousedown="
-            trackPosition = true
-            dock = false
-          "
-        >
+        <button @mousedown="trackPosition = true">
           M
         </button>
-        <button class="ml-auto" @click="visible = false">
+        <button class="ml-auto" @click="closeWidget()">
           X
         </button>
       </div>
@@ -35,29 +30,29 @@
 </template>
 
 <script lang="ts">
-import { GrowBasis } from "@/store/interfaces"
+import { GrowBasis, WidgetState } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
-import Vue from "vue"
+import WindowMixin, { window } from "@/mixins/WindowMixin.vue"
 import Component from "vue-class-component"
+import messages from "@/fixtures/Messages"
 
 @Component({})
-export default class Widget extends Vue {
+// TODO: add some info/instructions for all these props and their effects
+export default class Widget extends WindowMixin {
   @Prop({ default: 0 }) initTop!: number
   @Prop({ default: 0 }) initLeft!: number
   @Prop({ default: "full" }) initHeight!: number | "full" | "screen"
   @Prop({ default: "30%" }) initWidth!: number | string
   @Prop({ default: 250 }) minHeight!: number
   @Prop({ default: 250 }) minWidth!: number
-  @Prop({ default: true }) docked!: boolean
 
-  public visible = true
   public trackPosition = false
   public trackSize = false
   public sizeStartY: null | number = null
   public sizeStartX: null | number = null
   public posStartY: null | number = null
   public posStartX: null | number = null
-  public dock = this.docked
+  // TODO: align this with state
   public inFocus = false
 
   public styleAttributes: GrowBasis = {
@@ -69,50 +64,40 @@ export default class Widget extends Vue {
     width: this.initWidth
   }
 
-  public get styleObj(): Record<string, string> {
-    return {
-      top: this.dock ? `0` : `${this.styleAttributes.position.top}px`,
-      left: this.dock ? `0` : `${this.styleAttributes.position.left}px`,
-      height: this.convertSize("height"),
-      width: this.convertSize("width"),
-      position: this.dock ? "relative" : "absolute"
-    }
+  @Prop() initWidgetState!: WidgetState
+  // initialize to empty WidgetState so that properties are reactive
+  public widgetState: WidgetState = {
+    name: "",
+    order: -1,
+    docked: false,
+    open: false,
+    inMenu: false
   }
-
-  public get classObj(): Record<string, boolean> {
-    return {
-      "shadow-md": !this.dock,
-      "shadow-sm": this.dock,
-      "bg-opacity-95": !this.dock,
-      "z-0": this.dock && !this.inFocus,
-      "z-10": !this.dock || this.inFocus
-    }
-  }
-
-  public get moveButtonLocation() {
-    const moveButton = this.$refs.moveButton as HTMLElement
-    return {
-      top: moveButton.offsetTop + moveButton.getBoundingClientRect().height / 2,
-      left: moveButton.offsetLeft + moveButton.getBoundingClientRect().width / 2
-    }
-  }
-
-  public convertSize(which: "height" | "width"): string {
-    switch (typeof this.styleAttributes[which]) {
-      case "string":
-        if (this.styleAttributes[which] == "full") {
-          return "100%"
-        } else if (this.styleAttributes[which] == "screen") {
-          return "100vh"
-        }
-        return this.styleAttributes[which] as string
-
-      default:
-        return `${this.styleAttributes[which]}px`
-    }
-  }
+  public error = false
 
   public mounted() {
+    this.addMouseUpListeners()
+    this.initializeWidget()
+  }
+
+  public initializeWidget() {
+    // parent component can register widget first if it needs to track it
+    if (!this.getWidget(this.initWidgetState?.name)) {
+      if (this.initWidgetState) {
+        // otherwise, widget can register itself
+        window.registerWidget(this.initWidgetState)
+      } else {
+        this.error = true
+        throw console.error(messages.widget.registerError)
+      }
+    }
+
+    // update widgetState to be what's in the window store
+    this.widgetState = this.getWidget(this.initWidgetState.name) as WidgetState
+  }
+
+  public addMouseUpListeners() {
+    // stop tracking position/size when mouse is up
     document.addEventListener("mouseup", (e: MouseEvent) => {
       if (this.trackPosition) {
         e.preventDefault()
@@ -123,6 +108,15 @@ export default class Widget extends Vue {
         this.trackSize = false
       }
     })
+  }
+
+  @Watch("widgetState.docked")
+  dockChanged(docked: boolean) {
+    if (!docked) {
+      // update position so that won't snap when undocking
+      this.styleAttributes.position.top = this.$el.getBoundingClientRect().top
+      this.styleAttributes.position.left = this.$el.getBoundingClientRect().left
+    }
   }
 
   @Watch("trackSize")
@@ -138,10 +132,61 @@ export default class Widget extends Vue {
   @Watch("trackPosition")
   mouseUpdatesPosition(track: boolean) {
     if (track) {
+      if (this.widgetState.docked) {
+        window.toggleDocked(this.widgetState)
+      }
       document.addEventListener("mousemove", this.updatePosition)
     } else {
       this.posStartY = this.posStartX = null
       document.removeEventListener("mousemove", this.updatePosition)
+    }
+  }
+
+  public get styleObj(): Record<string, string> {
+    return {
+      top: this.widgetState.docked
+        ? `0`
+        : `${this.styleAttributes.position.top}px`,
+      left: this.widgetState.docked
+        ? `0`
+        : `${this.styleAttributes.position.left}px`,
+      height: this.convertSize("height"),
+      width: this.convertSize("width"),
+      position: this.widgetState.docked ? "relative" : "absolute"
+    }
+  }
+
+  public get classObj(): Record<string, boolean> {
+    return {
+      "shadow-md": !this.widgetState.docked,
+      "shadow-sm": this.widgetState.docked,
+      "bg-opacity-95": !this.widgetState.docked,
+      "z-0": this.widgetState.docked && !this.inFocus,
+      "z-10": !this.widgetState.docked || this.inFocus,
+      hidden: !this.widgetState.open
+    }
+  }
+
+  public closeWidget() {
+    window.toggleWidget(this.widgetState)
+  }
+
+  public dockWidget() {
+    window.toggleDocked(this.widgetState)
+  }
+
+  public convertSize(which: "height" | "width"): string {
+    switch (typeof this.styleAttributes[which]) {
+      case "string":
+        if (this.styleAttributes[which] == "full") {
+          return "100%"
+        } else if (this.styleAttributes[which] == "screen") {
+          return "100vh"
+        }
+        return this.styleAttributes[which] as string
+
+      default:
+        return `${this.styleAttributes[which]}px`
     }
   }
 
@@ -191,15 +236,6 @@ export default class Widget extends Vue {
     )
     this.posStartX = e.pageX
     this.posStartY = e.pageY
-  }
-
-  @Watch("dock")
-  dockChanged(docked: boolean) {
-    if (!docked) {
-      // update position so that won't snap when undocking
-      this.styleAttributes.position.top = this.$el.getBoundingClientRect().top
-      this.styleAttributes.position.left = this.$el.getBoundingClientRect().left
-    }
   }
 }
 </script>

@@ -26,7 +26,7 @@ import {
   Filter,
   FilterParams,
   FilterType,
-  SearchPlantsPayload
+  PlantListPayload
 } from "@/store/interfaces"
 import GardenMixin, { garden } from "@/mixins/GardenMixin.vue"
 import messages from "@/fixtures/Messages"
@@ -46,7 +46,7 @@ export default class SearchBar extends GardenMixin {
   public plantSearch() {
     if (this.searchUpdated) {
       this.searchUpdated = false
-      const payload: SearchPlantsPayload = {
+      const payload: PlantListPayload = {
         page: 1,
         filter: this.formatFilterParams(),
         query: this.searchQuery,

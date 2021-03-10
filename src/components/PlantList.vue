@@ -25,8 +25,11 @@ export default class PlantList extends GardenMixin {
   public selectPlant(id: number) {
     if (!this.plantListLoading) {
       garden.getOnePlant(id)
+      this.$emit("plant-clicked")
     }
   }
+
+  // TODO: put watch on plantListLoading, add a ref to the list, and reset the scroll
 }
 </script>
 

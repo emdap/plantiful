@@ -2,17 +2,17 @@ import api, { resolve } from "@/services/api"
 import {
   PlantListResponse,
   PlantResponse,
-  SearchPlantsPayload
+  PlantListPayload
 } from "@/store/interfaces"
 
 // TODO: response types
 export const listPlants = (
-  payload: SearchPlantsPayload
+  payload: PlantListPayload
 ): Promise<PlantListResponse> =>
   api.get(`/api/v1/plants?page=${payload.page}${payload.filter}`).then(resolve)
 
 export const searchPlants = (
-  payload: SearchPlantsPayload
+  payload: PlantListPayload
 ): Promise<PlantListResponse> =>
   api
     .get(

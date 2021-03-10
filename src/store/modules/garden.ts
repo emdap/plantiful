@@ -5,8 +5,9 @@ import {
   PlantSnippet,
   PlantListResponse,
   PageLinks,
-  SearchPlantsPayload,
-  GardenState
+  PlantListPayload,
+  GardenState,
+  PageLinkPayload
 } from "@/store/interfaces"
 import { listPlants, getPlant, getLink, searchPlants } from "@/services/plants"
 
@@ -32,8 +33,8 @@ export default class GardenModule extends VuexModule implements GardenState {
   readonly resultsPerPage: number = 20
 
   @Action
-  public async getPlantList(payload: SearchPlantsPayload) {
-    let apiFunc: (payload: SearchPlantsPayload) => Promise<PlantListResponse>
+  public async getPlantList(payload: PlantListPayload) {
+    let apiFunc: (payload: PlantListPayload) => Promise<PlantListResponse>
     // different API endpoint if user has a search query (?q="onion")
     if (payload.query.length) {
       apiFunc = searchPlants
@@ -85,7 +86,7 @@ export default class GardenModule extends VuexModule implements GardenState {
   }
 
   @Action
-  public async getPageByLink(payload: { page: number; apiLink: string }) {
+  public async getPageByLink(payload: PageLinkPayload) {
     const { page, apiLink } = payload
     let pageData!: PlantListResponse
     this.SET_LOADING({ which: "plantList", loading: true })
@@ -118,7 +119,11 @@ export default class GardenModule extends VuexModule implements GardenState {
 
   @Mutation
   public CACHE_PLANT(plant: Plant) {
-    this.plantCache[plant.id] = plant as Plant
+    // confusing in API: when searching list of plants, plants returned have id property (id1)
+    // when searching ONE plant, plant returned has id property (id2), and main_species_id property (id3)
+    // id1 != id2, but id1 == id3
+    // so saving in plantCache under id3, as that matches up with id1 that is searched when clicking on plant
+    this.plantCache[plant.main_species_id] = plant as Plant
   }
 
   @Mutation

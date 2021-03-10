@@ -1,6 +1,6 @@
 <template>
-  <div id="plant-search" class="flex flex-row h-screen">
-    <widget initHeight="full" initWidth="41%">
+  <div id="plant-search" class="flex flex-row flex-grow h-screen">
+    <widget initHeight="full" initWidth="41%" :initWidgetState="searchWidget">
       <search-bar />
       <loading
         v-if="plantListLoading"
@@ -8,10 +8,14 @@
       />
       <template v-if="plantList.length">
         <page-nav />
-        <plant-list />
+        <plant-list @plant-clicked="showActivePlant" />
       </template>
     </widget>
-    <widget v-if="plantList.length || plantLoading" initWidth="59%">
+    <widget
+      v-if="plantList.length || plantLoading"
+      initWidth="59%"
+      :initWidgetState="activePlantWidget"
+    >
       <loading
         v-if="plantLoading"
         :loadingText="messages.activePlant.loading"
@@ -22,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import Component from "vue-class-component"
+import Component, { mixins } from "vue-class-component"
 import Widget from "@/components/Widget.vue"
 import Loading from "@/components/Loading.vue"
 import SearchBar from "@/components/SearchBar.vue"
@@ -31,6 +35,8 @@ import PageNav from "@/components/PageNav.vue"
 import ActivePlant from "@/components/ActivePlant.vue"
 import messages from "@/fixtures/Messages"
 import GardenMixin from "@/mixins/GardenMixin.vue"
+import WindowMixin, { window } from "@/mixins/WindowMixin.vue"
+import { Plant, WidgetState } from "@/store/interfaces"
 
 @Component({
   components: {
@@ -42,9 +48,39 @@ import GardenMixin from "@/mixins/GardenMixin.vue"
     ActivePlant
   }
 })
-export default class PlantSearch extends GardenMixin {
+export default class PlantSearch extends mixins(GardenMixin, WindowMixin) {
+  public searchWidget: WidgetState = {
+    name: "search",
+    icon: "S",
+    order: 1,
+    open: true,
+    docked: true,
+    inMenu: true
+  }
+
+  public activePlantWidget: WidgetState = {
+    name: "active-plant",
+    icon: "A",
+    order: 2,
+    open: false,
+    docked: true,
+    inMenu: false
+  }
+
+  public mounted() {
+    // register widgets
+    window.registerWidget(this.searchWidget)
+    window.registerWidget(this.activePlantWidget)
+  }
+
   public get messages() {
     return messages
+  }
+
+  public showActivePlant() {
+    if (!this.activePlantWidget.open) {
+      window.toggleWidget(this.activePlantWidget)
+    }
   }
 }
 </script>

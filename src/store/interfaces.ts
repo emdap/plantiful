@@ -1,3 +1,5 @@
+// TODO: organize this file
+
 export interface FilterParams {
   filter?: Filter
   filter_not?: Filter
@@ -114,6 +116,7 @@ export interface PlantListResponse {
 }
 
 export interface Plant extends PlantSnippet {
+  main_species_id: number
   main_species: MainSpecies
 }
 
@@ -121,16 +124,22 @@ export interface PlantResponse {
   data: Plant
 }
 
-export interface SearchPlantsPayload {
+export interface PlantListPayload {
   page: number
   filter: string
   query: string
   newSearch: boolean
 }
 
+export interface PageLinkPayload {
+  page: number
+  apiLink: string
+}
+
 export interface RootState {
   garden: {}
   grow: {}
+  window: {}
 }
 
 export interface GardenState {
@@ -145,4 +154,34 @@ export interface GardenState {
     plantList: boolean
     plant: boolean
   }
+}
+
+export interface WindowState {
+  widgets: WidgetState[]
+}
+
+export interface WidgetState {
+  name: string
+  icon?: string
+  order: number
+  open: boolean
+  docked: boolean
+  inMenu: boolean
+}
+
+export const WidgetStateOptionals = ["open", "docked", "inMenu"] as const
+
+export interface WidgetStateProp {
+  name: string
+  icon?: string
+  order?: number
+  open?: boolean
+  docked?: boolean
+  inMenu?: boolean
+}
+
+export const DefaultWidget = {
+  open: true,
+  docked: true,
+  inMenu: true
 }

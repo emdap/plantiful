@@ -10,6 +10,11 @@ const messages = {
     loading: "Loading plants",
     empty: "No plants matching your search were found",
     error: "An unexpected error occurred, please try searching again."
+  },
+  widget: {
+    registerError:
+      "Widget missing initWidgetState prop, or prop has no 'name' field! Cannot render.",
+    nameError: "Widgets must have a name to be registered."
   }
 }
 

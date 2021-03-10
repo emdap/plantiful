@@ -4,9 +4,16 @@
       {{ noActivePlant }}
     </span>
     <template v-else>
-      <h1>{{ activePlant.common_name }}</h1>
-      <h3>{{ activePlant.scientific_name }}</h3>
-      <img :src="activePlant.image_url" class="max-h-full inline" />
+      <!-- use properties under main_species when possible, has more consistent capitalization, especially for common_name -->
+      <h1>{{ activePlant.main_species.common_name }}</h1>
+      <h3>{{ activePlant.main_species.scientific_name }}</h3>
+      <loading v-if="!mainImgLoaded" loadingText="Loading image" />
+      <img
+        @load="mainImgLoaded = true"
+        :src="activePlant.image_url"
+        class=" max-h-96 inline"
+        :class="{ hidden: !mainImgLoaded }"
+      />
       <ul>
         <li v-for="(info, index) in showFields" :key="`active-info-${index}`">
           <template v-if="info.value">
@@ -23,12 +30,21 @@
 
 <script lang="ts">
 import Component from "vue-class-component"
+import { Watch } from "vue-property-decorator"
 import GardenMixin from "@/mixins/GardenMixin.vue"
 import { ActivePlantInfo } from "@/store/interfaces"
 import messages from "@/fixtures/Messages"
+import Loading from "@/components/Loading.vue"
 
-@Component({})
+@Component({
+  components: {
+    Loading
+  }
+})
 export default class ActivePlant extends GardenMixin {
+  // have ability to display additional images in future
+  public mainImgLoaded = false
+
   public get showFields(): ActivePlantInfo[] {
     return [
       {
@@ -65,6 +81,11 @@ export default class ActivePlant extends GardenMixin {
       return messages.activePlant.error
     }
     return false
+  }
+
+  @Watch("activePlant")
+  public newMainImg() {
+    this.mainImgLoaded = false
   }
 }
 </script>
