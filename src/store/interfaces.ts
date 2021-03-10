@@ -50,11 +50,15 @@ export interface GrowShape extends GrowBasis {
 }
 
 export interface GrowPosition {
-  top: number
-  right?: number
-  bottom?: number
-  left: number
+  top: number | string
+  right?: number | string
+  bottom?: number | string
+  left: number | string
 }
+
+export type RequiredPositions = "top" | "left"
+export type Positions = RequiredPositions | "right" | "bottom"
+export type Dimensions = "height" | "width"
 
 export interface GrowRotation {
   x: number

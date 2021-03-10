@@ -15,6 +15,9 @@ const messages = {
     registerError:
       "Widget missing initWidgetState prop, or prop has no 'name' field! Cannot render.",
     nameError: "Widgets must have a name to be registered."
+  },
+  grow: {
+    missingGrowData: "Must supply component with prop growData! Cannot render."
   }
 }
 

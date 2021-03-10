@@ -30,7 +30,12 @@
 </template>
 
 <script lang="ts">
-import { GrowBasis, WidgetState } from "@/store/interfaces"
+import {
+  GrowBasis,
+  WidgetState,
+  Positions,
+  Dimensions
+} from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 import WindowMixin, { window } from "@/mixins/WindowMixin.vue"
 import Component from "vue-class-component"
@@ -39,10 +44,10 @@ import messages from "@/fixtures/Messages"
 @Component({})
 // TODO: add some info/instructions for all these props and their effects
 export default class Widget extends WindowMixin {
-  @Prop({ default: 0 }) initTop!: number
-  @Prop({ default: 0 }) initLeft!: number
-  @Prop({ default: "full" }) initHeight!: number | "full" | "screen"
-  @Prop({ default: "30%" }) initWidth!: number | string
+  @Prop({ default: 0 }) initTop!: number | string
+  @Prop({ default: 0 }) initLeft!: number | string
+  @Prop() initHeight!: number | "full" | "screen"
+  @Prop() initWidth!: number | string
   @Prop({ default: 250 }) minHeight!: number
   @Prop({ default: 250 }) minWidth!: number
 
@@ -52,19 +57,26 @@ export default class Widget extends WindowMixin {
   public sizeStartX: null | number = null
   public posStartY: null | number = null
   public posStartX: null | number = null
+  public initDocked: null | boolean = null
   // TODO: align this with state
   public inFocus = false
 
-  public styleAttributes: GrowBasis = {
-    position: {
-      top: this.initTop,
-      left: this.initLeft
-    },
-    height: this.initHeight,
-    width: this.initWidth
+  public styleAttributes: GrowBasis = this.initalizeStyle()
+
+  public initalizeStyle(): GrowBasis {
+    return {
+      position: {
+        top: this.convertSize(this.initTop),
+        left: this.convertSize(this.initLeft)
+      },
+      height: this.convertSize(this.initHeight),
+      width: this.convertSize(this.initWidth)
+    }
   }
 
   @Prop() initWidgetState!: WidgetState
+
+  // TODO: add to interfaces & combine with defaultWidget
   // initialize to empty WidgetState so that properties are reactive
   public widgetState: WidgetState = {
     name: "",
@@ -94,6 +106,9 @@ export default class Widget extends WindowMixin {
 
     // update widgetState to be what's in the window store
     this.widgetState = this.getWidget(this.initWidgetState.name) as WidgetState
+
+    // track if it should launch docked, for when user closes/opens
+    this.initDocked = this.widgetState.docked
   }
 
   public addMouseUpListeners() {
@@ -114,9 +129,40 @@ export default class Widget extends WindowMixin {
   dockChanged(docked: boolean) {
     if (!docked) {
       // update position so that won't snap when undocking
+      this.setToCurrent("position")
+    }
+  }
+
+  public setToCurrent(which: "size" | "position") {
+    if (which == "size") {
+      this.styleAttributes.width = this.$el.getBoundingClientRect().width
+      this.styleAttributes.height = this.$el.getBoundingClientRect().height
+    }
+
+    if (which == "position") {
       this.styleAttributes.position.top = this.$el.getBoundingClientRect().top
       this.styleAttributes.position.left = this.$el.getBoundingClientRect().left
     }
+  }
+
+  public getCurrent(which: Positions | Dimensions): number {
+    let current!: number
+
+    if (which == "width") {
+      current = this.$el.getBoundingClientRect().width
+    }
+    if (which == "height") {
+      current = this.$el.getBoundingClientRect().height
+    }
+
+    if (which == "top") {
+      current = this.$el.getBoundingClientRect().top
+    }
+    if (which == "left") {
+      current = this.$el.getBoundingClientRect().left
+    }
+
+    return current
   }
 
   @Watch("trackSize")
@@ -142,16 +188,16 @@ export default class Widget extends WindowMixin {
     }
   }
 
-  public get styleObj(): Record<string, string> {
+  public get styleObj(): Record<string, string | number> {
     return {
       top: this.widgetState.docked
-        ? `0`
-        : `${this.styleAttributes.position.top}px`,
+        ? 0
+        : this.convertSize(this.styleAttributes.position.top),
       left: this.widgetState.docked
-        ? `0`
-        : `${this.styleAttributes.position.left}px`,
-      height: this.convertSize("height"),
-      width: this.convertSize("width"),
+        ? 0
+        : this.convertSize(this.styleAttributes.position.left),
+      height: this.convertSize(this.styleAttributes.height),
+      width: this.convertSize(this.styleAttributes.width),
       position: this.widgetState.docked ? "relative" : "absolute"
     }
   }
@@ -168,6 +214,13 @@ export default class Widget extends WindowMixin {
   }
 
   public closeWidget() {
+    if (this.widgetState.open) {
+      // reset to defaults for when it's next open
+      this.styleAttributes = this.initalizeStyle()
+      if (this.initDocked != this.widgetState.docked) {
+        window.toggleDocked(this.widgetState)
+      }
+    }
     window.toggleWidget(this.widgetState)
   }
 
@@ -175,44 +228,57 @@ export default class Widget extends WindowMixin {
     window.toggleDocked(this.widgetState)
   }
 
-  public convertSize(which: "height" | "width"): string {
-    switch (typeof this.styleAttributes[which]) {
+  public convertSize(convertValue: string | number): string | number {
+    switch (typeof convertValue) {
       case "string":
-        if (this.styleAttributes[which] == "full") {
+        if (convertValue == "full") {
           return "100%"
-        } else if (this.styleAttributes[which] == "screen") {
+        } else if (convertValue == "screen") {
           return "100vh"
         }
-        return this.styleAttributes[which] as string
+        return convertValue as string
 
       default:
-        return `${this.styleAttributes[which]}px`
+        return `${convertValue}px`
     }
   }
 
   // TODO: possibly combine below 2 functions? some code duplication
   public updateSize(e: MouseEvent) {
     e.preventDefault()
+    let startingWidth!: number, startingHeight!: number
+
+    // initialize values
     if (this.sizeStartY == null || this.sizeStartX == null) {
       this.sizeStartY = e.pageY
       this.sizeStartX = e.pageX
     }
 
-    // convert to numbers values
-    if (typeof this.styleAttributes.height == "string") {
-      this.styleAttributes.height = this.$el.getBoundingClientRect().height
+    if (
+      !this.styleAttributes.width ||
+      typeof this.styleAttributes.width == "string"
+    ) {
+      startingWidth = this.getCurrent("width")
+    } else {
+      startingWidth = this.styleAttributes.width
     }
-    if (typeof this.styleAttributes.width == "string") {
-      this.styleAttributes.width = this.$el.getBoundingClientRect().width
+    if (
+      !this.styleAttributes.height ||
+      typeof this.styleAttributes.height == "string"
+    ) {
+      startingHeight = this.getCurrent("height")
+    } else {
+      startingHeight = this.styleAttributes.height
     }
 
+    // set new size
     this.styleAttributes.width = Math.max(
       this.minWidth,
-      this.styleAttributes.width + e.pageX - this.sizeStartX
+      startingWidth + e.pageX - this.sizeStartX
     )
     this.styleAttributes.height = Math.max(
       this.minHeight,
-      this.styleAttributes.height + e.pageY - this.sizeStartY
+      startingHeight + e.pageY - this.sizeStartY
     )
     this.sizeStartX = e.pageX
     this.sizeStartY = e.pageY
@@ -220,19 +286,37 @@ export default class Widget extends WindowMixin {
 
   public updatePosition(e: MouseEvent) {
     e.preventDefault()
+    let startingLeft!: number, startingTop!: number
 
     if (this.posStartY == null || this.posStartX == null) {
       this.posStartY = e.pageY
       this.posStartX = e.pageX
     }
 
+    if (
+      !this.styleAttributes.position.left ||
+      typeof this.styleAttributes.position.left == "string"
+    ) {
+      startingLeft = this.getCurrent("left")
+    } else {
+      startingLeft = this.styleAttributes.position.left
+    }
+    if (
+      !this.styleAttributes.position.top ||
+      typeof this.styleAttributes.position.top == "string"
+    ) {
+      startingTop = this.getCurrent("top")
+    } else {
+      startingTop = this.styleAttributes.position.top
+    }
+
     this.styleAttributes.position.left = Math.max(
       0,
-      this.styleAttributes.position.left + e.pageX - this.posStartX
+      startingLeft + e.pageX - this.posStartX
     )
     this.styleAttributes.position.top = Math.max(
       0,
-      this.styleAttributes.position.top + e.pageY - this.posStartY
+      startingTop + e.pageY - this.posStartY
     )
     this.posStartX = e.pageX
     this.posStartY = e.pageY
