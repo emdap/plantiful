@@ -2,19 +2,22 @@
   <div id="app" class="flex flex-row">
     <side-menu />
     <plant-search />
+    <grow />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue"
 import Component from "vue-class-component"
-import PlantSearch from "@/views/PlantSearch.vue"
 import SideMenu from "@/components/SideMenu.vue"
+import PlantSearch from "@/views/PlantSearch.vue"
+import Grow from "@/views/Grow.vue"
 
 @Component({
   components: {
     PlantSearch,
-    SideMenu
+    SideMenu,
+    Grow
   }
 })
 export default class App extends Vue {}

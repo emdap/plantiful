@@ -17,7 +17,9 @@ const messages = {
     nameError: "Widgets must have a name to be registered."
   },
   grow: {
-    missingGrowData: "Must supply component with prop growData! Cannot render."
+    missingGrowData: "Must supply component with prop growData! Cannot render.",
+    missingEntityData:
+      "Must supply component with prop entityData! Cannot render."
   }
 }
 

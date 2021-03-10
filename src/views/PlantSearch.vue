@@ -1,5 +1,5 @@
 <template>
-  <div id="plant-search" class="flex flex-row flex-grow h-screen">
+  <div id="plant-search" class="flex flex-row h-screen">
     <widget initHeight="full" initWidth="400" :initWidgetState="searchWidget">
       <search-bar />
       <loading
@@ -13,7 +13,8 @@
     </widget>
     <widget
       v-if="plantList.length || plantLoading"
-      initWidth="25%"
+      initWidth="20vw"
+      initHeight="50vh"
       :initLeft="400"
       :initWidgetState="activePlantWidget"
     >

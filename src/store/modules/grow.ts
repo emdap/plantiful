@@ -1,11 +1,4 @@
-import {
-  Module,
-  VuexModule,
-  getModule,
-  Action,
-  MutationAction,
-  Mutation
-} from "vuex-module-decorators"
+import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
 import store from "@/store"
 import { GrowEntity } from "@/store/interfaces"
 
@@ -15,29 +8,37 @@ import { GrowEntity } from "@/store/interfaces"
   name: "grow",
   store
 })
-class GrowModule extends VuexModule {
+export default class GrowModule extends VuexModule {
   entities: GrowEntity[] = []
-  activeEntityId: number | null = null
+  activeEntityId: string | null = null
   showControls = true
 
   private get entityIndex() {
-    return (entityId: number) => {
+    return (entityId: string) => {
       return this.entities.findIndex(entity => {
         return entity.id == entityId
       })
     }
   }
 
-  public get entity() {
-    return (entityId: number) => {
+  public get getEntity() {
+    return (entityId: string) => {
       return this.entities.find(entity => {
         return entity.id == entityId
       })
     }
   }
 
+  public get countPlantEntities() {
+    return (plantId: number): number => {
+      return this.entities.filter(entity => {
+        return entity.plantId == plantId
+      }).length
+    }
+  }
+
   @Action
-  setActiveEntity(entityId: number) {
+  setActiveEntity(entityId: string) {
     this.ACTIVE_ENTITY(entityId)
   }
 
@@ -52,7 +53,7 @@ class GrowModule extends VuexModule {
   }
 
   @Action
-  updateEntity(entityId: number, newEntity: GrowEntity) {
+  updateEntity(entityId: string, newEntity: GrowEntity) {
     const entityIndex = this.entityIndex(entityId)
     if (entityIndex > -1) {
       this.UPDATE_ENTITY(entityIndex, newEntity)
@@ -60,7 +61,7 @@ class GrowModule extends VuexModule {
   }
 
   @Action
-  removeEntity(entityId: number) {
+  removeEntity(entityId: string) {
     const entityIndex = this.entityIndex(entityId)
     if (entityIndex > -1) {
       this.REMOVE_ENTITY(entityIndex)
@@ -78,7 +79,7 @@ class GrowModule extends VuexModule {
   }
 
   @Mutation
-  ACTIVE_ENTITY(entityId: number | null) {
+  ACTIVE_ENTITY(entityId: string | null) {
     this.activeEntityId = entityId
   }
 
@@ -97,5 +98,3 @@ class GrowModule extends VuexModule {
     this.entities.splice(entityIndex, 1)
   }
 }
-
-export default getModule(GrowModule)

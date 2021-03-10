@@ -27,19 +27,31 @@ export interface ActivePlantInfo {
   value?: number | string | null
 }
 
-export interface GrowBasis {
-  position: GrowPosition
+export interface Basis {
   rotation?: GrowRotation
-  height: number | string
-  width: number | string
   transitionSpeed?: number
   zIndex?: number
   tabIndex?: number
 }
 
+// TODO: does it make sense to keep all of these optional?
+export interface GrowBasis extends Basis {
+  position?: GrowPosition
+  height?: number
+  width?: number
+}
+
+// TODO: rename interfaces that are used by widgets and grow
+export interface WidgetBasis extends Basis {
+  position: WidgetPosition
+  height: number | string | undefined
+  width: number | string | undefined
+}
+
 export interface GrowEntity extends GrowBasis {
   name: string
-  id: number
+  id: string // plant id - instance of plant id
+  plantId: number
   shapes: GrowShape[]
 }
 
@@ -50,9 +62,14 @@ export interface GrowShape extends GrowBasis {
 }
 
 export interface GrowPosition {
+  top?: number
+  right?: number
+  bottom?: number
+  left?: number
+}
+
+export interface WidgetPosition {
   top: number | string
-  right?: number | string
-  bottom?: number | string
   left: number | string
 }
 
@@ -67,15 +84,15 @@ export interface GrowRotation {
 }
 
 export interface GrowBorder {
-  top: BorderAttribute
-  right: BorderAttribute
-  bottom: BorderAttribute
-  left: BorderAttribute
+  top?: BorderAttribute
+  right?: BorderAttribute
+  bottom?: BorderAttribute
+  left?: BorderAttribute
 }
 
 export interface BorderAttribute {
   size: number
-  visibility: boolean
+  show: boolean
 }
 
 // for API response interfaces, only targetting fields that are used

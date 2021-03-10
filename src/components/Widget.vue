@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import {
-  GrowBasis,
+  WidgetBasis,
   WidgetState,
   Positions,
   Dimensions
@@ -44,6 +44,7 @@ import messages from "@/fixtures/Messages"
 @Component({})
 // TODO: add some info/instructions for all these props and their effects
 export default class Widget extends WindowMixin {
+  @Prop({ default: false }) flexGrow!: boolean
   @Prop({ default: 0 }) initTop!: number | string
   @Prop({ default: 0 }) initLeft!: number | string
   @Prop() initHeight!: number | "full" | "screen"
@@ -61,9 +62,9 @@ export default class Widget extends WindowMixin {
   // TODO: align this with state
   public inFocus = false
 
-  public styleAttributes: GrowBasis = this.initalizeStyle()
+  public styleAttributes: WidgetBasis = this.initalizeStyle()
 
-  public initalizeStyle(): GrowBasis {
+  public initalizeStyle(): WidgetBasis {
     return {
       position: {
         top: this.convertSize(this.initTop),
@@ -204,6 +205,7 @@ export default class Widget extends WindowMixin {
 
   public get classObj(): Record<string, boolean> {
     return {
+      "flex-grow": this.flexGrow && this.widgetState.docked,
       "shadow-md": !this.widgetState.docked,
       "shadow-sm": this.widgetState.docked,
       "bg-opacity-95": !this.widgetState.docked,
@@ -228,7 +230,9 @@ export default class Widget extends WindowMixin {
     window.toggleDocked(this.widgetState)
   }
 
-  public convertSize(convertValue: string | number): string | number {
+  public convertSize(
+    convertValue: string | number | undefined
+  ): string | number {
     switch (typeof convertValue) {
       case "string":
         if (convertValue == "full") {
@@ -237,7 +241,8 @@ export default class Widget extends WindowMixin {
           return "100vh"
         }
         return convertValue as string
-
+      case "undefined":
+        return ""
       default:
         return `${convertValue}px`
     }
