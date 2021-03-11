@@ -184,7 +184,7 @@ export interface WindowState {
 export interface WidgetState {
   name: string
   icon?: string
-  order: number
+  order?: number
   open: boolean
   docked: boolean
   inMenu: boolean
@@ -192,17 +192,34 @@ export interface WidgetState {
 
 export const WidgetStateOptionals = ["open", "docked", "inMenu"] as const
 
-export interface WidgetStateProp {
-  name: string
-  icon?: string
-  order?: number
-  open?: boolean
-  docked?: boolean
-  inMenu?: boolean
+export interface WidgetInit {
+  state: WidgetState
+  display: WidgetInitDisplay
 }
 
+// TODO: too dynamic? basically want to have some properties optional so that they can be set to defaults -- but this is
+// making it confusing/adding extra code, for something that is not even happening (leaving off certain properties)
+// export interface WidgetInitState {
+//   name: string
+//   icon?: string
+//   order?: number
+//   open?: boolean
+//   docked?: boolean
+//   inMenu?: boolean
+// }
+
 export const DefaultWidget = {
-  open: true,
-  docked: true,
-  inMenu: true
+  open: false,
+  docked: false,
+  inMenu: false
+}
+
+export interface WidgetInitDisplay {
+  flexGrow?: boolean
+  top?: number | string
+  left?: number | string
+  height?: number | string
+  width?: number | string
+  minHeight?: number
+  minWidth?: number
 }

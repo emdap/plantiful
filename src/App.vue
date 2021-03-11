@@ -1,8 +1,12 @@
 <template>
-  <div id="app" class="flex flex-row">
-    <side-menu />
-    <plant-search />
-    <grow />
+  <div id="app">
+    <div id="menu">
+      <side-menu />
+    </div>
+    <div id="desktop" class="flex flex-row">
+      <plant-search />
+      <grow />
+    </div>
   </div>
 </template>
 
@@ -30,18 +34,17 @@ export default class App extends Vue {}
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  display: grid;
+  grid-template-areas: "menu desktop";
+  grid-template-columns: 3rem 1fr;
 }
 
-#nav {
-  padding: 30px;
+#menu {
+  grid-area: menu;
+  @apply w-11;
+}
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+#desktop {
+  grid-area: desktop;
 }
 </style>

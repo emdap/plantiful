@@ -3,7 +3,6 @@ import {
   WindowState,
   WidgetState,
   DefaultWidget,
-  WidgetStateProp,
   WidgetStateOptionals
 } from "@/store/interfaces"
 import messages from "@/fixtures/Messages"
@@ -20,13 +19,13 @@ export default class WindowModule extends VuexModule implements WindowState {
   activeWidget: WidgetState | null = null
 
   @Action
-  public registerWidget(widget: WidgetStateProp) {
+  public registerWidget(widget: WidgetState) {
     if (!widget.name) {
       throw console.error(messages.widget.registerError)
     }
     if (!this.getWidget(widget.name)) {
       this.REGISTER_WIDGET(widget)
-      this.SORT_WIDGETS()
+      // this.SORT_WIDGETS()
     }
   }
 
@@ -39,10 +38,9 @@ export default class WindowModule extends VuexModule implements WindowState {
 
   @Action
   public toggleWidget(widget: WidgetState) {
-    // const widget = this.getWidget(name)
     if (widget) {
       this.TOGGLE_WIDGET(widget)
-      this.SORT_WIDGETS()
+      // this.SORT_WIDGETS()
     }
     console.log("toggle widget", widget.name, widget.open)
   }
@@ -65,13 +63,14 @@ export default class WindowModule extends VuexModule implements WindowState {
   }
 
   @Mutation
-  public REGISTER_WIDGET(widget: WidgetStateProp) {
+  public REGISTER_WIDGET(widget: WidgetState) {
     // assign defaults to empty properties
-    for (const key of WidgetStateOptionals) {
-      if (widget[key] == undefined) {
-        widget[key] = DefaultWidget[key]
-      }
-    }
+    // move this to a function, or just do it from the components themselves
+    // for (const key of WidgetStateOptionals) {
+    //   if (widget[key] == undefined) {
+    //     widget[key] = DefaultWidget[key]
+    //   }
+    // }
     this.widgets.push(widget as WidgetState)
   }
 
@@ -86,22 +85,23 @@ export default class WindowModule extends VuexModule implements WindowState {
   }
 
   // TODO: modify widget positioning based on order, draggable to change order
-  @Mutation
-  public INC_ORDER(widget: WidgetState) {
-    widget.order++
-  }
+  // not using currently - future enhancement
+  // @Mutation
+  // public INC_ORDER(widget: WidgetState) {
+  //   widget.order++
+  // }
 
-  @Mutation
-  public DEC_ORDER(widget: WidgetState) {
-    widget.order--
-  }
+  // @Mutation
+  // public DEC_ORDER(widget: WidgetState) {
+  //   widget.order--
+  // }
 
-  @Mutation
-  public SORT_WIDGETS() {
-    this.widgets.sort((a: WidgetState, b: WidgetState) => {
-      return a.order - b.order
-    })
-  }
+  // @Mutation
+  // public SORT_WIDGETS() {
+  //   this.widgets.sort((a: WidgetState, b: WidgetState) => {
+  //     return a.order - b.order
+  //   })
+  // }
 
   public get getWidget() {
     return (name: string): WidgetState | undefined => {

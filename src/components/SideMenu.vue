@@ -1,7 +1,7 @@
 <template>
   <div
     id="menu"
-    class="h-screen py-4 px-4 border-gray-200 border-solid border-r-2 font-bold text-2xl"
+    class="h-screen py-4 px-2 border-gray-200 border-solid border-r-2 font-bold text-2xl"
   >
     <div
       v-for="(widget, index) in menuWidgets"
@@ -23,11 +23,7 @@ import { WidgetState } from "@/store/interfaces"
 @Component({})
 export default class Menu extends WindowMixin {
   public clickWidget(widget: WidgetState) {
-    if (widget.open) {
-      window.toggleFocus(widget)
-    } else {
-      window.toggleWidget(widget)
-    }
+    window.toggleWidget(widget)
   }
 }
 </script>

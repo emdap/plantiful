@@ -1,6 +1,7 @@
 <template>
   <div
-    class="widget flex p-2 bg-white transition duration-250 ease-in-out outline-green"
+    :id="`${widgetState.name}-widget`"
+    class="widget flex p-2 bg-white duration-250 ease-in-out outline-green"
     :style="styleObj"
     :class="classObj"
     tabindex="1"
@@ -34,7 +35,9 @@ import {
   WidgetBasis,
   WidgetState,
   Positions,
-  Dimensions
+  Dimensions,
+  WidgetInitDisplay,
+  DefaultWidget
 } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 import WindowMixin, { window } from "@/mixins/WindowMixin.vue"
@@ -44,14 +47,17 @@ import messages from "@/fixtures/Messages"
 @Component({})
 // TODO: add some info/instructions for all these props and their effects
 export default class Widget extends WindowMixin {
-  @Prop({ default: false }) flexGrow!: boolean
-  @Prop({ default: 0 }) initTop!: number | string
-  @Prop({ default: 0 }) initLeft!: number | string
-  @Prop() initHeight!: number | "full" | "screen"
-  @Prop() initWidth!: number | string
-  @Prop({ default: 250 }) minHeight!: number
-  @Prop({ default: 250 }) minWidth!: number
+  @Prop() initWidgetState!: WidgetState // required
+  @Prop({
+    default() {
+      return {} as WidgetInitDisplay
+    }
+  })
+  initDisplay!: WidgetInitDisplay
 
+  public minHeight = 0
+  public minWidth = 0
+  public flexGrow = false
   public trackPosition = false
   public trackSize = false
   public sizeStartY: null | number = null
@@ -59,45 +65,24 @@ export default class Widget extends WindowMixin {
   public posStartY: null | number = null
   public posStartX: null | number = null
   public initDocked: null | boolean = null
+  public error = false
   // TODO: align this with state
   public inFocus = false
 
-  public styleAttributes: WidgetBasis = this.initalizeStyle()
-
-  public initalizeStyle(): WidgetBasis {
-    return {
-      position: {
-        top: this.convertSize(this.initTop),
-        left: this.convertSize(this.initLeft)
-      },
-      height: this.convertSize(this.initHeight),
-      width: this.convertSize(this.initWidth)
-    }
-  }
-
-  @Prop() initWidgetState!: WidgetState
-
-  // TODO: add to interfaces & combine with defaultWidget
-  // initialize to empty WidgetState so that properties are reactive
-  public widgetState: WidgetState = {
-    name: "",
-    order: -1,
-    docked: false,
-    open: false,
-    inMenu: false
-  }
-  public error = false
+  // initialize so that user-modifiable properties are reactive
+  public styleAttributes: WidgetBasis = this.initStyle
+  public widgetState: WidgetState = this.initState
 
   public mounted() {
-    this.addMouseUpListeners()
     this.initializeWidget()
+    this.initMouseUpListeners()
   }
 
+  // Initializers
   public initializeWidget() {
-    // parent component can register widget first if it needs to track it
+    // register if not already
     if (!this.getWidget(this.initWidgetState?.name)) {
       if (this.initWidgetState) {
-        // otherwise, widget can register itself
         window.registerWidget(this.initWidgetState)
       } else {
         this.error = true
@@ -108,12 +93,40 @@ export default class Widget extends WindowMixin {
     // update widgetState to be what's in the window store
     this.widgetState = this.getWidget(this.initWidgetState.name) as WidgetState
 
+    // assign default values where needed from initDisplay/state props
+    if (this.initDisplay.minHeight) {
+      this.minHeight = this.initDisplay.minHeight
+    }
+    if (this.initDisplay.minWidth) {
+      this.minWidth = this.initDisplay.minWidth
+    }
+    if (this.initDisplay.flexGrow) {
+      this.flexGrow = this.initDisplay.flexGrow
+    }
+
     // track if it should launch docked, for when user closes/opens
     this.initDocked = this.widgetState.docked
-    console.log(this.widgetState.name)
   }
 
-  public addMouseUpListeners() {
+  public get initStyle(): WidgetBasis {
+    return {
+      position: {
+        top: this.convertSize(this.initDisplay.top),
+        left: this.convertSize(this.initDisplay.left)
+      },
+      height: this.convertSize(this.initDisplay.height, "height"),
+      width: this.convertSize(this.initDisplay.width, "width")
+    }
+  }
+
+  public get initState(): WidgetState {
+    return {
+      name: "",
+      ...DefaultWidget
+    }
+  }
+
+  public initMouseUpListeners() {
     // stop tracking position/size when mouse is up
     document.addEventListener("mouseup", (e: MouseEvent) => {
       if (this.trackPosition) {
@@ -127,27 +140,40 @@ export default class Widget extends WindowMixin {
     })
   }
 
-  @Watch("widgetState.docked")
-  dockChanged(docked: boolean) {
-    if (!docked) {
-      // update position so that won't snap when undocking
-      this.setToCurrent("position")
+  // Utilities
+  public convertSize(
+    convertValue: string | number | undefined,
+    dimension: Dimensions | undefined = undefined
+  ): string | number {
+    switch (typeof convertValue) {
+      case "string":
+        if (convertValue == "full") {
+          return "100%"
+        } else if (convertValue == "screen") {
+          return dimension == "width" ? "100vw" : "100vh"
+        }
+        return convertValue as string
+      case "undefined":
+        return ""
+      default:
+        return `${convertValue}px`
     }
   }
 
   public setToCurrent(which: "size" | "position") {
+    // set properties to the current actual values of the element in the DOM
     if (which == "size") {
-      this.styleAttributes.width = this.$el.getBoundingClientRect().width
-      this.styleAttributes.height = this.$el.getBoundingClientRect().height
+      this.styleAttributes.width = this.getCurrent("width")
+      this.styleAttributes.height = this.getCurrent("height")
     }
-
     if (which == "position") {
-      this.styleAttributes.position.top = this.$el.getBoundingClientRect().top
-      this.styleAttributes.position.left = this.$el.getBoundingClientRect().left
+      this.styleAttributes.position.top = this.getCurrent("top")
+      this.styleAttributes.position.left = this.getCurrent("left")
     }
   }
 
   public getCurrent(which: Positions | Dimensions): number {
+    // helper to return current positions/dimensions in DOM
     let current!: number
 
     if (which == "width") {
@@ -165,6 +191,15 @@ export default class Widget extends WindowMixin {
     }
 
     return current
+  }
+
+  // Watchers
+  @Watch("widgetState.docked")
+  dockChanged(docked: boolean) {
+    if (!docked) {
+      // update position so that won't snap when undocking
+      this.setToCurrent("position")
+    }
   }
 
   @Watch("trackSize")
@@ -190,6 +225,7 @@ export default class Widget extends WindowMixin {
     }
   }
 
+  // Styling getters
   public get styleObj(): Record<string, string | number> {
     return {
       top: this.widgetState.docked
@@ -198,14 +234,13 @@ export default class Widget extends WindowMixin {
       left: this.widgetState.docked
         ? 0
         : this.convertSize(this.styleAttributes.position.left),
-      height: this.convertSize(this.styleAttributes.height),
-      width: this.convertSize(this.styleAttributes.width),
+      height: this.convertSize(this.styleAttributes.height, "height"),
+      width: this.convertSize(this.styleAttributes.width, "width"),
       position: this.widgetState.docked ? "relative" : "absolute"
     }
   }
 
   public get classObj(): Record<string, boolean> {
-    console.log(this.widgetState.name, this.widgetState.open)
     return {
       "flex-grow": this.flexGrow && this.widgetState.docked,
       "shadow-md": !this.widgetState.docked,
@@ -217,10 +252,11 @@ export default class Widget extends WindowMixin {
     }
   }
 
+  // Toggles
   public closeWidget() {
     if (this.widgetState.open) {
       // reset to defaults for when it's next open
-      this.styleAttributes = this.initalizeStyle()
+      this.styleAttributes = this.initStyle
       if (this.initDocked != this.widgetState.docked) {
         window.toggleDocked(this.widgetState)
       }
@@ -232,25 +268,7 @@ export default class Widget extends WindowMixin {
     window.toggleDocked(this.widgetState)
   }
 
-  public convertSize(
-    convertValue: string | number | undefined
-  ): string | number {
-    switch (typeof convertValue) {
-      case "string":
-        if (convertValue == "full") {
-          return "100%"
-        } else if (convertValue == "screen") {
-          return "100vh"
-        }
-        return convertValue as string
-      case "undefined":
-        return ""
-      default:
-        return `${convertValue}px`
-    }
-  }
-
-  // TODO: possibly combine below 2 functions? some code duplication
+  // Functions to modify display
   public updateSize(e: MouseEvent) {
     e.preventDefault()
     let startingWidth!: number, startingHeight!: number

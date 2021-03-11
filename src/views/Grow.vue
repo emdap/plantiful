@@ -1,6 +1,6 @@
 <template>
   <div id="grow-window" class="flex flex-grow h-screen">
-    <widget :initWidgetState="growWidget" :flexGrow="true">
+    <widget :initWidgetState="growWidgetState" :flexGrow="true">
       <!-- <div id="entity-wrapper" class="flex-row"> -->
       <entity
         v-for="entity in entities"
@@ -26,10 +26,9 @@ import { WidgetState } from "@/store/interfaces"
   }
 })
 export default class Grow extends GrowMixin {
-  public growWidget: WidgetState = {
+  public growWidgetState: WidgetState = {
     name: "grow",
     icon: "G",
-    order: 1,
     open: false,
     docked: true,
     inMenu: true
