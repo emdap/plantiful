@@ -1,7 +1,7 @@
 <template>
   <div
-    id="menu"
-    class="h-screen py-4 px-2 border-gray-200 border-solid border-r-2 font-bold text-2xl"
+    id="side-menu"
+    class="h-screen py-4 px-2 border-gray-200 border-solid border-r-2 font-bold text-2xl w-full"
   >
     <div
       v-for="(widget, index) in menuWidgets"

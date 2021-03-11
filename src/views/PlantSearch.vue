@@ -27,7 +27,7 @@
         v-if="plantLoading"
         :loadingText="messages.activePlant.loading"
       />
-      <active-plant v-else />
+      <active-plant v-else @grow-plant="dockAndGrow()" />
     </widget>
   </div>
 </template>
@@ -41,10 +41,10 @@ import PlantList from "@/components/PlantList.vue"
 import PageNav from "@/components/PageNav.vue"
 import ActivePlant from "@/components/ActivePlant.vue"
 import messages from "@/fixtures/Messages"
-import GardenMixin from "@/mixins/GardenMixin.vue"
+import GardenMixin, { garden } from "@/mixins/GardenMixin.vue"
 import WindowMixin, { window } from "@/mixins/WindowMixin.vue"
+import GrowMixin from "@/mixins/GrowMixin.vue"
 import { WidgetInit, WidgetState } from "@/store/interfaces"
-import { Watch } from "vue-property-decorator"
 
 @Component({
   components: {
@@ -56,7 +56,11 @@ import { Watch } from "vue-property-decorator"
     ActivePlant
   }
 })
-export default class PlantSearch extends mixins(GardenMixin, WindowMixin) {
+export default class PlantSearch extends mixins(
+  GardenMixin,
+  WindowMixin,
+  GrowMixin
+) {
   public searchWidget: WidgetInit = {
     state: {
       name: "search",
@@ -126,6 +130,14 @@ export default class PlantSearch extends mixins(GardenMixin, WindowMixin) {
   public showActivePlant() {
     if (!this.activePlantWidget.state.open) {
       window.toggleWidget(this.activePlantWidget.state as WidgetState)
+    }
+  }
+
+  public dockAndGrow() {
+    if (this.activePlant) {
+      if (!this.activePlantWidget.state.docked)
+        window.toggleDocked(this.activePlantWidget.state)
+      this.growPlant(this.activePlant)
     }
   }
 }

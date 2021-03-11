@@ -1,6 +1,9 @@
 <template>
   <div id="grow-window" class="flex flex-grow h-screen">
-    <widget :initWidgetState="growWidgetState" :flexGrow="true">
+    <widget
+      :initWidgetState="growWidget.state"
+      :initDisplay="growWidget.display"
+    >
       <!-- <div id="entity-wrapper" class="flex-row"> -->
       <entity
         v-for="entity in entities"
@@ -17,7 +20,7 @@ import Component from "vue-class-component"
 import GrowMixin from "@/mixins/GrowMixin.vue"
 import Entity from "@/components/Grow/Entity.vue"
 import Widget from "@/components/Widget.vue"
-import { WidgetState } from "@/store/interfaces"
+import { WidgetInit, WidgetState } from "@/store/interfaces"
 
 @Component({
   components: {
@@ -26,12 +29,17 @@ import { WidgetState } from "@/store/interfaces"
   }
 })
 export default class Grow extends GrowMixin {
-  public growWidgetState: WidgetState = {
-    name: "grow",
-    icon: "G",
-    open: false,
-    docked: true,
-    inMenu: true
+  public growWidget: WidgetInit = {
+    state: {
+      name: "grow",
+      icon: "G",
+      open: false,
+      docked: true,
+      inMenu: true
+    },
+    display: {
+      flexGrow: true
+    }
   }
 }
 </script>

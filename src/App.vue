@@ -41,7 +41,6 @@ export default class App extends Vue {}
 
 #menu {
   grid-area: menu;
-  @apply w-11;
 }
 
 #desktop {
