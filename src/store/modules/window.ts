@@ -44,6 +44,7 @@ export default class WindowModule extends VuexModule implements WindowState {
       this.TOGGLE_WIDGET(widget)
       this.SORT_WIDGETS()
     }
+    console.log("toggle widget", widget.name, widget.open)
   }
 
   @Action

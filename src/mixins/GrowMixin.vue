@@ -19,25 +19,30 @@ export const grow = getModule(GrowModule)
 export default class GrowMixin extends Vue {
   // confusing, this gets registered when Grow.vue creates the widget
   // TODO: make this less confusing
-  public growWidget: WidgetState = {
-    name: "grow",
-    icon: "G",
-    order: 1,
-    open: false,
-    docked: true,
-    inMenu: true
-  }
+  // public growWidget: WidgetState = {
+  //   name: "grow",
+  //   icon: "G",
+  //   order: 1,
+  //   open: false,
+  //   docked: true,
+  //   inMenu: true
+  // }
 
   public get entities() {
     return grow.entities
   }
 
   public growPlant(basePlant: Plant, growBasis: GrowBasis = {}) {
-    console.log(this.growWidget.open)
-    if (!this.growWidget.open) {
-      window.toggleWidget(this.growWidget)
+    const growWidget = window.getWidget("grow")
+    if (!growWidget) {
+      // TODO
+      throw console.error("no widget??")
     }
-    console.log(this.growWidget.open)
+    console.log(growWidget.open)
+    if (!growWidget.open) {
+      window.toggleWidget(growWidget)
+    }
+    console.log(growWidget.open)
 
     // TODO: add fixture for leaf shapes depending on plant properties
     const colorList = basePlant.main_species.foliage.color

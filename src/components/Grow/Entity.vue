@@ -1,5 +1,5 @@
 <template>
-  <div :style="styleObj(entityData)">
+  <div :style="styleObj(entityData)" class="h-full relative">
     <shape
       v-for="(shape, index) in entityData.shapes"
       :key="`shape-${entityData.id}-${index}`"

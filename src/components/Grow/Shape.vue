@@ -1,5 +1,5 @@
 <template>
-  <div :style="styleObj(growData)"></div>
+  <div :style="styleObj(growData)" class="absolute"></div>
 </template>
 
 <script lang="ts">

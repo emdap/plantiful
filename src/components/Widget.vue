@@ -110,6 +110,7 @@ export default class Widget extends WindowMixin {
 
     // track if it should launch docked, for when user closes/opens
     this.initDocked = this.widgetState.docked
+    console.log(this.widgetState.name)
   }
 
   public addMouseUpListeners() {
@@ -204,6 +205,7 @@ export default class Widget extends WindowMixin {
   }
 
   public get classObj(): Record<string, boolean> {
+    console.log(this.widgetState.name, this.widgetState.open)
     return {
       "flex-grow": this.flexGrow && this.widgetState.docked,
       "shadow-md": !this.widgetState.docked,
