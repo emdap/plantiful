@@ -1,4 +1,4 @@
-import { GrowBasis, GrowBorder, GrowShape, Plant } from "@/store/interfaces"
+import { GrowBasis, GrowBorder, Plant } from "@/store/interfaces"
 
 // const defaultGrowBasis: GrowBasis = {
 // position: "relative",
@@ -32,6 +32,7 @@ export const triangleBasis: GrowBasis = {
   height: 0,
   width: 0
 }
+/* tslint:disable */
 
 export const testPlant: Plant = {
   id: 137442,
