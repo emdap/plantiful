@@ -8,23 +8,23 @@
     @focus="inFocus = true"
     @blur="inFocus = false"
   >
-    <div v-if="!error" class="flex flex-grow flex-col">
+    <div v-if="!error" class="flex flex-grow flex-col overflow-auto">
       <div class="move-widget flex flex-row mb-1">
-        <button :disabled="widgetState.docked" @click="dockWidget()">
-          D
-        </button>
-        <button @mousedown="trackPosition = true">
-          M
-        </button>
-        <button class="ml-auto" @click="closeWidget()">
-          X
-        </button>
+        <docked-icon
+          class="cursor-pointer"
+          v-if="widgetState.docked"
+          @click="dockWidget()"
+        />
+        <not-docked-icon class="cursor-pointer" v-else @click="dockWidget()" />
+        <move-icon class="cursor-pointer" @mousedown="trackPosition = true" />
+        <close-icon class="ml-auto cursor-pointer" @click="closeWidget()" />
       </div>
       <slot></slot>
       <div class="ml-auto mt-auto">
-        <button class="resize-widget mt-1" @mousedown="trackSize = true">
-          V
-        </button>
+        <resize-icon
+          class="resize-widget mt-1 cursor-pointer"
+          @mousedown="trackSize = true"
+        />
       </div>
     </div>
   </div>
@@ -43,8 +43,21 @@ import { Prop, Watch } from "vue-property-decorator"
 import WindowMixin, { window } from "@/mixins/WindowMixin.vue"
 import Component from "vue-class-component"
 import messages from "@/fixtures/Messages"
+import CloseIcon from "@/assets/icons/close.svg"
+import DockedIcon from "@/assets/icons/docked.svg"
+import NotDockedIcon from "@/assets/icons/not-docked.svg"
+import MoveIcon from "@/assets/icons/move.svg"
+import ResizeIcon from "@/assets/icons/resize.svg"
 
-@Component({})
+@Component({
+  components: {
+    CloseIcon,
+    DockedIcon,
+    NotDockedIcon,
+    MoveIcon,
+    ResizeIcon
+  }
+})
 // TODO: add some info/instructions for all these props and their effects
 export default class Widget extends WindowMixin {
   @Prop() initWidgetState!: WidgetState // required
@@ -197,8 +210,9 @@ export default class Widget extends WindowMixin {
   @Watch("widgetState.docked")
   dockChanged(docked: boolean) {
     if (!docked) {
-      // update position so that won't snap when undocking
+      // update size/position so that won't snap when undocking
       this.setToCurrent("position")
+      this.setToCurrent("size")
     }
   }
 
@@ -277,6 +291,7 @@ export default class Widget extends WindowMixin {
     if (this.sizeStartY == null || this.sizeStartX == null) {
       this.sizeStartY = e.pageY
       this.sizeStartX = e.pageX
+      return
     }
 
     if (
@@ -316,6 +331,7 @@ export default class Widget extends WindowMixin {
     if (this.posStartY == null || this.posStartX == null) {
       this.posStartY = e.pageY
       this.posStartX = e.pageX
+      return
     }
 
     if (
