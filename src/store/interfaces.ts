@@ -36,9 +36,10 @@ export interface Basis {
 
 // TODO: does it make sense to keep all of these optional?
 export interface GrowBasis extends Basis {
-  position?: GrowPosition
-  height?: number
-  width?: number
+  rotation: GrowRotation
+  position: GrowPosition
+  height: number
+  width: number
 }
 
 // TODO: rename interfaces that are used by widgets and grow

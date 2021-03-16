@@ -21,6 +21,8 @@ import GrowMixin from "@/mixins/GrowMixin.vue"
 import Entity from "@/components/Grow/Entity.vue"
 import Widget from "@/components/Widget.vue"
 import { WidgetInit, WidgetState } from "@/store/interfaces"
+// temp
+import { testPlant } from "@/fixtures/Grow/Defaults"
 
 @Component({
   components: {
@@ -40,6 +42,11 @@ export default class Grow extends GrowMixin {
     display: {
       flexGrow: true
     }
+  }
+
+  public mounted() {
+    // temp
+    this.growPlant(testPlant)
   }
 }
 </script>

@@ -12,27 +12,18 @@ import {
   Plant,
   WidgetState
 } from "@/store/interfaces"
+// temp
+import { triangleBorder, triangleBasis } from "@/fixtures/Grow/Defaults"
 
 export const grow = getModule(GrowModule)
 
 @Component({})
 export default class GrowMixin extends Vue {
-  // confusing, this gets registered when Grow.vue creates the widget
-  // TODO: make this less confusing
-  // public growWidget: WidgetState = {
-  //   name: "grow",
-  //   icon: "G",
-  //   order: 1,
-  //   open: false,
-  //   docked: true,
-  //   inMenu: true
-  // }
-
   public get entities() {
     return grow.entities
   }
 
-  public growPlant(basePlant: Plant, growBasis: GrowBasis = {}) {
+  public growPlant(basePlant: Plant, growBasis: GrowBasis = triangleBasis) {
     const growWidget = window.getWidget("grow")
     if (!growWidget) {
       // TODO
@@ -48,29 +39,11 @@ export default class GrowMixin extends Vue {
     const colorList = basePlant.main_species.foliage.color
     const color = colorList ? colorList[0] : "green"
     // TEMP to demo
-    const triangle: GrowBorder = {
-      top: {
-        size: 25,
-        show: false
-      },
-      right: {
-        size: 50,
-        show: true
-      },
-      bottom: {
-        size: 25,
-        show: false
-      }
-    }
     const shapes: GrowShape[] = [
       {
-        position: {
-          bottom: 0
-        },
-        height: 0,
-        width: 0,
-        border: triangle,
-        color
+        color,
+        border: triangleBorder,
+        ...growBasis
       }
     ]
     const plantEntityCount = grow.countPlantEntities(basePlant.id)
@@ -102,6 +75,7 @@ export default class GrowMixin extends Vue {
         }
       }
       return {
+        transform: `rotateX(${growData.rotation.x}deg) rotateY(${growData.rotation.y}deg) rotateZ(${growData.rotation.z}deg)`,
         top: growData.position?.top,
         right: growData.position?.right,
         bottom: growData.position?.bottom,
