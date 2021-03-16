@@ -45,6 +45,7 @@ import GardenMixin, { garden } from "@/mixins/GardenMixin.vue"
 import WindowMixin, { window } from "@/mixins/WindowMixin.vue"
 import GrowMixin from "@/mixins/GrowMixin.vue"
 import { WidgetInit, WidgetState } from "@/store/interfaces"
+import SearchIcon from "@/assets/icons/search.svg"
 
 @Component({
   components: {
@@ -64,7 +65,7 @@ export default class PlantSearch extends mixins(
   public searchWidget: WidgetInit = {
     state: {
       name: "search",
-      icon: "S",
+      icon: SearchIcon,
       open: true,
       docked: true,
       inMenu: true

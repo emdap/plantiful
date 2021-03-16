@@ -3,15 +3,14 @@
     id="side-menu"
     class="h-screen py-4 px-2 border-gray-200 border-solid border-r-2 font-bold text-2xl w-full"
   >
-    <div
+    <menu-icon
+      :is="widget.icon"
       v-for="(widget, index) in menuWidgets"
       :key="`widget-icon-${index}`"
-      class="mb-2 cursor-pointer"
-      :class="widget.open ? 'text-purple-600' : 'text-green-400'"
+      :style="{ fill: widget.open ? 'purple' : 'gray' }"
+      class="mb-4 cursor-pointer"
       @click="clickWidget(widget)"
-    >
-      {{ widget.icon }}
-    </div>
+    />
   </div>
 </template>
 

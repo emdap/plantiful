@@ -1,7 +1,7 @@
 <template>
   <div
     :id="`${widgetState.name}-widget`"
-    class="widget flex p-2 bg-white duration-250 ease-in-out outline-green"
+    class="widget flex p-2 bg-white outline-green"
     :style="styleObj"
     :class="classObj"
     tabindex="1"
@@ -9,20 +9,25 @@
     @blur="inFocus = false"
   >
     <div v-if="!error" class="flex flex-grow flex-col overflow-auto">
-      <div class="move-widget flex flex-row mb-1">
+      <div class="flex flex-row mb-1 sticky left-0">
         <docked-icon
           class="cursor-pointer"
           v-if="widgetState.docked"
           @click="dockWidget()"
         />
         <not-docked-icon class="cursor-pointer" v-else @click="dockWidget()" />
-        <move-icon class="cursor-pointer" @mousedown="trackPosition = true" />
+        <move-icon
+          class="cursor-pointer"
+          @mousedown="trackPosition = true"
+          :style="{ fill: trackPosition ? 'green' : 'gray' }"
+        />
         <close-icon class="ml-auto cursor-pointer" @click="closeWidget()" />
       </div>
       <slot></slot>
-      <div class="ml-auto mt-auto">
+      <div class="mt-auto sticky left-0">
         <resize-icon
-          class="resize-widget mt-1 cursor-pointer"
+          class="resize-widget mt-1 cursor-pointer ml-auto"
+          :style="{ fill: trackSize ? 'green' : 'gray' }"
           @mousedown="trackSize = true"
         />
       </div>
@@ -182,25 +187,27 @@ export default class Widget extends WindowMixin {
     if (which == "position") {
       this.styleAttributes.position.top = this.getCurrent("top")
       this.styleAttributes.position.left = this.getCurrent("left")
+      console.log(this.styleAttributes.position.left)
     }
   }
 
   public getCurrent(which: Positions | Dimensions): number {
     // helper to return current positions/dimensions in DOM
+    const el = this.$el as HTMLElement
     let current!: number
 
     if (which == "width") {
-      current = this.$el.getBoundingClientRect().width
+      current = el.getBoundingClientRect().width
     }
     if (which == "height") {
-      current = this.$el.getBoundingClientRect().height
+      current = el.getBoundingClientRect().height
     }
 
     if (which == "top") {
-      current = this.$el.getBoundingClientRect().top
+      current = el.offsetTop
     }
     if (which == "left") {
-      current = this.$el.getBoundingClientRect().left
+      current = el.offsetLeft
     }
 
     return current
@@ -291,7 +298,6 @@ export default class Widget extends WindowMixin {
     if (this.sizeStartY == null || this.sizeStartX == null) {
       this.sizeStartY = e.pageY
       this.sizeStartX = e.pageX
-      return
     }
 
     if (
@@ -331,7 +337,6 @@ export default class Widget extends WindowMixin {
     if (this.posStartY == null || this.posStartX == null) {
       this.posStartY = e.pageY
       this.posStartX = e.pageX
-      return
     }
 
     if (

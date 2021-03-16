@@ -20,7 +20,8 @@ import Component from "vue-class-component"
 import GrowMixin from "@/mixins/GrowMixin.vue"
 import Entity from "@/components/Grow/Entity.vue"
 import Widget from "@/components/Widget.vue"
-import { WidgetInit, WidgetState } from "@/store/interfaces"
+import { WidgetInit } from "@/store/interfaces"
+import PlantIcon from "@/assets/icons/plant.svg"
 // temp
 import { testPlant } from "@/fixtures/Grow/Defaults"
 
@@ -34,7 +35,7 @@ export default class Grow extends GrowMixin {
   public growWidget: WidgetInit = {
     state: {
       name: "grow",
-      icon: "G",
+      icon: PlantIcon,
       open: false,
       docked: true,
       inMenu: true
