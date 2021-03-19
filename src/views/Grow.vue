@@ -1,16 +1,14 @@
 <template>
-  <div id="grow-window" class="flex flex-grow h-screen">
+  <div id="grow-container" class="flex flex-grow h-full overflow-hidden">
     <widget
-      :initWidgetState="growWidget.state"
+      :initWidgetState="growWidget.entity"
       :initDisplay="growWidget.display"
     >
-      <!-- <div id="entity-wrapper" class="flex-row"> -->
       <entity
         v-for="entity in entities"
         :key="`entity-${entity.id}`"
         :entityData="entity"
       />
-      <!-- </div> -->
     </widget>
   </div>
 </template>
@@ -33,7 +31,7 @@ import { testPlant } from "@/fixtures/Grow/Defaults"
 })
 export default class Grow extends GrowMixin {
   public growWidget: WidgetInit = {
-    state: {
+    entity: {
       name: "grow",
       icon: PlantIcon,
       open: false,

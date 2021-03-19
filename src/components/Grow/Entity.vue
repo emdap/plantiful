@@ -1,8 +1,10 @@
 <template>
   <div
+    :id="entityData.id"
     :style="styleObj(entityData)"
     class="absolute"
-    @mousedown="trackRotation = true"
+    :class="{ 'outline-black': isActive }"
+    @dblclick="setActive()"
   >
     <shape
       v-for="(shape, index) in entityData.shapes"
@@ -28,75 +30,22 @@ import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 export default class Entity extends GrowMixin {
   @Prop() entityData!: GrowEntity
 
-  public startX: number | null = null
-  public startY: number | null = null
-  public trackRotation = false
-  public ctrlDown = false
-
   public mounted() {
     if (!this.entityData) {
-      throw console.error(messages.grow.missingEntityData)
+      throw console.error("no entity provided!")
     }
-    this.initListeners()
   }
 
-  public initListeners() {
-    window.addEventListener("keydown", this.keyDown)
-    window.addEventListener("keyup", this.keyUp)
-    document.addEventListener("mouseup", (e: MouseEvent) => {
-      console.log("trackRotation mouseup", this.trackRotation)
-      if (this.trackRotation) {
-        e.preventDefault()
-        this.trackRotation = false
-      }
-    })
+  public get isActive(): boolean {
+    return grow.activeEntity?.id == this.entityData.id
   }
 
-  @Watch("trackRotation")
-  public mouseUpdatesRotation(track: boolean) {
-    console.log(track)
-    if (track) {
-      document.addEventListener("mousemove", this.updateRotation)
+  public setActive() {
+    console.log("entity active")
+    if (this.isActive) {
+      grow.removeActiveEntity()
     } else {
-      this.startX = this.startY = null
-      document.removeEventListener("mousemove", this.updateRotation)
-    }
-  }
-
-  public updateRotation(e: MouseEvent) {
-    e.preventDefault()
-    console.log("update rotation")
-    if (this.startX == null || this.startY == null) {
-      this.startX = e.pageX
-      this.startY = e.pageY
-      return
-    }
-
-    if (this.ctrlDown) {
-      this.entityData.rotation.z =
-        this.entityData.rotation.z + e.pageX - this.startX
-    } else {
-      // rotating along x/y axis more intuitively tracks the movement of the cursor along opposite axis
-      this.entityData.rotation.x =
-        this.entityData.rotation.x + e.pageY - this.startY
-      this.entityData.rotation.y =
-        this.entityData.rotation.y + e.pageX - this.startX
-    }
-    this.startX = e.pageX
-    this.startY = e.pageY
-  }
-
-  public keyDown(e: KeyboardEvent) {
-    console.log("ctrl", e.ctrlKey)
-    if (e.ctrlKey) {
-      this.ctrlDown = true
-    }
-  }
-
-  public keyUp(e: KeyboardEvent) {
-    console.log("ctrl", e.ctrlKey)
-    if (e.ctrlKey) {
-      this.ctrlDown = false
+      grow.setActiveEntity(this.entityData)
     }
   }
 }

@@ -11,11 +11,17 @@
     <div v-if="!error" class="flex flex-grow flex-col overflow-auto">
       <div class="flex flex-row mb-1 sticky left-0">
         <docked-icon
-          class="cursor-pointer"
+          class="cursor-pointer mr-3"
           v-if="widgetState.docked"
           @click="dockWidget()"
+          style="fill: purple"
         />
-        <not-docked-icon class="cursor-pointer" v-else @click="dockWidget()" />
+        <not-docked-icon
+          class="cursor-pointer mr-3"
+          v-else
+          @click="dockWidget()"
+          style="fill: gray"
+        />
         <move-icon
           class="cursor-pointer"
           @mousedown="trackPosition = true"
@@ -38,14 +44,14 @@
 <script lang="ts">
 import {
   WidgetBasis,
-  WidgetState,
+  WidgetEntity,
   Positions,
   Dimensions,
-  WidgetInitDisplay,
+  WidgetDisplay,
   DefaultWidget
 } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
-import WindowMixin, { window } from "@/mixins/WindowMixin.vue"
+import ContainerMixin, { container } from "@/mixins/ContainerMixin.vue"
 import Component from "vue-class-component"
 import messages from "@/fixtures/Messages"
 import CloseIcon from "@/assets/icons/close.svg"
@@ -53,6 +59,7 @@ import DockedIcon from "@/assets/icons/docked.svg"
 import NotDockedIcon from "@/assets/icons/not-docked.svg"
 import MoveIcon from "@/assets/icons/move.svg"
 import ResizeIcon from "@/assets/icons/resize.svg"
+import { grow } from "@/mixins/GrowMixin.vue"
 
 @Component({
   components: {
@@ -64,18 +71,19 @@ import ResizeIcon from "@/assets/icons/resize.svg"
   }
 })
 // TODO: add some info/instructions for all these props and their effects
-export default class Widget extends WindowMixin {
-  @Prop() initWidgetState!: WidgetState // required
+export default class Widget extends ContainerMixin {
+  @Prop() initWidgetState!: WidgetEntity // required
   @Prop({
     default() {
-      return {} as WidgetInitDisplay
+      return {} as WidgetDisplay
     }
   })
-  initDisplay!: WidgetInitDisplay
+  initDisplay!: WidgetDisplay
 
   public minHeight = 0
   public minWidth = 0
   public flexGrow = false
+  public showOverflow = false
   public trackPosition = false
   public trackSize = false
   public sizeStartY: null | number = null
@@ -84,12 +92,12 @@ export default class Widget extends WindowMixin {
   public posStartX: null | number = null
   public initDocked: null | boolean = null
   public error = false
-  // TODO: align this with state
+  // TODO: align this with entity
   public inFocus = false
 
   // initialize so that user-modifiable properties are reactive
   public styleAttributes: WidgetBasis = this.initStyle
-  public widgetState: WidgetState = this.initState
+  public widgetState: WidgetEntity = this.initState
 
   public mounted() {
     this.initializeWidget()
@@ -101,17 +109,17 @@ export default class Widget extends WindowMixin {
     // register if not already
     if (!this.getWidget(this.initWidgetState?.name)) {
       if (this.initWidgetState) {
-        window.registerWidget(this.initWidgetState)
+        container.registerWidget(this.initWidgetState)
       } else {
         this.error = true
         throw console.error(messages.widget.registerError)
       }
     }
 
-    // update widgetState to be what's in the window store
-    this.widgetState = this.getWidget(this.initWidgetState.name) as WidgetState
+    // update widgetState to be what's in the container store
+    this.widgetState = this.getWidget(this.initWidgetState.name) as WidgetEntity
 
-    // assign default values where needed from initDisplay/state props
+    // assign default values where needed from initDisplay/entity props
     if (this.initDisplay.minHeight) {
       this.minHeight = this.initDisplay.minHeight
     }
@@ -120,6 +128,9 @@ export default class Widget extends WindowMixin {
     }
     if (this.initDisplay.flexGrow) {
       this.flexGrow = this.initDisplay.flexGrow
+    }
+    if (this.initDisplay.showOverflow) {
+      this.showOverflow = this.initDisplay.showOverflow
     }
 
     // track if it should launch docked, for when user closes/opens
@@ -137,7 +148,7 @@ export default class Widget extends WindowMixin {
     }
   }
 
-  public get initState(): WidgetState {
+  public get initState(): WidgetEntity {
     return {
       name: "",
       ...DefaultWidget
@@ -226,6 +237,8 @@ export default class Widget extends WindowMixin {
   @Watch("trackSize")
   mouseUpdatesSize(track: boolean) {
     if (track) {
+      // don't want active grow window to move with any widgets
+      grow.removeActiveEntity()
       document.addEventListener("mousemove", this.updateSize)
     } else {
       this.sizeStartY = this.sizeStartX = null
@@ -237,8 +250,10 @@ export default class Widget extends WindowMixin {
   mouseUpdatesPosition(track: boolean) {
     if (track) {
       if (this.widgetState.docked) {
-        window.toggleDocked(this.widgetState)
+        container.toggleDocked(this.widgetState)
       }
+      // don't want active grow window to move with any widgets
+      grow.removeActiveEntity()
       document.addEventListener("mousemove", this.updatePosition)
     } else {
       this.posStartY = this.posStartX = null
@@ -264,6 +279,8 @@ export default class Widget extends WindowMixin {
   public get classObj(): Record<string, boolean> {
     return {
       "flex-grow": this.flexGrow && this.widgetState.docked,
+      "overflow-hidden": !this.showOverflow,
+      "overflow-auto": this.showOverflow,
       "shadow-md": !this.widgetState.docked,
       "shadow-sm": this.widgetState.docked,
       "bg-opacity-95": !this.widgetState.docked,
@@ -279,14 +296,14 @@ export default class Widget extends WindowMixin {
       // reset to defaults for when it's next open
       this.styleAttributes = this.initStyle
       if (this.initDocked != this.widgetState.docked) {
-        window.toggleDocked(this.widgetState)
+        container.toggleDocked(this.widgetState)
       }
     }
-    window.toggleWidget(this.widgetState)
+    container.toggleWidget(this.widgetState)
   }
 
   public dockWidget() {
-    window.toggleDocked(this.widgetState)
+    container.toggleDocked(this.widgetState)
   }
 
   // Functions to modify display

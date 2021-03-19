@@ -16,13 +16,13 @@
 
 <script lang="ts">
 import Component from "vue-class-component"
-import WindowMixin, { window } from "@/mixins/WindowMixin.vue"
-import { WidgetState } from "@/store/interfaces"
+import ContainerMixin, { container } from "@/mixins/ContainerMixin.vue"
+import { WidgetEntity } from "@/store/interfaces"
 
 @Component({})
-export default class Menu extends WindowMixin {
-  public clickWidget(widget: WidgetState) {
-    window.toggleWidget(widget)
+export default class Menu extends ContainerMixin {
+  public clickWidget(widget: WidgetEntity) {
+    container.toggleWidget(widget)
   }
 }
 </script>

@@ -20,6 +20,20 @@ export const triangleBorder: GrowBorder = {
   }
 }
 
+export const entityInit: GrowBasis = {
+  position: {
+    bottom: 0
+  },
+  rotation: {
+    x: 0,
+    y: 0,
+    z: 0,
+    translate: 0,
+  },
+  height: 100,
+  width: 100
+}
+
 export const triangleBasis: GrowBasis = {
   position: {
     bottom: 0
@@ -27,12 +41,12 @@ export const triangleBasis: GrowBasis = {
   rotation: {
     x: 0,
     y: 0,
-    z: 0
+    z: 0,
+    translate: 0,
   },
   height: 0,
   width: 0
 }
-/* tslint:disable */
 
 export const testPlant: Plant = {
   id: 137442,

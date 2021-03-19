@@ -1,102 +1,38 @@
-// TODO: organize this file
+import Vue from "vue"
 
-export interface FilterParams {
-  filter?: Filter
-  filter_not?: Filter
+// States/stores
+export interface RootState {
+  garden: {}
+  grow: {}
+  container: {}
 }
 
-export interface Filter {
-  [key: string]: string[]
+export interface GardenState {
+  plantList: PlantSnippet[]
+  pageLinks: PageLinks
+  activePlant: Plant | null
+  currentPage: number
+  lastPage: number
+  pageCache: Record<number, PlantListResponse>
+  plantCache: Record<number, Plant>
+  loading: {
+    plantList: boolean
+    plant: boolean
+  }
 }
 
-export type FilterType = "filter" | "filter_not"
-
-export type PageLinkKey = "first" | "prev" | "next" | "last"
-
-export type PageLinks = {
-  [key in PageLinkKey]?: string
+export interface GrowState {
+  entities: GrowEntity[]
+  activeEntity: GrowEntity | null
+  showControls: boolean
+  hasKeyListeners: boolean
 }
 
-export interface PageButton {
-  text: string
-  nav: PageLinkKey
+export interface ContainerState {
+  widgets: WidgetEntity[]
 }
 
-export interface ActivePlantInfo {
-  text: string
-  value?: number | string | null
-}
-
-export interface Basis {
-  rotation?: GrowRotation
-  transitionSpeed?: number
-  zIndex?: number
-  tabIndex?: number
-}
-
-// TODO: does it make sense to keep all of these optional?
-export interface GrowBasis extends Basis {
-  rotation: GrowRotation
-  position: GrowPosition
-  height: number
-  width: number
-}
-
-// TODO: rename interfaces that are used by widgets and grow
-export interface WidgetBasis extends Basis {
-  position: WidgetPosition
-  height: number | string | undefined
-  width: number | string | undefined
-}
-
-export interface GrowEntity extends GrowBasis {
-  name: string
-  id: string // plant id - instance of plant id
-  plantId: number
-  shapes: GrowShape[]
-}
-
-export interface GrowShape extends GrowBasis {
-  border: GrowBorder
-  color: string
-  opacity?: number
-}
-
-export interface GrowPosition {
-  top?: number
-  right?: number
-  bottom?: number
-  left?: number
-}
-
-export interface WidgetPosition {
-  top: number | string
-  left: number | string
-}
-
-export type RequiredPositions = "top" | "left"
-export type Positions = RequiredPositions | "right" | "bottom"
-export type Dimensions = "height" | "width"
-
-export interface GrowRotation {
-  x: number
-  y: number
-  z: number
-}
-
-export interface GrowBorder {
-  top?: BorderAttribute
-  right?: BorderAttribute
-  bottom?: BorderAttribute
-  left?: BorderAttribute
-}
-
-export interface BorderAttribute {
-  size: number
-  show: boolean
-}
-
-// for API response interfaces, only targetting fields that are used
+// Plants
 export interface PlantSnippet {
   id: number
   common_name: string
@@ -106,7 +42,10 @@ export interface PlantSnippet {
   image_url: string
 }
 
-export type LeafTexture = "fine" | "medium" | "coarse"
+export interface Plant extends PlantSnippet {
+  main_species_id: number
+  main_species: MainSpecies
+}
 
 export interface MainSpecies extends PlantSnippet {
   flower: {
@@ -129,6 +68,15 @@ export interface MainSpecies extends PlantSnippet {
   }
 }
 
+export interface ActivePlantInfo {
+  text: string
+  value?: number | string | null
+}
+
+// Types
+export type LeafTexture = "fine" | "medium" | "coarse"
+
+// API responses
 export interface PlantListResponse {
   data: PlantSnippet[]
   links: PageLinks
@@ -137,15 +85,11 @@ export interface PlantListResponse {
   }
 }
 
-export interface Plant extends PlantSnippet {
-  main_species_id: number
-  main_species: MainSpecies
-}
-
 export interface PlantResponse {
   data: Plant
 }
 
+// Function payloads
 export interface PlantListPayload {
   page: number
   filter: string
@@ -158,31 +102,95 @@ export interface PageLinkPayload {
   apiLink: string
 }
 
-export interface RootState {
-  garden: {}
-  grow: {}
-  window: {}
+// General
+export interface Filter {
+  [key: string]: string[]
 }
 
-export interface GardenState {
-  plantList: PlantSnippet[]
-  pageLinks: PageLinks
-  activePlant: Plant | null
-  currentPage: number
-  lastPage: number
-  pageCache: Record<number, PlantListResponse>
-  plantCache: Record<number, Plant>
-  loading: {
-    plantList: boolean
-    plant: boolean
-  }
+export interface FilterParams {
+  filter?: Filter
+  filter_not?: Filter
 }
 
-export interface WindowState {
-  widgets: WidgetState[]
+export interface PageButton {
+  text: string
+  nav: PageLinkKey
 }
 
-export interface WidgetState {
+// Types
+export type FilterType = "filter" | "filter_not"
+
+export type PageLinkKey = "first" | "prev" | "next" | "last"
+
+export type PageLinks = {
+  [key in PageLinkKey]?: string
+}
+
+// Used for both widgets and grow
+export interface InteractableBasis {
+  rotation?: Rotation
+  transitionSpeed?: number
+  zIndex?: number
+  tabIndex?: number
+}
+
+export interface Rotation {
+  x: number
+  y: number
+  z: number
+  translate: number
+}
+
+export type RequiredPositions = "top" | "left"
+
+export type Positions = RequiredPositions | "right" | "bottom"
+
+// Widgets and grow have similar attributes
+// but are different in what is required
+// and how the user is allowed to change/move them
+
+// Grow
+export interface GrowBasis extends InteractableBasis {
+  rotation: Rotation
+  position: GrowPosition
+  height: number
+  width: number
+}
+
+export interface GrowEntity extends GrowBasis {
+  name: string
+  id: string // plant id - instance of plant id
+  plantId: number
+  shapes: GrowShape[]
+  // startX: number | null
+  // startY: number | null
+  // trackRotation: boolean
+}
+
+export interface GrowShape extends GrowBasis {
+  border: GrowBorder
+  color: string
+  opacity?: number
+}
+
+export type GrowPosition = {
+  [key in Positions]?: number
+}
+
+export interface BorderAttribute {
+  size: number
+  show: boolean
+}
+
+export interface GrowBorder {
+  top?: BorderAttribute
+  right?: BorderAttribute
+  bottom?: BorderAttribute
+  left?: BorderAttribute
+}
+
+// Widgets
+export interface WidgetEntity {
   name: string
   icon?: string
   order?: number
@@ -191,32 +199,10 @@ export interface WidgetState {
   inMenu: boolean
 }
 
-export const WidgetStateOptionals = ["open", "docked", "inMenu"] as const
-
-export interface WidgetInit {
-  state: WidgetState
-  display: WidgetInitDisplay
-}
-
-// TODO: too dynamic? basically want to have some properties optional so that they can be set to defaults -- but this is
-// making it confusing/adding extra code, for something that is not even happening (leaving off certain properties)
-// export interface WidgetInitState {
-//   name: string
-//   icon?: string
-//   order?: number
-//   open?: boolean
-//   docked?: boolean
-//   inMenu?: boolean
-// }
-
-export const DefaultWidget = {
-  open: false,
-  docked: false,
-  inMenu: false
-}
-
-export interface WidgetInitDisplay {
+// these are used to style the widget. Leave blank = that attribute is not styled
+export interface WidgetDisplay {
   flexGrow?: boolean
+  showOverflow?: boolean
   top?: number | string
   left?: number | string
   height?: number | string
@@ -224,3 +210,29 @@ export interface WidgetInitDisplay {
   minHeight?: number
   minWidth?: number
 }
+
+export interface WidgetInit {
+  entity: WidgetEntity
+  display: WidgetDisplay
+}
+
+export type WidgetPosition = {
+  [key in RequiredPositions]: number | string
+}
+
+export interface WidgetBasis extends InteractableBasis {
+  position: WidgetPosition
+  height: number | string | undefined
+  width: number | string | undefined
+}
+
+// Constants & types
+export const WidgetStateOptionals = ["open", "docked", "inMenu"] as const
+
+export const DefaultWidget = {
+  open: false,
+  docked: false,
+  inMenu: false
+}
+
+export type Dimensions = "height" | "width"

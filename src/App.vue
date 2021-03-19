@@ -3,7 +3,7 @@
     <div id="menu">
       <side-menu />
     </div>
-    <div id="desktop" class="flex flex-row">
+    <div id="container" class="flex flex-row">
       <plant-search />
       <grow />
     </div>
@@ -35,7 +35,7 @@ export default class App extends Vue {}
   text-align: center;
   color: #2c3e50;
   display: grid;
-  grid-template-areas: "menu desktop";
+  grid-template-areas: "menu container";
   grid-template-columns: 3rem 1fr;
 }
 
@@ -43,7 +43,7 @@ export default class App extends Vue {}
   grid-area: menu;
 }
 
-#desktop {
-  grid-area: desktop;
+#container {
+  grid-area: container;
 }
 </style>

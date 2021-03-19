@@ -1,7 +1,7 @@
 import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
 import {
-  WindowState,
-  WidgetState,
+  ContainerState,
+  WidgetEntity,
   DefaultWidget,
   WidgetStateOptionals
 } from "@/store/interfaces"
@@ -11,15 +11,16 @@ import store from "@/store"
 @Module({
   dynamic: true,
   namespaced: true,
-  name: "window",
+  name: "container",
   store
 })
-export default class WindowModule extends VuexModule implements WindowState {
-  widgets: WidgetState[] = []
-  activeWidget: WidgetState | null = null
+export default class ContainerModule extends VuexModule
+  implements ContainerState {
+  widgets: WidgetEntity[] = []
+  activeWidget: WidgetEntity | null = null
 
   @Action
-  public registerWidget(widget: WidgetState) {
+  public registerWidget(widget: WidgetEntity) {
     if (!widget.name) {
       throw console.error(messages.widget.registerError)
     }
@@ -30,14 +31,14 @@ export default class WindowModule extends VuexModule implements WindowState {
   }
 
   @Action
-  public toggleFocus(widget: WidgetState) {
+  public toggleFocus(widget: WidgetEntity) {
     if (widget) {
       this.TOGGLE_FOCUS(widget)
     }
   }
 
   @Action
-  public toggleWidget(widget: WidgetState) {
+  public toggleWidget(widget: WidgetEntity) {
     if (widget) {
       this.TOGGLE_WIDGET(widget)
       // this.SORT_WIDGETS()
@@ -46,7 +47,7 @@ export default class WindowModule extends VuexModule implements WindowState {
   }
 
   @Action
-  public toggleDocked(widget: WidgetState) {
+  public toggleDocked(widget: WidgetEntity) {
     if (widget) {
       this.TOGGLE_DOCKED(widget)
     }
@@ -54,7 +55,7 @@ export default class WindowModule extends VuexModule implements WindowState {
 
   // TODO: have focus actions/controls from widgets
   @Mutation
-  public TOGGLE_FOCUS(widget: WidgetState) {
+  public TOGGLE_FOCUS(widget: WidgetEntity) {
     if (this.activeWidget == widget) {
       this.activeWidget = null
     } else {
@@ -63,7 +64,7 @@ export default class WindowModule extends VuexModule implements WindowState {
   }
 
   @Mutation
-  public REGISTER_WIDGET(widget: WidgetState) {
+  public REGISTER_WIDGET(widget: WidgetEntity) {
     // assign defaults to empty properties
     // move this to a function, or just do it from the components themselves
     // for (const key of WidgetStateOptionals) {
@@ -71,40 +72,40 @@ export default class WindowModule extends VuexModule implements WindowState {
     //     widget[key] = DefaultWidget[key]
     //   }
     // }
-    this.widgets.push(widget as WidgetState)
+    this.widgets.push(widget as WidgetEntity)
   }
 
   @Mutation
-  public TOGGLE_WIDGET(widget: WidgetState) {
+  public TOGGLE_WIDGET(widget: WidgetEntity) {
     widget.open = !widget.open
   }
 
   @Mutation
-  public TOGGLE_DOCKED(widget: WidgetState) {
+  public TOGGLE_DOCKED(widget: WidgetEntity) {
     widget.docked = !widget.docked
   }
 
   // TODO: modify widget positioning based on order, draggable to change order
   // not using currently - future enhancement
   // @Mutation
-  // public INC_ORDER(widget: WidgetState) {
+  // public INC_ORDER(widget: WidgetEntity) {
   //   widget.order++
   // }
 
   // @Mutation
-  // public DEC_ORDER(widget: WidgetState) {
+  // public DEC_ORDER(widget: WidgetEntity) {
   //   widget.order--
   // }
 
   // @Mutation
   // public SORT_WIDGETS() {
-  //   this.widgets.sort((a: WidgetState, b: WidgetState) => {
+  //   this.widgets.sort((a: WidgetEntity, b: WidgetEntity) => {
   //     return a.order - b.order
   //   })
   // }
 
   public get getWidget() {
-    return (name: string): WidgetState | undefined => {
+    return (name: string): WidgetEntity | undefined => {
       return this.widgets.find(w => {
         return w.name == name
       })

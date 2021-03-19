@@ -1,6 +1,12 @@
 import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
 import store from "@/store"
-import { GrowEntity } from "@/store/interfaces"
+import {
+  GrowEntity,
+  GrowPosition,
+  GrowState,
+  Positions,
+  Rotation
+} from "@/store/interfaces"
 
 @Module({
   dynamic: true,
@@ -8,10 +14,11 @@ import { GrowEntity } from "@/store/interfaces"
   name: "grow",
   store
 })
-export default class GrowModule extends VuexModule {
+export default class GrowModule extends VuexModule implements GrowState {
   entities: GrowEntity[] = []
-  activeEntityId: string | null = null
+  activeEntity: GrowEntity | null = null
   showControls = true
+  hasKeyListeners = false
 
   private get entityIndex() {
     return (entityId: string) => {
@@ -38,8 +45,8 @@ export default class GrowModule extends VuexModule {
   }
 
   @Action
-  setActiveEntity(entityId: string) {
-    this.ACTIVE_ENTITY(entityId)
+  setActiveEntity(entity: GrowEntity) {
+    this.ACTIVE_ENTITY(entity)
   }
 
   @Action
@@ -73,14 +80,44 @@ export default class GrowModule extends VuexModule {
     this.TOGGLE_CONTROLS(show)
   }
 
+  @Action
+  addedListeners(added: boolean) {
+    this.ADDED_LISTENERS(added)
+  }
+
+  @Action
+  setRotation(newRotations: Rotation) {
+    this.UPDATE_ROTATION(newRotations)
+  }
+
+  @Action
+  setPosition(newPositions: GrowPosition) {
+    this.UPDATE_POSITION(newPositions)
+  }
+
+  @Mutation
+  UPDATE_ROTATION(rotation: Rotation) {
+    ;(this.activeEntity as GrowEntity).rotation = rotation
+  }
+
+  @Mutation
+  UPDATE_POSITION(position: GrowPosition) {
+    ;(this.activeEntity as GrowEntity).position = position
+  }
+
+  @Mutation
+  ADDED_LISTENERS(added: boolean) {
+    this.hasKeyListeners = added
+  }
+
   @Mutation
   TOGGLE_CONTROLS(show: boolean) {
     this.showControls = show
   }
 
   @Mutation
-  ACTIVE_ENTITY(entityId: string | null) {
-    this.activeEntityId = entityId
+  ACTIVE_ENTITY(entity: GrowEntity | null) {
+    this.activeEntity = entity
   }
 
   @Mutation

@@ -159,7 +159,7 @@ export default class GardenModule extends VuexModule implements GardenState {
 
   @Mutation
   private API_ERROR(error: Error) {
-    // TODO: do something with the error, a pop up or something, + add to state
+    // TODO: do something with the error, a pop up or something, + add to entity
     console.error(error)
   }
 }
