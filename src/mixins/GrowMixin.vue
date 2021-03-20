@@ -8,18 +8,15 @@ import { container } from "@/mixins/ContainerMixin.vue"
 import {
   GrowBasis,
   GrowEntity,
+  GrowLeaf,
   GrowPosition,
   GrowShape,
   Plant,
-  RequiredPositions,
   Rotation
 } from "@/store/interfaces"
+import { createLeaves } from "@/utilities/CreateLeaves"
 // temp
-import {
-  triangleBasis,
-  triangleBorder,
-  entityInit
-} from "@/fixtures/Grow/Defaults"
+import { entityInit } from "@/fixtures/Grow/Defaults"
 
 export const grow = getModule(GrowModule)
 
@@ -64,13 +61,14 @@ export default class GrowMixin extends Vue {
     // TODO: add fixture for leaf shapes depending on plant properties
     const colorList = basePlant.main_species.foliage.color
     const color = colorList ? colorList[0] : "green"
-    const shapes: GrowShape[] = [
-      {
-        color,
-        border: triangleBorder,
-        ...triangleBasis
-      }
-    ]
+    // const shapes: GrowShape[] = [
+    //   {
+    //     color,
+    //     border: triangleBorder,
+    //     ...triangleBasis
+    //   }
+    // ]
+    const leaves: GrowLeaf[] = createLeaves(color, -90)
     const plantEntityCount = grow.countPlantEntities(basePlant.id)
     const entity: GrowEntity = {
       name: basePlant.main_species.common_name,
@@ -79,7 +77,7 @@ export default class GrowMixin extends Vue {
       // trackMouse: false,
       // startX: null,
       // startY: null,
-      shapes,
+      leaves,
       ...entityInit // default rotation/position/size,
     }
     grow.addEntity(entity)
@@ -106,6 +104,7 @@ export default class GrowMixin extends Vue {
       }
       return {
         transform: `rotateX(${growData.rotation.x}deg) rotateY(${growData.rotation.y}deg) rotateZ(${growData.rotation.z}deg) translateZ(${growData.rotation.translate}px)`,
+        "transform-origin": "center bottom",
         top: growData.position?.top + "px",
         right: growData.position?.right + "px",
         bottom: growData.position?.bottom + "px",
@@ -141,7 +140,6 @@ export default class GrowMixin extends Vue {
     if (this.startX == null || this.startY == null) {
       this.startX = e.pageX
       this.startY = e.pageY
-      return
     }
 
     // update rotation

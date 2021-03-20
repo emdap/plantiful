@@ -73,6 +73,14 @@ export interface ActivePlantInfo {
   value?: number | string | null
 }
 
+export interface LeafOptions {
+  topHeight: number
+  bottomHeight: number
+  spacing: number
+  sides: number
+  area: number
+}
+
 // Types
 export type LeafTexture = "fine" | "medium" | "coarse"
 
@@ -153,6 +161,7 @@ export type Positions = RequiredPositions | "right" | "bottom"
 export interface GrowBasis extends InteractableBasis {
   rotation: Rotation
   position: GrowPosition
+  // transformOrigin: string
   height: number
   width: number
 }
@@ -161,10 +170,11 @@ export interface GrowEntity extends GrowBasis {
   name: string
   id: string // plant id - instance of plant id
   plantId: number
+  leaves: GrowLeaf[]
+}
+
+export interface GrowLeaf extends GrowBasis {
   shapes: GrowShape[]
-  // startX: number | null
-  // startY: number | null
-  // trackRotation: boolean
 }
 
 export interface GrowShape extends GrowBasis {
@@ -184,9 +194,13 @@ export interface BorderAttribute {
 
 export interface GrowBorder {
   top?: BorderAttribute
-  right?: BorderAttribute
+  right: BorderAttribute
   bottom?: BorderAttribute
-  left?: BorderAttribute
+  left: BorderAttribute
+}
+
+export interface TopGrowBorder extends GrowBorder {
+  bottom: BorderAttribute
 }
 
 // Widgets

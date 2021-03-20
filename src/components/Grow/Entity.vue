@@ -6,11 +6,18 @@
     :class="{ 'outline-black': isActive }"
     @dblclick="setActive()"
   >
-    <shape
-      v-for="(shape, index) in entityData.shapes"
-      :key="`shape-${entityData.id}-${index}`"
-      :growData="shape"
-    />
+    <div
+      class="absolute"
+      v-for="(leaf, index) in entityData.leaves"
+      :key="`leaf-${entityData.id}-${index}`"
+      :style="styleObj(leaf)"
+    >
+      <shape
+        v-for="(shape, index) in leaf.shapes"
+        :key="`shape-${entityData.id}-${index}`"
+        :growData="shape"
+      />
+    </div>
   </div>
 </template>
 
