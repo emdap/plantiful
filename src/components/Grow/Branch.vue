@@ -40,6 +40,7 @@ export default class Branch extends GrowMixin {
     // + this.branchData.width
 
     const top = this.branchData.endPoint.y
+    // endPoint can be negative/before start point if branch is rotated negatively
     const left = Math.min(
       this.branchData.endPoint.x,
       this.branchData.startPoint.x

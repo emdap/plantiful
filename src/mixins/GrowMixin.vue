@@ -61,13 +61,7 @@ export default class GrowMixin extends Vue {
     // TODO: add fixture for leaf shapes depending on plant properties
     const colorList = basePlant.main_species.foliage.color
     const color = colorList ? colorList[0] : "green"
-    // const shapes: GrowShape[] = [
-    //   {
-    //     color,
-    //     border: triangleBorder,
-    //     ...triangleBasis
-    //   }
-    // ]
+
     const leaves: GrowLeaf[] = createLeaves(color, -90)
     const plantEntityCount = grow.countPlantEntities(basePlant.id)
     const entity: GrowEntity = {
@@ -83,6 +77,8 @@ export default class GrowMixin extends Vue {
     grow.addEntity(entity)
     grow.setActiveEntity(entity)
   }
+
+  // public generateBranch(hasLeaf: boolean, hasFlower: boolean, startCoord)
 
   public get styleObj() {
     // convert entity attributes to CSS style properties

@@ -95,11 +95,9 @@ export default class Entity extends GrowMixin {
     const top = endPoint.y - height + topOffset / 2
     let left!: number
 
-    // if rotated negatively, adjust so that starting point is at x = 0 relative to container
+    // if rotated negatively, push it so that endpoint
     if (angle < 0) {
       left = -endPoint.x - leftOffset
-      startPoint.x = Math.abs(endPoint.x)
-      endPoint.x = 0
     } else {
       left = -leftOffset
     }
