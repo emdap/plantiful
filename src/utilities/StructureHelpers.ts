@@ -19,6 +19,8 @@ function getBranchEndPoint(
   // given its dimensions and angle/tilt
 
   const x = height * Math.sin(radians) + startPoint.x
+  // positioning elements based on top
+  // increase in y -> in CSS, closer to top = smaller top coord
   const y = height * Math.cos(radians) + startPoint.y
 
   return { x, y }

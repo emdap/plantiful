@@ -11,7 +11,7 @@
       >
         <entity
           v-for="entity in entities"
-          :key="makeKey('plant', entity.id, 0)"
+          :key="makeGrowId('plant', entity.id, 0)"
           :entityData="entity"
         />
       </div>

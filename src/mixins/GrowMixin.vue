@@ -13,7 +13,8 @@ import {
   GrowShape,
   Plant,
   Rotation,
-  GrowLeafCluster
+  GrowLeafCluster,
+  BranchOptions
 } from "@/store/interfaces"
 import { createLeaves, createBranch } from "@/utilities/CreatePlantStructures"
 // temp
@@ -47,8 +48,8 @@ export default class GrowMixin extends Vue {
     return grow.activeEntity
   }
 
-  public makeKey(growType: string, entityId: number, index: number) {
-    return `${growType}-${entityId}-${index}`
+  public makeGrowId(growType: string, id: string, index: number) {
+    return `${growType}-${id}-${index + 1}`
   }
 
   public growPlant(basePlant: Plant) {
@@ -61,34 +62,101 @@ export default class GrowMixin extends Vue {
       container.toggleWidget(growWidget)
     }
 
-    // TEMP to demo
+    const plantEntityCount = grow.countPlantEntities(basePlant.id)
+    const entityId = `${basePlant.id}-${plantEntityCount}`
+
+    // TEMP to demo - TODO: make recursive function to create structures based on plant characteristics
     // TODO: add fixture for leaf shapes depending on plant properties
     const startPoint = {
       x: 0,
       y: 0
     }
-    const branch = createBranch(startPoint)
+    const branchOptions: BranchOptions = {
+      height: 50,
+      width: 5,
+      angle: 60,
+      hasLeaf: false,
+      hasFlower: false
+    }
+    const branchOptions2: BranchOptions = {
+      height: 50,
+      width: 5,
+      angle: -70,
+      hasLeaf: false,
+      hasFlower: false
+    }
+    const mainBranch = createBranch(
+      startPoint,
+      this.makeGrowId("branch", entityId, 1),
+      0,
+      branchOptions
+    )
+    const branch = createBranch(
+      mainBranch.endPoint,
+      this.makeGrowId("branch", entityId, 1),
+      mainBranch.height,
+      branchOptions
+    )
+
+    const mainBranch2 = createBranch(
+      startPoint,
+      this.makeGrowId("branch", entityId, 1),
+      0
+    )
+    const branch2 = createBranch(
+      mainBranch2.endPoint,
+      this.makeGrowId("branch", entityId, 1),
+      71,
+      branchOptions
+    )
+    const branch3 = createBranch(
+      branch2.endPoint,
+      this.makeGrowId("branch", entityId, 1),
+      18,
+      branchOptions
+    )
+    const branch4 = createBranch(
+      branch3.endPoint,
+      this.makeGrowId("branch", entityId, 1),
+      18,
+      branchOptions2
+    )
+    const branch5 = createBranch(
+      branch3.endPoint,
+      this.makeGrowId("branch", entityId, 1),
+      18
+    )
 
     const colorList = basePlant.main_species.foliage.color
     const color = colorList ? colorList[0] : "green"
 
     const leaves: GrowLeaf[] = createLeaves(color, -90)
+    const leaves2: GrowLeaf[] = createLeaves(color, -90)
     const leafHeight = leaves[0].height
     const leafCluster: GrowLeafCluster = {
-      rotation: branch.rotation,
-      position: branch.endPoint,
-      offSet: branch.offSet,
+      rotation: branch4.rotation,
+      position: branch4.endPoint,
+      offSet: branch4.offSet,
       height: leafHeight,
       width: leafHeight,
+      id: this.makeGrowId("leaf-cluster", entityId, 1),
       leaves
     }
-    const plantEntityCount = grow.countPlantEntities(basePlant.id)
+    const leafCluster2: GrowLeafCluster = {
+      rotation: branch5.rotation,
+      position: branch5.endPoint,
+      offSet: branch5.offSet,
+      height: leafHeight,
+      width: leafHeight,
+      id: this.makeGrowId("leaf-cluster", entityId, 1),
+      leaves
+    }
     const entity: GrowEntity = {
       name: basePlant.main_species.common_name,
       plantId: basePlant.id,
-      id: `${basePlant.id}-${plantEntityCount}`,
-      leafClusters: [leafCluster],
-      branches: [branch],
+      id: entityId,
+      leafClusters: [leafCluster, leafCluster2],
+      branches: [mainBranch2, branch2, branch3, branch4, branch5],
       ...ENTITY_INIT() // default rotation/position/size,
     }
     grow.addEntity(entity)

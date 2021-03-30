@@ -1,17 +1,17 @@
 <template>
   <!-- TODO: add utilities for transform-origin -->
   <!-- TODO/NOTE : having top part of leaf positioned above container, w/ transform origin right, had cool effect -->
-  <div class="leaf-cluster absolute bg-blue-400" :style="containerStyle">
+  <div class="leaf-cluster absolute z-20" :style="containerStyle">
     <div
       class="absolute"
       v-for="(leaf, index) in leafClusterData.leaves"
-      :key="makeKey('leaf-cluster', entityId, index)"
+      :key="makeGrowId('leaf', leafClusterData.id, index)"
       :style="styleObj(leaf)"
       style="transform-origin: bottom"
     >
       <shape
         v-for="(shape, index) in leaf.shapes"
-        :key="makeKey('leaf', entityId, index)"
+        :key="makeGrowId('shape', leafClusterData.id, index)"
         :growData="shape"
       />
     </div>
@@ -32,8 +32,6 @@ import Component from "vue-class-component"
 })
 export default class LeafCluster extends GrowMixin {
   @Prop() leafClusterData!: GrowLeafCluster
-  // only using entityId to generate unique keys on v-for over leaves
-  @Prop() entityId!: number
 
   mounted() {
     // TODO: the public is unnecessary right?
@@ -44,19 +42,6 @@ export default class LeafCluster extends GrowMixin {
   }
 
   public get containerStyle() {
-    // rotation, positioning, and dimensions of rectangle containing the leaves
-    // const growData = {
-    //   rotation: this.leafClusterData.rotation,
-    //   position: {
-    //     y: top,
-    //     x: left
-    //   },
-    //   height,
-    //   width,
-    //   // temp
-    //   zIndex: 10
-    // }
-    // return this.styleObj(growData)
     const tilt =
       this.leafClusterData.rotation.z > 0
         ? 90 + this.leafClusterData.rotation.z
@@ -71,14 +56,14 @@ export default class LeafCluster extends GrowMixin {
       position: {
         x: this.leafClusterData.position.x - this.leafClusterData.height / 2,
         y:
-          this.leafClusterData.position.y -
+          -this.leafClusterData.position.y -
           this.leafClusterData.height / 2 +
           this.leafClusterData.offSet.top
       },
       height: this.leafClusterData.height,
       width: 75
     }
-
+    console.log(growData.position)
     return this.styleObj(growData)
   }
 }

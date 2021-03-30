@@ -183,6 +183,7 @@ export interface GrowEntity extends GrowBasis {
 }
 
 export interface GrowLeafCluster extends GrowBasis {
+  id: string
   offSet: {
     top: number
     left: number
@@ -199,7 +200,7 @@ export interface GrowFlower extends GrowBasis {
 }
 
 export interface GrowBranch extends GrowBasis {
-  // temp
+  id: string
   offSet: {
     top: number
     left: number
@@ -208,6 +209,7 @@ export interface GrowBranch extends GrowBasis {
   endPoint: Coordinate
   hasLeaf: boolean
   hasFlower: boolean
+  parent: number
 }
 
 export interface GrowShape extends GrowBasis {

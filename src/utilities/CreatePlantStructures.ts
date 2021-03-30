@@ -68,6 +68,8 @@ export function createLeaves(
 
 export function createBranch(
   startPoint: Coordinate,
+  branchId: string,
+  parentHeight: number,
   options: BranchOptions | null = null
 ): GrowBranch {
   const { height, width, angle, hasLeaf, hasFlower } = options
@@ -84,12 +86,12 @@ export function createBranch(
   const topOffset = (width / 2) * (1 - Math.cos(angleRadians))
   const leftOffset = Math.abs((width / 2) * Math.cos(compAngleRadians))
 
-  const top = endPoint.y - height + topOffset / 2
+  const top = Math.abs(endPoint.y) - startPoint.y - height + topOffset / 2
 
   // want to compensate for negative angle rotation by pushing branch to right
   let left = -leftOffset
   if (angle < 0) {
-    left -= endPoint.x
+    left -= endPoint.x - startPoint.x
   }
 
   // TODO: there is still some variance between where the branch is positioned by CSS and what the offsets are,
@@ -117,7 +119,9 @@ export function createBranch(
     position: {
       y: top,
       x: left
-    }
+    },
+    id: branchId,
+    parent: parentHeight
   }
 
   return branch

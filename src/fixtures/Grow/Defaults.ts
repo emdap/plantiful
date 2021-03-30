@@ -33,7 +33,7 @@ export const BRANCH_INIT = (): BranchOptions => {
   return {
     height: 100,
     width: 5,
-    angle: -85,
+    angle: 45,
     hasLeaf: false,
     hasFlower: false,
   }
@@ -89,7 +89,7 @@ export const TEST_PLANT: Plant = {
     image_url:
       "https://bs.plantnet.org/image/o/46619775d4319328b2fad6f1ba876ccca2d03534",
     flower: { color: ["purple"] },
-    foliage: { texture: "fine", color: ["grey"] },
+    foliage: { texture: "fine", color: ["purple"] },
     specifications: {
       average_height: { cm: 100 },
       shape_and_orientation: "Erect"
