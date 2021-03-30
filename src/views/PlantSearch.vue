@@ -110,6 +110,11 @@ export default class PlantSearch extends mixins(
       //   this.activePlantWidget.entity.open
       // ) {
       //   return "w-1/3"
+    } else if (
+      !this.searchWidget.entity.open &&
+      !this.activePlantWidget.entity.open
+    ) {
+      return 0
     } else {
       return "w-2/5"
     }

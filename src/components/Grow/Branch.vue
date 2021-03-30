@@ -32,15 +32,18 @@ export default class Branch extends GrowMixin {
     // height & width of a rectangle containing the rotated branch
     const height =
       Math.abs(this.branchData.endPoint.y - this.branchData.startPoint.y) +
-      this.branchData.offSet.top * 2
+      this.branchData.offSet.top
     // + this.branchData.width
     const width =
       Math.abs(this.branchData.endPoint.x - this.branchData.startPoint.x) +
-      this.branchData.offSet.left
+      this.branchData.offSet.left / 2
     // + this.branchData.width
 
     const top = this.branchData.endPoint.y
-    const left = this.branchData.startPoint.x
+    const left = Math.min(
+      this.branchData.endPoint.x,
+      this.branchData.startPoint.x
+    )
 
     const growData = {
       rotation: noRotation(),
@@ -60,6 +63,6 @@ export default class Branch extends GrowMixin {
 
 <style scoped>
 .branch {
-  border: 1px solid black;
+  border: 1px solid orange;
 }
 </style>

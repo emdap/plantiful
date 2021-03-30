@@ -6,6 +6,15 @@
     :class="{ 'outline-black': isActive }"
     @dblclick="setActive()"
   >
+    <div
+      class="absolute z-20 bg-purple-200"
+      :style="{
+        top: staticBranch.endPoint.y + 'px',
+        left: staticBranch.endPoint.x + 'px',
+        height: '1px',
+        width: '1px'
+      }"
+    />
     <branch :branchData="staticBranch" />
     <!-- TODO: Leaf cluster component -->
     <!-- <div
@@ -70,20 +79,36 @@ export default class Entity extends GrowMixin {
       y: 0
     }
     const height = 500
-    const width = 10
+    const width = 20
     // angle must be between -90 -> 90
-    const angle = 80
+    const angle = -80
     const radians = this.radians(angle)
     const endPoint = this.getEndPoint(height, radians, startPoint)
 
-    const topOffset = width / 2 - (width / 2) * Math.sin(Math.PI / 2 - radians)
-    const leftOffset = (width / 2) * Math.cos(Math.PI / 2 - radians)
+    // CSS still positions from where the edges of branch would be if it was NOT rotated
+    // rotates from center point of bottom/middle
+    // calculate x/y offsets by solving for triangles created, relative to starting position at 0 rotation
+    const compAngleRadians = this.radians(90 - angle)
+    const topOffset = width / 2 - (width / 2) * Math.cos(radians)
+    const leftOffset = Math.abs((width / 2) * Math.cos(compAngleRadians))
 
-    const top = angle < 0 ? -width : endPoint.y - height + topOffset
-    const left = angle < 0 ? -1 * endPoint.x + leftOffset : -leftOffset
+    const top = endPoint.y - height + topOffset / 2
+    let left!: number
 
-    console.log(topOffset, leftOffset)
-    console.log(top, left)
+    // if rotated negatively, adjust so that starting point is at x = 0 relative to container
+    if (angle < 0) {
+      left = -endPoint.x - leftOffset
+      startPoint.x = Math.abs(endPoint.x)
+      endPoint.x = 0
+    } else {
+      left = -leftOffset
+    }
+
+    // TODO: there is still some variance between where the branch is positioned by CSS and what the offsets are,
+    // and where it seems it should be positioned based on geometry.
+    // review geometry and how CSS behaves.
+    // Within reasonable bounds for height/branch width, it displays good enough for now.
+
     const branch: GrowBranch = {
       startPoint,
       endPoint,
