@@ -104,10 +104,7 @@ export default class GrowMixin extends Vue {
       }
       return {
         transform: `rotateX(${growData.rotation.x}deg) rotateY(${growData.rotation.y}deg) rotateZ(${growData.rotation.z}deg) translateZ(${growData.rotation.translate}px)`,
-        "transform-origin": "center bottom",
         top: growData.position?.top + "px",
-        right: growData.position?.right + "px",
-        bottom: growData.position?.bottom + "px",
         left: growData.position?.left + "px",
         height: growData.height + "px",
         width: growData.width + "px",

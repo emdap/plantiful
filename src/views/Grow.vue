@@ -4,18 +4,24 @@
       :initWidgetState="growWidget.entity"
       :initDisplay="growWidget.display"
     >
-      <entity
-        v-for="entity in entities"
-        :key="`entity-${entity.id}`"
-        :entityData="entity"
-      />
+      <div
+        id="entity-wrapper"
+        class="h-full w-full"
+        @dblclick.self="removeActive()"
+      >
+        <entity
+          v-for="entity in entities"
+          :key="`entity-${entity.id}`"
+          :entityData="entity"
+        />
+      </div>
     </widget>
   </div>
 </template>
 
 <script lang="ts">
 import Component from "vue-class-component"
-import GrowMixin from "@/mixins/GrowMixin.vue"
+import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import Entity from "@/components/Grow/Entity.vue"
 import Widget from "@/components/Widget.vue"
 import { WidgetInit } from "@/store/interfaces"
@@ -46,6 +52,10 @@ export default class Grow extends GrowMixin {
   public mounted() {
     // temp
     this.growPlant(testPlant)
+  }
+
+  public removeActive() {
+    grow.removeActiveEntity()
   }
 }
 </script>

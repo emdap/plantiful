@@ -50,7 +50,6 @@ function bottomLeafBorder(width: number, height: number): GrowBorder {
 }
 
 function getWidth(height: number, sides: number): number {
-  console.log(Math.round(2 * height * Math.tan((Math.PI * 1) / (2 * sides))))
   return Math.round(2 * height * Math.tan((Math.PI * 1) / (2 * sides)))
 }
 
@@ -91,9 +90,7 @@ export function createLeaves(
   const { topHeight, bottomHeight, spacing, sides, area } = options.custom
     ? options.custom
     : DEFAULT_OPTIONS[options.texture]
-  console.log(topHeight, options)
   const adjustedSides = sides < 3 ? 3 : sides
-  // console.log(sides, adjustedSides)
 
   const width = getWidth(bottomHeight, adjustedSides) - spacing
 
@@ -107,11 +104,7 @@ export function createLeaves(
 
     const shiftedI = i - (adjustedSides - 1) / 2
     const angle = angleInc * shiftedI + tilt
-    // const position: GrowPosition = {
-    //   // top: topHeight / 2 * Math.abs(shiftedI) - topHeight / 2,
-    //   top: 0,
-    //   left: 0
-    // }
+
     const rotation: Rotation = {
       x: 0,
       y: 0,
@@ -119,19 +112,14 @@ export function createLeaves(
       translate: 0
     }
     const leaf: GrowLeaf = {
+      startPoint: { x: 0, y: 0 },
       position: noPosition(),
       rotation,
       height: topHeight + bottomHeight,
       width: width,
       shapes
     }
-    // const top = topHeight / 2 * Math.abs(shiftedI) - topHeight / 2
-    // const bottomTop = topHeight / 2
-    // const left = -1 * shiftedI * width
-    // console.log('top', position.top)
-    // console.log('left', position.left)
-    // console.log('top', topTop, 'bottomTop', bottomTop, 'border', topBorder.bottom.size)
-    // console.log('angle', angle)
+
     leaves.push(leaf)
   }
 

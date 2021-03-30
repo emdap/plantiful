@@ -43,7 +43,6 @@ export default class ContainerModule extends VuexModule
       this.TOGGLE_WIDGET(widget)
       // this.SORT_WIDGETS()
     }
-    console.log("toggle widget", widget.name, widget.open)
   }
 
   @Action

@@ -133,7 +133,6 @@ export default class PlantSearch extends mixins(
   }
 
   public dockAndGrow(e: MouseEvent) {
-    console.log(e)
     e.stopPropagation()
     if (this.activePlant) {
       if (!this.activePlantWidget.entity.docked)

@@ -51,21 +51,6 @@ export const noPosition = () => {
   }
 }
 
-export const triangleBorder: GrowBorder = {
-  top: {
-    size: 25,
-    show: false
-  },
-  right: {
-    size: 50,
-    show: true
-  },
-  bottom: {
-    size: 25,
-    show: false
-  }
-}
-
 export const entityInit: GrowBasis = {
   position: {
     bottom: 0
@@ -78,20 +63,6 @@ export const entityInit: GrowBasis = {
   },
   height: 100,
   width: 100
-}
-
-export const triangleBasis: GrowBasis = {
-  position: {
-    bottom: 0
-  },
-  rotation: {
-    x: 0,
-    y: 0,
-    z: 0,
-    translate: 0,
-  },
-  height: 0,
-  width: 0
 }
 
 export const testPlant: Plant = {

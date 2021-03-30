@@ -1,4 +1,4 @@
-import Vue from "vue"
+// TODO: separate into diff files, understand more about typescript interfaces/types best practices and standardize
 
 // States/stores
 export interface RootState {
@@ -142,7 +142,7 @@ export interface InteractableBasis {
   tabIndex?: number
 }
 
-export interface Rotation {
+export type Rotation = {
   x: number
   y: number
   z: number
@@ -174,7 +174,24 @@ export interface GrowEntity extends GrowBasis {
 }
 
 export interface GrowLeaf extends GrowBasis {
+  startPoint: Coordinate
   shapes: GrowShape[]
+}
+
+export interface GrowFlower extends GrowBasis {
+  shapes: GrowShape[]
+}
+
+export interface GrowBranch extends GrowBasis {
+  // temp
+  offSet: {
+    top: number
+    left: number
+  }
+  startPoint: Coordinate
+  endPoint: Coordinate
+  hasLeaf: boolean
+  hasFlower: boolean
 }
 
 export interface GrowShape extends GrowBasis {
@@ -185,6 +202,11 @@ export interface GrowShape extends GrowBasis {
 
 export type GrowPosition = {
   [key in Positions]?: number
+}
+
+export type Coordinate = {
+  x: number
+  y: number
 }
 
 export interface BorderAttribute {

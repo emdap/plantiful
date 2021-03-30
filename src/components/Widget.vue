@@ -198,7 +198,6 @@ export default class Widget extends ContainerMixin {
     if (which == "position") {
       this.styleAttributes.position.top = this.getCurrent("top")
       this.styleAttributes.position.left = this.getCurrent("left")
-      console.log(this.styleAttributes.position.left)
     }
   }
 
