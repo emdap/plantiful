@@ -9,14 +9,15 @@ import {
   GrowBasis,
   GrowEntity,
   GrowLeaf,
-  GrowPosition,
+  Coordinate,
   GrowShape,
   Plant,
-  Rotation
+  Rotation,
+  GrowLeafCluster
 } from "@/store/interfaces"
-import { createLeaves } from "@/utilities/CreateLeaves"
+import { createLeaves, createBranch } from "@/utilities/CreatePlantStructures"
 // temp
-import { entityInit } from "@/fixtures/Grow/Defaults"
+import { ENTITY_INIT } from "@/fixtures/Grow/Defaults"
 
 export const grow = getModule(GrowModule)
 
@@ -46,6 +47,10 @@ export default class GrowMixin extends Vue {
     return grow.activeEntity
   }
 
+  public makeKey(growType: string, entityId: number, index: number) {
+    return `${growType}-${entityId}-${index}`
+  }
+
   public growPlant(basePlant: Plant) {
     const growWidget = container.getWidget("grow")
     if (!growWidget) {
@@ -57,32 +62,42 @@ export default class GrowMixin extends Vue {
     }
 
     // TEMP to demo
-    // future - get leaf fixture, branch fixture, growTree function to get final entity
     // TODO: add fixture for leaf shapes depending on plant properties
+    const startPoint = {
+      x: 0,
+      y: 0
+    }
+    const branch = createBranch(startPoint)
+
     const colorList = basePlant.main_species.foliage.color
     const color = colorList ? colorList[0] : "green"
 
     const leaves: GrowLeaf[] = createLeaves(color, -90)
+    const leafHeight = leaves[0].height
+    const leafCluster: GrowLeafCluster = {
+      rotation: branch.rotation,
+      position: branch.endPoint,
+      offSet: branch.offSet,
+      height: leafHeight,
+      width: leafHeight,
+      leaves
+    }
     const plantEntityCount = grow.countPlantEntities(basePlant.id)
     const entity: GrowEntity = {
       name: basePlant.main_species.common_name,
       plantId: basePlant.id,
       id: `${basePlant.id}-${plantEntityCount}`,
-      // trackMouse: false,
-      // startX: null,
-      // startY: null,
-      leaves,
-      ...entityInit // default rotation/position/size,
+      leafClusters: [leafCluster],
+      branches: [branch],
+      ...ENTITY_INIT() // default rotation/position/size,
     }
     grow.addEntity(entity)
     grow.setActiveEntity(entity)
   }
 
-  // public generateBranch(hasLeaf: boolean, hasFlower: boolean, startCoord)
-
   public get styleObj() {
     // convert entity attributes to CSS style properties
-    return (growData: GrowShape | GrowBasis) => {
+    return (growData: GrowBasis | GrowShape) => {
       const transitionSpeed = growData.transitionSpeed
         ? growData.transitionSpeed
         : 0
@@ -98,10 +113,11 @@ export default class GrowMixin extends Vue {
           borders[`border-${key}`] = `${currentBorder.size}px solid ${color}`
         }
       }
+
       return {
         transform: `rotateX(${growData.rotation.x}deg) rotateY(${growData.rotation.y}deg) rotateZ(${growData.rotation.z}deg) translateZ(${growData.rotation.translate}px)`,
-        top: growData.position?.top + "px",
-        left: growData.position?.left + "px",
+        top: growData.position?.y + "px",
+        left: growData.position?.x + "px",
         height: growData.height + "px",
         width: growData.width + "px",
         transition: `all ${transitionSpeed}s`,
@@ -156,25 +172,25 @@ export default class GrowMixin extends Vue {
       grow.setRotation(newRotations)
     } else {
       // update position
-      const newPosition: GrowPosition = {
-        top: 0,
-        left: 0
+      const newPosition: Coordinate = {
+        y: 0,
+        x: 0
       }
       let currentTop = 0,
         currentLeft = 0
       const activeElem = document.getElementById(grow.activeEntity.id)
-      if (grow.activeEntity.position.top) {
-        currentTop = grow.activeEntity.position.top
+      if (grow.activeEntity.position.y) {
+        currentTop = grow.activeEntity.position.y
       } else {
         currentTop = activeElem ? activeElem.offsetTop : 0
       }
-      if (grow.activeEntity.position.left) {
-        currentLeft = grow.activeEntity.position.left
+      if (grow.activeEntity.position.x) {
+        currentLeft = grow.activeEntity.position.x
       } else {
         currentLeft = activeElem ? activeElem.offsetLeft : 0
       }
-      newPosition.top = currentTop + e.pageY - this.startY
-      newPosition.left = currentLeft + e.pageX - this.startX
+      newPosition.y = currentTop + e.pageY - this.startY
+      newPosition.x = currentLeft + e.pageX - this.startX
       grow.setPosition(newPosition)
     }
     this.startY = e.pageY

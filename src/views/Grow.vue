@@ -11,7 +11,7 @@
       >
         <entity
           v-for="entity in entities"
-          :key="`entity-${entity.id}`"
+          :key="makeKey('plant', entity.id, 0)"
           :entityData="entity"
         />
       </div>
@@ -27,7 +27,7 @@ import Widget from "@/components/Widget.vue"
 import { WidgetInit } from "@/store/interfaces"
 import PlantIcon from "@/assets/icons/plant.svg"
 // temp
-import { testPlant } from "@/fixtures/Grow/Defaults"
+import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
 
 @Component({
   components: {
@@ -51,7 +51,7 @@ export default class Grow extends GrowMixin {
 
   public mounted() {
     // temp
-    this.growPlant(testPlant)
+    this.growPlant(TEST_PLANT)
   }
 
   public removeActive() {

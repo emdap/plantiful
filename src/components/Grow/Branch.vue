@@ -10,10 +10,10 @@
 
 <script lang="ts">
 import GrowMixin from "@/mixins/GrowMixin.vue"
-import { GrowBasis, GrowBranch, GrowPosition } from "@/store/interfaces"
+import { GrowBasis, GrowBranch, Coordinate } from "@/store/interfaces"
 import { Prop } from "vue-property-decorator"
 import Component from "vue-class-component"
-import { noRotation } from "@/fixtures/Grow/Defaults"
+import { NO_ROTATION } from "@/fixtures/Grow/Defaults"
 
 @Component({})
 export default class Branch extends GrowMixin {
@@ -25,7 +25,6 @@ export default class Branch extends GrowMixin {
       // TODO: global errors for missing required props
       throw console.error("missing branch prop!")
     }
-    console.log(this.branchData)
   }
 
   public get containerStyle() {
@@ -47,10 +46,10 @@ export default class Branch extends GrowMixin {
     )
 
     const growData = {
-      rotation: noRotation(),
+      rotation: NO_ROTATION(),
       position: {
-        top,
-        left
+        y: top,
+        x: left
       },
       height,
       width,

@@ -1,14 +1,9 @@
-import { Dimensions, GrowBasis, GrowBorder, GrowPosition, Plant, Rotation, LeafTexture, LeafOptions } from "@/store/interfaces"
-
-// const defaultGrowBasis: GrowBasis = {
-// position: "relative",
-// height
-// }
+import { GrowBasis, Plant, LeafTexture, LeafOptions, BranchOptions } from "@/store/interfaces"
 
 const DEFAULT_TOP_H = 30
 const DEFAULT_BOTTOM_H = 45
 
-export const DEFAULT_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
+export const DEFAULT_LEAF_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
   fine: {
     topHeight: DEFAULT_TOP_H,
     bottomHeight: DEFAULT_BOTTOM_H,
@@ -19,9 +14,9 @@ export const DEFAULT_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
   medium: {
     topHeight: DEFAULT_TOP_H,
     bottomHeight: DEFAULT_BOTTOM_H,
-    spacing: 2,
-    sides: 8,
-    area: 360
+    spacing: 15,
+    sides: 4,
+    area: 90
   },
   coarse: {
     topHeight: DEFAULT_TOP_H,
@@ -32,10 +27,19 @@ export const DEFAULT_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
   },
 }
 
-export const DEFAULT_TEXTURE: LeafTexture = "medium"
+export const DEFAULT_LEAF_TEXTURE: LeafTexture = "medium"
 
+export const BRANCH_INIT = (): BranchOptions => {
+  return {
+    height: 100,
+    width: 5,
+    angle: -85,
+    hasLeaf: false,
+    hasFlower: false,
+  }
+}
 
-export const noRotation = () => {
+export const NO_ROTATION = () => {
   return {
     x: 0,
     y: 0,
@@ -44,28 +48,31 @@ export const noRotation = () => {
   }
 }
 
-export const noPosition = () => {
+export const NO_POSITION = () => {
   return {
-    top: 0,
-    left: 0
+    y: 0,
+    x: 0
   }
 }
 
-export const entityInit: GrowBasis = {
-  position: {
-    bottom: 0
-  },
-  rotation: {
-    x: 0,
-    y: 0,
-    z: 0,
-    translate: 0,
-  },
-  height: 100,
-  width: 100
+export const ENTITY_INIT = (): GrowBasis => {
+  return {
+    position: {
+      y: 100,
+      x: 0
+    },
+    rotation: {
+      x: 0,
+      y: 0,
+      z: 0,
+      translate: 0,
+    },
+    height: 100,
+    width: 100
+  }
 }
 
-export const testPlant: Plant = {
+export const TEST_PLANT: Plant = {
   id: 137442,
   common_name: "common velvetgrass",
   scientific_name: "Holcus lanatus",

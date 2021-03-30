@@ -6,29 +6,17 @@
     :class="{ 'outline-black': isActive }"
     @dblclick="setActive()"
   >
-    <div
-      class="absolute z-20 bg-purple-200"
-      :style="{
-        top: staticBranch.endPoint.y + 'px',
-        left: staticBranch.endPoint.x + 'px',
-        height: '1px',
-        width: '1px'
-      }"
+    <branch
+      v-for="(branch, index) in entityData.branches"
+      :key="makeKey('branch', entityData.id, index)"
+      :branchData="branch"
     />
-    <branch :branchData="staticBranch" />
-    <!-- TODO: Leaf cluster component -->
-    <!-- <div
-      class="absolute"
-      v-for="(leaf, index) in entityData.leaves"
-      :key="`leaf-${entityData.id}-${index}`"
-      :style="styleObj(leaf)"
-    >
-      <shape
-        v-for="(shape, index) in leaf.shapes"
-        :key="`shape-${entityData.id}-${index}`"
-        :growData="shape"
-      />
-    </div> -->
+    <leaf-cluster
+      v-for="(leafCluster, index) in entityData.leafClusters"
+      :key="makeKey('leaf-cluster', entityData.id, index)"
+      :entityId="entityData.id"
+      :leafClusterData="leafCluster"
+    />
   </div>
 </template>
 
@@ -39,13 +27,15 @@ import { Prop, Watch } from "vue-property-decorator"
 import messages from "@/fixtures/Messages"
 import Shape from "@/components/Grow/Shape.vue"
 import Branch from "@/components/Grow/Branch.vue"
+import LeafCluster from "@/components/Grow/LeafCluster.vue"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
-import { noPosition, noRotation } from "@/fixtures/Grow/Defaults"
+import { NO_POSITION, NO_ROTATION } from "@/fixtures/Grow/Defaults"
 
 @Component({
   components: {
     Shape,
-    Branch
+    Branch,
+    LeafCluster
   }
 })
 export default class Entity extends GrowMixin {
@@ -81,7 +71,7 @@ export default class Entity extends GrowMixin {
     const height = 500
     const width = 20
     // angle must be between -90 -> 90
-    const angle = -80
+    const angle = 80
     const radians = this.radians(angle)
     const endPoint = this.getEndPoint(height, radians, startPoint)
 
@@ -89,17 +79,13 @@ export default class Entity extends GrowMixin {
     // rotates from center point of bottom/middle
     // calculate x/y offsets by solving for triangles created, relative to starting position at 0 rotation
     const compAngleRadians = this.radians(90 - angle)
-    const topOffset = width / 2 - (width / 2) * Math.cos(radians)
+    const topOffset = (width / 2) * (1 - Math.cos(radians))
     const leftOffset = Math.abs((width / 2) * Math.cos(compAngleRadians))
 
     const top = endPoint.y - height + topOffset / 2
-    let left!: number
-
-    // if rotated negatively, push it so that endpoint
+    let left = -leftOffset
     if (angle < 0) {
-      left = -endPoint.x - leftOffset
-    } else {
-      left = -leftOffset
+      left -= endPoint.x
     }
 
     // TODO: there is still some variance between where the branch is positioned by CSS and what the offsets are,
@@ -128,8 +114,8 @@ export default class Entity extends GrowMixin {
       // offset the position by the rotation,
       // so that branch is centered in container
       position: {
-        top,
-        left
+        y: top,
+        x: left
       }
     }
 

@@ -81,6 +81,14 @@ export interface LeafOptions {
   area: number
 }
 
+export interface BranchOptions {
+  height: number
+  width: number
+  angle: number
+  hasLeaf: boolean
+  hasFlower: boolean
+}
+
 // Types
 export type LeafTexture = "fine" | "medium" | "coarse"
 
@@ -160,7 +168,7 @@ export type Positions = RequiredPositions | "right" | "bottom"
 // Grow
 export interface GrowBasis extends InteractableBasis {
   rotation: Rotation
-  position: GrowPosition
+  position: Coordinate
   // transformOrigin: string
   height: number
   width: number
@@ -170,11 +178,19 @@ export interface GrowEntity extends GrowBasis {
   name: string
   id: string // plant id - instance of plant id
   plantId: number
+  leafClusters: GrowLeafCluster[]
+  branches: GrowBranch[]
+}
+
+export interface GrowLeafCluster extends GrowBasis {
+  offSet: {
+    top: number
+    left: number
+  }
   leaves: GrowLeaf[]
 }
 
 export interface GrowLeaf extends GrowBasis {
-  startPoint: Coordinate
   shapes: GrowShape[]
 }
 
@@ -200,9 +216,9 @@ export interface GrowShape extends GrowBasis {
   opacity?: number
 }
 
-export type GrowPosition = {
-  [key in Positions]?: number
-}
+// export type GrowPosition = {
+//   [key in Positions]?: number
+// }
 
 export type Coordinate = {
   x: number
