@@ -1,10 +1,5 @@
 import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
-import {
-  ContainerState,
-  WidgetEntity,
-  DefaultWidget,
-  WidgetStateOptionals
-} from "@/store/interfaces"
+import { ContainerState, WidgetEntity } from "@/store/interfaces"
 import messages from "@/fixtures/Messages"
 import store from "@/store"
 

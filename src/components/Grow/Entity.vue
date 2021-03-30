@@ -22,8 +22,8 @@
 <script lang="ts">
 import { GrowEntity } from "@/store/interfaces"
 import Component from "vue-class-component"
-import { Prop, Watch } from "vue-property-decorator"
-import messages from "@/fixtures/Messages"
+import { Prop } from "vue-property-decorator"
+// import messages from "@/fixtures/Messages"
 import Shape from "@/components/Grow/Shape.vue"
 import Branch from "@/components/Grow/Branch.vue"
 import LeafCluster from "@/components/Grow/LeafCluster.vue"

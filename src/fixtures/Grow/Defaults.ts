@@ -21,9 +21,9 @@ export const DEFAULT_LEAF_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
   coarse: {
     topHeight: DEFAULT_TOP_H,
     bottomHeight: DEFAULT_BOTTOM_H,
-    spacing: 1,
+    spacing: 5,
     sides: 5,
-    area: 270
+    area: 90
   },
 }
 

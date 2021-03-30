@@ -1,5 +1,5 @@
 <template>
-  <!-- TODO: add utilities for transform-origin -->
+  <!-- TODO: add tailwind utilities for transform-origin -->
   <!-- TODO/NOTE : having top part of leaf positioned above container, w/ transform origin right, had cool effect -->
   <div class="leaf-cluster absolute z-20" :style="containerStyle">
     <div
@@ -42,29 +42,24 @@ export default class LeafCluster extends GrowMixin {
   }
 
   public get containerStyle() {
-    const tilt =
-      this.leafClusterData.rotation.z > 0
-        ? 90 + this.leafClusterData.rotation.z
-        : 90 + this.leafClusterData.rotation.z
     const growData = {
       rotation: {
         x: 0,
         y: 0,
-        z: tilt,
+        z: this.leafClusterData.rotation.z,
         translate: 0
       },
       position: {
         x: this.leafClusterData.position.x - this.leafClusterData.height / 2,
         y:
-          -this.leafClusterData.position.y -
+          this.leafClusterData.position.y -
           this.leafClusterData.height / 2 +
           this.leafClusterData.offSet.top
       },
       height: this.leafClusterData.height,
       width: 75
     }
-    console.log(growData.position)
-    return this.styleObj(growData)
+    return this.styleObj(growData, true)
   }
 }
 </script>

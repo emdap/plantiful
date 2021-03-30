@@ -8,7 +8,6 @@ import {
   Coordinate
 } from "@/store/interfaces"
 import {
-  NO_POSITION,
   DEFAULT_LEAF_OPTIONS,
   DEFAULT_LEAF_TEXTURE,
   BRANCH_INIT
@@ -48,8 +47,6 @@ export function createLeaves(
     }
     const height = topHeight + bottomHeight
     const leaf: GrowLeaf = {
-      // startPoint: { x: 0, y: 0 },
-      // position: NO_POSITION(),
       position: {
         x: height / 2 - width / 2,
         y: -height / 2

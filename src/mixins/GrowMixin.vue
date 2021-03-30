@@ -130,8 +130,9 @@ export default class GrowMixin extends Vue {
     const colorList = basePlant.main_species.foliage.color
     const color = colorList ? colorList[0] : "green"
 
-    const leaves: GrowLeaf[] = createLeaves(color, -90)
-    const leaves2: GrowLeaf[] = createLeaves(color, -90)
+    const leaves: GrowLeaf[] = createLeaves(color, 10)
+    const leaves2: GrowLeaf[] = createLeaves("red", 5, { texture: "coarse" })
+    const leaves3: GrowLeaf[] = createLeaves("lime", -20)
     const leafHeight = leaves[0].height
     const leafCluster: GrowLeafCluster = {
       rotation: branch4.rotation,
@@ -149,14 +150,31 @@ export default class GrowMixin extends Vue {
       height: leafHeight,
       width: leafHeight,
       id: this.makeGrowId("leaf-cluster", entityId, 1),
-      leaves
+      leaves: leaves2
+    }
+    const leafCluster3: GrowLeafCluster = {
+      rotation: branch.rotation,
+      position: branch.endPoint,
+      offSet: branch.offSet,
+      height: leafHeight,
+      width: leafHeight,
+      id: this.makeGrowId("leaf-cluster", entityId, 1),
+      leaves: leaves3
     }
     const entity: GrowEntity = {
       name: basePlant.main_species.common_name,
       plantId: basePlant.id,
       id: entityId,
-      leafClusters: [leafCluster, leafCluster2],
-      branches: [mainBranch2, branch2, branch3, branch4, branch5],
+      leafClusters: [leafCluster, leafCluster2, leafCluster3],
+      branches: [
+        mainBranch,
+        branch,
+        mainBranch2,
+        branch2,
+        branch3,
+        branch4,
+        branch5
+      ],
       ...ENTITY_INIT() // default rotation/position/size,
     }
     grow.addEntity(entity)
@@ -165,7 +183,7 @@ export default class GrowMixin extends Vue {
 
   public get styleObj() {
     // convert entity attributes to CSS style properties
-    return (growData: GrowBasis | GrowShape) => {
+    return (growData: GrowBasis | GrowShape, posBottom = false) => {
       const transitionSpeed = growData.transitionSpeed
         ? growData.transitionSpeed
         : 0
@@ -182,10 +200,19 @@ export default class GrowMixin extends Vue {
         }
       }
 
+      const yPos = {
+        top: "",
+        bottom: ""
+      }
+      if (posBottom) {
+        yPos.bottom = growData.position.y + "px"
+      } else {
+        yPos.top = growData.position.y + "px"
+      }
       return {
         transform: `rotateX(${growData.rotation.x}deg) rotateY(${growData.rotation.y}deg) rotateZ(${growData.rotation.z}deg) translateZ(${growData.rotation.translate}px)`,
-        top: growData.position?.y + "px",
-        left: growData.position?.x + "px",
+        ...yPos,
+        left: growData.position.x + "px",
         height: growData.height + "px",
         width: growData.width + "px",
         transition: `all ${transitionSpeed}s`,

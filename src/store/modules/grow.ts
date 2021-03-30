@@ -1,12 +1,6 @@
 import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
 import store from "@/store"
-import {
-  GrowEntity,
-  GrowPosition,
-  GrowState,
-  Positions,
-  Rotation
-} from "@/store/interfaces"
+import { Coordinate, GrowEntity, GrowState, Rotation } from "@/store/interfaces"
 
 @Module({
   dynamic: true,
@@ -91,7 +85,7 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Action
-  setPosition(newPositions: GrowPosition) {
+  setPosition(newPositions: Coordinate) {
     this.UPDATE_POSITION(newPositions)
   }
 
@@ -101,7 +95,7 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Mutation
-  UPDATE_POSITION(position: GrowPosition) {
+  UPDATE_POSITION(position: Coordinate) {
     ;(this.activeEntity as GrowEntity).position = position
   }
 
