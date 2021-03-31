@@ -7,14 +7,18 @@ import GrowModule from "@/store/modules/grow"
 import { container } from "@/mixins/ContainerMixin.vue"
 import {
   GrowBasis,
-  GrowEntity,
+  GrowPlant,
   GrowLeaf,
   Coordinate,
   GrowShape,
   Plant,
   Rotation,
   GrowLeafCluster,
-  BranchOptions
+  BranchOptions,
+  GrowData,
+  GrowType,
+  GrowDataKey,
+  GrowEntity
 } from "@/store/interfaces"
 import { createLeaves, createBranch } from "@/utilities/CreatePlantStructures"
 // temp
@@ -40,16 +44,20 @@ export default class GrowMixin extends Vue {
     }
   }
 
-  public get entities(): GrowEntity[] {
-    return grow.entities
+  public get growPlants(): GrowData<GrowPlant> {
+    return grow.plants
   }
 
-  public get activeEntity(): GrowEntity | null {
+  public get activePlant(): GrowPlant | null {
+    return grow.activePlant
+  }
+
+  public get activeEntity(): GrowType | null {
     return grow.activeEntity
   }
 
-  public makeGrowId(growType: string, id: string, index: number) {
-    return `${growType}-${id}-${index + 1}`
+  public get getEntity() {
+    return grow.getEntity
   }
 
   public growPlant(basePlant: Plant) {
@@ -62,8 +70,8 @@ export default class GrowMixin extends Vue {
       container.toggleWidget(growWidget)
     }
 
-    const plantEntityCount = grow.countPlantEntities(basePlant.id)
-    const entityId = `${basePlant.id}-${plantEntityCount}`
+    // const plantEntityCount = grow.countPlantEntities(basePlant.id)
+    // const plantId = this.generateGrowId("plants")
 
     // TEMP to demo - TODO: make recursive function to create structures based on plant characteristics
     // TODO: add fixture for leaf shapes depending on plant properties
@@ -85,100 +93,98 @@ export default class GrowMixin extends Vue {
       hasLeaf: false,
       hasFlower: false
     }
-    const mainBranch = createBranch(
-      startPoint,
-      this.makeGrowId("branch", entityId, 1),
-      0,
-      branchOptions
-    )
-    const branch = createBranch(
-      mainBranch.endPoint,
-      this.makeGrowId("branch", entityId, 1),
-      mainBranch.height,
-      branchOptions
-    )
+    const mainBranch = createBranch(startPoint, branchOptions)
+    const branch = createBranch(mainBranch.endPoint, branchOptions)
 
-    const mainBranch2 = createBranch(
-      startPoint,
-      this.makeGrowId("branch", entityId, 1),
-      0
-    )
-    const branch2 = createBranch(
-      mainBranch2.endPoint,
-      this.makeGrowId("branch", entityId, 1),
-      71,
-      branchOptions
-    )
-    const branch3 = createBranch(
-      branch2.endPoint,
-      this.makeGrowId("branch", entityId, 1),
-      18,
-      branchOptions
-    )
-    const branch4 = createBranch(
-      branch3.endPoint,
-      this.makeGrowId("branch", entityId, 1),
-      18,
-      branchOptions2
-    )
-    const branch5 = createBranch(
-      branch3.endPoint,
-      this.makeGrowId("branch", entityId, 1),
-      18
-    )
+    const mainBranch2 = createBranch(startPoint)
+    const branch2 = createBranch(mainBranch2.endPoint, branchOptions)
+    const branch3 = createBranch(branch2.endPoint, branchOptions)
+    const branch4 = createBranch(branch3.endPoint, branchOptions2)
+    const branch5 = createBranch(branch3.endPoint)
+
+    const allBranches = [
+      mainBranch,
+      mainBranch2,
+      branch,
+      branch2,
+      branch3,
+      branch4,
+      branch5
+    ]
+
+    for (const branch of allBranches) {
+      grow.addBranch(branch)
+    }
 
     const colorList = basePlant.main_species.foliage.color
     const color = colorList ? colorList[0] : "green"
 
+    // TODO: best practive for no id -> has ID once added? another interface? optional id property?
     const leaves: GrowLeaf[] = createLeaves(color, 10)
     const leaves2: GrowLeaf[] = createLeaves("red", 5, { texture: "coarse" })
     const leaves3: GrowLeaf[] = createLeaves("lime", -20)
     const leafHeight = leaves[0].height
+    const allLeafLists = [leaves, leaves2, leaves3]
+    for (const leafList of allLeafLists) {
+      for (const leaf of leafList) {
+        grow.addLeaf(leaf)
+      }
+    }
+    console.log(allLeafLists)
+
     const leafCluster: GrowLeafCluster = {
+      id: 0,
       rotation: branch4.rotation,
       position: branch4.endPoint,
       offSet: branch4.offSet,
       height: leafHeight,
       width: leafHeight,
-      id: this.makeGrowId("leaf-cluster", entityId, 1),
-      leaves
+      leaves: leaves.map(l => {
+        return l.id
+      })
     }
     const leafCluster2: GrowLeafCluster = {
+      id: 0,
       rotation: branch5.rotation,
       position: branch5.endPoint,
       offSet: branch5.offSet,
       height: leafHeight,
       width: leafHeight,
-      id: this.makeGrowId("leaf-cluster", entityId, 1),
-      leaves: leaves2
+      leaves: leaves2.map(l => {
+        return l.id
+      })
     }
     const leafCluster3: GrowLeafCluster = {
+      id: 0,
       rotation: branch.rotation,
       position: branch.endPoint,
       offSet: branch.offSet,
       height: leafHeight,
       width: leafHeight,
-      id: this.makeGrowId("leaf-cluster", entityId, 1),
-      leaves: leaves3
+      leaves: leaves3.map(l => {
+        return l.id
+      })
     }
-    const entity: GrowEntity = {
+    const allLeafClusters = [leafCluster, leafCluster2, leafCluster3]
+    for (const leafCluster of allLeafClusters) {
+      grow.addLeafCluster(leafCluster)
+    }
+    console.log(allLeafClusters)
+
+    const plant: GrowPlant = {
+      id: 0,
       name: basePlant.main_species.common_name,
       plantId: basePlant.id,
-      id: entityId,
-      leafClusters: [leafCluster, leafCluster2, leafCluster3],
-      branches: [
-        mainBranch,
-        branch,
-        mainBranch2,
-        branch2,
-        branch3,
-        branch4,
-        branch5
-      ],
+      leafClusters: allLeafClusters.map(l => {
+        return l.id
+      }),
+      branches: allBranches.map(b => {
+        return b.id
+      }),
       ...ENTITY_INIT() // default rotation/position/size,
     }
-    grow.addEntity(entity)
-    grow.setActiveEntity(entity)
+    grow.addPlant(plant)
+    grow.setActiveEntity({ id: plant.id, dataKey: "plants" })
   }
 
   public get styleObj() {
@@ -227,6 +233,7 @@ export default class GrowMixin extends Vue {
 
   @Watch("trackMouse")
   public mouseUpdatesEntity(track: boolean) {
+    console.log("track mouse", track)
     if (track) {
       document.addEventListener("mousemove", this.updateEntity)
     } else {
@@ -236,10 +243,16 @@ export default class GrowMixin extends Vue {
   }
 
   public updateEntity(e: MouseEvent) {
+    console.log("update entity")
     e.preventDefault()
-    if (!grow.activeEntity) {
+    if (!grow.activePlant) {
+      console.log("no active plant")
       return
     }
+
+    // if an entity is selected, update that, otherwise, update plant
+    // TODO: need to better figure out how I want these controls to work and implement above. RN, only for plants
+    const entity = grow.activePlant
 
     if (this.startX == null || this.startY == null) {
       this.startX = e.pageX
@@ -249,10 +262,10 @@ export default class GrowMixin extends Vue {
     // update rotation
     if (this.ctrlDown || this.shiftDown) {
       const newRotations: Rotation = {
-        x: grow.activeEntity.rotation.x,
-        y: grow.activeEntity.rotation.y,
-        z: grow.activeEntity.rotation.z,
-        translate: grow.activeEntity.rotation.translate
+        x: entity.rotation.x,
+        y: entity.rotation.y,
+        z: entity.rotation.z,
+        translate: entity.rotation.translate
       }
 
       if (this.ctrlDown && this.shiftDown) {
@@ -264,36 +277,46 @@ export default class GrowMixin extends Vue {
         newRotations.x += e.pageY - this.startY
         newRotations.y += e.pageX - this.startX
       }
-      grow.setRotation(newRotations)
+      grow.setRotation({
+        id: entity.id,
+        dataKey: "plants",
+        newRotations
+      })
     } else {
       // update position
-      const newPosition: Coordinate = {
-        y: 0,
-        x: 0
+      // const newPosition: Coordinate = {
+      //   y: 0,
+      //   x: 0
+      // }
+      // let currentTop = 0,
+      //   currentLeft = 0
+      // const activeElem = document.getElementById("plant-" + entity.id)
+      // these properties are now required
+      // if (entity.position.y) {
+      const currentTop = entity.position.y
+      // } else {
+      // currentTop = activeElem ? activeElem.offsetTop : 0
+      // }
+      // if (grow.activeEntity.position.x) {
+      const currentLeft = entity.position.x
+      // } else {
+      // currentLeft = activeElem ? activeElem.offsetLeft : 0
+      // }
+      const newPositions: Coordinate = {
+        y: currentTop + e.pageY - this.startY,
+        x: currentLeft + e.pageX - this.startX
       }
-      let currentTop = 0,
-        currentLeft = 0
-      const activeElem = document.getElementById(grow.activeEntity.id)
-      if (grow.activeEntity.position.y) {
-        currentTop = grow.activeEntity.position.y
-      } else {
-        currentTop = activeElem ? activeElem.offsetTop : 0
-      }
-      if (grow.activeEntity.position.x) {
-        currentLeft = grow.activeEntity.position.x
-      } else {
-        currentLeft = activeElem ? activeElem.offsetLeft : 0
-      }
-      newPosition.y = currentTop + e.pageY - this.startY
-      newPosition.x = currentLeft + e.pageX - this.startX
-      grow.setPosition(newPosition)
+      // newPosition.y = currentTop + e.pageY - this.startY
+      // newPosition.x = currentLeft + e.pageX - this.startX
+      grow.setPosition({ id: entity.id, dataKey: "plants", newPositions })
+      console.log(newPositions.x)
     }
     this.startY = e.pageY
     this.startX = e.pageX
   }
 
   public mouseDown(e: MouseEvent) {
-    if (grow.activeEntity) {
+    if (grow.activePlant) {
       e.preventDefault()
       this.trackMouse = true
     }
@@ -307,10 +330,10 @@ export default class GrowMixin extends Vue {
   }
 
   public keyDown(e: KeyboardEvent) {
-    if (!this.activeEntity) {
+    if (!this.activePlant) {
       return
     } else if (e.key == "Escape") {
-      grow.removeActiveEntity()
+      grow.removeActivePlant()
       return
     }
     if (!this.ctrlDown && e.ctrlKey) {
@@ -324,7 +347,7 @@ export default class GrowMixin extends Vue {
   }
 
   public keyUp(e: KeyboardEvent) {
-    if (!this.activeEntity) {
+    if (!this.activePlant) {
       return
     }
     if (this.ctrlDown && e.key == "Control") {

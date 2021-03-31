@@ -9,11 +9,7 @@
         class="h-full w-full"
         @dblclick.self="removeActive()"
       >
-        <entity
-          v-for="entity in entities"
-          :key="makeGrowId('plant', entity.id, 0)"
-          :entityData="entity"
-        />
+        <plant v-for="plant in growPlants" :key="plant.id" :plantData="plant" />
       </div>
     </widget>
   </div>
@@ -22,7 +18,7 @@
 <script lang="ts">
 import Component from "vue-class-component"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
-import Entity from "@/components/Grow/Entity.vue"
+import Plant from "@/components/Grow/Plant.vue"
 import Widget from "@/components/Widget.vue"
 import { WidgetInit } from "@/store/interfaces"
 import PlantIcon from "@/assets/icons/plant.svg"
@@ -32,7 +28,7 @@ import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
 @Component({
   components: {
     Widget,
-    Entity
+    Plant
   }
 })
 export default class Grow extends GrowMixin {
@@ -55,7 +51,7 @@ export default class Grow extends GrowMixin {
   }
 
   public removeActive() {
-    grow.removeActiveEntity()
+    grow.removeActivePlant()
   }
 }
 </script>

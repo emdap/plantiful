@@ -1,26 +1,26 @@
 <template>
   <div
-    :id="entityData.id"
-    :style="styleObj(entityData)"
+    :id="'plant-' + plantData.id"
+    :style="styleObj(plantData)"
     class="absolute"
     :class="{ 'outline-black': isActive }"
     @dblclick="setActive()"
   >
     <branch
-      v-for="(branch, index) in entityData.branches"
-      :key="makeGrowId('branch', entityData.id, index)"
-      :branchData="branch"
+      v-for="branch in plantData.branches"
+      :key="'branch-' + branch"
+      :branchData="getEntity('branches', branch)"
     />
     <leaf-cluster
-      v-for="(leafCluster, index) in entityData.leafClusters"
-      :key="makeGrowId('leaf-cluster', entityData.id, index)"
-      :leafClusterData="leafCluster"
+      v-for="leafCluster in plantData.leafClusters"
+      :key="'-leaf-cluster-' + leafCluster"
+      :leafClusterData="getEntity('leafClusters', leafCluster)"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { GrowEntity } from "@/store/interfaces"
+import { GrowPlant } from "@/store/interfaces"
 import Component from "vue-class-component"
 import { Prop } from "vue-property-decorator"
 // import messages from "@/fixtures/Messages"
@@ -36,24 +36,24 @@ import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
     LeafCluster
   }
 })
-export default class Entity extends GrowMixin {
-  @Prop() entityData!: GrowEntity
+export default class Plant extends GrowMixin {
+  @Prop() plantData!: GrowPlant
 
   public mounted() {
-    if (!this.entityData) {
+    if (!this.plantData) {
       throw console.error("no entity provided!")
     }
   }
 
   public get isActive(): boolean {
-    return grow.activeEntity?.id == this.entityData.id
+    return grow.activePlant?.id == this.plantData.id
   }
 
   public setActive() {
     if (this.isActive) {
-      grow.removeActiveEntity()
+      grow.removeActivePlant()
     } else {
-      grow.setActiveEntity(this.entityData)
+      grow.setActivePlant(this.plantData.id)
     }
   }
 }

@@ -21,9 +21,44 @@ export interface GardenState {
   }
 }
 
+// : {[key in GrowDataListNames]: GrowType} =
+// export type GrowListMapping = {
+//   plants: GrowDataList<GrowPlant>,
+//   branches: GrowDataList<GrowBranch>,
+//   leafClusters: GrowDataList<GrowLeafCluster>,
+//   leaves: GrowDataList<GrowLeaf>,
+//   flowers: GrowDataList<GrowFlower>
+// }
+// export type GrowList = {
+//   [key in keyof GrowListMapping]: GrowListMapping[key]
+// }
+
+export type GrowType =
+  | GrowPlant
+  | GrowBranch
+  | GrowLeafCluster
+  | GrowLeaf
+  | GrowFlower
+export type GrowDataKey =
+  | "plants"
+  | "branches"
+  | "leafClusters"
+  | "leaves"
+  | "flowers"
+
+export type GrowData<T> = {
+  [key: number]: T
+}
+
 export interface GrowState {
-  entities: GrowEntity[]
-  activeEntity: GrowEntity | null
+  plants: GrowData<GrowPlant>
+  branches: GrowData<GrowBranch>
+  leafClusters: GrowData<GrowLeafCluster>
+  leaves: GrowData<GrowLeaf>
+  flowers: GrowData<GrowFlower>
+  activePlant: GrowPlant | null
+  activeEntity: GrowBasis | null
+  activeEntityType: GrowDataKey | null
   showControls: boolean
   hasKeyListeners: boolean
 }
@@ -169,47 +204,43 @@ export type Positions = RequiredPositions | "right" | "bottom"
 export interface GrowBasis extends InteractableBasis {
   rotation: Rotation
   position: Coordinate
-  // transformOrigin: string
   height: number
   width: number
 }
 
 export interface GrowEntity extends GrowBasis {
+  id: number
+}
+
+export interface GrowPlant extends GrowEntity {
   name: string
-  id: string // plant id - instance of plant id
   plantId: number
-  leafClusters: GrowLeafCluster[]
-  branches: GrowBranch[]
+  leafClusters: number[]
+  branches: number[]
 }
 
-export interface GrowLeafCluster extends GrowBasis {
-  id: string
-  offSet: {
-    top: number
-    left: number
-  }
-  leaves: GrowLeaf[]
+export interface GrowLeafCluster extends GrowEntity {
+  offSet: GrowOffSet
+  leaves: number[]
 }
 
-export interface GrowLeaf extends GrowBasis {
+export interface GrowLeaf extends GrowEntity {
+  id: number
   shapes: GrowShape[]
 }
 
-export interface GrowFlower extends GrowBasis {
+export interface GrowFlower extends GrowEntity {
+  id: number
   shapes: GrowShape[]
 }
 
-export interface GrowBranch extends GrowBasis {
-  id: string
-  offSet: {
-    top: number
-    left: number
-  }
+export interface GrowBranch extends GrowEntity {
+  id: number
+  offSet: GrowOffSet
   startPoint: Coordinate
   endPoint: Coordinate
   hasLeaf: boolean
   hasFlower: boolean
-  parent: number
 }
 
 export interface GrowShape extends GrowBasis {
@@ -218,9 +249,10 @@ export interface GrowShape extends GrowBasis {
   opacity?: number
 }
 
-// export type GrowPosition = {
-//   [key in Positions]?: number
-// }
+export interface GrowOffSet {
+  top: number
+  left: number
+}
 
 export type Coordinate = {
   x: number

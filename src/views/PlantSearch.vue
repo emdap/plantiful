@@ -96,7 +96,7 @@ export default class PlantSearch extends mixins(
   }
 
   public removeMouseTracking() {
-    grow.removeActiveEntity()
+    grow.removeActivePlant()
   }
 
   public get plantContainerSize() {

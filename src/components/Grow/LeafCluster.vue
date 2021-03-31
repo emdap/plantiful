@@ -4,14 +4,14 @@
   <div class="leaf-cluster absolute z-20" :style="containerStyle">
     <div
       class="absolute"
-      v-for="(leaf, index) in leafClusterData.leaves"
-      :key="makeGrowId('leaf', leafClusterData.id, index)"
-      :style="styleObj(leaf)"
+      v-for="leaf in leafClusterData.leaves"
+      :key="'leaf-' + leaf"
+      :style="styleObj(getLeaf(leaf))"
       style="transform-origin: bottom"
     >
       <shape
-        v-for="(shape, index) in leaf.shapes"
-        :key="makeGrowId('shape', leafClusterData.id, index)"
+        v-for="(shape, index) in getLeaf(leaf).shapes"
+        :key="'leaf-' + leaf + '-shape-' + (index + 1)"
         :growData="shape"
       />
     </div>
@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import GrowMixin from "@/mixins/GrowMixin.vue"
-import { GrowLeafCluster } from "@/store/interfaces"
+import { GrowLeaf, GrowLeafCluster } from "@/store/interfaces"
 import { Prop } from "vue-property-decorator"
 import Shape from "@/components/Grow/Shape.vue"
 import Component from "vue-class-component"
@@ -39,6 +39,7 @@ export default class LeafCluster extends GrowMixin {
       // TODO: global errors for missing required props
       throw console.error("missing branch prop!")
     }
+    console.log(this.leafClusterData.leaves)
   }
 
   public get containerStyle() {
@@ -60,6 +61,12 @@ export default class LeafCluster extends GrowMixin {
       width: 75
     }
     return this.styleObj(growData, true)
+  }
+
+  public get getLeaf() {
+    return (id: number): GrowLeaf => {
+      return this.getEntity("leaves", id) as GrowLeaf
+    }
   }
 }
 </script>

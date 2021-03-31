@@ -47,6 +47,7 @@ export function createLeaves(
     }
     const height = topHeight + bottomHeight
     const leaf: GrowLeaf = {
+      id: 0,
       position: {
         x: height / 2 - width / 2,
         y: -height / 2
@@ -65,8 +66,6 @@ export function createLeaves(
 
 export function createBranch(
   startPoint: Coordinate,
-  branchId: string,
-  parentHeight: number,
   options: BranchOptions | null = null
 ): GrowBranch {
   const { height, width, angle, hasLeaf, hasFlower } = options
@@ -117,8 +116,7 @@ export function createBranch(
       y: top,
       x: left
     },
-    id: branchId,
-    parent: parentHeight
+    id: 0
   }
 
   return branch
