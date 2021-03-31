@@ -55,7 +55,7 @@ export const NO_POSITION = () => {
   }
 }
 
-export const ENTITY_INIT = (): GrowBasis => {
+export const PLANT_ENTITY_INIT = (): GrowBasis => {
   return {
     position: {
       y: 100,
@@ -67,8 +67,8 @@ export const ENTITY_INIT = (): GrowBasis => {
       z: 0,
       translate: 0,
     },
-    height: 100,
-    width: 100
+    height: 0,
+    width: 200
   }
 }
 

@@ -28,9 +28,10 @@ export default class GrowModule extends VuexModule implements GrowState {
   leafClusters = {} as GrowData<GrowLeafCluster>
   leaves = {} as GrowData<GrowLeaf>
   flowers = {} as GrowData<GrowFlower>
-  activePlant: GrowPlant | null = null
+  activeGrowPlant: GrowPlant | null = null
   activeEntity: GrowType | null = null
   activeEntityType: GrowDataKey | null = null
+  growWindowActive = false
   showControls = true
   hasKeyListeners = false
 
@@ -38,27 +39,16 @@ export default class GrowModule extends VuexModule implements GrowState {
   // that list before activating mutation
   // can re-use for which controls to display
 
-  // private get entityIndex() {
-  //   return (entityId: string) => {
-  //     return this.entities.findIndex(entity => {
-  //       return entity.id == entityId
-  //     })
-  //   }
-  // }
-
   public get getEntity() {
     return (dataKey: GrowDataKey, id: number) => {
       return this[dataKey][id]
     }
   }
 
-  // public get countPlantEntities() {
-  //   return (plantId: number): number => {
-  //     return this.entities.filter(entity => {
-  //       return entity.plantId == plantId
-  //     }).length
-  //   }
-  // }
+  @Action
+  setGrowWindowActive(active: boolean) {
+    this.GROW_WINDOW_ACTIVE(active)
+  }
 
   @Action
   setActivePlant(id: number) {
@@ -110,24 +100,6 @@ export default class GrowModule extends VuexModule implements GrowState {
     this.ADD_ENTITY({ dataKey: "flowers", entity: flower })
   }
 
-  // @Action
-  // updatePlant(payload: {plantId: number, newPlant: GrowPlant}) {
-  //   if (this.plants[plantId]) {
-  //   // const entityIndex = this.entityIndex(entityId)
-  //   // if (entityIndex > -1) {
-  //     this.UPDATE_ENTITY(payload: plantId, newPlant)
-  //   }
-  // }
-
-  // @Action
-  // removePLant(plantId: number) {
-  //   // const entityIndex = this.entityIndex(entityId)
-  //   if (this.plants[plantId]) {
-  //     // if (entityIndex > -1) {
-  //     this.REMOVE_ENTITY(plantId)
-  //   }
-  // }
-
   @Action
   toggleControls(show: boolean) {
     this.TOGGLE_CONTROLS(show)
@@ -159,7 +131,11 @@ export default class GrowModule extends VuexModule implements GrowState {
     if (this[payload.dataKey][payload.id]) {
       this.UPDATE_POSITION(payload)
     }
-    // this.UPDATE_POSITION(newPositions)
+  }
+
+  @Mutation
+  GROW_WINDOW_ACTIVE(active: boolean) {
+    this.growWindowActive = active
   }
 
   @Mutation
@@ -169,9 +145,8 @@ export default class GrowModule extends VuexModule implements GrowState {
     newRotations: Rotation
   }) {
     const { id, dataKey, newRotations } = payload
-    Vue.set(this[dataKey][id], "rotation", newRotations)
-    // if (this.activePlant)
-    // (this.activeEntity as GrowPlant).rotation = rotation
+    this[dataKey][id].rotation = newRotations
+    // Vue.set(this[dataKey][id], "rotation", newRotations)
   }
 
   @Mutation
@@ -181,8 +156,8 @@ export default class GrowModule extends VuexModule implements GrowState {
     newPositions: Coordinate
   }) {
     const { id, dataKey, newPositions } = payload
-    Vue.set(this[dataKey][id], "position", newPositions)
-    // (this.activeEntity as GrowPlant).position = position
+    this[dataKey][id].position = newPositions
+    // Vue.set(this[dataKey][id], "position", newPositions)
   }
 
   @Mutation
@@ -197,13 +172,16 @@ export default class GrowModule extends VuexModule implements GrowState {
 
   @Mutation
   ACTIVE_ENTITY(payload: { dataKey: GrowDataKey; id: number | null }) {
+    // idea: have active plant, and active entity. active entity = active plant when first activated,
+    // after that, can set active entity to any PART of the active plant
     const { dataKey, id } = payload
     const newActive = id ? this[dataKey][id] : null
     if (dataKey == "plants") {
-      this.activePlant = newActive as GrowPlant | null
-    } else {
-      this.activeEntity = newActive
+      this.activeGrowPlant = newActive as GrowPlant | null
     }
+    // de-activating active part of plant -> activeEntity resets to the plant itself
+    this.activeEntity =
+      !newActive && this.activeGrowPlant ? this.activeGrowPlant : newActive
   }
 
   @Mutation

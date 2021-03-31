@@ -8,6 +8,7 @@
     @focus="inFocus = true"
     @blur="inFocus = false"
   >
+    <!-- @click="toggleGrowWindow()" -->
     <div v-if="!error" class="flex flex-grow flex-col overflow-auto">
       <div class="flex flex-row mb-1 sticky left-0">
         <docked-icon
@@ -170,6 +171,7 @@ export default class Widget extends ContainerMixin {
   }
 
   // Utilities
+
   public convertSize(
     convertValue: string | number | undefined,
     dimension: Dimensions | undefined = undefined
@@ -236,8 +238,6 @@ export default class Widget extends ContainerMixin {
   @Watch("trackSize")
   mouseUpdatesSize(track: boolean) {
     if (track) {
-      // don't want active grow window to move with any widgets
-      grow.removeActiveEntity()
       document.addEventListener("mousemove", this.updateSize)
     } else {
       this.sizeStartY = this.sizeStartX = null
@@ -251,8 +251,6 @@ export default class Widget extends ContainerMixin {
       if (this.widgetState.docked) {
         container.toggleDocked(this.widgetState)
       }
-      // don't want active grow window to move with any widgets
-      grow.removeActiveEntity()
       document.addEventListener("mousemove", this.updatePosition)
     } else {
       this.posStartY = this.posStartX = null

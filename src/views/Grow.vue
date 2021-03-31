@@ -1,12 +1,15 @@
 <template>
-  <div id="grow-container" class="flex flex-grow h-full overflow-hidden">
+  <div :id="containerId" class="flex flex-grow h-full overflow-hidden">
     <widget
       :initWidgetState="growWidget.entity"
       :initDisplay="growWidget.display"
+      @click.self="activateWindow(false)"
     >
       <div
         id="entity-wrapper"
         class="h-full w-full"
+        @mousedown="activateWindow(true)"
+        @mouseup="activateWindow(false)"
         @dblclick.self="removeActive()"
       >
         <plant v-for="plant in growPlants" :key="plant.id" :plantData="plant" />
@@ -52,6 +55,10 @@ export default class Grow extends GrowMixin {
 
   public removeActive() {
     grow.removeActivePlant()
+  }
+
+  public activateWindow(activate: boolean) {
+    grow.setGrowWindowActive(activate)
   }
 }
 </script>

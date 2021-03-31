@@ -1,9 +1,12 @@
 <template>
   <!-- TODO: add tailwind utilities for transform-origin -->
   <!-- TODO/NOTE : having top part of leaf positioned above container, w/ transform origin right, had cool effect -->
-  <div class="leaf-cluster absolute z-20" :style="containerStyle">
+  <div
+    class="leaf-cluster absolute z-20 cursor-pointer"
+    :style="containerStyle"
+  >
     <div
-      class="absolute"
+      :class="['absolute rounded-full', leafColor]"
       v-for="leaf in leafClusterData.leaves"
       :key="'leaf-' + leaf"
       :style="styleObj(getLeaf(leaf))"
@@ -21,7 +24,7 @@
 <script lang="ts">
 import GrowMixin from "@/mixins/GrowMixin.vue"
 import { GrowLeaf, GrowLeafCluster } from "@/store/interfaces"
-import { Prop } from "vue-property-decorator"
+import { Prop, Watch } from "vue-property-decorator"
 import Shape from "@/components/Grow/Shape.vue"
 import Component from "vue-class-component"
 
@@ -32,6 +35,10 @@ import Component from "vue-class-component"
 })
 export default class LeafCluster extends GrowMixin {
   @Prop() leafClusterData!: GrowLeafCluster
+  @Prop({ default: false }) plantActive!: boolean
+
+  public defaultColor = "bg-transparent"
+  public leafColor = this.defaultColor
 
   mounted() {
     // TODO: the public is unnecessary right?
@@ -39,7 +46,7 @@ export default class LeafCluster extends GrowMixin {
       // TODO: global errors for missing required props
       throw console.error("missing branch prop!")
     }
-    console.log(this.leafClusterData.leaves)
+    this.toggleHighlight()
   }
 
   public get containerStyle() {
@@ -66,6 +73,20 @@ export default class LeafCluster extends GrowMixin {
   public get getLeaf() {
     return (id: number): GrowLeaf => {
       return this.getEntity("leaves", id) as GrowLeaf
+    }
+  }
+
+  @Watch("plantActive")
+  public highlightBranch() {
+    this.toggleHighlight()
+  }
+
+  public toggleHighlight() {
+    if (this.plantActive) {
+      this.leafColor = "bg-" + this.highlightColor
+      setTimeout(() => {
+        this.leafColor = this.defaultColor
+      }, 1000)
     }
   }
 }

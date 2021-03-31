@@ -21,18 +21,6 @@ export interface GardenState {
   }
 }
 
-// : {[key in GrowDataListNames]: GrowType} =
-// export type GrowListMapping = {
-//   plants: GrowDataList<GrowPlant>,
-//   branches: GrowDataList<GrowBranch>,
-//   leafClusters: GrowDataList<GrowLeafCluster>,
-//   leaves: GrowDataList<GrowLeaf>,
-//   flowers: GrowDataList<GrowFlower>
-// }
-// export type GrowList = {
-//   [key in keyof GrowListMapping]: GrowListMapping[key]
-// }
-
 export type GrowType =
   | GrowPlant
   | GrowBranch
@@ -56,9 +44,10 @@ export interface GrowState {
   leafClusters: GrowData<GrowLeafCluster>
   leaves: GrowData<GrowLeaf>
   flowers: GrowData<GrowFlower>
-  activePlant: GrowPlant | null
-  activeEntity: GrowBasis | null
+  activeGrowPlant: GrowPlant | null
+  activeEntity: GrowEntity | null
   activeEntityType: GrowDataKey | null
+  growWindowActive: boolean
   showControls: boolean
   hasKeyListeners: boolean
 }
@@ -215,6 +204,7 @@ export interface GrowEntity extends GrowBasis {
 export interface GrowPlant extends GrowEntity {
   name: string
   plantId: number
+  showName: boolean
   leafClusters: number[]
   branches: number[]
 }
@@ -241,6 +231,11 @@ export interface GrowBranch extends GrowEntity {
   endPoint: Coordinate
   hasLeaf: boolean
   hasFlower: boolean
+  // the height/width of the rotated branch
+  // normal height/width properties are the actual size of the containing rectangle
+  branchHeight: number
+  branchWidth: number
+  branchPosition: Coordinate
 }
 
 export interface GrowShape extends GrowBasis {

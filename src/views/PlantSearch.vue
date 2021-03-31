@@ -3,7 +3,6 @@
     id="plant-search"
     class="flex flex-row h-screen transition-all ease-in-out duration-1000 relative"
     :class="plantContainerSize"
-    @click="removeMouseTracking"
   >
     <widget
       :initDisplay="searchWidget.display"
@@ -95,21 +94,11 @@ export default class PlantSearch extends mixins(
     }
   }
 
-  public removeMouseTracking() {
-    grow.removeActivePlant()
-  }
-
   public get plantContainerSize() {
     const searchOnly =
       this.searchWidget.entity.open && this.countOpenWidgets <= 1
     if (searchOnly) {
       return "w-full"
-      // } else if (
-      //   this.countOpenWidgets == 2 &&
-      //   this.searchWidget.entity.open &&
-      //   this.activePlantWidget.entity.open
-      // ) {
-      //   return "w-1/3"
     } else if (
       !this.searchWidget.entity.open &&
       !this.activePlantWidget.entity.open

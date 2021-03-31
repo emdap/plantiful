@@ -16,13 +16,11 @@ import {
   GrowLeafCluster,
   BranchOptions,
   GrowData,
-  GrowType,
-  GrowDataKey,
-  GrowEntity
+  GrowType
 } from "@/store/interfaces"
 import { createLeaves, createBranch } from "@/utilities/CreatePlantStructures"
 // temp
-import { ENTITY_INIT } from "@/fixtures/Grow/Defaults"
+import { PLANT_ENTITY_INIT } from "@/fixtures/Grow/Defaults"
 
 export const grow = getModule(GrowModule)
 
@@ -33,6 +31,9 @@ export default class GrowMixin extends Vue {
   private startY: number | null = null
   private startX: number | null = null
   public trackMouse = false
+
+  public highlightColor = "purple-700"
+  public containerId = "grow-container"
 
   public mounted() {
     if (!grow.hasKeyListeners) {
@@ -48,8 +49,8 @@ export default class GrowMixin extends Vue {
     return grow.plants
   }
 
-  public get activePlant(): GrowPlant | null {
-    return grow.activePlant
+  public get activeGrowPlant(): GrowPlant | null {
+    return grow.activeGrowPlant
   }
 
   public get activeEntity(): GrowType | null {
@@ -70,8 +71,7 @@ export default class GrowMixin extends Vue {
       container.toggleWidget(growWidget)
     }
 
-    // const plantEntityCount = grow.countPlantEntities(basePlant.id)
-    // const plantId = this.generateGrowId("plants")
+    const growWindow = document.getElementById(this.containerId) as HTMLElement
 
     // TEMP to demo - TODO: make recursive function to create structures based on plant characteristics
     // TODO: add fixture for leaf shapes depending on plant properties
@@ -130,7 +130,6 @@ export default class GrowMixin extends Vue {
         grow.addLeaf(leaf)
       }
     }
-    console.log(allLeafLists)
 
     const leafCluster: GrowLeafCluster = {
       id: 0,
@@ -169,10 +168,11 @@ export default class GrowMixin extends Vue {
     for (const leafCluster of allLeafClusters) {
       grow.addLeafCluster(leafCluster)
     }
-    console.log(allLeafClusters)
 
     const plant: GrowPlant = {
+      ...PLANT_ENTITY_INIT(), // default rotation/position/size
       id: 0,
+      showName: true,
       name: basePlant.main_species.common_name,
       plantId: basePlant.id,
       leafClusters: allLeafClusters.map(l => {
@@ -181,7 +181,10 @@ export default class GrowMixin extends Vue {
       branches: allBranches.map(b => {
         return b.id
       }),
-      ...ENTITY_INIT() // default rotation/position/size,
+      position: {
+        x: growWindow.getBoundingClientRect().width / 2,
+        y: growWindow.getBoundingClientRect().height / 2
+      }
     }
     grow.addPlant(plant)
     grow.setActiveEntity({ id: plant.id, dataKey: "plants" })
@@ -233,7 +236,6 @@ export default class GrowMixin extends Vue {
 
   @Watch("trackMouse")
   public mouseUpdatesEntity(track: boolean) {
-    console.log("track mouse", track)
     if (track) {
       document.addEventListener("mousemove", this.updateEntity)
     } else {
@@ -243,16 +245,13 @@ export default class GrowMixin extends Vue {
   }
 
   public updateEntity(e: MouseEvent) {
-    console.log("update entity")
     e.preventDefault()
-    if (!grow.activePlant) {
+    if (!grow.activeEntity) {
       console.log("no active plant")
       return
     }
 
-    // if an entity is selected, update that, otherwise, update plant
-    // TODO: need to better figure out how I want these controls to work and implement above. RN, only for plants
-    const entity = grow.activePlant
+    const entity = grow.activeEntity
 
     if (this.startX == null || this.startY == null) {
       this.startX = e.pageX
@@ -284,39 +283,21 @@ export default class GrowMixin extends Vue {
       })
     } else {
       // update position
-      // const newPosition: Coordinate = {
-      //   y: 0,
-      //   x: 0
-      // }
-      // let currentTop = 0,
-      //   currentLeft = 0
-      // const activeElem = document.getElementById("plant-" + entity.id)
-      // these properties are now required
-      // if (entity.position.y) {
       const currentTop = entity.position.y
-      // } else {
-      // currentTop = activeElem ? activeElem.offsetTop : 0
-      // }
-      // if (grow.activeEntity.position.x) {
       const currentLeft = entity.position.x
-      // } else {
-      // currentLeft = activeElem ? activeElem.offsetLeft : 0
-      // }
       const newPositions: Coordinate = {
         y: currentTop + e.pageY - this.startY,
         x: currentLeft + e.pageX - this.startX
       }
-      // newPosition.y = currentTop + e.pageY - this.startY
-      // newPosition.x = currentLeft + e.pageX - this.startX
+
       grow.setPosition({ id: entity.id, dataKey: "plants", newPositions })
-      console.log(newPositions.x)
     }
     this.startY = e.pageY
     this.startX = e.pageX
   }
 
   public mouseDown(e: MouseEvent) {
-    if (grow.activePlant) {
+    if (grow.activeEntity && grow.growWindowActive) {
       e.preventDefault()
       this.trackMouse = true
     }
@@ -330,7 +311,7 @@ export default class GrowMixin extends Vue {
   }
 
   public keyDown(e: KeyboardEvent) {
-    if (!this.activePlant) {
+    if (!this.activeEntity) {
       return
     } else if (e.key == "Escape") {
       grow.removeActivePlant()
@@ -347,7 +328,7 @@ export default class GrowMixin extends Vue {
   }
 
   public keyUp(e: KeyboardEvent) {
-    if (!this.activePlant) {
+    if (!this.activeEntity) {
       return
     }
     if (this.ctrlDown && e.key == "Control") {

@@ -74,10 +74,6 @@ function leafTemplate(
       color,
       rotation: NO_ROTATION(),
       position: NO_POSITION(),
-      // position: {
-      //   y: -1 * topBorder.bottom.size + 1,
-      //   x: 0
-      // },
       height: 0,
       width: 0,
       border: topBorder

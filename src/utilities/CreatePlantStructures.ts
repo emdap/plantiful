@@ -55,7 +55,8 @@ export function createLeaves(
       rotation,
       height,
       width,
-      shapes
+      shapes,
+      transitionSpeed: 0.75
     }
 
     leaves.push(leaf)
@@ -95,6 +96,16 @@ export function createBranch(
   // review geometry and how CSS behaves.
   // Within reasonable bounds for height/branch width, it displays good enough for now.
 
+  // x endPoint can be negative/before start point if branch is rotated negatively
+  const bigX = Math.max(endPoint.x, startPoint.x)
+  const smallX = Math.min(endPoint.x, startPoint.x)
+  const containerWidth = bigX - smallX + leftOffset / 2
+  const containerHeight = endPoint.y - startPoint.y + topOffset
+  const containerPosition: Coordinate = {
+    y: startPoint.y,
+    x: smallX
+  }
+
   const branch: GrowBranch = {
     startPoint,
     endPoint,
@@ -104,18 +115,22 @@ export function createBranch(
       top: topOffset,
       left: leftOffset
     },
-    height,
-    width,
+    height: containerHeight,
+    width: containerWidth,
     rotation: {
       x: 0,
       y: 0,
       z: angle,
       translate: 0
     },
-    position: {
-      y: top,
-      x: left
+    position: containerPosition,
+    branchHeight: height,
+    branchWidth: width,
+    branchPosition: {
+      x: left,
+      y: top
     },
+    transitionSpeed: 0.75,
     id: 0
   }
 
