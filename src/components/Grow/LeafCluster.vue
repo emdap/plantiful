@@ -46,7 +46,8 @@ export default class LeafCluster extends GrowMixin {
       // TODO: global errors for missing required props
       throw console.error("missing branch prop!")
     }
-    this.toggleHighlight()
+    // messes with animation effect
+    // this.toggleHighlight()
   }
 
   public get containerStyle() {

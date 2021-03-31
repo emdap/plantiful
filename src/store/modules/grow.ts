@@ -15,6 +15,7 @@ import {
   GrowType
 } from "@/store/interfaces"
 import Vue from "vue"
+import { NO_POSITION, NO_ROTATION } from "@/fixtures/Grow/Defaults"
 
 @Module({
   dynamic: true,
@@ -82,7 +83,21 @@ export default class GrowModule extends VuexModule implements GrowState {
 
   @Action
   addBranch(branch: GrowBranch) {
-    this.ADD_ENTITY({ dataKey: "branches", entity: branch })
+    const tempBranch: GrowBranch = {
+      ...branch,
+      rotation: NO_ROTATION(),
+      branchHeight: 0,
+      height: 0
+    }
+    this.ADD_ENTITY({ dataKey: "branches", entity: tempBranch })
+    branch.id = tempBranch.id // id created upon adding
+    setTimeout(() => {
+      this.UPDATE_ENTITY({
+        dataKey: "branches",
+        entityId: tempBranch.id,
+        newEntity: branch
+      })
+    }, 1)
   }
 
   @Action
@@ -92,7 +107,20 @@ export default class GrowModule extends VuexModule implements GrowState {
 
   @Action
   addLeaf(leaf: GrowLeaf) {
-    this.ADD_ENTITY({ dataKey: "leaves", entity: leaf })
+    const tempLeaf: GrowLeaf = {
+      ...leaf,
+      rotation: NO_ROTATION(),
+      shapes: []
+    }
+    this.ADD_ENTITY({ dataKey: "leaves", entity: tempLeaf })
+    leaf.id = tempLeaf.id
+    setTimeout(() => {
+      this.UPDATE_ENTITY({
+        dataKey: "leaves",
+        entityId: tempLeaf.id,
+        newEntity: leaf
+      })
+    }, 1000)
   }
 
   @Action
