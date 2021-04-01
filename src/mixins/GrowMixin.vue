@@ -32,8 +32,9 @@ export default class GrowMixin extends Vue {
   private startX: number | null = null
   public trackMouse = false
 
-  public highlightColor = "purple-700"
   public containerId = "grow-container"
+  public highlightBg = "purple-500"
+  public highlightDuration = 1000
 
   public mounted() {
     if (!grow.hasKeyListeners) {
@@ -231,6 +232,12 @@ export default class GrowMixin extends Vue {
         opacity,
         ...borders
       }
+    }
+  }
+
+  public get backgroundClass() {
+    return (defaultBg: string, highlight: boolean) => {
+      return "bg-" + (highlight ? this.highlightBg : defaultBg)
     }
   }
 

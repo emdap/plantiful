@@ -54,7 +54,7 @@ export default class Plant extends GrowMixin {
       throw console.error("no entity provided!")
     }
     if (this.isActive) {
-      this.textClass = this.highlightClass
+      this.textClass = this.highlightText
     }
   }
 
@@ -70,36 +70,36 @@ export default class Plant extends GrowMixin {
     }
   }
 
-  public get highlightClass() {
-    return "text-" + this.highlightColor + " font-semibold"
+  public get highlightText() {
+    return "text-" + this.highlightBg + " font-semibold"
   }
 
   @Watch("isActive")
   public highlightPlant() {
     if (this.isActive) {
-      this.textClass = this.highlightClass
+      this.textClass = this.highlightText
     } else {
       this.textClass = this.defaultColor
     }
   }
 
   public get styleGeneral() {
-    const growData = {
+    const styleData = {
       ...this.plantData,
       rotation: NO_ROTATION()
     }
-    return this.styleObj(growData)
+    return this.styleObj(styleData)
   }
 
   public get styleRotation() {
-    const growData = {
+    const styleData = {
       position: NO_POSITION(),
       rotation: this.plantData.rotation,
       height: 0,
       width: 0
     }
 
-    return this.styleObj(growData)
+    return this.styleObj(styleData)
   }
 }
 </script>

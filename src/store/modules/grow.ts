@@ -83,6 +83,7 @@ export default class GrowModule extends VuexModule implements GrowState {
 
   @Action
   addBranch(branch: GrowBranch) {
+    // TODO: is this the best method for accomplishing this? maybe create a zeroing out function instead?
     const tempBranch: GrowBranch = {
       ...branch,
       rotation: NO_ROTATION(),

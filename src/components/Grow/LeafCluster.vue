@@ -2,11 +2,12 @@
   <!-- TODO: add tailwind utilities for transform-origin -->
   <!-- TODO/NOTE : having top part of leaf positioned above container, w/ transform origin right, had cool effect -->
   <div
+    :id="'leaf-cluster-' + leafClusterData"
     class="leaf-cluster absolute z-20 cursor-pointer"
     :style="containerStyle"
   >
     <div
-      :class="['absolute rounded-full', leafColor]"
+      :class="['absolute rounded-full', backgroundClass(defaultBg, highlight)]"
       v-for="leaf in leafClusterData.leaves"
       :key="'leaf-' + leaf"
       :style="styleObj(getLeaf(leaf))"
@@ -37,21 +38,18 @@ export default class LeafCluster extends GrowMixin {
   @Prop() leafClusterData!: GrowLeafCluster
   @Prop({ default: false }) plantActive!: boolean
 
-  public defaultColor = "bg-transparent"
-  public leafColor = this.defaultColor
+  public defaultBg = "transparent"
+  public highlight = false
 
-  mounted() {
-    // TODO: the public is unnecessary right?
+  public mounted() {
     if (!this.leafClusterData) {
       // TODO: global errors for missing required props
       throw console.error("missing branch prop!")
     }
-    // messes with animation effect
-    // this.toggleHighlight()
   }
 
   public get containerStyle() {
-    const growData = {
+    const styleData = {
       rotation: {
         x: 0,
         y: 0,
@@ -68,7 +66,7 @@ export default class LeafCluster extends GrowMixin {
       height: this.leafClusterData.height,
       width: 75
     }
-    return this.styleObj(growData, true)
+    return this.styleObj(styleData, true)
   }
 
   public get getLeaf() {
@@ -78,16 +76,12 @@ export default class LeafCluster extends GrowMixin {
   }
 
   @Watch("plantActive")
-  public highlightBranch() {
-    this.toggleHighlight()
-  }
-
-  public toggleHighlight() {
-    if (this.plantActive) {
-      this.leafColor = "bg-" + this.highlightColor
+  public toggleHighlight(active: boolean) {
+    if (active) {
+      this.highlight = true
       setTimeout(() => {
-        this.leafColor = this.defaultColor
-      }, 1000)
+        this.highlight = false
+      }, this.highlightDuration)
     }
   }
 }

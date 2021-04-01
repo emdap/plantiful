@@ -1,11 +1,11 @@
 <template>
   <div
-    :id="branchData.id"
+    :id="'branch-' + branchData.id"
     class="absolute cursor-pointer"
     :style="containerStyle"
   >
     <div
-      :class="['absolute z-10', branchColor]"
+      :class="['absolute z-10', backgroundClass(defaultBg, highlight)]"
       style="transform-origin: bottom center"
       :style="branchStyle"
     />
@@ -24,49 +24,43 @@ export default class Branch extends GrowMixin {
   @Prop() branchData!: GrowBranch
   @Prop({ default: false }) plantActive!: boolean
 
-  public defaultColor = "bg-black"
-  public branchColor = this.defaultColor
+  public defaultBg = "black"
+  public highlight = false
 
-  mounted() {
-    // TODO: the public is unnecessary right?
+  public mounted() {
     if (!this.branchData) {
       // TODO: global errors for missing required props
       throw console.error("missing branch prop!")
     }
-    this.toggleHighlight()
   }
 
   public get containerStyle() {
-    const growData = {
+    const styleData = {
       rotation: NO_ROTATION(),
       position: this.branchData.position,
       height: this.branchData.height,
       width: this.branchData.width
     }
-    return this.styleObj(growData, true)
+    return this.styleObj(styleData, true)
   }
 
   public get branchStyle() {
-    const growData = {
+    const styleData = {
       ...this.branchData,
       height: this.branchData.branchHeight,
       width: this.branchData.branchWidth,
       position: this.branchData.branchPosition
     }
-    return this.styleObj(growData)
+    return this.styleObj(styleData)
   }
 
   @Watch("plantActive")
-  public highlightBranch() {
-    this.toggleHighlight()
-  }
-
-  public toggleHighlight() {
-    if (this.plantActive) {
-      this.branchColor = "bg-" + this.highlightColor
+  public toggleHighlight(active: boolean) {
+    if (active) {
+      this.highlight = true
       setTimeout(() => {
-        this.branchColor = this.defaultColor
-      }, 1000)
+        this.highlight = false
+      }, this.highlightDuration)
     }
   }
 }
