@@ -1,10 +1,6 @@
 <template>
   <div :id="containerId" class="flex flex-grow h-full overflow-hidden">
-    <widget
-      :initWidgetState="growWidget.entity"
-      :initDisplay="growWidget.display"
-      @click.self="activateWindow(false)"
-    >
+    <widget :widgetData="growWidget" @click.self="activateWindow(false)">
       <div
         id="plant-wrapper"
         class="h-full w-full"
@@ -23,8 +19,8 @@ import Component from "vue-class-component"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import Plant from "@/components/Grow/Plant.vue"
 import Widget from "@/components/Widget.vue"
-import { WidgetInit } from "@/store/interfaces"
-import PlantIcon from "@/assets/icons/plant.svg"
+import { WidgetEntity } from "@/store/interfaces"
+import { Prop } from "vue-property-decorator"
 // temp
 import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
 
@@ -35,18 +31,7 @@ import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
   }
 })
 export default class Grow extends GrowMixin {
-  public growWidget: WidgetInit = {
-    entity: {
-      name: "grow",
-      icon: PlantIcon,
-      open: false,
-      docked: true,
-      inMenu: true
-    },
-    display: {
-      flexGrow: true
-    }
-  }
+  @Prop({ required: true }) growWidget!: WidgetEntity
 
   public mounted() {
     // temp

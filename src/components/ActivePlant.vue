@@ -21,9 +21,7 @@
           </template>
         </li>
       </ul>
-      <button class="btn-primary" @click="$emit('grow-plant', $event)">
-        Grow
-      </button>
+      <slot> </slot>
     </template>
   </div>
 </template>

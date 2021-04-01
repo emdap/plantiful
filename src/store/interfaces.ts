@@ -21,6 +21,12 @@ export interface GardenState {
   }
 }
 
+export interface ContainerState {
+  widgets: {
+    [key: string]: WidgetEntity
+  }
+}
+
 export type GrowType =
   | GrowPlant
   | GrowBranch
@@ -50,10 +56,6 @@ export interface GrowState {
   growWindowActive: boolean
   showControls: boolean
   hasKeyListeners: boolean
-}
-
-export interface ContainerState {
-  widgets: WidgetEntity[]
 }
 
 // Plants
@@ -278,6 +280,7 @@ export interface WidgetEntity {
   open: boolean
   docked: boolean
   inMenu: boolean
+  display: WidgetDisplay
 }
 
 // these are used to style the widget. Leave blank = that attribute is not styled
@@ -292,10 +295,10 @@ export interface WidgetDisplay {
   minWidth?: number
 }
 
-export interface WidgetInit {
-  entity: WidgetEntity
-  display: WidgetDisplay
-}
+// export interface WidgetInit {
+//   entity: WidgetEntity
+//   display: WidgetDisplay
+// }
 
 export type WidgetPosition = {
   [key in RequiredPositions]: number | string

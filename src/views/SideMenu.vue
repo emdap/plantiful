@@ -5,8 +5,8 @@
   >
     <menu-icon
       :is="widget.icon"
-      v-for="(widget, index) in menuWidgets"
-      :key="`widget-icon-${index}`"
+      v-for="widget in widgetList"
+      :key="`${widget.name}-icon`"
       :style="{ fill: widget.open ? 'purple' : 'gray' }"
       class="mb-4 cursor-pointer"
       @click="clickWidget(widget)"
@@ -23,6 +23,10 @@ import { WidgetEntity } from "@/store/interfaces"
 export default class Menu extends ContainerMixin {
   public clickWidget(widget: WidgetEntity) {
     container.toggleWidget(widget)
+  }
+
+  public mounted() {
+    console.log(this.widgetList)
   }
 }
 </script>

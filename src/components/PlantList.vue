@@ -7,7 +7,7 @@
       :class="
         plantListLoading
           ? 'text-gray-300 cursor-wait'
-          : 'cursor-pointer hover:bg-green-200'
+          : 'cursor-pointer hover:bg-green-200 hover:tracking-wide transition-text'
       "
     >
       <h3>{{ plant.common_name }}</h3>

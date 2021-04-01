@@ -2,12 +2,9 @@
   <div
     id="plant-search"
     class="flex flex-row h-screen transition-all ease-in-out duration-1000 relative"
-    :class="plantContainerSize"
+    :class="plantSearchSize"
   >
-    <widget
-      :initDisplay="searchWidget.display"
-      :initWidgetState="searchWidget.entity"
-    >
+    <widget :widgetData="searchWidget">
       <search-bar />
       <div class="relative">
         <loading
@@ -18,19 +15,24 @@
       </div>
       <template v-if="plantList.length">
         <page-nav />
+        <!-- TODO: add more buttons here to show more info, grow, or open activePlant modal -->
         <plant-list @plant-clicked="showActivePlant" />
       </template>
     </widget>
     <widget
       v-if="plantList.length || plantLoading"
-      :initDisplay="activePlantWidget.display"
-      :initWidgetState="activePlantWidget.entity"
+      :widgetData="activePlantWidget"
     >
       <loading
         v-if="plantLoading"
+        class="mt-12"
         :loadingText="messages.activePlant.loading"
       />
-      <active-plant v-else @grow-plant="dockAndGrow" />
+      <active-plant v-else>
+        <button class="btn-primary" @click="$emit('grow-plant', $event)">
+          Grow
+        </button>
+      </active-plant>
     </widget>
   </div>
 </template>
@@ -46,9 +48,8 @@ import ActivePlant from "@/components/ActivePlant.vue"
 import messages from "@/fixtures/Messages"
 import GardenMixin from "@/mixins/GardenMixin.vue"
 import ContainerMixin, { container } from "@/mixins/ContainerMixin.vue"
-import GrowMixin from "@/mixins/GrowMixin.vue"
-import { WidgetInit, WidgetEntity } from "@/store/interfaces"
-import SearchIcon from "@/assets/icons/search.svg"
+import { WidgetEntity } from "@/store/interfaces"
+import { Prop } from "vue-property-decorator"
 
 @Component({
   components: {
@@ -60,81 +61,18 @@ import SearchIcon from "@/assets/icons/search.svg"
     ActivePlant
   }
 })
-// TODO: want to move most of this functionality to an overall view that tracks all the widgets
-export default class PlantSearch extends mixins(
-  GardenMixin,
-  ContainerMixin,
-  GrowMixin
-) {
-  public isFullScreen = false
-
-  public searchWidget: WidgetInit = {
-    entity: {
-      name: "search",
-      icon: SearchIcon,
-      open: true,
-      docked: true,
-      inMenu: true
-    },
-    display: {
-      height: "full",
-      flexGrow: true
-      // width: this.plantSearchWidth
-    }
-  }
-
-  public activePlantWidget: WidgetInit = {
-    entity: {
-      name: "active-plant",
-      icon: "A",
-      open: false,
-      docked: false,
-      inMenu: false
-    },
-    display: {
-      width: "20vw",
-      left: "100%"
-    }
-  }
-
-  public get plantContainerSize() {
-    const searchOnly =
-      this.searchWidget.entity.open && this.countOpenWidgets <= 1
-    if (searchOnly) {
-      return "w-full"
-    } else if (
-      !this.searchWidget.entity.open &&
-      !this.activePlantWidget.entity.open
-    ) {
-      return 0
-    } else {
-      return "w-2/5"
-    }
-  }
-
-  public mounted() {
-    // register widgets
-    // don't really need to register this one from here?
-    // container.registerWidget(this.searchWidget)
-    container.registerWidget(this.activePlantWidget.entity as WidgetEntity)
-  }
+export default class PlantSearch extends mixins(GardenMixin, ContainerMixin) {
+  @Prop({ default: 0 }) plantSearchSize!: number
+  @Prop({ required: true }) searchWidget!: WidgetEntity
+  @Prop({ required: true }) activePlantWidget!: WidgetEntity
 
   public get messages() {
     return messages
   }
 
   public showActivePlant() {
-    if (!this.activePlantWidget.entity.open) {
-      container.toggleWidget(this.activePlantWidget.entity as WidgetEntity)
-    }
-  }
-
-  public dockAndGrow(e: MouseEvent) {
-    e.stopPropagation()
-    if (this.activePlant) {
-      if (!this.activePlantWidget.entity.docked)
-        container.toggleDocked(this.activePlantWidget.entity)
-      this.growPlant(this.activePlant)
+    if (!this.activePlantWidget.open) {
+      container.toggleWidget(this.activePlantWidget)
     }
   }
 }

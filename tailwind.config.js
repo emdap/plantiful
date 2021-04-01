@@ -78,6 +78,9 @@ module.exports = {
         ".btn-primary:disabled": {
           color: theme("colors.green.300"),
           background: theme("colors.green.100")
+        },
+        ".btn-primary:disabled:hover": {
+          color: theme("colors.green.300")
         }
       })
     })

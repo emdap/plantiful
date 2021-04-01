@@ -3,9 +3,8 @@
     <div id="menu">
       <side-menu />
     </div>
-    <div id="container" class="flex flex-row">
-      <plant-search />
-      <grow />
+    <div id="container">
+      <widget-controller />
     </div>
   </div>
 </template>
@@ -13,15 +12,13 @@
 <script lang="ts">
 import Vue from "vue"
 import Component from "vue-class-component"
-import SideMenu from "@/components/SideMenu.vue"
-import PlantSearch from "@/views/PlantSearch.vue"
-import Grow from "@/views/Grow.vue"
+import SideMenu from "@/views/SideMenu.vue"
+import WidgetController from "@/views/WidgetController.vue"
 
 @Component({
   components: {
-    PlantSearch,
-    SideMenu,
-    Grow
+    WidgetController,
+    SideMenu
   }
 })
 export default class App extends Vue {}

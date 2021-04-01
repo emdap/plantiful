@@ -1,5 +1,10 @@
 <template>
-  <div class="absolute" :id="'plant-' + plantData.id" :style="styleGeneral">
+  <div
+    class="absolute"
+    :id="'plant-' + plantData.id"
+    @dblclick="setActive()"
+    :style="styleGeneral"
+  >
     <span
       v-if="plantData.showName"
       :class="textClass"
@@ -8,7 +13,7 @@
     >
       {{ plantData.name }}
     </span>
-    <div :style="styleRotation" @dblclick="setActive()" class="absolute">
+    <div :style="styleRotation" class="absolute">
       <branch
         v-for="branch in plantData.branches"
         :key="'branch-' + branch"

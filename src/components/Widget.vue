@@ -1,6 +1,6 @@
 <template>
   <div
-    :id="`${widgetState.name}-widget`"
+    :id="`${widgetData.name}-widget`"
     class="widget flex p-2 bg-white outline-none"
     :style="styleObj"
     :class="classObj"
@@ -12,7 +12,7 @@
       <div class="flex flex-row mb-1 sticky left-0">
         <docked-icon
           class="cursor-pointer mr-3"
-          v-if="widgetState.docked"
+          v-if="widgetData.docked"
           @click="dockWidget()"
           style="fill: purple"
         />
@@ -70,14 +70,7 @@ import ResizeIcon from "@/assets/icons/resize.svg"
   }
 })
 export default class Widget extends ContainerMixin {
-  @Prop({ required: true }) initWidgetState!: WidgetEntity
-  // can pass in display options, if none, will set to defaults
-  @Prop({
-    default() {
-      return {} as WidgetDisplay
-    }
-  })
-  initDisplay!: WidgetDisplay
+  @Prop({ required: true }) widgetData!: WidgetEntity
 
   public minHeight = 0
   public minWidth = 0
@@ -95,7 +88,7 @@ export default class Widget extends ContainerMixin {
 
   // initialize so that user-modifiable properties are reactive
   public styleAttributes: WidgetBasis = this.initStyle
-  public widgetState: WidgetEntity = this.initState
+  // public widgetState: WidgetEntity = this.initState
 
   public mounted() {
     this.initializeWidget()
@@ -105,48 +98,48 @@ export default class Widget extends ContainerMixin {
   // Initializers
   public initializeWidget() {
     // register if not already
-    if (!this.getWidget(this.initWidgetState?.name)) {
-      container.registerWidget(this.initWidgetState)
-    }
+    // if (!this.getWidget(this.initWidgetState?.name)) {
+    //   container.registerWidget(this.initWidgetState)
+    // }
 
     // update widgetState to be what's in the container store
-    this.widgetState = this.getWidget(this.initWidgetState.name) as WidgetEntity
+    // this.widgetState = this.getWidget(this.initWidgetState.name) as WidgetEntity
 
     // assign default values where needed from initDisplay/entity props
-    if (this.initDisplay.minHeight) {
-      this.minHeight = this.initDisplay.minHeight
+    if (this.widgetData.display.minHeight) {
+      this.minHeight = this.widgetData.display.minHeight
     }
-    if (this.initDisplay.minWidth) {
-      this.minWidth = this.initDisplay.minWidth
+    if (this.widgetData.display.minWidth) {
+      this.minWidth = this.widgetData.display.minWidth
     }
-    if (this.initDisplay.flexGrow) {
-      this.flexGrow = this.initDisplay.flexGrow
+    if (this.widgetData.display.flexGrow) {
+      this.flexGrow = this.widgetData.display.flexGrow
     }
-    if (this.initDisplay.showOverflow) {
-      this.showOverflow = this.initDisplay.showOverflow
+    if (this.widgetData.display.showOverflow) {
+      this.showOverflow = this.widgetData.display.showOverflow
     }
 
     // track if it should launch docked, for when user closes/opens
-    this.initDocked = this.widgetState.docked
+    this.initDocked = this.widgetData.docked
   }
 
   public get initStyle(): WidgetBasis {
     return {
       position: {
-        top: this.convertSize(this.initDisplay.top),
-        left: this.convertSize(this.initDisplay.left)
+        top: this.convertSize(this.widgetData.display.top),
+        left: this.convertSize(this.widgetData.display.left)
       },
-      height: this.convertSize(this.initDisplay.height, "height"),
-      width: this.convertSize(this.initDisplay.width, "width")
+      height: this.convertSize(this.widgetData.display.height, "height"),
+      width: this.convertSize(this.widgetData.display.width, "width")
     }
   }
 
-  public get initState(): WidgetEntity {
-    return {
-      name: "",
-      ...DefaultWidget
-    }
-  }
+  // public get initState(): WidgetEntity {
+  //   return {
+  //     name: "",
+  //     ...DefaultWidget
+  //   }
+  // }
 
   public initMouseUpListeners() {
     // stop tracking position/size when mouse is up
@@ -240,8 +233,8 @@ export default class Widget extends ContainerMixin {
   @Watch("trackPosition")
   mouseUpdatesPosition(track: boolean) {
     if (track) {
-      if (this.widgetState.docked) {
-        container.toggleDocked(this.widgetState)
+      if (this.widgetData.docked) {
+        container.toggleDocked(this.widgetData)
       }
       document.addEventListener("mousemove", this.updatePosition)
     } else {
@@ -253,47 +246,47 @@ export default class Widget extends ContainerMixin {
   // Styling getters
   public get styleObj(): Record<string, string | number> {
     return {
-      top: this.widgetState.docked
+      top: this.widgetData.docked
         ? 0
         : this.convertSize(this.styleAttributes.position.top),
-      left: this.widgetState.docked
+      left: this.widgetData.docked
         ? 0
         : this.convertSize(this.styleAttributes.position.left),
       height: this.convertSize(this.styleAttributes.height, "height"),
       width: this.convertSize(this.styleAttributes.width, "width"),
-      position: this.widgetState.docked ? "relative" : "absolute"
+      position: this.widgetData.docked ? "relative" : "absolute"
     }
   }
 
   public get classObj(): Record<string, boolean> {
     return {
-      "flex-grow": this.flexGrow && this.widgetState.docked,
+      "flex-grow": this.flexGrow && this.widgetData.docked,
       "overflow-hidden": !this.showOverflow,
       "overflow-auto": this.showOverflow,
-      "shadow-md": !this.widgetState.docked,
-      "shadow-sm": this.widgetState.docked,
-      "bg-opacity-95": !this.widgetState.docked,
-      "z-0": this.widgetState.docked && !this.inFocus,
-      "z-10": !this.widgetState.docked || this.inFocus,
+      "shadow-md": !this.widgetData.docked,
+      "shadow-sm": this.widgetData.docked,
+      "bg-opacity-95": !this.widgetData.docked,
+      "z-0": this.widgetData.docked && !this.inFocus,
+      "z-10": !this.widgetData.docked || this.inFocus,
       "outline-green": this.trackPosition || this.trackSize,
-      hidden: !this.widgetState.open
+      hidden: !this.widgetData.open
     }
   }
 
   // Toggles
   public closeWidget() {
-    if (this.widgetState.open) {
+    if (this.widgetData.open) {
       // reset to defaults for when it's next open
       this.styleAttributes = this.initStyle
-      if (this.initDocked != this.widgetState.docked) {
-        container.toggleDocked(this.widgetState)
+      if (this.initDocked != this.widgetData.docked) {
+        container.toggleDocked(this.widgetData)
       }
     }
-    container.toggleWidget(this.widgetState)
+    container.toggleWidget(this.widgetData)
   }
 
   public dockWidget() {
-    container.toggleDocked(this.widgetState)
+    container.toggleDocked(this.widgetData)
   }
 
   // Functions to modify display

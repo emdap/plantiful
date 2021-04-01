@@ -2,6 +2,7 @@ import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
 import { ContainerState, WidgetEntity } from "@/store/interfaces"
 import messages from "@/fixtures/Messages"
 import store from "@/store"
+import Vue from "vue"
 
 @Module({
   dynamic: true,
@@ -11,7 +12,7 @@ import store from "@/store"
 })
 export default class ContainerModule extends VuexModule
   implements ContainerState {
-  widgets: WidgetEntity[] = []
+  widgets: { [key: string]: WidgetEntity } = {}
   activeWidget: WidgetEntity | null = null
 
   @Action
@@ -59,14 +60,7 @@ export default class ContainerModule extends VuexModule
 
   @Mutation
   public REGISTER_WIDGET(widget: WidgetEntity) {
-    // assign defaults to empty properties
-    // move this to a function, or just do it from the components themselves
-    // for (const key of WidgetStateOptionals) {
-    //   if (widget[key] == undefined) {
-    //     widget[key] = DefaultWidget[key]
-    //   }
-    // }
-    this.widgets.push(widget as WidgetEntity)
+    Vue.set(this.widgets, widget.name, widget)
   }
 
   @Mutation
@@ -99,10 +93,8 @@ export default class ContainerModule extends VuexModule
   // }
 
   public get getWidget() {
-    return (name: string): WidgetEntity | undefined => {
-      return this.widgets.find(w => {
-        return w.name == name
-      })
+    return (name: string): WidgetEntity => {
+      return this.widgets[name]
     }
   }
 }
