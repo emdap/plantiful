@@ -88,7 +88,6 @@ export default class Widget extends ContainerMixin {
 
   // initialize so that user-modifiable properties are reactive
   public styleAttributes: WidgetBasis = this.initStyle
-  // public widgetState: WidgetEntity = this.initState
 
   public mounted() {
     this.initializeWidget()
@@ -97,14 +96,6 @@ export default class Widget extends ContainerMixin {
 
   // Initializers
   public initializeWidget() {
-    // register if not already
-    // if (!this.getWidget(this.initWidgetState?.name)) {
-    //   container.registerWidget(this.initWidgetState)
-    // }
-
-    // update widgetState to be what's in the container store
-    // this.widgetState = this.getWidget(this.initWidgetState.name) as WidgetEntity
-
     // assign default values where needed from initDisplay/entity props
     if (this.widgetData.display.minHeight) {
       this.minHeight = this.widgetData.display.minHeight
@@ -133,13 +124,6 @@ export default class Widget extends ContainerMixin {
       width: this.convertSize(this.widgetData.display.width, "width")
     }
   }
-
-  // public get initState(): WidgetEntity {
-  //   return {
-  //     name: "",
-  //     ...DefaultWidget
-  //   }
-  // }
 
   public initMouseUpListeners() {
     // stop tracking position/size when mouse is up
@@ -211,7 +195,7 @@ export default class Widget extends ContainerMixin {
   }
 
   // Watchers
-  @Watch("widgetState.docked")
+  @Watch("widgetData.docked")
   dockChanged(docked: boolean) {
     if (!docked) {
       // update size/position so that won't snap when undocking

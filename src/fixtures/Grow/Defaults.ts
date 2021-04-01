@@ -1,4 +1,4 @@
-import { GrowBasis, Plant, LeafTexture, LeafOptions, BranchOptions } from "@/store/interfaces"
+import { GrowBasis, Plant, LeafTexture, LeafOptions, BranchOptions, PlantOptions } from "@/store/interfaces"
 
 const DEFAULT_TOP_H = 30
 const DEFAULT_BOTTOM_H = 45
@@ -12,6 +12,7 @@ export const DEFAULT_LEAF_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
     area: 90
   },
   medium: {
+    color: "purple",
     topHeight: DEFAULT_TOP_H,
     bottomHeight: DEFAULT_BOTTOM_H,
     spacing: 15,
@@ -19,6 +20,7 @@ export const DEFAULT_LEAF_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
     area: 90
   },
   coarse: {
+    color: "orange",
     topHeight: DEFAULT_TOP_H,
     bottomHeight: DEFAULT_BOTTOM_H,
     spacing: 5,
@@ -27,7 +29,16 @@ export const DEFAULT_LEAF_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
   },
 }
 
+export const DEFAULT_PLANT_OPTIONS: PlantOptions = {
+  height: 500,
+  spread: 300,
+  colors: ["green", "lime", "purple", "aqua", "blue"],
+  orientation: "ERECT", // common on the API :)
+  leafDensity: 5
+}
+
 export const DEFAULT_LEAF_TEXTURE: LeafTexture = "medium"
+export const DEFAULT_COLOR = "lime"
 
 export const BRANCH_INIT = (): BranchOptions => {
   return {

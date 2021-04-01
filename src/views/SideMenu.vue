@@ -1,7 +1,7 @@
 <template>
   <div
     id="side-menu"
-    class="h-screen py-4 px-2 border-gray-200 border-solid border-r-2 font-bold text-2xl w-full"
+    class="h-screen pt-10 pb-4 items-center flex flex-col border-gray-200 border-solid border-r-2 font-bold text-2xl w-full"
   >
     <menu-icon
       :is="widget.icon"
@@ -23,10 +23,6 @@ import { WidgetEntity } from "@/store/interfaces"
 export default class Menu extends ContainerMixin {
   public clickWidget(widget: WidgetEntity) {
     container.toggleWidget(widget)
-  }
-
-  public mounted() {
-    console.log(this.widgetList)
   }
 }
 </script>

@@ -66,10 +66,11 @@ export default class WidgetController extends mixins(
     if (!this.searchWidget) {
       return 0
     }
+    // add diff sizes depending if active plant widget is docked
     const searchOnly = this.searchWidget.open && this.countOpenWidgets == 1
     if (searchOnly) {
       return "w-full"
-    } else if (!this.searchWidget.open && !this.activePlantWidget?.open) {
+    } else if (!this.searchWidget.open && !this.activePlantWidget?.docked) {
       return 0
     } else {
       return "w-2/5"

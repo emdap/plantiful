@@ -5,25 +5,21 @@ import {
   GrowLeaf,
   GrowBranch,
   BranchOptions,
-  Coordinate
+  Coordinate,
+  GrowLeafCluster
 } from "@/store/interfaces"
 import {
   DEFAULT_LEAF_OPTIONS,
   DEFAULT_LEAF_TEXTURE,
+  DEFAULT_COLOR,
   BRANCH_INIT
 } from "@/fixtures/Grow/Defaults"
-import util from "./StructureHelpers"
+import GrowModule from "@/store/modules/grow"
+import util from "../utilities/growUtil"
 
-export function createLeaves(
-  color: string,
-  tilt: number,
-  options: { texture: LeafTexture; custom?: LeafOptions } = {
-    texture: DEFAULT_LEAF_TEXTURE
-  }
-): GrowLeaf[] {
-  const { topHeight, bottomHeight, spacing, sides, area } = options.custom
-    ? options.custom
-    : DEFAULT_LEAF_OPTIONS[options.texture]
+export function createLeaves(order: number, options: LeafOptions): GrowLeaf[] {
+  const { topHeight, bottomHeight, spacing, sides, area } = options
+  const color = options.color ? options.color : DEFAULT_COLOR
   const adjustedSides = sides < 3 ? 3 : sides
 
   const width = util.getLeafWidth(bottomHeight, adjustedSides) - spacing
@@ -37,7 +33,7 @@ export function createLeaves(
     const shapes = util.leafTemplate(color, topBorder, bottomBorder)
 
     const shiftedI = i - (adjustedSides - 1) / 2
-    const angle = angleInc * shiftedI + tilt
+    const angle = angleInc * shiftedI
 
     const rotation: Rotation = {
       x: 0,
@@ -48,6 +44,7 @@ export function createLeaves(
     const height = topHeight + bottomHeight
     const leaf: GrowLeaf = {
       id: 0,
+      order,
       position: {
         x: height / 2 - width / 2,
         y: -height / 2
@@ -56,7 +53,7 @@ export function createLeaves(
       height,
       width,
       shapes,
-      transitionSpeed: 0.75
+      transitionSpeed: 0.5
     }
 
     leaves.push(leaf)
@@ -66,6 +63,7 @@ export function createLeaves(
 }
 
 export function createBranch(
+  order: number,
   startPoint: Coordinate,
   options: BranchOptions | null = null
 ): GrowBranch {
@@ -107,6 +105,7 @@ export function createBranch(
   }
 
   const branch: GrowBranch = {
+    order,
     startPoint,
     endPoint,
     hasLeaf,
@@ -130,9 +129,45 @@ export function createBranch(
       x: left,
       y: top
     },
-    transitionSpeed: 0.75,
+    transitionSpeed: 0.5,
     id: 0
   }
 
   return branch
+}
+
+export function createLeafCluster(
+  order: number,
+  baseBranch: GrowBranch,
+  leafOptions?: { texture?: LeafTexture; custom?: LeafOptions }
+): {
+  leafCluster: GrowLeafCluster
+  leaves: GrowLeaf[]
+} {
+  let options!: LeafOptions
+  if (leafOptions?.custom) {
+    options = leafOptions.custom
+  } else if (leafOptions?.texture) {
+    options = DEFAULT_LEAF_OPTIONS[leafOptions.texture]
+  } else {
+    options = DEFAULT_LEAF_OPTIONS[DEFAULT_LEAF_TEXTURE]
+  }
+
+  const leaves = createLeaves(order, options)
+  const leafHeight = options.topHeight + options.bottomHeight
+  const leafCluster: GrowLeafCluster = {
+    id: 0,
+    order,
+    rotation: baseBranch.rotation,
+    position: baseBranch.endPoint,
+    offSet: baseBranch.offSet,
+    height: leafHeight,
+    width: leafHeight,
+    leaves: []
+  }
+
+  return {
+    leafCluster,
+    leaves
+  }
 }

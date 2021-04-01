@@ -98,7 +98,7 @@ export default class GrowModule extends VuexModule implements GrowState {
         entityId: tempBranch.id,
         newEntity: branch
       })
-    }, 1)
+    }, branch.order * 250)
   }
 
   @Action
@@ -121,7 +121,7 @@ export default class GrowModule extends VuexModule implements GrowState {
         entityId: tempLeaf.id,
         newEntity: leaf
       })
-    }, 1000)
+    }, leaf.order * 300)
   }
 
   @Action

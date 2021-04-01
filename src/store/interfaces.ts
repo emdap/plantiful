@@ -100,6 +100,7 @@ export interface ActivePlantInfo {
 }
 
 export interface LeafOptions {
+  color?: string
   topHeight: number
   bottomHeight: number
   spacing: number
@@ -113,6 +114,14 @@ export interface BranchOptions {
   angle: number
   hasLeaf: boolean
   hasFlower: boolean
+}
+
+export interface PlantOptions {
+  height: number | null
+  spread: number | null
+  colors: string[] | null
+  orientation: string | null
+  leafDensity?: number // not in API that i know of
 }
 
 // Types
@@ -214,16 +223,19 @@ export interface GrowPlant extends GrowEntity {
 export interface GrowLeafCluster extends GrowEntity {
   offSet: GrowOffSet
   leaves: number[]
+  order: number
 }
 
 export interface GrowLeaf extends GrowEntity {
   id: number
   shapes: GrowShape[]
+  order: number
 }
 
 export interface GrowFlower extends GrowEntity {
   id: number
   shapes: GrowShape[]
+  order: number
 }
 
 export interface GrowBranch extends GrowEntity {
@@ -238,6 +250,7 @@ export interface GrowBranch extends GrowEntity {
   branchHeight: number
   branchWidth: number
   branchPosition: Coordinate
+  order: number
 }
 
 export interface GrowShape extends GrowBasis {

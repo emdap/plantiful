@@ -18,7 +18,7 @@ import {
   GrowData,
   GrowType
 } from "@/store/interfaces"
-import { createLeaves, createBranch } from "@/utilities/CreatePlantStructures"
+import { createBranch, createLeafCluster } from "@/services/growPlants"
 // temp
 import { PLANT_ENTITY_INIT } from "@/fixtures/Grow/Defaults"
 
@@ -94,14 +94,14 @@ export default class GrowMixin extends Vue {
       hasLeaf: false,
       hasFlower: false
     }
-    const mainBranch = createBranch(startPoint, branchOptions)
-    const branch = createBranch(mainBranch.endPoint, branchOptions)
+    const mainBranch = createBranch(1, startPoint, branchOptions)
+    const branch = createBranch(2, mainBranch.endPoint, branchOptions)
 
-    const mainBranch2 = createBranch(startPoint)
-    const branch2 = createBranch(mainBranch2.endPoint, branchOptions)
-    const branch3 = createBranch(branch2.endPoint, branchOptions)
-    const branch4 = createBranch(branch3.endPoint, branchOptions2)
-    const branch5 = createBranch(branch3.endPoint)
+    const mainBranch2 = createBranch(1, startPoint)
+    const branch2 = createBranch(2, mainBranch2.endPoint, branchOptions)
+    const branch3 = createBranch(3, branch2.endPoint, branchOptions)
+    const branch4 = createBranch(4, branch3.endPoint, branchOptions2)
+    const branch5 = createBranch(5, branch3.endPoint)
 
     const allBranches = [
       mainBranch,
@@ -121,54 +121,64 @@ export default class GrowMixin extends Vue {
     const color = colorList ? colorList[0] : "green"
 
     // TODO: best practive for no id -> has ID once added? another interface? optional id property?
-    const leaves: GrowLeaf[] = createLeaves(color, 10)
-    const leaves2: GrowLeaf[] = createLeaves("red", 5, { texture: "coarse" })
-    const leaves3: GrowLeaf[] = createLeaves("lime", -20)
-    const leafHeight = leaves[0].height
-    const allLeafLists = [leaves, leaves2, leaves3]
-    for (const leafList of allLeafLists) {
-      for (const leaf of leafList) {
-        grow.addLeaf(leaf)
-      }
-    }
+    // const leaves: GrowLeaf[] = createLeaves(color)
+    // const leaves2: GrowLeaf[] = createLeaves("red", 5, { texture: "coarse" })
+    // const leaves3: GrowLeaf[] = createLeaves("lime", -20)
+    // const leafHeight = leaves[0].height
+    // const allLeafLists = [leaves, leaves2, leaves3]
+    // for (const leafList of allLeafLists) {
+    //   for (const leaf of leafList) {
+    //     grow.addLeaf(leaf)
+    //   }
+    // }
 
-    const leafCluster: GrowLeafCluster = {
-      id: 0,
-      rotation: branch4.rotation,
-      position: branch4.endPoint,
-      offSet: branch4.offSet,
-      height: leafHeight,
-      width: leafHeight,
-      leaves: leaves.map(l => {
-        return l.id
-      })
+    const { leafCluster, leaves } = createLeafCluster(4, branch4)
+    console.log(leafCluster, leaves)
+    for (const leaf of leaves) {
+      grow.addLeaf(leaf)
     }
-    const leafCluster2: GrowLeafCluster = {
-      id: 0,
-      rotation: branch5.rotation,
-      position: branch5.endPoint,
-      offSet: branch5.offSet,
-      height: leafHeight,
-      width: leafHeight,
-      leaves: leaves2.map(l => {
-        return l.id
-      })
-    }
-    const leafCluster3: GrowLeafCluster = {
-      id: 0,
-      rotation: branch.rotation,
-      position: branch.endPoint,
-      offSet: branch.offSet,
-      height: leafHeight,
-      width: leafHeight,
-      leaves: leaves3.map(l => {
-        return l.id
-      })
-    }
-    const allLeafClusters = [leafCluster, leafCluster2, leafCluster3]
-    for (const leafCluster of allLeafClusters) {
-      grow.addLeafCluster(leafCluster)
-    }
+    // leaf Ids are added after store registration
+    leafCluster.leaves = leaves.map(l => {
+      return l.id
+    })
+    grow.addLeafCluster(leafCluster)
+
+    //   id: 0,
+    //   rotation: branch4.rotation,
+    //   position: branch4.endPoint,
+    //   offSet: branch4.offSet,
+    //   height: leafHeight,
+    //   width: leafHeight,
+    //   leaves: leaves.map(l => {
+    //     return l.id
+    //   })
+    // }
+    // const leafCluster2: GrowLeafCluster = {
+    //   id: 0,
+    //   rotation: branch5.rotation,
+    //   position: branch5.endPoint,
+    //   offSet: branch5.offSet,
+    //   height: leafHeight,
+    //   width: leafHeight,
+    //   leaves: leaves2.map(l => {
+    //     return l.id
+    //   })
+    // }
+    // const leafCluster3: GrowLeafCluster = {
+    //   id: 0,
+    //   rotation: branch.rotation,
+    //   position: branch.endPoint,
+    //   offSet: branch.offSet,
+    //   height: leafHeight,
+    //   width: leafHeight,
+    //   leaves: leaves3.map(l => {
+    //     return l.id
+    //   })
+    // }
+    // const allLeafClusters = [leafCluster, leafCluster2, leafCluster3]
+    // for (const leafCluster of allLeafClusters) {
+    //   grow.addLeafCluster(leafCluster)
+    // }
 
     const plant: GrowPlant = {
       ...PLANT_ENTITY_INIT(), // default rotation/position/size
@@ -176,7 +186,7 @@ export default class GrowMixin extends Vue {
       showName: true,
       name: basePlant.main_species.common_name,
       plantId: basePlant.id,
-      leafClusters: allLeafClusters.map(l => {
+      leafClusters: [leafCluster].map(l => {
         return l.id
       }),
       branches: allBranches.map(b => {
