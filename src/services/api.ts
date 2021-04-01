@@ -25,7 +25,6 @@ plantAPI.addAsyncRequestTransform(async (request: AxiosRequestConfig) => {
   request.headers.Authorization = `Bearer ${JWT}`
 })
 
-// TODO - understand what this <S, E> actually means
 export const resolve = <S, E>(response: ApiResponse<S, E>): any => {
   if (response.ok) {
     return response.data

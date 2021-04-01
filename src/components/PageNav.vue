@@ -9,7 +9,7 @@
       :key="`page-button-${index}`"
       :disabled="disablePageButton(page.nav)"
       @click="iteratePage(page.nav)"
-      class="text-sm"
+      class="transition-text text-sm font-medium focus:outline-none tracking-normal hover:tracking-wide hover:text-purple-700"
     >
       {{ page.text }}
     </button>

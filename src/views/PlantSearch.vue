@@ -9,10 +9,13 @@
       :initWidgetState="searchWidget.entity"
     >
       <search-bar />
-      <loading
-        v-if="plantListLoading"
-        :loadingText="messages.searchBar.loading"
-      />
+      <div class="relative">
+        <loading
+          class="absolute text-center"
+          v-if="plantListLoading"
+          :loadingText="messages.searchBar.loading"
+        />
+      </div>
       <template v-if="plantList.length">
         <page-nav />
         <plant-list @plant-clicked="showActivePlant" />
@@ -41,9 +44,9 @@ import PlantList from "@/components/PlantList.vue"
 import PageNav from "@/components/PageNav.vue"
 import ActivePlant from "@/components/ActivePlant.vue"
 import messages from "@/fixtures/Messages"
-import GardenMixin, { garden } from "@/mixins/GardenMixin.vue"
+import GardenMixin from "@/mixins/GardenMixin.vue"
 import ContainerMixin, { container } from "@/mixins/ContainerMixin.vue"
-import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
+import GrowMixin from "@/mixins/GrowMixin.vue"
 import { WidgetInit, WidgetEntity } from "@/store/interfaces"
 import SearchIcon from "@/assets/icons/search.svg"
 

@@ -21,18 +21,11 @@ import { NO_ROTATION } from "@/fixtures/Grow/Defaults"
 
 @Component({})
 export default class Branch extends GrowMixin {
-  @Prop() branchData!: GrowBranch
+  @Prop({ required: true }) branchData!: GrowBranch
   @Prop({ default: false }) plantActive!: boolean
 
   public defaultBg = "black"
   public highlight = false
-
-  public mounted() {
-    if (!this.branchData) {
-      // TODO: global errors for missing required props
-      throw console.error("missing branch prop!")
-    }
-  }
 
   public get containerStyle() {
     const styleData = {

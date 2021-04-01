@@ -1,15 +1,14 @@
 <template>
   <div
     :id="`${widgetState.name}-widget`"
-    class="widget flex p-2 bg-white outline-green"
+    class="widget flex p-2 bg-white outline-none"
     :style="styleObj"
     :class="classObj"
     tabindex="1"
     @focus="inFocus = true"
     @blur="inFocus = false"
   >
-    <!-- @click="toggleGrowWindow()" -->
-    <div v-if="!error" class="flex flex-grow flex-col overflow-auto">
+    <div class="flex flex-grow flex-col overflow-auto">
       <div class="flex flex-row mb-1 sticky left-0">
         <docked-icon
           class="cursor-pointer mr-3"
@@ -60,7 +59,6 @@ import DockedIcon from "@/assets/icons/docked.svg"
 import NotDockedIcon from "@/assets/icons/not-docked.svg"
 import MoveIcon from "@/assets/icons/move.svg"
 import ResizeIcon from "@/assets/icons/resize.svg"
-import { grow } from "@/mixins/GrowMixin.vue"
 
 @Component({
   components: {
@@ -71,9 +69,9 @@ import { grow } from "@/mixins/GrowMixin.vue"
     ResizeIcon
   }
 })
-// TODO: add some info/instructions for all these props and their effects
 export default class Widget extends ContainerMixin {
-  @Prop() initWidgetState!: WidgetEntity // required
+  @Prop({ required: true }) initWidgetState!: WidgetEntity
+  // can pass in display options, if none, will set to defaults
   @Prop({
     default() {
       return {} as WidgetDisplay
@@ -92,7 +90,6 @@ export default class Widget extends ContainerMixin {
   public posStartY: null | number = null
   public posStartX: null | number = null
   public initDocked: null | boolean = null
-  public error = false
   // TODO: align this with entity
   public inFocus = false
 
@@ -109,12 +106,7 @@ export default class Widget extends ContainerMixin {
   public initializeWidget() {
     // register if not already
     if (!this.getWidget(this.initWidgetState?.name)) {
-      if (this.initWidgetState) {
-        container.registerWidget(this.initWidgetState)
-      } else {
-        this.error = true
-        throw console.error(messages.widget.registerError)
-      }
+      container.registerWidget(this.initWidgetState)
     }
 
     // update widgetState to be what's in the container store
@@ -283,6 +275,7 @@ export default class Widget extends ContainerMixin {
       "bg-opacity-95": !this.widgetState.docked,
       "z-0": this.widgetState.docked && !this.inFocus,
       "z-10": !this.widgetState.docked || this.inFocus,
+      "outline-green": this.trackPosition || this.trackSize,
       hidden: !this.widgetState.open
     }
   }

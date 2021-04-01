@@ -44,15 +44,12 @@ import { NO_POSITION, NO_ROTATION } from "@/fixtures/Grow/Defaults"
   }
 })
 export default class Plant extends GrowMixin {
-  @Prop() plantData!: GrowPlant
+  @Prop({ required: true }) plantData!: GrowPlant
 
   public defaultColor = "text-black"
   public textClass = this.defaultColor
 
   public mounted() {
-    if (!this.plantData) {
-      throw console.error("no entity provided!")
-    }
     if (this.isActive) {
       this.textClass = this.highlightText
     }

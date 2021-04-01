@@ -5,7 +5,6 @@ import {
   PlantListPayload
 } from "@/store/interfaces"
 
-// TODO: response types
 export const listPlants = (
   payload: PlantListPayload
 ): Promise<PlantListResponse> =>

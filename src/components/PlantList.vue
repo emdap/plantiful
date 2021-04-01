@@ -1,5 +1,5 @@
 <template>
-  <div id="search-results" class="flex-grow overflow-auto">
+  <div id="search-results" ref="plant-list" class="flex-grow overflow-auto">
     <div
       v-for="(plant, index) in plantList"
       :key="`plant ${index}`"
@@ -19,9 +19,12 @@
 <script lang="ts">
 import Component from "vue-class-component"
 import GardenMixin, { garden } from "@/mixins/GardenMixin.vue"
+import { Ref, Watch } from "vue-property-decorator"
 
 @Component({})
 export default class PlantList extends GardenMixin {
+  @Ref("plant-list") readonly plantListDiv!: HTMLDivElement
+
   public selectPlant(id: number) {
     if (!this.plantListLoading) {
       garden.getOnePlant(id)
@@ -29,7 +32,10 @@ export default class PlantList extends GardenMixin {
     }
   }
 
-  // TODO: put watch on plantListLoading, add a ref to the list, and reset the scroll
+  @Watch("plantList")
+  public resetScroll() {
+    this.plantListDiv.scrollTop = 0
+  }
 }
 </script>
 

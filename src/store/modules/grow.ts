@@ -229,8 +229,7 @@ export default class GrowModule extends VuexModule implements GrowState {
     newEntity: GrowType
   }) {
     const { dataKey, entityId, newEntity } = payload
-    // TODO: test if actually need vue set for this, should already be reactive
-    Vue.set(this[dataKey], entityId, newEntity)
+    this[dataKey][entityId] = newEntity
   }
 
   @Mutation

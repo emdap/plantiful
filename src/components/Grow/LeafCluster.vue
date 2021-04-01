@@ -1,17 +1,16 @@
 <template>
-  <!-- TODO: add tailwind utilities for transform-origin -->
-  <!-- TODO/NOTE : having top part of leaf positioned above container, w/ transform origin right, had cool effect -->
+  <!-- NOTE : bottom right transform origin has cool spiral effect, use for flowers -->
   <div
     :id="'leaf-cluster-' + leafClusterData"
     class="leaf-cluster absolute z-20 cursor-pointer"
     :style="containerStyle"
   >
     <div
-      :class="['absolute rounded-full', backgroundClass(defaultBg, highlight)]"
+      class="absolute rounded-full origin-bottom"
+      :class="backgroundClass(defaultBg, highlight)"
       v-for="leaf in leafClusterData.leaves"
       :key="'leaf-' + leaf"
       :style="styleObj(getLeaf(leaf))"
-      style="transform-origin: bottom"
     >
       <shape
         v-for="(shape, index) in getLeaf(leaf).shapes"
@@ -35,18 +34,11 @@ import Component from "vue-class-component"
   }
 })
 export default class LeafCluster extends GrowMixin {
-  @Prop() leafClusterData!: GrowLeafCluster
+  @Prop({ required: true }) leafClusterData!: GrowLeafCluster
   @Prop({ default: false }) plantActive!: boolean
 
   public defaultBg = "transparent"
   public highlight = false
-
-  public mounted() {
-    if (!this.leafClusterData) {
-      // TODO: global errors for missing required props
-      throw console.error("missing branch prop!")
-    }
-  }
 
   public get containerStyle() {
     const styleData = {

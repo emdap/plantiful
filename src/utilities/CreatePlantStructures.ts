@@ -42,7 +42,7 @@ export function createLeaves(
     const rotation: Rotation = {
       x: 0,
       y: 0,
-      z: angle, // angle TODO
+      z: angle,
       translate: 0
     }
     const height = topHeight + bottomHeight
