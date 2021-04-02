@@ -2,9 +2,21 @@ import {
   GrowBorder,
   TopGrowBorder,
   GrowShape,
-  Coordinate
+  Coordinate,
+  PlantOptions,
+  Plant,
+  LeafOptions,
+  LeafTexture,
+  BranchOptions
 } from "@/store/interfaces"
-import { NO_ROTATION, NO_POSITION } from "@/fixtures/Grow/Defaults"
+import {
+  NO_ROTATION,
+  NO_POSITION,
+  DEFAULT_PLANT_OPTIONS,
+  DEFAULT_LEAF_OPTIONS,
+  DEFAULT_LEAF_TEXTURE,
+  BRANCH_INIT
+} from "@/fixtures/Grow/Defaults"
 
 function radians(angle: number): number {
   return (angle * Math.PI) / 180
@@ -92,11 +104,68 @@ function leafTemplate(
   ]
 }
 
+function getBranchOptions(options?: BranchOptions) {
+  // mostly moved this here for consistency
+  if (!options) {
+    return BRANCH_INIT()
+  }
+  return options
+}
+
+function getLeafOptions(options?: {
+  texture?: LeafTexture
+  custom?: LeafOptions
+}): LeafOptions {
+  let leafOptions!: LeafOptions
+  if (options?.custom) {
+    leafOptions = options.custom
+  } else if (options?.texture) {
+    leafOptions = DEFAULT_LEAF_OPTIONS[options.texture]
+  } else {
+    leafOptions = DEFAULT_LEAF_OPTIONS[DEFAULT_LEAF_TEXTURE]
+  }
+
+  return leafOptions
+}
+
+function getPlantOptions(plant?: Plant): PlantOptions {
+  if (!plant) {
+    return DEFAULT_PLANT_OPTIONS
+  }
+  const plantOrientation =
+    plant.main_species.specifications.shape_and_orientation
+  const plantHeight = plant.main_species.specifications.average_height.cm
+  const plantSpread = plant.main_species.growth.spread.cm
+  const plantFlowers = plant.main_species.flower.color
+  const plantLeaves = plant.main_species.foliage
+
+  return {
+    orientation: plantOrientation
+      ? plantOrientation
+      : DEFAULT_PLANT_OPTIONS.orientation,
+    height: plantHeight ? plantHeight : DEFAULT_PLANT_OPTIONS.height,
+    spread: plantSpread ? plantSpread : DEFAULT_PLANT_OPTIONS.spread,
+    flowerColors: plantFlowers
+      ? plantFlowers
+      : DEFAULT_PLANT_OPTIONS.flowerColors,
+    leafColors: plantLeaves.color
+      ? plantLeaves.color
+      : DEFAULT_PLANT_OPTIONS.leafColors,
+    leafTexture: plantLeaves.texture
+      ? plantLeaves.texture
+      : DEFAULT_PLANT_OPTIONS.leafTexture,
+    leafDensity: DEFAULT_PLANT_OPTIONS.leafDensity
+  }
+}
+
 export default {
   radians,
   getBranchEndPoint,
   topLeafBorder,
   bottomLeafBorder,
   getLeafWidth,
-  leafTemplate
+  leafTemplate,
+  getLeafOptions,
+  getPlantOptions,
+  getBranchOptions
 }

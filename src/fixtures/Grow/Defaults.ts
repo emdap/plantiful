@@ -12,7 +12,6 @@ export const DEFAULT_LEAF_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
     area: 90
   },
   medium: {
-    color: "purple",
     topHeight: DEFAULT_TOP_H,
     bottomHeight: DEFAULT_BOTTOM_H,
     spacing: 15,
@@ -20,7 +19,6 @@ export const DEFAULT_LEAF_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
     area: 90
   },
   coarse: {
-    color: "orange",
     topHeight: DEFAULT_TOP_H,
     bottomHeight: DEFAULT_BOTTOM_H,
     spacing: 5,
@@ -29,20 +27,21 @@ export const DEFAULT_LEAF_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
   },
 }
 
+export const DEFAULT_LEAF_TEXTURE: LeafTexture = "medium"
+
 export const DEFAULT_PLANT_OPTIONS: PlantOptions = {
   height: 500,
   spread: 300,
-  colors: ["green", "lime", "purple", "aqua", "blue"],
+  flowerColors: ["pink", "magenta", "yellow"],
+  leafColors: ["green", "lime", "purple", "aqua", "blue"],
+  leafTexture: DEFAULT_LEAF_TEXTURE,
   orientation: "ERECT", // common on the API :)
   leafDensity: 5
 }
 
-export const DEFAULT_LEAF_TEXTURE: LeafTexture = "medium"
-export const DEFAULT_COLOR = "lime"
-
 export const BRANCH_INIT = (): BranchOptions => {
   return {
-    height: 100,
+    height: 50,
     width: 5,
     angle: 45,
     hasLeaf: false,
@@ -105,7 +104,7 @@ export const TEST_PLANT: Plant = {
       average_height: { cm: 100 },
       shape_and_orientation: "Erect"
     },
-    growth: { spread: { cm: null } },
+    growth: { spread: { cm: 100 } }, // i made this up!
     family: "Poaceae"
   }
 }

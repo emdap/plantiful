@@ -100,7 +100,6 @@ export interface ActivePlantInfo {
 }
 
 export interface LeafOptions {
-  color?: string
   topHeight: number
   bottomHeight: number
   spacing: number
@@ -117,11 +116,13 @@ export interface BranchOptions {
 }
 
 export interface PlantOptions {
-  height: number | null
-  spread: number | null
-  colors: string[] | null
-  orientation: string | null
-  leafDensity?: number // not in API that i know of
+  height: number
+  spread: number
+  flowerColors: string[]
+  leafColors: string[]
+  orientation: string
+  leafTexture: LeafTexture
+  leafDensity: number // not in API that i know of
 }
 
 // Types
