@@ -48,13 +48,15 @@ export function createLeaves(
       order,
       position: {
         x: height / 2 - width / 2,
-        y: -height / 2
+        // y: -height / 2
+        y: 0
       },
       rotation,
       height,
       width,
       shapes,
-      transitionSpeed: 0.5
+      transitionSpeed: 0.5,
+      zIndex: 10
     }
 
     leaves.push(leaf)
@@ -67,7 +69,15 @@ export function createBranch(
   order: number,
   options: BranchOptions
 ): GrowBranch {
-  const { startPoint, height, width, angle, hasLeaf, hasFlower } = options
+  const {
+    startPoint,
+    height,
+    width,
+    angle,
+    hasLeaf,
+    hasFlower,
+    zIndex
+  } = options
   const angleRadians = util.radians(angle)
   const compAngleRadians = util.radians(90 - angle)
   const endPoint = util.getBranchEndPoint(height, angleRadians, startPoint)
@@ -126,6 +136,7 @@ export function createBranch(
       x: left,
       y: top
     },
+    zIndex,
     transitionSpeed: 0.5,
     id: 0
   }
@@ -151,6 +162,7 @@ export function createLeafCluster(
     order,
     rotation: baseBranch.rotation,
     position: baseBranch.endPoint,
+    zIndex: baseBranch.zIndex + 1,
     offSet: baseBranch.offSet,
     height: leafHeight,
     width: leafHeight,
@@ -250,17 +262,20 @@ export function createPlant(plant?: Plant) {
   for (let branch = 0; branch <= totalBaseBranches; branch++) {
     // init branches to default, but at different angles
     // and with smaller max height for branches further from center
+    const distanceFromMid = Math.abs(midBranch - branch)
     const order = branch + 1
-    const plantHeightLeft = maxHeight / (Math.abs(midBranch - branch) + 1)
+    const plantHeightLeft = maxHeight / (distanceFromMid + 1)
     // TODO: tinker curSpread based on heightleft/width left?
     // trying to make center branches spread less
-    const plantSpreadLeft =
-      (maxSpread / midBranch) * (Math.abs(midBranch - branch) + 1)
+    const plantSpreadLeft = (maxSpread / midBranch) * (distanceFromMid + 1)
+    const zIndex =
+      (Math.floor(totalBaseBranches / 2) - distanceFromMid + 1) * 10
 
     const baseBranchOptions: BranchOptions = {
       ...BRANCH_INIT(),
       height: maxBranchHeight,
-      angle: -angleMax + branch * angleInc
+      angle: -angleMax + branch * angleInc,
+      zIndex
       // TODO: customize properties further based on other plant options
     }
 

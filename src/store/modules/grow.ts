@@ -132,14 +132,14 @@ export default class GrowModule extends VuexModule implements GrowState {
           rotation: NO_ROTATION()
         }
       })
-    }, leaf.order * 300 + 150)
+    }, leaf.order * 300 + 250)
     setTimeout(() => {
       this.UPDATE_ENTITY({
         dataKey: "leaves",
         entityId: tempLeaf.id,
         newEntity: leaf
       })
-    }, leaf.order * 300 + 350)
+    }, leaf.order * 300 + 550)
   }
 
   @Action

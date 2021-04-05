@@ -2,7 +2,7 @@
   <!-- NOTE : bottom right transform origin has cool spiral effect, use for flowers -->
   <div
     :id="'leaf-cluster-' + leafClusterData.id"
-    class="leaf-cluster absolute z-20 cursor-pointer"
+    class="leaf-cluster absolute z-20 cursor-pointer origin-bottom"
     :style="containerStyle"
     @dblclick="activateEntity(plantActive, 'leafClusters', leafClusterData.id)"
   >
@@ -13,7 +13,6 @@
       :plantActive="plantActive"
       :clusterActive="clusterActive"
     />
-    {{ clusterActive }}
   </div>
 </template>
 
@@ -47,12 +46,13 @@ export default class LeafCluster extends GrowMixin {
       position: {
         x: this.leafClusterData.position.x - this.leafClusterData.height / 2,
         y:
-          this.leafClusterData.position.y -
-          this.leafClusterData.height / 2 +
+          this.leafClusterData.position.y +
+          // this.leafClusterData.height / 2 +
           this.leafClusterData.offSet.top
       },
       height: this.leafClusterData.height,
-      width: 75
+      width: 75,
+      zIndex: this.leafClusterData.zIndex
     }
     return this.styleObj(styleData, true)
   }

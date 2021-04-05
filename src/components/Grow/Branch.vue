@@ -33,7 +33,8 @@ export default class Branch extends GrowMixin {
       rotation: NO_ROTATION(),
       position: this.branchData.position,
       height: this.branchData.height,
-      width: this.branchData.width
+      width: this.branchData.width,
+      zIndex: this.branchData.zIndex
     }
     return this.styleObj(styleData, true)
   }
@@ -43,7 +44,8 @@ export default class Branch extends GrowMixin {
       ...this.branchData,
       height: this.branchData.branchHeight,
       width: this.branchData.branchWidth,
-      position: this.branchData.branchPosition
+      position: this.branchData.branchPosition,
+      zIndex: 10
     }
     return this.styleObj(styleData)
   }

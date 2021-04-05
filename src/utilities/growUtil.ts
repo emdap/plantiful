@@ -89,7 +89,8 @@ function leafTemplate(
       position: NO_POSITION(),
       height: 0,
       width: 0,
-      border: topBorder
+      border: topBorder,
+      zIndex: 10
     },
     {
       color,
@@ -100,7 +101,8 @@ function leafTemplate(
       },
       height: 0,
       width: 0,
-      border: bottomBorder
+      border: bottomBorder,
+      zIndex: 10
     }
   ]
 }

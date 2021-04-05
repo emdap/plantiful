@@ -120,6 +120,7 @@ export interface BranchOptions {
   angle: number
   hasLeaf: boolean
   hasFlower: boolean
+  zIndex: number
 }
 
 export interface PlantOptions {
@@ -214,6 +215,7 @@ export interface GrowBasis extends InteractableBasis {
   position: Coordinate
   height: number
   width: number
+  zIndex: number
 }
 
 export interface GrowEntity extends GrowBasis {

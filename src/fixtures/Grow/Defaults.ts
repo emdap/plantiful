@@ -47,6 +47,7 @@ export const BRANCH_INIT = (): BranchOptions => {
     angle: 45,
     hasLeaf: false,
     hasFlower: false,
+    zIndex: 10,
   }
 }
 
@@ -79,7 +80,8 @@ export const PLANT_ENTITY_INIT = (): GrowBasis => {
       translate: 0,
     },
     height: 0,
-    width: 200
+    width: 200,
+    zIndex: 10
   }
 }
 
