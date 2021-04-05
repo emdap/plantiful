@@ -5,18 +5,19 @@
     :class="plantSearchSize"
   >
     <widget :widgetData="searchWidget">
-      <search-bar />
+      <search-bar class="p-4" />
       <div class="relative">
         <loading
-          class="absolute text-center"
+          class="absolute text-center mt-8 h-full w-full"
           v-if="plantListLoading"
           :loadingText="messages.searchBar.loading"
         />
       </div>
       <template v-if="plantList.length">
-        <page-nav />
+        <h3>Page {{ currentPage }} of {{ lastPage }}</h3>
+        <plant-list @plant-clicked="showActivePlant" class="p-4" />
         <!-- TODO: add more buttons here to show more info, grow, or open activePlant modal -->
-        <plant-list @plant-clicked="showActivePlant" />
+        <page-nav />
       </template>
     </widget>
     <widget

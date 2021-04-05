@@ -1,14 +1,14 @@
 <template>
   <div
     id="side-menu"
-    class="h-screen pt-10 pb-4 items-center flex flex-col border-gray-200 border-solid border-r-2 font-bold text-2xl w-full"
+    class="h-screen pt-2 pb-4 items-center flex flex-col border-gray-200 border-solid border-r-2 font-bold text-2xl w-full"
   >
     <menu-icon
       :is="widget.icon"
-      v-for="widget in widgetList"
+      v-for="widget in menuWidgetList"
       :key="`${widget.name}-icon`"
-      :style="{ fill: widget.open ? 'purple' : 'gray' }"
-      class="mb-4 cursor-pointer"
+      :class="widget.open ? 'text-green-600' : 'text-gray-500'"
+      class="mb-8 cursor-pointer fill-current hover:text-pink-400"
       @click="clickWidget(widget)"
     />
   </div>

@@ -9,31 +9,32 @@
     @blur="inFocus = false"
   >
     <div class="flex flex-grow flex-col overflow-auto">
-      <div class="flex flex-row mb-1 sticky left-0">
+      <div class="flex flex-row mb-1 sticky left-0 text-gray-500">
         <docked-icon
-          class="cursor-pointer mr-3"
+          class="cursor-pointer mr-3 fill-current text-pink-800 hover:text-green-600"
           v-if="widgetData.docked"
           @click="dockWidget()"
-          style="fill: purple"
         />
         <not-docked-icon
-          class="cursor-pointer mr-3"
+          class="cursor-pointer mr-3 fill-current hover:text-green-600"
           v-else
           @click="dockWidget()"
-          style="fill: gray"
         />
         <move-icon
-          class="cursor-pointer"
+          class="cursor-pointer fill-current hover:text-green-600"
+          :class="{ 'text-green-600': trackPosition }"
           @mousedown="trackPosition = true"
-          :style="{ fill: trackPosition ? 'green' : 'gray' }"
         />
-        <close-icon class="ml-auto cursor-pointer" @click="closeWidget()" />
+        <close-icon
+          class="ml-auto cursor-pointer fill-current hover:text-pink-800"
+          @click="closeWidget()"
+        />
       </div>
       <slot></slot>
-      <div class="mt-auto sticky left-0">
+      <div class="mt-auto sticky left-0 text-gray-500">
         <resize-icon
-          class="resize-widget mt-1 cursor-pointer ml-auto"
-          :style="{ fill: trackSize ? 'green' : 'gray' }"
+          class="resize-widget mt-1 cursor-pointer ml-auto fill-current hover:text-green-600"
+          :class="{ 'text-green-600': trackSize }"
           @mousedown="trackSize = true"
         />
       </div>
@@ -121,7 +122,8 @@ export default class Widget extends ContainerMixin {
         left: this.convertSize(this.widgetData.display.left)
       },
       height: this.convertSize(this.widgetData.display.height, "height"),
-      width: this.convertSize(this.widgetData.display.width, "width")
+      width: this.convertSize(this.widgetData.display.width, "width"),
+      zIndex: this.widgetData.order * 10
     }
   }
 
@@ -238,7 +240,8 @@ export default class Widget extends ContainerMixin {
         : this.convertSize(this.styleAttributes.position.left),
       height: this.convertSize(this.styleAttributes.height, "height"),
       width: this.convertSize(this.styleAttributes.width, "width"),
-      position: this.widgetData.docked ? "relative" : "absolute"
+      position: this.widgetData.docked ? "relative" : "absolute",
+      "z-index": this.inFocus ? 100 : this.styleAttributes.zIndex
     }
   }
 
@@ -250,8 +253,8 @@ export default class Widget extends ContainerMixin {
       "shadow-md": !this.widgetData.docked,
       "shadow-sm": this.widgetData.docked,
       "bg-opacity-95": !this.widgetData.docked,
-      "z-0": this.widgetData.docked && !this.inFocus,
-      "z-10": !this.widgetData.docked || this.inFocus,
+      // "z-0": this.widgetData.docked && !this.inFocus,
+      // "z-10": !this.widgetData.docked || this.inFocus,
       "outline-green": this.trackPosition || this.trackSize,
       hidden: !this.widgetData.open
     }

@@ -3,7 +3,6 @@
     id="page-nav"
     :class="plantListLoading ? 'text-gray-300' : 'text-green-800'"
   >
-    <h3>Page {{ currentPage }} of {{ lastPage }}</h3>
     <button
       v-for="(page, index) in pageButtons"
       :key="`page-button-${index}`"

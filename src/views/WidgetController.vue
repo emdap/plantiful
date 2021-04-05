@@ -1,5 +1,6 @@
 <template>
   <div class="h-full w-full flex flex-row">
+    <welcome @search-plants="closeAndSearch" />
     <plant-search
       v-if="searchWidget && activePlantWidget"
       :searchWidget="searchWidget"
@@ -7,7 +8,11 @@
       :plantSearchSize="plantSearchSize"
       @grow-plant="dockAndGrow"
     />
-    <grow v-if="growWidget" :growWidget="growWidget" />
+    <grow
+      v-if="growWidget"
+      :growWidget="growWidget"
+      @search-plants="closeAndSearch"
+    />
   </div>
 </template>
 
@@ -19,10 +24,14 @@ import GrowMixin from "@/mixins/GrowMixin.vue"
 import widgetFixture from "@/fixtures/Widgets"
 import PlantSearch from "@/views/PlantSearch.vue"
 import Grow from "@/views/Grow.vue"
+import Welcome from "@/views/Welcome.vue"
 import { WidgetEntity } from "@/store/interfaces"
+import { Watch } from "vue-property-decorator"
+import { searchPlants } from "@/services/plants"
 
 @Component({
   components: {
+    Welcome,
     PlantSearch,
     Grow
   }
@@ -53,12 +62,24 @@ export default class WidgetController extends mixins(
     return this.getWidget("grow")
   }
 
+  public get welcomeWidget(): WidgetEntity | null {
+    return this.getWidget("welcome")
+  }
+
+  public closeAndSearch() {
+    if (this.searchWidget && !this.searchWidget.open)
+      container.toggleWidget(this.searchWidget)
+    if (this.growWidget && this.growWidget.open)
+      container.toggleWidget(this.growWidget)
+  }
+
   public dockAndGrow(e: MouseEvent) {
     e.stopPropagation()
     if (this.activePlant) {
       if (this.activePlantWidget && !this.activePlantWidget.docked)
         container.toggleDocked(this.activePlantWidget)
       this.growPlant(this.activePlant)
+      if (this.growWidget) container.toggleDocked(this.growWidget)
     }
   }
 
@@ -74,6 +95,22 @@ export default class WidgetController extends mixins(
       return 0
     } else {
       return "w-2/5"
+    }
+  }
+
+  // don't want welcome screen and search visible at same time
+  @Watch("searchWidget.open")
+  public searchOpened(open: boolean) {
+    if (open && this.welcomeWidget && this.welcomeWidget.open) {
+      container.toggleWidget(this.welcomeWidget)
+    }
+  }
+
+  @Watch("welcomeWidget.open")
+  public welcomeOpened(open: boolean) {
+    // don't want welcome screen and search visible at same time
+    if (open && this.searchWidget && this.searchWidget.open) {
+      container.toggleWidget(this.searchWidget)
     }
   }
 }

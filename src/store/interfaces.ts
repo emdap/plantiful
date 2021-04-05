@@ -298,8 +298,8 @@ export interface TopGrowBorder extends GrowBorder {
 // Widgets
 export interface WidgetEntity {
   name: string
+  order: number // higher order = higher z index
   icon?: string
-  order?: number
   open: boolean
   docked: boolean
   inMenu: boolean
@@ -331,6 +331,7 @@ export interface WidgetBasis extends InteractableBasis {
   position: WidgetPosition
   height: number | string | undefined
   width: number | string | undefined
+  zIndex: number
 }
 
 // Constants & types

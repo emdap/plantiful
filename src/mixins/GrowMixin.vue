@@ -38,7 +38,6 @@ export default class GrowMixin extends Vue {
   private startX: number | null = null
   public trackMouse = false
 
-  public containerId = "grow-container"
   public highlightBg = "purple-500"
   public highlightDuration = 1000
 
@@ -88,7 +87,7 @@ export default class GrowMixin extends Vue {
       container.toggleWidget(growWidget)
     }
 
-    const growWindow = document.getElementById(this.containerId) as HTMLElement
+    const growWidgetEl = document.getElementById("grow-widget") as HTMLElement
 
     // TEMP to demo - TODO: make recursive function to create structures based on plant characteristics
     // TODO: add fixture for leaf shapes depending on plant properties
@@ -113,16 +112,26 @@ export default class GrowMixin extends Vue {
       grow.addLeafCluster(leafCluster)
       leafClusterIds.push(leafCluster.id)
     }
-    // TODO: return some of this data from recursive function instead
+    // widget element might not be positioned/styled yet, use defaults if so
+    const growWidgetElWidth =
+      growWidgetEl.getBoundingClientRect().width == 0
+        ? (growWidget.display.minWidth as number)
+        : growWidgetEl.getBoundingClientRect().width
+    const growWidgetElHeight =
+      growWidgetEl.getBoundingClientRect().height == 0
+        ? (growWidget.display.minHeight as number)
+        : growWidgetEl.getBoundingClientRect().height
+    console.log(growWidgetElWidth, growWidgetElHeight)
     plant.branches = branchIds
     plant.leafClusters = leafClusterIds
     plant.position = {
-      x: Math.max(150, growWindow.getBoundingClientRect().width / 2),
-      y: growWindow.getBoundingClientRect().height / 2
+      x: growWidgetElWidth / 2,
+      y: growWidgetElHeight / 2 + plant.height / 2
     }
 
     grow.addPlant(plant)
     grow.setActivePlant(plant.id)
+    return plant.id
   }
 
   public get styleObj() {

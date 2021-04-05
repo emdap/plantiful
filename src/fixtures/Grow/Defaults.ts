@@ -97,7 +97,7 @@ export const TEST_PLANT: Plant = {
   family: "Poaceae",
   main_species: {
     id: 143075,
-    common_name: "",
+    common_name: "Default Plant",
     scientific_name: "Holcus lanatus",
     family_common_name: "Grass family",
     image_url:

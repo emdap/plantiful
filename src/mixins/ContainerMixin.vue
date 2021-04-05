@@ -9,22 +9,20 @@ export const container = getModule(ContainerModule)
 
 @Component({})
 export default class ContainerMixin extends Vue {
-  // public get widgets() {
-  //   return container.widgets
-  // }
-
   public get countOpenWidgets() {
     return Object.values(container.widgets).filter(w => {
       return w.open
     }).length
   }
 
-  // public get menuWidgetKeys() {
-  //   return Object.keys(container.widgets)
-  // }
-
   public get widgetList() {
     return Object.values(container.widgets)
+  }
+
+  public get menuWidgetList() {
+    return Object.values(container.widgets).filter(w => {
+      return w.inMenu
+    })
   }
 
   public get activeWidget(): WidgetEntity | null {

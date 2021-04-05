@@ -6,28 +6,21 @@ import WelcomeIcon from "@/assets/icons/welcome.svg"
 const widgets: WidgetEntity[] = [
   {
     name: "welcome",
+    order: 3,
     icon: WelcomeIcon,
-    open: true,
-    docked: false,
-    inMenu: true,
-    display: {
-      width: "50vw",
-      height: "full"
-    }
-  },
-  {
-    name: "search",
-    icon: SearchIcon,
     open: true,
     docked: true,
     inMenu: true,
     display: {
+      width: "30vw",
       height: "full",
-      flexGrow: true
+      minHeight: 500,
+      minWidth: 400
     }
   },
   {
     name: "active-plant",
+    order: 4,
     icon: "A",
     open: false,
     docked: false,
@@ -39,11 +32,28 @@ const widgets: WidgetEntity[] = [
   },
   {
     name: "grow",
+    order: 1,
     icon: PlantIcon,
+    open: false,
+    docked: false,
+    inMenu: true,
+    display: {
+      flexGrow: true,
+      height: 500,
+      width: 500,
+      minHeight: 500,
+      minWidth: 500
+    }
+  },
+  {
+    name: "search",
+    order: 2,
+    icon: SearchIcon,
     open: false,
     docked: true,
     inMenu: true,
     display: {
+      height: "full",
       flexGrow: true
     }
   }

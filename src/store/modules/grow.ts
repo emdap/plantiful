@@ -262,9 +262,27 @@ export default class GrowModule extends VuexModule implements GrowState {
     this[dataKey][entityId] = newEntity
   }
 
+  @Action
+  deleteEntity(payload: { dataKey: GrowDataKey; id: number }) {
+    const { dataKey, id } = payload
+    if (this[dataKey][id]) {
+      this.DELETE_ENTITY(payload)
+    }
+
+    // remove reference from active plant/entity
+    if (dataKey == "plants" && this.activeGrowPlant?.id == id) {
+      this.ACTIVE_PLANT(null)
+    } else if (
+      this.activeEntityType == dataKey &&
+      this.activeEntity?.id == id
+    ) {
+      this.ACTIVE_ENTITY({ dataKey, id: null })
+    }
+  }
+
   @Mutation
-  REMOVE_ENTITY(payload: { dataKey: GrowDataKey; entity: GrowType }) {
-    const { dataKey, entity } = payload
-    Vue.delete(this[dataKey], entity.id)
+  DELETE_ENTITY(payload: { dataKey: GrowDataKey; id: number }) {
+    const { dataKey, id } = payload
+    Vue.delete(this[dataKey], id)
   }
 }

@@ -4,6 +4,7 @@
       v-for="(plant, index) in plantList"
       :key="`plant ${index}`"
       @click="selectPlant(plant.id)"
+      class="mb-2 px-4 py-2 text-left"
       :class="
         plantListLoading
           ? 'text-gray-300 cursor-wait'
