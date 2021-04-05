@@ -266,7 +266,8 @@ export function createPlant(plant?: Plant) {
     const plantHeightLeft = maxHeight / (distanceFromMid + 1)
     // TODO: tinker curSpread based on heightleft/width left?
     // trying to make center branches spread less
-    const plantSpreadLeft = (maxSpread / midBranch) * (distanceFromMid + 1)
+    const plantSpreadLeft =
+      (maxSpread / (midBranch + 1)) * (distanceFromMid + 1)
     const zIndex =
       (Math.floor(totalBaseBranches / 2) - distanceFromMid + 1) * 10
 

@@ -239,7 +239,11 @@ export function getBranchOptionBounds(plantOptions: PlantOptions) {
   // TODO: tinker with this to create tighter/wider plants based on plant.orientation
 
   // add more base branches the taller the plant is, up to 5
-  const totalBaseBranches = Math.min(Math.ceil(plantOptions.height / 100), 5)
+  let totalBaseBranches = Math.min(Math.ceil(plantOptions.height / 100), 5)
+  // want there to be center branch
+  if (totalBaseBranches % 2 == 0) {
+    totalBaseBranches++
+  }
   const midBranch = Math.floor(totalBaseBranches / 2)
 
   // angle range is -angleMax -> +angleMax
@@ -251,7 +255,7 @@ export function getBranchOptionBounds(plantOptions: PlantOptions) {
     angleInc = Math.ceil((angleMax * 2) / (totalBaseBranches - 1))
   }
   const maxHeight = Math.min(plantOptions.height, 450)
-  const maxSpread = plantOptions.spread / 2 // spreads in two directions
+  const maxSpread = Math.min(plantOptions.spread / 2, 450) // spreads in two directions
 
   const maxBranchHeight = Math.max(maxHeight / 3, 50)
 
