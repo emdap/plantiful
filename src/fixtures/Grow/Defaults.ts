@@ -7,7 +7,7 @@ export const DEFAULT_LEAF_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
   fine: {
     topHeight: DEFAULT_TOP_H,
     bottomHeight: DEFAULT_BOTTOM_H,
-    spacing: 3,
+    spacing: 25,
     sides: 3,
     area: 90
   },
@@ -21,7 +21,7 @@ export const DEFAULT_LEAF_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
   coarse: {
     topHeight: DEFAULT_TOP_H,
     bottomHeight: DEFAULT_BOTTOM_H,
-    spacing: 5,
+    spacing: 15,
     sides: 5,
     area: 90
   },
@@ -30,8 +30,8 @@ export const DEFAULT_LEAF_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
 export const DEFAULT_LEAF_TEXTURE: LeafTexture = "medium"
 
 export const DEFAULT_PLANT_OPTIONS: PlantOptions = {
-  height: 500,
-  spread: 300,
+  height: 200,
+  spread: 200,
   flowerColors: ["pink", "magenta", "yellow"],
   leafColors: ["green", "lime", "purple", "aqua", "blue"],
   leafTexture: DEFAULT_LEAF_TEXTURE,
@@ -41,6 +41,7 @@ export const DEFAULT_PLANT_OPTIONS: PlantOptions = {
 
 export const BRANCH_INIT = (): BranchOptions => {
   return {
+    startPoint: NO_POSITION(),
     height: 50,
     width: 5,
     angle: 45,
@@ -101,7 +102,7 @@ export const TEST_PLANT: Plant = {
     flower: { color: ["purple"] },
     foliage: { texture: "fine", color: ["purple"] },
     specifications: {
-      average_height: { cm: 100 },
+      average_height: { cm: 1000 },
       shape_and_orientation: "Erect"
     },
     growth: { spread: { cm: 100 } }, // i made this up!

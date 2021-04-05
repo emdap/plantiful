@@ -1,36 +1,32 @@
 <template>
   <!-- NOTE : bottom right transform origin has cool spiral effect, use for flowers -->
   <div
-    :id="'leaf-cluster-' + leafClusterData"
+    :id="'leaf-cluster-' + leafClusterData.id"
     class="leaf-cluster absolute z-20 cursor-pointer"
     :style="containerStyle"
+    @dblclick="activateEntity(plantActive, 'leafClusters', leafClusterData.id)"
   >
-    <div
-      class="absolute rounded-full origin-bottom"
-      :class="backgroundClass(defaultBg, highlight)"
+    <leaf
       v-for="leaf in leafClusterData.leaves"
       :key="'leaf-' + leaf"
-      :style="styleObj(getLeaf(leaf))"
-    >
-      <shape
-        v-for="(shape, index) in getLeaf(leaf).shapes"
-        :key="'leaf-' + leaf + '-shape-' + (index + 1)"
-        :growData="shape"
-      />
-    </div>
+      :leafData="getEntity('leaves', leaf)"
+      :plantActive="plantActive"
+      :clusterActive="clusterActive"
+    />
+    {{ clusterActive }}
   </div>
 </template>
 
 <script lang="ts">
-import GrowMixin from "@/mixins/GrowMixin.vue"
-import { GrowLeaf, GrowLeafCluster } from "@/store/interfaces"
+import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
+import { GrowLeafCluster } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
-import Shape from "@/components/Grow/Shape.vue"
+import Leaf from "@/components/Grow/Leaf.vue"
 import Component from "vue-class-component"
 
 @Component({
   components: {
-    Shape
+    Leaf
   }
 })
 export default class LeafCluster extends GrowMixin {
@@ -61,26 +57,32 @@ export default class LeafCluster extends GrowMixin {
     return this.styleObj(styleData, true)
   }
 
-  public get getLeaf() {
-    return (id: number): GrowLeaf => {
-      return this.getEntity("leaves", id) as GrowLeaf
-    }
+  public get clusterActive() {
+    return (
+      grow.activeEntityType == "leafClusters" &&
+      this.activeEntity?.id == this.leafClusterData.id
+    )
   }
 
   @Watch("plantActive")
-  public toggleHighlight(active: boolean) {
+  public plantHighlight(active: boolean) {
     if (active) {
-      this.highlight = true
-      setTimeout(() => {
-        this.highlight = false
-      }, this.highlightDuration)
+      this.toggleHighlight()
     }
+  }
+
+  @Watch("clusterActive")
+  public clusterHighlight(active: boolean) {
+    if (active) {
+      this.toggleHighlight()
+    }
+  }
+
+  public toggleHighlight() {
+    this.highlight = true
+    setTimeout(() => {
+      this.highlight = false
+    }, this.highlightDuration)
   }
 }
 </script>
-
-<style scoped>
-.branch {
-  border: 1px solid orange;
-}
-</style>

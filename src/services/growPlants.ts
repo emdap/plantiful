@@ -9,8 +9,7 @@ import {
   Coordinate,
   GrowLeafCluster,
   Plant,
-  PlantOptions,
-  GrowBasis
+  BranchOutGlobals
 } from "@/store/interfaces"
 import util from "../utilities/growUtil"
 
@@ -66,12 +65,9 @@ export function createLeaves(
 
 export function createBranch(
   order: number,
-  startPoint: Coordinate,
-  options?: BranchOptions
+  options: BranchOptions
 ): GrowBranch {
-  const { height, width, angle, hasLeaf, hasFlower } = util.getBranchOptions(
-    options
-  )
+  const { startPoint, height, width, angle, hasLeaf, hasFlower } = options
   const angleRadians = util.radians(angle)
   const compAngleRadians = util.radians(90 - angle)
   const endPoint = util.getBranchEndPoint(height, angleRadians, startPoint)
@@ -167,119 +163,115 @@ export function createLeafCluster(
   }
 }
 
-function nextAngle(
-  prevBranch: GrowBranch | null,
-  curAngle: number,
-  direction: "right" | "left"
-): number {
-  let prevAngle = 0
-  if (prevBranch) {
-    prevAngle = prevBranch.rotation.z
-  }
-  let newAngle = 0
-  if (direction == "left") {
-    if (prevAngle > 0) {
-      newAngle = Math.max(prevAngle - 60, -30)
-    } else {
-      newAngle = Math.max(prevAngle - 30, -75)
-    }
-  } else {
-    if (prevAngle < -15) {
-      newAngle = Math.min(prevAngle + 60, 15)
-    } else {
-      newAngle = Math.min(prevAngle + 30, 75)
-    }
-  }
-  console.log(direction, "prev", prevAngle, "new", newAngle)
-  return newAngle
-}
-
-function growBranch(
-  heightLeft: number,
+function branchOut(
+  globalRefs: BranchOutGlobals,
   order: number,
-  branchOptions: BranchOptions,
-  branchSide: "base" | "left" | "right",
-  branches: GrowBranch[]
-): GrowBranch[] {
-  branchOptions = util.getBranchOptions(branchOptions)
-  const { angle, height } = branchOptions
-
-  const prevBranch = branches.length ? branches[branches.length - 1] : null
-
-  let newAngle!: number,
-    newStart!: Coordinate,
-    newOrder!: number,
-    reCalcHeightLeft!: boolean,
-    nextSide!: "right" | "left"
-  if (heightLeft > 0) {
-    switch (branchSide) {
-      case "base":
-        newAngle = angle
-        newStart = NO_POSITION()
-        newOrder = order + 1
-        reCalcHeightLeft = true
-        nextSide = "left"
-        break
-      case "right":
-        // newAngle = angle + 60 > 90 ? 90 : angle + 60
-        newAngle = nextAngle(prevBranch, angle, "right")
-        newStart = prevBranch ? prevBranch.startPoint : NO_POSITION()
-        newOrder = order + 1
-        reCalcHeightLeft = true
-        nextSide = "left"
-        break
-      case "left":
-        newAngle = nextAngle(prevBranch, angle, "left")
-        newStart = prevBranch ? prevBranch.endPoint : NO_POSITION()
-        newOrder = order
-        reCalcHeightLeft = false
-        nextSide = "right"
-        break
+  heightLeft: number,
+  widthLeft: number,
+  forceLeaf: boolean,
+  baseBranchOptions: BranchOptions
+) {
+  const baseBranch = createBranch(order, baseBranchOptions)
+  if (forceLeaf) {
+    baseBranch.hasLeaf = true
+    const { leafColors, leafTexture } = globalRefs.plantOptions
+    const clusterWithLeaves = createLeafCluster(
+      order + 1,
+      baseBranch,
+      leafColors,
+      { texture: leafTexture }
+    )
+    globalRefs.clustersWithLeaves.push(clusterWithLeaves)
+  } else {
+    // TODO: maniuplate branch height in branchOptions based on order (smaller branch height as order increases)
+    const newBranchHeight = Math.max(baseBranch.height / order, 50)
+    const leftBranchOptions = {
+      ...baseBranchOptions,
+      startPoint: baseBranch.endPoint,
+      height: newBranchHeight,
+      angle: util.getBranchAngle(baseBranch, "left")
     }
-
-    const newOptions = { ...branchOptions, angle: newAngle }
-    const branch = createBranch(newOrder, newStart, newOptions)
-    let newHeightLeft!: number
-    if (reCalcHeightLeft) {
-      if (prevBranch) {
-        newHeightLeft = heightLeft - Math.max(branch.height, prevBranch.height)
-      } else {
-        newHeightLeft = heightLeft - branch.height
-      }
-    } else {
-      newHeightLeft = heightLeft
+    const rightBranchOptions = {
+      ...baseBranchOptions,
+      startPoint: baseBranch.endPoint,
+      height: newBranchHeight,
+      angle: util.getBranchAngle(baseBranch, "right")
     }
-    if (newHeightLeft <= 0) {
-      branch.hasLeaf = true
-    }
-    branches.push(branch)
-    // console.log("side", branchSide, "angle", newAngle, "height", branch.height, newHeightLeft, branch.hasLeaf)
-    return growBranch(newHeightLeft, newOrder, newOptions, nextSide, branches)
+    heightLeft = heightLeft - baseBranch.height
+    widthLeft = widthLeft - baseBranch.width
+    order++
+    // 1 or none of the new branches can have a leaf
+    const { forceLeft, forceRight } = util.forceLeaves(
+      order,
+      heightLeft,
+      widthLeft,
+      baseBranchOptions.angle
+    )
+    branchOut(
+      globalRefs,
+      order,
+      heightLeft,
+      widthLeft,
+      forceLeft,
+      leftBranchOptions
+    )
+    branchOut(
+      globalRefs,
+      order,
+      heightLeft,
+      widthLeft,
+      forceRight,
+      rightBranchOptions
+    )
   }
-  return branches
+  globalRefs.branches.push(baseBranch)
+  return
 }
 
 export function createPlant(plant?: Plant) {
   const plantOptions = util.getPlantOptions(plant)
-  // add 1 branch for every 50cm of spread
-  const baseBranches = Math.ceil(plantOptions.spread / 50)
-  const branchList = [] as GrowBranch[]
-  const branchOptions: BranchOptions = BRANCH_INIT()
-  // angle range is -angleMax -> +angleMax
-  const angleMax = 60 // can manipulate this to create tighter/wider plants based on plant.orientation
-  const angleInc = Math.ceil((angleMax * 2) / baseBranches)
-  for (let w = 0; w <= baseBranches; w++) {
-    // init branches at different angles
-    branchOptions.angle = -angleMax + w * angleInc
-    // const initDirection = branchOptions.angle < 0 ? "left" : "right"
-    growBranch(plantOptions.height, 1, branchOptions, "base", branchList)
-    // branchList.push(...growBranch(plantOptions.height, 1, branchOptions, initDirection))
-    // }
+  const {
+    totalBaseBranches,
+    midBranch,
+    angleMax,
+    angleInc,
+    maxHeight,
+    maxSpread,
+    maxBranchHeight
+  } = util.getBranchOptionBounds(plantOptions)
+
+  // lists are accumulators for recursive function
+  // plantOptions is needed when adding leaves during recursion
+  const branchOutGlobals: BranchOutGlobals = {
+    branches: [],
+    clustersWithLeaves: [],
+    plantOptions
   }
-  console.log(
-    branchList.map(b => {
-      return b.rotation.z
-    })
-  )
-  return branchList
+  for (let branch = 0; branch <= totalBaseBranches; branch++) {
+    // init branches to default, but at different angles
+    // and with smaller max height for branches further from center
+    const order = branch + 1
+    const plantHeightLeft = maxHeight / (Math.abs(midBranch - branch) + 1)
+    // TODO: tinker curSpread based on heightleft/width left?
+    // trying to make center branches spread less
+    const plantSpreadLeft =
+      (maxSpread / midBranch) * (Math.abs(midBranch - branch) + 1)
+
+    const baseBranchOptions: BranchOptions = {
+      ...BRANCH_INIT(),
+      height: maxBranchHeight,
+      angle: -angleMax + branch * angleInc
+      // TODO: customize properties further based on other plant options
+    }
+
+    branchOut(
+      branchOutGlobals,
+      order,
+      plantHeightLeft,
+      plantSpreadLeft,
+      false,
+      baseBranchOptions
+    )
+  }
+  return branchOutGlobals
 }

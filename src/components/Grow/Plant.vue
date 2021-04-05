@@ -2,7 +2,7 @@
   <div
     class="absolute"
     :id="'plant-' + plantData.id"
-    @dblclick="setActive()"
+    @dblclick="setActive"
     :style="styleGeneral"
   >
     <span
@@ -64,11 +64,10 @@ export default class Plant extends GrowMixin {
     return grow.activeGrowPlant?.id == this.plantData.id
   }
 
-  public setActive() {
-    if (this.isActive) {
-      grow.removeActivePlant()
-    } else {
+  public setActive(e: MouseEvent) {
+    if (!this.isActive) {
       grow.setActivePlant(this.plantData.id)
+      e.stopPropagation()
     }
   }
 

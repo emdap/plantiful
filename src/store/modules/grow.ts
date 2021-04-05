@@ -54,13 +54,13 @@ export default class GrowModule extends VuexModule implements GrowState {
   @Action
   setActivePlant(id: number) {
     if (this["plants"][id]) {
-      this.ACTIVE_ENTITY({ dataKey: "plants", id })
+      this.ACTIVE_PLANT(id)
     }
   }
 
   @Action
   removeActivePlant() {
-    this.ACTIVE_ENTITY({ id: null, dataKey: "plants" })
+    this.ACTIVE_PLANT(null)
   }
 
   @Action
@@ -122,6 +122,24 @@ export default class GrowModule extends VuexModule implements GrowState {
         newEntity: leaf
       })
     }, leaf.order * 300)
+    // TODO: better system for applying animations like this, this is temp for fun
+    setTimeout(() => {
+      this.UPDATE_ENTITY({
+        dataKey: "leaves",
+        entityId: tempLeaf.id,
+        newEntity: {
+          ...leaf,
+          rotation: NO_ROTATION()
+        }
+      })
+    }, leaf.order * 300 + 150)
+    setTimeout(() => {
+      this.UPDATE_ENTITY({
+        dataKey: "leaves",
+        entityId: tempLeaf.id,
+        newEntity: leaf
+      })
+    }, leaf.order * 300 + 350)
   }
 
   @Action
@@ -199,18 +217,30 @@ export default class GrowModule extends VuexModule implements GrowState {
     this.showControls = show
   }
 
+  // idea: have active plant, and active entity. active entity = active plant when first activated,
+  // after that, can set active entity to any PART of the active plant
+  @Mutation
+  ACTIVE_PLANT(id: number | null) {
+    if (id) {
+      this.activeGrowPlant = this.activeEntity = this.plants[id]
+      this.activeEntityType = "plants"
+    } else {
+      this.activeGrowPlant = this.activeEntity = this.activeEntityType = null
+    }
+  }
+
   @Mutation
   ACTIVE_ENTITY(payload: { dataKey: GrowDataKey; id: number | null }) {
-    // idea: have active plant, and active entity. active entity = active plant when first activated,
-    // after that, can set active entity to any PART of the active plant
     const { dataKey, id } = payload
     const newActive = id ? this[dataKey][id] : null
-    if (dataKey == "plants") {
-      this.activeGrowPlant = newActive as GrowPlant | null
+    if (newActive) {
+      this.activeEntityType = dataKey
+      this.activeEntity = newActive
+    } else {
+      // de-activating active part of plant -> activeEntity resets to the plant itself
+      this.activeEntityType = this.activeGrowPlant ? "plants" : null
+      this.activeEntity = this.activeGrowPlant ? this.activeGrowPlant : null
     }
-    // de-activating active part of plant -> activeEntity resets to the plant itself
-    this.activeEntity =
-      !newActive && this.activeGrowPlant ? this.activeGrowPlant : newActive
   }
 
   @Mutation

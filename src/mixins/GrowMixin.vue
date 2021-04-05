@@ -16,7 +16,8 @@ import {
   GrowLeafCluster,
   BranchOptions,
   GrowData,
-  GrowType
+  GrowType,
+  GrowDataKey
 } from "@/store/interfaces"
 import {
   createBranch,
@@ -67,6 +68,16 @@ export default class GrowMixin extends Vue {
     return grow.getEntity
   }
 
+  public activateEntity(
+    plantActive: boolean,
+    dataKey: GrowDataKey,
+    id: number
+  ) {
+    if (plantActive) {
+      grow.setActiveEntity({ id, dataKey })
+    }
+  }
+
   public growPlant(basePlant: Plant) {
     const growWidget = container.getWidget("grow")
     if (!growWidget) {
@@ -81,90 +92,44 @@ export default class GrowMixin extends Vue {
 
     // TEMP to demo - TODO: make recursive function to create structures based on plant characteristics
     // TODO: add fixture for leaf shapes depending on plant properties
-    const startPoint = {
-      x: 0,
-      y: 0
-    }
-    // const branchOptions: BranchOptions = {
-    //   height: 50,
-    //   width: 5,
-    //   angle: 60,
-    //   hasLeaf: false,
-    //   hasFlower: false
-    // }
-    // const branchOptions2: BranchOptions = {
-    //   height: 50,
-    //   width: 5,
-    //   angle: -70,
-    //   hasLeaf: false,
-    //   hasFlower: false
-    // }
-    // const mainBranch = createBranch(1, startPoint, branchOptions)
-    // const branch = createBranch(2, mainBranch.endPoint, branchOptions)
-
-    // const mainBranch2 = createBranch(1, startPoint)
-    // const branch2 = createBranch(2, mainBranch2.endPoint, branchOptions)
-    // const branch3 = createBranch(3, branch2.endPoint, branchOptions)
-    // const branch4 = createBranch(4, startPoint)
-    // const branch5 = createBranch(5, branch3.endPoint)
-
-    // const allBranches = [
-    //   mainBranch,
-    //   mainBranch2,
-    //   branch,
-    //   branch2,
-    //   branch3,
-    //   branch4,
-    //   branch5
-    // ]
-
-    // for (const branch of allBranches) {
-    //   grow.addBranch(branch)
-    // }
 
     // temp, just returngin branches rn
-    const allBranches = createPlant(basePlant)
-    const allClusters = [] as GrowLeafCluster[]
-
-    for (const branch of allBranches) {
+    const { branches, clustersWithLeaves } = createPlant(basePlant)
+    // const allClusters = [] as GrowLeafCluster[]
+    const branchIds = []
+    const leafClusterIds = []
+    for (const branch of branches) {
       grow.addBranch(branch)
-      if (branch.hasLeaf) {
-        const { leafCluster, leaves } = createLeafCluster(4, branch, [
-          "pink",
-          "purple",
-          "blue"
-        ])
-        for (const leaf of leaves) {
-          grow.addLeaf(leaf)
-        }
-        // leaf Ids are added after store registration
-        leafCluster.leaves = leaves.map(l => {
-          return l.id
-        })
-        grow.addLeafCluster(leafCluster)
-        allClusters.push(leafCluster)
-      }
+      branchIds.push(branch.id)
     }
+    for (const overallCluster of clustersWithLeaves) {
+      // leafCluster starts with empty list for leaf ids
+      const { leafCluster, leaves } = overallCluster
+      for (const leaf of leaves) {
+        grow.addLeaf(leaf)
+        // leaf now as id assigned
+        leafCluster.leaves.push(leaf.id)
+      }
+      grow.addLeafCluster(leafCluster)
+      leafClusterIds.push(leafCluster.id)
+    }
+    // TODO: return some of this data from recursive function instead
     const plant: GrowPlant = {
       ...PLANT_ENTITY_INIT(), // default rotation/position/size
       id: 0,
       showName: true,
       name: basePlant.main_species.common_name,
       plantId: basePlant.id,
-      leafClusters: allClusters.map(l => {
-        return l.id
-      }),
-      branches: allBranches.map(b => {
-        return b.id
-      }),
+      leafClusters: leafClusterIds,
+      branches: branchIds,
       position: {
-        x: growWindow.getBoundingClientRect().width / 2,
+        x: Math.max(150, growWindow.getBoundingClientRect().width / 2),
         y: growWindow.getBoundingClientRect().height / 2
       }
     }
 
     grow.addPlant(plant)
-    grow.setActiveEntity({ id: plant.id, dataKey: "plants" })
+    grow.setActivePlant(plant.id)
   }
 
   public get styleObj() {

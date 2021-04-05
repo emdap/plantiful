@@ -40,6 +40,12 @@ export type GrowDataKey =
   | "leaves"
   | "flowers"
 
+export type BranchOutGlobals = {
+  branches: GrowBranch[]
+  clustersWithLeaves: { leafCluster: GrowLeafCluster; leaves: GrowLeaf[] }[]
+  plantOptions: PlantOptions
+}
+
 export type GrowData<T> = {
   [key: number]: T
 }
@@ -108,6 +114,7 @@ export interface LeafOptions {
 }
 
 export interface BranchOptions {
+  startPoint: Coordinate
   height: number
   width: number
   angle: number

@@ -7,7 +7,8 @@ import {
   Plant,
   LeafOptions,
   LeafTexture,
-  BranchOptions
+  BranchOptions,
+  GrowBranch
 } from "@/store/interfaces"
 import {
   NO_ROTATION,
@@ -128,6 +129,14 @@ function getLeafOptions(options?: {
   return leafOptions
 }
 
+function generateLeafColors(baseColors: string[]) {
+  if (baseColors.length == 1) {
+    // TODO: better way to variate colors -> perhaps convert to hex/RGB value first
+    return ["magenta", "lime", baseColors[0], "aqua"]
+  }
+  return baseColors
+}
+
 function getPlantOptions(plant?: Plant): PlantOptions {
   if (!plant) {
     return DEFAULT_PLANT_OPTIONS
@@ -149,12 +158,88 @@ function getPlantOptions(plant?: Plant): PlantOptions {
       ? plantFlowers
       : DEFAULT_PLANT_OPTIONS.flowerColors,
     leafColors: plantLeaves.color
-      ? plantLeaves.color
+      ? generateLeafColors(plantLeaves.color)
       : DEFAULT_PLANT_OPTIONS.leafColors,
     leafTexture: plantLeaves.texture
       ? plantLeaves.texture
       : DEFAULT_PLANT_OPTIONS.leafTexture,
     leafDensity: DEFAULT_PLANT_OPTIONS.leafDensity
+  }
+}
+
+function getBranchAngle(
+  baseBranch: GrowBranch,
+  direction: "right" | "left"
+): number {
+  const baseAngle = baseBranch.rotation.z
+  let newAngle = 0
+  if (direction == "left") {
+    newAngle = Math.max(baseAngle - 25, -80)
+  } else {
+    newAngle = Math.min(baseAngle + 25, 80)
+  }
+  return newAngle
+}
+
+function forceLeaves(
+  branchOrder: number,
+  heightLeft: number,
+  widthLeft: number,
+  baseAngle: number
+): {
+  forceLeft: boolean
+  forceRight: boolean
+} {
+  let forceLeft!: boolean, forceRight!: boolean, forceOuter!: boolean
+
+  if (heightLeft <= 0 || widthLeft <= 0) {
+    forceLeft = forceRight = true
+  } else if (baseAngle == 0) {
+    forceLeft = forceRight = false
+  } else {
+    // likelihood of leaf increases as: order increases, height decreases, width decreases
+    const heightWeight = 0.7
+    const widthWeight = 1 - heightWeight
+    const orderFactor = 3
+    const leafProbDenom =
+      1 +
+      (heightLeft * heightWeight + widthLeft * widthWeight) /
+        (branchOrder * orderFactor)
+    const forceLeaf = Math.random() <= 1 / leafProbDenom
+
+    // want leaves along outer edge to be more likely
+    if (forceLeaf) {
+      const outerProb = 0.7
+      forceOuter = Math.random() <= outerProb
+      forceLeft = forceOuter && baseAngle < 0
+      forceRight = !forceLeft
+    }
+  }
+  return { forceLeft, forceRight }
+}
+
+export function getBranchOptionBounds(plantOptions: PlantOptions) {
+  // angle range is -angleMax -> +angleMax
+  // TODO: tinker with this to create tighter/wider plants based on plant.orientation
+  const totalBaseBranches = Math.ceil(plantOptions.spread / 50)
+  const midBranch = Math.ceil(totalBaseBranches / 2)
+
+  const angleMax = 45
+  const angleInc = Math.ceil((angleMax * 2) / totalBaseBranches)
+
+  const maxHeight = Math.min(plantOptions.height, 250)
+  const maxSpread = plantOptions.spread / 2 // spreads in two directions
+
+  const maxBranchHeight = Math.max(maxHeight / 3, 50)
+
+  return {
+    totalBaseBranches,
+    midBranch,
+    angleMax,
+    angleInc,
+    maxHeight,
+    maxSpread,
+    maxBranchHeight
   }
 }
 
@@ -167,5 +252,8 @@ export default {
   leafTemplate,
   getLeafOptions,
   getPlantOptions,
-  getBranchOptions
+  getBranchOptions,
+  getBranchAngle,
+  forceLeaves,
+  getBranchOptionBounds
 }

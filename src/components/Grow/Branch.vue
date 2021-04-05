@@ -3,6 +3,7 @@
     :id="'branch-' + branchData.id"
     class="absolute cursor-pointer"
     :style="containerStyle"
+    @dblclick="activateEntity(plantActive, 'branches', branchData.id)"
   >
     <div
       :class="['absolute z-10', backgroundClass(defaultBg, highlight)]"
@@ -13,8 +14,8 @@
 </template>
 
 <script lang="ts">
-import GrowMixin from "@/mixins/GrowMixin.vue"
-import { GrowBranch } from "@/store/interfaces"
+import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
+import { GrowBranch, GrowEntity, GrowType } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 import Component from "vue-class-component"
 import { NO_ROTATION } from "@/fixtures/Grow/Defaults"
@@ -47,14 +48,32 @@ export default class Branch extends GrowMixin {
     return this.styleObj(styleData)
   }
 
+  public get branchActive() {
+    return (
+      grow.activeEntityType == "branches" &&
+      this.activeEntity?.id == this.branchData.id
+    )
+  }
+
   @Watch("plantActive")
-  public toggleHighlight(active: boolean) {
+  public plantHighlight(active: boolean) {
     if (active) {
-      this.highlight = true
-      setTimeout(() => {
-        this.highlight = false
-      }, this.highlightDuration)
+      this.toggleHighlight()
     }
+  }
+
+  @Watch("branchActive")
+  public branchHighlightht(active: boolean) {
+    if (active) {
+      this.toggleHighlight()
+    }
+  }
+
+  public toggleHighlight() {
+    this.highlight = true
+    setTimeout(() => {
+      this.highlight = false
+    }, this.highlightDuration)
   }
 }
 </script>
