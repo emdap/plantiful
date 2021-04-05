@@ -104,7 +104,7 @@ export const TEST_PLANT: Plant = {
     flower: { color: ["purple"] },
     foliage: { texture: "fine", color: ["purple"] },
     specifications: {
-      average_height: { cm: 1000 },
+      average_height: { cm: 100 },
       shape_and_orientation: "Erect"
     },
     growth: { spread: { cm: 100 } }, // i made this up!

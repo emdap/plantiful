@@ -48,7 +48,6 @@ export function createLeaves(
       order,
       position: {
         x: height / 2 - width / 2,
-        // y: -height / 2
         y: 0
       },
       rotation,
@@ -259,7 +258,7 @@ export function createPlant(plant?: Plant) {
     clustersWithLeaves: [],
     plantOptions
   }
-  for (let branch = 0; branch <= totalBaseBranches; branch++) {
+  for (let branch = 0; branch < totalBaseBranches; branch++) {
     // init branches to default, but at different angles
     // and with smaller max height for branches further from center
     const distanceFromMid = Math.abs(midBranch - branch)
