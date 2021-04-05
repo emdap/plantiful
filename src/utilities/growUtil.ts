@@ -18,6 +18,7 @@ import {
   DEFAULT_LEAF_TEXTURE,
   BRANCH_INIT
 } from "@/fixtures/Grow/Defaults"
+import colorConverter from "css-color-converter"
 
 function radians(angle: number): number {
   return (angle * Math.PI) / 180
@@ -131,12 +132,26 @@ function getLeafOptions(options?: {
   return leafOptions
 }
 
+function incrementColor(value: number, increment: number) {
+  return Math.min(Math.max(value + increment, 0), 255)
+}
+
 function generateLeafColors(baseColors: string[]) {
-  if (baseColors.length == 1) {
-    // TODO: better way to variate colors -> perhaps convert to hex/RGB value first
-    return ["magenta", "lime", baseColors[0], "aqua"]
+  const colors = [] as string[]
+  for (let i = 0; i < baseColors.length; i++) {
+    const colorRGB = colorConverter.fromString(baseColors[i]).toRgbaArray() // returns [r, g, b, a (alpha)]
+    const same = `rgb(${colorRGB[0]}, ${colorRGB[1]}, ${colorRGB[2]})`
+    const lighter = `rgb(${incrementColor(colorRGB[0], -50)}, ${incrementColor(
+      colorRGB[1],
+      -50
+    )}, ${incrementColor(colorRGB[2], -50)})`
+    const darker = `rgb(${incrementColor(colorRGB[0], 50)}, ${incrementColor(
+      colorRGB[1],
+      50
+    )}, ${incrementColor(colorRGB[2], 50)})`
+    colors.push(lighter, same, darker)
   }
-  return baseColors
+  return colors
 }
 
 function getPlantOptions(plant?: Plant): PlantOptions {
