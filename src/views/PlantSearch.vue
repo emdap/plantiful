@@ -14,10 +14,18 @@
         />
       </div>
       <template v-if="plantList.length">
-        <h3>Page {{ currentPage }} of {{ lastPage }}</h3>
-        <plant-list @plant-clicked="showActivePlant" class="p-4" />
+        <h3 :class="plantListLoading ? 'text-gray-300' : 'text-green-800'">
+          Page {{ currentPage }} of {{ lastPage }}
+        </h3>
+        <plant-list
+          @show-active="showActivePlant"
+          @grow-plant="$emit('grow-plant', $event)"
+          class="p-4"
+        />
         <!-- TODO: add more buttons here to show more info, grow, or open activePlant modal -->
-        <page-nav />
+        <page-nav
+          :class="plantListLoading ? 'text-gray-300' : 'text-green-800'"
+        />
       </template>
     </widget>
     <widget

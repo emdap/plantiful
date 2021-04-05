@@ -14,7 +14,7 @@
         class=" max-h-96 inline"
         :class="{ hidden: !mainImgLoaded }"
       />
-      <ul>
+      <ul class="mb-4">
         <li v-for="(info, index) in showFields" :key="`active-info-${index}`">
           <template v-if="info.value">
             <strong> {{ info.text }}: </strong> {{ info.value }}

@@ -2,7 +2,7 @@
   <div id="search-bar" class="shadow-sm flex  mb-2">
     <input
       id="search-input"
-      class="p-2 flex-grow text-center"
+      class="p-2 flex-grow text-left"
       type="text"
       v-model="searchQuery"
       :placeholder="messages.searchBar.placeholder"

@@ -27,7 +27,6 @@ import Grow from "@/views/Grow.vue"
 import Welcome from "@/views/Welcome.vue"
 import { WidgetEntity } from "@/store/interfaces"
 import { Watch } from "vue-property-decorator"
-import { searchPlants } from "@/services/plants"
 
 @Component({
   components: {
@@ -111,6 +110,13 @@ export default class WidgetController extends mixins(
     // don't want welcome screen and search visible at same time
     if (open && this.searchWidget && this.searchWidget.open) {
       container.toggleWidget(this.searchWidget)
+    }
+  }
+
+  @Watch("hasGrowPlants")
+  public noGrow(hasPlants: boolean) {
+    if (this.growWidget && this.growWidget.open && !hasPlants) {
+      container.toggleWidget(this.growWidget)
     }
   }
 }

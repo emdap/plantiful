@@ -8,25 +8,15 @@ import { container } from "@/mixins/ContainerMixin.vue"
 import {
   GrowBasis,
   GrowPlant,
-  GrowLeaf,
   Coordinate,
   GrowShape,
   Plant,
   Rotation,
-  GrowLeafCluster,
-  BranchOptions,
   GrowData,
   GrowType,
   GrowDataKey
 } from "@/store/interfaces"
-import {
-  createBranch,
-  createLeafCluster,
-  createPlant
-} from "@/services/growPlants"
-// temp
-import { PLANT_ENTITY_INIT, TEST_PLANT } from "@/fixtures/Grow/Defaults"
-import LeafCluster from "@/components/Grow/LeafCluster.vue"
+import { createPlant } from "@/services/growPlants"
 
 export const grow = getModule(GrowModule)
 
@@ -38,7 +28,7 @@ export default class GrowMixin extends Vue {
   private startX: number | null = null
   public trackMouse = false
 
-  public highlightBg = "purple-500"
+  public highlightBg = "pink-700"
   public highlightDuration = 1000
 
   public mounted() {
@@ -65,6 +55,10 @@ export default class GrowMixin extends Vue {
 
   public get getEntity() {
     return grow.getEntity
+  }
+
+  public get hasGrowPlants() {
+    return Object.entries(grow.plants).length != 0
   }
 
   public activateEntity(
@@ -121,7 +115,7 @@ export default class GrowMixin extends Vue {
       growWidgetEl.getBoundingClientRect().height == 0
         ? (growWidget.display.minHeight as number)
         : growWidgetEl.getBoundingClientRect().height
-    console.log(growWidgetElWidth, growWidgetElHeight)
+
     plant.branches = branchIds
     plant.leafClusters = leafClusterIds
     plant.position = {

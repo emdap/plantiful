@@ -27,6 +27,7 @@ const widgets: WidgetEntity[] = [
     inMenu: false,
     display: {
       width: "20vw",
+      height: "50vh",
       left: "100%"
     }
   },
