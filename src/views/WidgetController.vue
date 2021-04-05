@@ -12,7 +12,9 @@
       v-if="growWidget"
       :growWidget="growWidget"
       @search-plants="closeAndSearch"
-    />
+    >
+      <loading v-if="plantLoading" />
+    </grow>
   </div>
 </template>
 
@@ -25,6 +27,7 @@ import widgetFixture from "@/fixtures/Widgets"
 import PlantSearch from "@/views/PlantSearch.vue"
 import Grow from "@/views/Grow.vue"
 import Welcome from "@/views/Welcome.vue"
+import Loading from "@/components/Loading.vue"
 import { WidgetEntity } from "@/store/interfaces"
 import { Watch } from "vue-property-decorator"
 
@@ -32,7 +35,8 @@ import { Watch } from "vue-property-decorator"
   components: {
     Welcome,
     PlantSearch,
-    Grow
+    Grow,
+    Loading
   }
 })
 export default class WidgetController extends mixins(
@@ -78,7 +82,8 @@ export default class WidgetController extends mixins(
       if (this.activePlantWidget && !this.activePlantWidget.docked)
         container.toggleDocked(this.activePlantWidget)
       this.growPlant(this.activePlant)
-      if (this.growWidget) container.toggleDocked(this.growWidget)
+      if (this.growWidget && !this.growWidget.docked)
+        container.toggleDocked(this.growWidget)
     }
   }
 

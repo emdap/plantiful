@@ -1,6 +1,7 @@
 <template>
   <div id="grow-container" class="flex flex-grow h-full overflow-hidden">
     <widget :widgetData="growWidget" @click.self="activateWindow(false)">
+      <slot></slot>
       <span v-if="!hasGrowPlants" class="text-gray-500 font-semibold mt-10">
         Open up the search to find & grow plants!
         <button

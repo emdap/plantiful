@@ -1,8 +1,8 @@
 <template>
   <div id="active-plant" class="p-4 flex-grow overflow-auto flex-col">
-    <span v-if="noActivePlant">
-      {{ noActivePlant }}
-    </span>
+    <div v-if="noActivePlant" class="font-semibold flex items-center h-full">
+      <span>{{ noActivePlant }}</span>
+    </div>
     <template v-else>
       <!-- use properties under main_species when possible, has more consistent capitalization, especially for common_name -->
       <h1>{{ activePlant.main_species.common_name }}</h1>

@@ -10,12 +10,17 @@
           : 'hover:bg-green-200 hover:tracking-wide transition-text'
       "
     >
-      <img
-        v-if="plant.image_url"
-        :src="plant.image_url"
-        class="w-20 h-20 inline-block col-span-2"
-      />
-      <div class="inline-block col-span-7">
+      <span class="col-span-2" :class="{ 'opacity-30': plantListLoading }">
+        <img
+          v-if="plant.image_url"
+          :src="plant.image_url"
+          class="w-20 h-20 inline-block"
+        />
+      </span>
+      <div
+        class="inline-block col-span-7 cursor-pointer"
+        @click="optionClicked($event, plant.id, 'show-active')"
+      >
         <h3>
           {{ plant.common_name }}
         </h3>
@@ -30,7 +35,7 @@
           :title="option.text"
           class="ml-4 fill-current"
           :class="
-            plantLoading
+            plantLoading || plantListLoading
               ? 'cursor-wait text-gray-300'
               : 'cursor-pointer text-green-600 hover:text-pink-800'
           "

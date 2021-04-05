@@ -27,7 +27,7 @@ const widgets: WidgetEntity[] = [
     inMenu: false,
     display: {
       width: "20vw",
-      height: "50vh",
+      height: "500",
       left: "100%"
     }
   },
@@ -39,7 +39,7 @@ const widgets: WidgetEntity[] = [
     docked: false,
     inMenu: true,
     display: {
-      flexGrow: true,
+      // flexGrow: true,
       height: 500,
       width: 500,
       minHeight: 500,
