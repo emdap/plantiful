@@ -58,10 +58,19 @@ export default class LeafCluster extends GrowMixin {
   }
 
   public get clusterActive() {
-    return (
+    if (!this.activeEntity) {
+      return false
+    }
+    const clusterActive =
       grow.activeEntityType == "leafClusters" &&
-      this.activeEntity?.id == this.leafClusterData.id
-    )
+      this.activeEntity.id == this.leafClusterData.id
+    if (clusterActive) {
+      return true
+    }
+    const clusterLeafActive =
+      grow.activeEntityType == "leaves" &&
+      this.leafClusterData.leaves.indexOf(this.activeEntity.id) != -1
+    return clusterLeafActive
   }
 
   @Watch("plantActive")
