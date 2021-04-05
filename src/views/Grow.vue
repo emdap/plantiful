@@ -21,8 +21,6 @@ import Plant from "@/components/Grow/Plant.vue"
 import Widget from "@/components/Widget.vue"
 import { WidgetEntity } from "@/store/interfaces"
 import { Prop } from "vue-property-decorator"
-// temp
-import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
 
 @Component({
   components: {
@@ -32,11 +30,6 @@ import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
 })
 export default class Grow extends GrowMixin {
   @Prop({ required: true }) growWidget!: WidgetEntity
-
-  public mounted() {
-    // temp
-    this.growPlant(TEST_PLANT)
-  }
 
   public removeActive() {
     grow.removeActivePlant()

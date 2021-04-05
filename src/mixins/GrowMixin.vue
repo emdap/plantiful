@@ -94,7 +94,7 @@ export default class GrowMixin extends Vue {
     // TODO: add fixture for leaf shapes depending on plant properties
 
     // temp, just returngin branches rn
-    const { branches, clustersWithLeaves } = createPlant(basePlant)
+    const { branches, clustersWithLeaves, plant } = createPlant(basePlant)
     // const allClusters = [] as GrowLeafCluster[]
     const branchIds = []
     const leafClusterIds = []
@@ -114,18 +114,11 @@ export default class GrowMixin extends Vue {
       leafClusterIds.push(leafCluster.id)
     }
     // TODO: return some of this data from recursive function instead
-    const plant: GrowPlant = {
-      ...PLANT_ENTITY_INIT(), // default rotation/position/size
-      id: 0,
-      showName: true,
-      name: basePlant.main_species.common_name,
-      plantId: basePlant.id,
-      leafClusters: leafClusterIds,
-      branches: branchIds,
-      position: {
-        x: Math.max(150, growWindow.getBoundingClientRect().width / 2),
-        y: growWindow.getBoundingClientRect().height / 2
-      }
+    plant.branches = branchIds
+    plant.leafClusters = leafClusterIds
+    plant.position = {
+      x: Math.max(150, growWindow.getBoundingClientRect().width / 2),
+      y: growWindow.getBoundingClientRect().height / 2
     }
 
     grow.addPlant(plant)

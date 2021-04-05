@@ -209,7 +209,7 @@ function forceLeaves(
   forceRight: boolean
 } {
   let forceLeft!: boolean, forceRight!: boolean, forceOuter!: boolean
-
+  // widthLeft constraint causing plants to be too short if they had low spread TODO: best way to tackle?
   if (heightLeft <= 0 || widthLeft <= 0) {
     forceLeft = forceRight = true
   } else if (baseAngle == 0) {
@@ -233,7 +233,6 @@ function forceLeaves(
       forceRight = !forceLeft
     }
   }
-  console.log(forceLeft, forceRight)
   return { forceLeft, forceRight }
 }
 
@@ -245,6 +244,9 @@ export function getBranchOptionBounds(plantOptions: PlantOptions) {
   // want there to be center branch
   if (totalBaseBranches % 2 == 0) {
     totalBaseBranches++
+  } else if (plantOptions.spread <= 20) {
+    // low spread, force 1 base branch
+    totalBaseBranches = 1
   }
   const midBranch = Math.floor(totalBaseBranches / 2)
 
@@ -257,9 +259,9 @@ export function getBranchOptionBounds(plantOptions: PlantOptions) {
     angleInc = Math.ceil((angleMax * 2) / (totalBaseBranches - 1))
   }
   const maxHeight = Math.min(plantOptions.height, 450)
-  const maxSpread = Math.min(plantOptions.spread / 2, 450) // spreads in two directions
+  const maxSideSpread = Math.min(plantOptions.spread / 2, 450) // spreads in two directions
 
-  const maxBranchHeight = Math.max(maxHeight / 3, 50)
+  const maxBranchHeight = Math.max(maxHeight / 4, 50)
 
   return {
     totalBaseBranches,
@@ -267,7 +269,7 @@ export function getBranchOptionBounds(plantOptions: PlantOptions) {
     angleMax,
     angleInc,
     maxHeight,
-    maxSpread,
+    maxSideSpread,
     maxBranchHeight
   }
 }

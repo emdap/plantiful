@@ -8,7 +8,8 @@
     <span
       v-if="plantData.showName"
       :class="textClass"
-      class="transition-all duration-75 font-semibold cursor-pointer"
+      :style="`margin-left: -${plantData.width}px; width: ${plantData.width}px`"
+      class="whitespace-nowrap text-center transition-all duration-75 font-semibold cursor-pointer"
       @mousedown.prevent=""
     >
       {{ plantData.name }}
@@ -97,7 +98,8 @@ export default class Plant extends GrowMixin {
       position: NO_POSITION(),
       rotation: this.plantData.rotation,
       height: 0,
-      width: 0
+      width: 0,
+      zIndex: 10
     }
 
     return this.styleObj(styleData)

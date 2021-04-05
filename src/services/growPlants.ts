@@ -1,4 +1,8 @@
-import { BRANCH_INIT, NO_POSITION } from "@/fixtures/Grow/Defaults"
+import {
+  BRANCH_INIT,
+  NO_POSITION,
+  PLANT_ENTITY_INIT
+} from "@/fixtures/Grow/Defaults"
 import {
   LeafTexture,
   LeafOptions,
@@ -9,7 +13,8 @@ import {
   Coordinate,
   GrowLeafCluster,
   Plant,
-  BranchOutGlobals
+  BranchOutGlobals,
+  GrowPlant
 } from "@/store/interfaces"
 import util from "../utilities/growUtil"
 
@@ -182,6 +187,8 @@ function branchOut(
   forceLeaf: boolean,
   baseBranchOptions: BranchOptions
 ) {
+  // TODO: could modify this to have height/spread take into account the leaf size
+  // right now, only checks if branch height has exceeded the height/spread
   const baseBranch = createBranch(order, baseBranchOptions)
   if (forceLeaf) {
     baseBranch.hasLeaf = true
@@ -194,7 +201,6 @@ function branchOut(
     )
     globalRefs.clustersWithLeaves.push(clusterWithLeaves)
   } else {
-    // TODO: maniuplate branch height in branchOptions based on order (smaller branch height as order increases)
     const newBranchHeight = Math.max(baseBranch.height / order, 50)
     const leftBranchOptions = {
       ...baseBranchOptions,
@@ -212,18 +218,24 @@ function branchOut(
     widthLeft = widthLeft - baseBranch.width
     order++
     // 1 or none of the new branches can have a leaf
-    const { forceLeft, forceRight } = util.forceLeaves(
-      order,
-      heightLeft,
-      widthLeft,
-      baseBranchOptions.angle
-    )
+    let forceLeaves = {
+      forceLeft: true,
+      forceRight: true
+    }
+    if (heightLeft > newBranchHeight) {
+      forceLeaves = util.forceLeaves(
+        order,
+        heightLeft,
+        widthLeft,
+        baseBranchOptions.angle
+      )
+    }
     branchOut(
       globalRefs,
       order,
       heightLeft,
       widthLeft,
-      forceLeft,
+      forceLeaves.forceLeft,
       leftBranchOptions
     )
     branchOut(
@@ -231,7 +243,7 @@ function branchOut(
       order,
       heightLeft,
       widthLeft,
-      forceRight,
+      forceLeaves.forceRight,
       rightBranchOptions
     )
   }
@@ -239,7 +251,7 @@ function branchOut(
   return
 }
 
-export function createPlant(plant?: Plant) {
+export function createPlant(plant: Plant) {
   const plantOptions = util.getPlantOptions(plant)
   const {
     totalBaseBranches,
@@ -247,7 +259,7 @@ export function createPlant(plant?: Plant) {
     angleMax,
     angleInc,
     maxHeight,
-    maxSpread,
+    maxSideSpread,
     maxBranchHeight
   } = util.getBranchOptionBounds(plantOptions)
 
@@ -266,11 +278,10 @@ export function createPlant(plant?: Plant) {
     const plantHeightLeft = maxHeight / (distanceFromMid + 1)
     // TODO: tinker curSpread based on heightleft/width left?
     // trying to make center branches spread less
-    const plantSpreadLeft =
-      (maxSpread / (midBranch + 1)) * (distanceFromMid + 1)
+    const plantSpreadLeft = maxSideSpread
+    // (maxSideSpread / (midBranch + 1)) * (distanceFromMid + 1)
     const zIndex =
       (Math.floor(totalBaseBranches / 2) - distanceFromMid + 1) * 10
-
     const baseBranchOptions: BranchOptions = {
       ...BRANCH_INIT(),
       height: maxBranchHeight,
@@ -288,5 +299,20 @@ export function createPlant(plant?: Plant) {
       baseBranchOptions
     )
   }
-  return branchOutGlobals
+  const plantEntity: GrowPlant = {
+    ...PLANT_ENTITY_INIT(),
+    id: 0,
+    plantId: plant.id,
+    showName: true,
+    name: plant.main_species.common_name,
+    branches: [],
+    leafClusters: [],
+    height: maxHeight,
+    width: maxSideSpread * 2
+  }
+  return {
+    branches: branchOutGlobals.branches,
+    clustersWithLeaves: branchOutGlobals.clustersWithLeaves,
+    plant: plantEntity
+  }
 }
