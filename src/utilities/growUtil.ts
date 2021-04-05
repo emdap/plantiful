@@ -189,11 +189,12 @@ function getBranchAngle(
   direction: "right" | "left"
 ): number {
   const baseAngle = baseBranch.rotation.z
+  const randomDiff = Math.random() * 15 // add up to 15 degrees variance
   let newAngle = 0
   if (direction == "left") {
-    newAngle = Math.max(baseAngle - 25, -80)
+    newAngle = Math.max(baseAngle - randomDiff - 25, -65)
   } else {
-    newAngle = Math.min(baseAngle + 25, 80)
+    newAngle = Math.min(baseAngle + randomDiff + 25, 65)
   }
   return newAngle
 }
@@ -217,7 +218,7 @@ function forceLeaves(
     // likelihood of leaf increases as: order increases, height decreases, width decreases
     const heightWeight = 0.7
     const widthWeight = 1 - heightWeight
-    const orderFactor = 3
+    const orderFactor = 10
     const leafProbDenom =
       1 +
       (heightLeft * heightWeight + widthLeft * widthWeight) /
@@ -232,6 +233,7 @@ function forceLeaves(
       forceRight = !forceLeft
     }
   }
+  console.log(forceLeft, forceRight)
   return { forceLeft, forceRight }
 }
 
