@@ -12,7 +12,7 @@
       <div class="flex flex-row mb-1 sticky left-0 text-gray-500">
         <docked-icon
           class="cursor-pointer mr-3 fill-current text-pink-800 hover:text-green-600"
-          v-if="widgetData.docked"
+          v-if="widgetData.isDocked"
           @click="dockWidget()"
         />
         <not-docked-icon
@@ -47,14 +47,11 @@ import {
   WidgetBasis,
   WidgetEntity,
   Positions,
-  Dimensions,
-  WidgetDisplay,
-  DefaultWidget
+  Dimensions
 } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 import ContainerMixin, { container } from "@/mixins/ContainerMixin.vue"
 import Component from "vue-class-component"
-import messages from "@/fixtures/Messages"
 import CloseIcon from "@/assets/icons/close.svg"
 import DockedIcon from "@/assets/icons/docked.svg"
 import NotDockedIcon from "@/assets/icons/not-docked.svg"
@@ -83,8 +80,6 @@ export default class Widget extends ContainerMixin {
   public sizeStartX: null | number = null
   public posStartY: null | number = null
   public posStartX: null | number = null
-  public initDocked: null | boolean = null
-  // TODO: align this with entity
   public inFocus = false
 
   // initialize so that user-modifiable properties are reactive
@@ -110,9 +105,6 @@ export default class Widget extends ContainerMixin {
     if (this.widgetData.display.showOverflow) {
       this.showOverflow = this.widgetData.display.showOverflow
     }
-
-    // track if it should launch docked, for when user closes/opens
-    this.initDocked = this.widgetData.docked
   }
 
   public get initStyle(): WidgetBasis {
@@ -164,6 +156,10 @@ export default class Widget extends ContainerMixin {
 
   public setToCurrent(which: "size" | "position") {
     // set properties to the current actual values of the element in the DOM
+    if (!this.inDOM()) {
+      // all properties are 0, likely isn't rendered in DOM fully yet
+      return
+    }
     if (which == "size") {
       this.styleAttributes.width = this.getCurrent("width")
       this.styleAttributes.height = this.getCurrent("height")
@@ -172,6 +168,15 @@ export default class Widget extends ContainerMixin {
       this.styleAttributes.position.top = this.getCurrent("top")
       this.styleAttributes.position.left = this.getCurrent("left")
     }
+  }
+
+  public inDOM() {
+    for (const data of Object.values(this.$el.getBoundingClientRect())) {
+      if (data != 0) {
+        return true
+      }
+    }
+    return false
   }
 
   public getCurrent(which: Positions | Dimensions): number {
@@ -197,12 +202,20 @@ export default class Widget extends ContainerMixin {
   }
 
   // Watchers
-  @Watch("widgetData.docked")
+  @Watch("widgetData.isDocked")
   dockChanged(docked: boolean) {
     if (!docked) {
       // update size/position so that won't snap when undocking
       this.setToCurrent("position")
       this.setToCurrent("size")
+    }
+  }
+
+  @Watch("widgetData.open")
+  openChanged(open: boolean) {
+    // reset to defaults so that reverts when next opened
+    if (!open) {
+      this.styleAttributes = this.initStyle
     }
   }
 
@@ -219,7 +232,7 @@ export default class Widget extends ContainerMixin {
   @Watch("trackPosition")
   mouseUpdatesPosition(track: boolean) {
     if (track) {
-      if (this.widgetData.docked) {
+      if (this.widgetData.isDocked) {
         container.toggleDocked(this.widgetData)
       }
       document.addEventListener("mousemove", this.updatePosition)
@@ -232,29 +245,32 @@ export default class Widget extends ContainerMixin {
   // Styling getters
   public get styleObj(): Record<string, string | number> {
     return {
-      top: this.widgetData.docked
+      top: this.widgetData.isDocked
         ? 0
         : this.convertSize(this.styleAttributes.position.top),
-      left: this.widgetData.docked
+      left: this.widgetData.isDocked
         ? 0
         : this.convertSize(this.styleAttributes.position.left),
       height: this.convertSize(this.styleAttributes.height, "height"),
       width: this.convertSize(this.styleAttributes.width, "width"),
-      position: this.widgetData.docked ? "relative" : "absolute",
-      "z-index": this.inFocus ? 100 : this.styleAttributes.zIndex
+      position: this.widgetData.isDocked ? "relative" : "absolute",
+      "z-index":
+        this.inFocus && !this.widgetData.isDocked
+          ? 100
+          : this.styleAttributes.zIndex
     }
   }
 
   public get classObj(): Record<string, boolean> {
+    const isDocked =
+      this.widgetData.isDocked != undefined ? this.widgetData.isDocked : false
     return {
-      "flex-grow": this.flexGrow && this.widgetData.docked,
+      "flex-grow": this.flexGrow && isDocked,
       "overflow-hidden": !this.showOverflow,
       "overflow-auto": this.showOverflow,
-      "shadow-md": !this.widgetData.docked,
-      "shadow-sm": this.widgetData.docked,
-      "bg-opacity-95": !this.widgetData.docked,
-      // "z-0": this.widgetData.docked && !this.inFocus,
-      // "z-10": !this.widgetData.docked || this.inFocus,
+      "shadow-md": !isDocked,
+      "shadow-sm": isDocked,
+      "bg-opacity-95": !isDocked,
       "outline-green": this.trackPosition || this.trackSize,
       hidden: !this.widgetData.open
     }
@@ -262,13 +278,6 @@ export default class Widget extends ContainerMixin {
 
   // Toggles
   public closeWidget() {
-    if (this.widgetData.open) {
-      // reset to defaults for when it's next open
-      this.styleAttributes = this.initStyle
-      if (this.initDocked != this.widgetData.docked) {
-        container.toggleDocked(this.widgetData)
-      }
-    }
     container.toggleWidget(this.widgetData)
   }
 

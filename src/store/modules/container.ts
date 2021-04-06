@@ -1,6 +1,6 @@
 import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
 import { ContainerState, WidgetEntity } from "@/store/interfaces"
-import messages from "@/fixtures/Messages"
+import { widgetMessages } from "@/fixtures/Messages"
 import store from "@/store"
 import Vue from "vue"
 
@@ -15,10 +15,14 @@ export default class ContainerModule extends VuexModule
   widgets: { [key: string]: WidgetEntity } = {}
   activeWidget: WidgetEntity | null = null
 
+  public get widgetMessages() {
+    return widgetMessages
+  }
+
   @Action
   public registerWidget(widget: WidgetEntity) {
     if (!widget.name) {
-      throw console.error(messages.widget.registerError)
+      throw console.error(this.widgetMessages.registerError)
     }
     if (!this.getWidget(widget.name)) {
       this.REGISTER_WIDGET(widget)
@@ -37,6 +41,10 @@ export default class ContainerModule extends VuexModule
   public toggleWidget(widget: WidgetEntity) {
     if (widget) {
       this.TOGGLE_WIDGET(widget)
+      // reset to original docking for when next opened
+      if (!widget.open && widget.isDocked != widget.launchDocked) {
+        this.TOGGLE_DOCKED(widget)
+      }
       // this.SORT_WIDGETS()
     }
   }
@@ -61,6 +69,9 @@ export default class ContainerModule extends VuexModule
   @Mutation
   public REGISTER_WIDGET(widget: WidgetEntity) {
     Vue.set(this.widgets, widget.name, widget)
+    if (widget.isDocked == undefined) {
+      Vue.set(widget, "isDocked", widget.launchDocked)
+    }
   }
 
   @Mutation
@@ -70,7 +81,7 @@ export default class ContainerModule extends VuexModule
 
   @Mutation
   public TOGGLE_DOCKED(widget: WidgetEntity) {
-    widget.docked = !widget.docked
+    widget.isDocked = !widget.isDocked
   }
 
   // TODO: modify widget positioning based on order, draggable to change order

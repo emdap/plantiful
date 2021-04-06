@@ -1,6 +1,14 @@
 <template>
   <div id="active-plant" class="p-4 flex-grow overflow-auto flex-col">
-    <div v-if="noActivePlant" class="font-semibold flex items-center h-full">
+    <loading
+      v-if="plantLoading"
+      class="mt-12"
+      :loadingText="gardenMessages.activePlant.loading"
+    />
+    <div
+      v-else-if="noActivePlant"
+      class="font-semibold flex items-center h-full"
+    >
       <span>{{ noActivePlant }}</span>
     </div>
     <template v-else>
@@ -11,7 +19,7 @@
       <img
         @load="mainImgLoaded = true"
         :src="activePlant.image_url"
-        class=" max-h-96 inline"
+        class="h-1/2 max-h-96 inline object-cover"
         :class="{ hidden: !mainImgLoaded }"
       />
       <ul class="mb-4">
@@ -31,7 +39,6 @@ import Component, { mixins } from "vue-class-component"
 import { Watch } from "vue-property-decorator"
 import GardenMixin from "@/mixins/GardenMixin.vue"
 import { ActivePlantInfo } from "@/store/interfaces"
-import messages from "@/fixtures/Messages"
 import Loading from "@/components/Loading.vue"
 
 @Component({
@@ -74,9 +81,9 @@ export default class ActivePlant extends GardenMixin {
   }
   public get noActivePlant() {
     if (!this.activePlant) {
-      return messages.activePlant.info
+      return this.gardenMessages.activePlant.info
     } else if (!this.activePlant?.main_species) {
-      return messages.activePlant.error
+      return this.gardenMessages.activePlant.error
     }
     return false
   }

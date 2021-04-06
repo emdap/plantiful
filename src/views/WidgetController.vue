@@ -13,7 +13,6 @@
       :growWidget="growWidget"
       @search-plants="closeAndSearch"
     >
-      <loading v-if="plantLoading" />
     </grow>
   </div>
 </template>
@@ -79,11 +78,9 @@ export default class WidgetController extends mixins(
   public dockAndGrow(e: MouseEvent) {
     e.stopPropagation()
     if (this.activePlant) {
-      if (this.activePlantWidget && !this.activePlantWidget.docked)
+      if (this.activePlantWidget && !this.activePlantWidget.isDocked)
         container.toggleDocked(this.activePlantWidget)
       this.growPlant(this.activePlant)
-      if (this.growWidget && !this.growWidget.docked)
-        container.toggleDocked(this.growWidget)
     }
   }
 
@@ -95,7 +92,7 @@ export default class WidgetController extends mixins(
     const searchOnly = this.searchWidget.open && this.countOpenWidgets == 1
     if (searchOnly) {
       return "w-full"
-    } else if (!this.searchWidget.open && !this.activePlantWidget?.docked) {
+    } else if (!this.searchWidget.open && !this.activePlantWidget?.isDocked) {
       return 0
     } else {
       return "w-2/5"

@@ -3,32 +3,33 @@
     <div
       v-for="(plant, index) in plantList"
       :key="`plant ${index}`"
-      class="mb-2 px-4 py-2 text-left h-22 grid grid-cols-12 gap-2 items-center"
+      class="mb-2 px-4 py-2 text-left h-22 grid grid-cols-3 gap-2 items-center"
       :class="
         plantListLoading
           ? 'text-gray-300 cursor-wait'
           : 'hover:bg-green-200 hover:tracking-wide transition-text'
       "
     >
-      <span class="col-span-2" :class="{ 'opacity-30': plantListLoading }">
+      <div
+        class="col-span-2 cursor-pointer flex items-center"
+        @click="optionClicked($event, plant.id, 'show-active')"
+      >
         <img
           v-if="plant.image_url"
           :src="plant.image_url"
-          class="w-20 h-20 inline-block"
+          class="w-20 h-20 inline-block mr-2"
+          :class="{ 'opacity-30': plantListLoading }"
         />
-      </span>
-      <div
-        class="inline-block col-span-7 cursor-pointer"
-        @click="optionClicked($event, plant.id, 'show-active')"
-      >
-        <h3>
-          {{ plant.common_name }}
-        </h3>
-        <h5>
-          {{ plant.scientific_name }}
-        </h5>
+        <span class="inline-block">
+          <h3>
+            {{ plant.common_name }}
+          </h3>
+          <h5>
+            {{ plant.scientific_name }}
+          </h5>
+        </span>
       </div>
-      <div class="inline-block col-span-3 text-right">
+      <div class="inline-block col-span-1 text-right">
         <span
           v-for="option of plantListOptions"
           :key="option.action"
@@ -89,6 +90,7 @@ export default class PlantList extends GardenMixin {
     await garden.getOnePlant(id)
     switch (option) {
       case "show-active":
+        console.log("emitting show active")
         this.$emit("show-active")
         break
       case "grow-plant":

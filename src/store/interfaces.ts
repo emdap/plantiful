@@ -301,7 +301,8 @@ export interface WidgetEntity {
   order: number // higher order = higher z index
   icon?: string
   open: boolean
-  docked: boolean
+  isDocked?: boolean
+  launchDocked: boolean
   inMenu: boolean
   display: WidgetDisplay
 }
@@ -327,6 +328,7 @@ export type WidgetPosition = {
   [key in RequiredPositions]: number | string
 }
 
+// widget info that is NOT stored in state, modified directly from Widget.vue
 export interface WidgetBasis extends InteractableBasis {
   position: WidgetPosition
   height: number | string | undefined

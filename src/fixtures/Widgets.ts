@@ -9,13 +9,13 @@ const widgets: WidgetEntity[] = [
     order: 3,
     icon: WelcomeIcon,
     open: true,
-    docked: true,
+    launchDocked: true,
     inMenu: true,
     display: {
       width: "30vw",
-      height: "full",
+      height: "100vh",
       minHeight: 500,
-      minWidth: 400
+      minWidth: 200
     }
   },
   {
@@ -23,7 +23,7 @@ const widgets: WidgetEntity[] = [
     order: 4,
     icon: "A",
     open: false,
-    docked: false,
+    launchDocked: false,
     inMenu: false,
     display: {
       width: "20vw",
@@ -36,10 +36,12 @@ const widgets: WidgetEntity[] = [
     order: 1,
     icon: PlantIcon,
     open: false,
-    docked: false,
+    isDocked: false,
+    launchDocked: true,
     inMenu: true,
     display: {
       // flexGrow: true,
+      left: "calc(30vw + 3rem + 10px)", // size of welcome widget + side menu width + some gap
       height: 500,
       width: 500,
       minHeight: 500,
@@ -51,7 +53,7 @@ const widgets: WidgetEntity[] = [
     order: 2,
     icon: SearchIcon,
     open: false,
-    docked: true,
+    launchDocked: true,
     inMenu: true,
     display: {
       height: "full",

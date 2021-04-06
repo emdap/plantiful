@@ -1,7 +1,7 @@
 <template>
   <div id="welcome" class="text-left font-medium">
     <widget :widgetData="welcomeWidget">
-      <span class="p-4 w-full">
+      <div class="flex-grow overflow-auto">
         <h1 class="text-green-800 text-center">Welcome</h1>
         <p class="mb-4">
           Hello and welcome to the CSS garden. This website makes use of the
@@ -39,7 +39,7 @@
         <button class="btn-primary my-4 w-full" @click="$emit('search-plants')">
           Start Searching
         </button>
-      </span>
+      </div>
     </widget>
   </div>
 </template>
@@ -52,6 +52,8 @@ import Plant from "@/components/Grow/Plant.vue"
 import { Watch } from "vue-property-decorator"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
+import { GrowPlant } from "@/store/interfaces"
+import Vue from "vue"
 
 @Component({
   components: {
@@ -60,7 +62,7 @@ import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
   }
 })
 export default class Welcome extends mixins(ContainerMixin, GrowMixin) {
-  public testPlantId = 0
+  public testPlant = {} as GrowPlant
 
   public get welcomeWidget() {
     return this.getWidget("welcome")
@@ -71,8 +73,17 @@ export default class Welcome extends mixins(ContainerMixin, GrowMixin) {
   }
 
   public growTestPlant() {
-    this.testPlantId = this.growPlant(TEST_PLANT)
-    console.log(this.testPlantId)
+    this.testPlant = this.growPlant(TEST_PLANT)
+    // want to toggle the animation
+    grow.removeActivePlant()
+    const clusterWait = this.testPlant.leafClusters.length / 2
+    // leaves in leafCluster all have same order as the cluster
+    // leaf animation takes (order * 300 + 550) to complete
+    // leafClusters at same level of plant on opposite (left/right) branches = same order
+    // plant is mostly symmetrical -> max order ~= # of leafClusters / 2
+    setTimeout(() => {
+      grow.setActivePlant(this.testPlant.id)
+    }, clusterWait * 300 + 550)
   }
 
   @Watch("welcomeWidget.open")
@@ -80,10 +91,8 @@ export default class Welcome extends mixins(ContainerMixin, GrowMixin) {
     if (nowOpen) {
       this.growTestPlant()
     } else {
-      grow.deleteEntity({ dataKey: "plants", id: this.testPlantId })
+      grow.deleteEntity({ dataKey: "plants", id: this.testPlant.id })
     }
   }
 }
 </script>
-
-<style scoped></style>
