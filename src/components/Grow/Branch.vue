@@ -3,7 +3,7 @@
     :id="'branch-' + branchData.id"
     class="absolute cursor-pointer"
     :style="containerStyle"
-    @dblclick="activateEntity(plantActive, 'branches', branchData.id)"
+    @dblclick="activateEntity(allowSelection, 'branches', branchData.id)"
   >
     <div
       :class="['absolute z-10', backgroundClass(defaultBg, highlight)]"
@@ -23,7 +23,7 @@ import { NO_ROTATION } from "@/fixtures/Grow/Defaults"
 @Component({})
 export default class Branch extends GrowMixin {
   @Prop({ required: true }) branchData!: GrowBranch
-  @Prop({ default: false }) plantActive!: boolean
+  @Prop({ default: false }) allowSelection!: boolean
 
   public defaultBg = "black"
   public highlight = false
@@ -57,7 +57,7 @@ export default class Branch extends GrowMixin {
     )
   }
 
-  @Watch("plantActive")
+  @Watch("allowSelection")
   public plantHighlight(active: boolean) {
     if (active) {
       this.toggleHighlight()

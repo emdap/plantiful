@@ -29,7 +29,7 @@ import Component from "vue-class-component"
 export default class Leaf extends GrowMixin {
   @Prop({ required: true }) leafData!: GrowLeaf
   // two props for leaf as want to toggle highlight when cluster (parent) is active, or whole plant (grandparent) active
-  @Prop({ default: false }) plantActive!: boolean
+  @Prop({ default: false }) allowSelection!: boolean
   @Prop({ default: false }) clusterActive!: boolean
 
   public defaultBg = "transparent"
@@ -51,7 +51,7 @@ export default class Leaf extends GrowMixin {
     )
   }
 
-  @Watch("plantActive")
+  @Watch("allowSelection")
   public plantHighlight(active: boolean) {
     if (active) {
       this.toggleHighlight()

@@ -55,6 +55,9 @@ export default class GrowModule extends VuexModule implements GrowState {
   setActivePlant(id: number) {
     if (this["plants"][id]) {
       this.ACTIVE_PLANT(id)
+      this.context.dispatch("garden/getOnePlant", this["plants"][id].plantId, {
+        root: true
+      })
     }
   }
 

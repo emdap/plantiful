@@ -4,13 +4,15 @@
     :id="'leaf-cluster-' + leafClusterData.id"
     class="leaf-cluster absolute z-20 cursor-pointer origin-bottom"
     :style="containerStyle"
-    @dblclick="activateEntity(plantActive, 'leafClusters', leafClusterData.id)"
+    @dblclick="
+      activateEntity(allowSelection, 'leafClusters', leafClusterData.id)
+    "
   >
     <leaf
       v-for="leaf in leafClusterData.leaves"
       :key="'leaf-' + leaf"
       :leafData="getEntity('leaves', leaf)"
-      :plantActive="plantActive"
+      :allowSelection="allowSelection"
       :clusterActive="clusterActive"
     />
   </div>
@@ -30,7 +32,7 @@ import Component from "vue-class-component"
 })
 export default class LeafCluster extends GrowMixin {
   @Prop({ required: true }) leafClusterData!: GrowLeafCluster
-  @Prop({ default: false }) plantActive!: boolean
+  @Prop({ default: false }) allowSelection!: boolean
 
   public defaultBg = "transparent"
   public highlight = false
@@ -73,7 +75,7 @@ export default class LeafCluster extends GrowMixin {
     return clusterLeafActive
   }
 
-  @Watch("plantActive")
+  @Watch("allowSelection")
   public plantHighlight(active: boolean) {
     if (active) {
       this.toggleHighlight()

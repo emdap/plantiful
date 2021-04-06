@@ -10,8 +10,9 @@
       :class="textClass"
       :style="`margin-left: -${plantData.width}px; width: ${plantData.width}px`"
       class="whitespace-nowrap text-center transition-all duration-75 font-semibold cursor-pointer"
-      @mousedown.prevent=""
+      @dblclick.self="setActiveEntity"
     >
+      <!-- @mousedown.prevent="" -->
       {{ plantData.name }}
     </span>
     <div :style="styleRotation" class="absolute">
@@ -19,13 +20,13 @@
         v-for="branch in plantData.branches"
         :key="'branch-' + branch"
         :branchData="getEntity('branches', branch)"
-        :plantActive="isActive"
+        :allowSelection="plantActive"
       />
       <leaf-cluster
         v-for="leafCluster in plantData.leafClusters"
         :key="'-leaf-cluster-' + leafCluster"
         :leafClusterData="getEntity('leafClusters', leafCluster)"
-        :plantActive="isActive"
+        :allowSelection="plantActive"
       />
     </div>
   </div>
@@ -53,21 +54,41 @@ export default class Plant extends GrowMixin {
 
   public defaultColor = "text-black"
   public textClass = this.defaultColor
+  public subHighlightBg = "green-500"
 
   public mounted() {
-    if (this.isActive) {
+    if (this.plantIsActiveEntity) {
       this.textClass = this.highlightText
+    } else if (this.plantActive) {
+      this.textClass = this.subHighlightText
     }
   }
 
-  public get isActive(): boolean {
+  public get plantIsActiveEntity(): boolean {
+    return (
+      grow.activeEntityType == "plants" &&
+      grow.activeEntity?.id == this.plantData.id
+    )
+  }
+
+  public get plantActive(): boolean {
+    // return grow.activeEntityType == "plants" &&
     return grow.activeGrowPlant?.id == this.plantData.id
   }
 
   public setActive(e: MouseEvent) {
-    if (!this.isActive) {
+    if (!this.plantActive) {
       grow.setActivePlant(this.plantData.id)
       e.stopPropagation()
+    }
+  }
+
+  public setActiveEntity(e: MouseEvent) {
+    if (this.plantActive && grow.activeEntityType != "plants") {
+      grow.setActiveEntity({ dataKey: "plants", id: this.plantData.id })
+      e.stopPropagation()
+    } else if (!this.plantActive) {
+      this.setActive(e)
     }
   }
 
@@ -75,10 +96,17 @@ export default class Plant extends GrowMixin {
     return "text-" + this.highlightBg + " font-semibold"
   }
 
-  @Watch("isActive")
+  // for when plant is active, but one of its children is selected
+  public get subHighlightText() {
+    return "text-" + this.subHighlightBg + " font-semibold"
+  }
+
+  @Watch("plantIsActiveEntity")
   public highlightPlant() {
-    if (this.isActive) {
+    if (this.plantIsActiveEntity) {
       this.textClass = this.highlightText
+    } else if (this.plantActive) {
+      this.textClass = this.subHighlightText
     } else {
       this.textClass = this.defaultColor
     }

@@ -125,7 +125,7 @@ export default class GrowMixin extends Vue {
 
     grow.addPlant(plant)
     grow.setActivePlant(plant.id)
-    return plant.id
+    return plant
   }
 
   public get styleObj() {
@@ -190,8 +190,8 @@ export default class GrowMixin extends Vue {
 
   public updateEntity(e: MouseEvent) {
     e.preventDefault()
-    if (!grow.activeEntity) {
-      console.log("no active plant")
+    if (!grow.activeEntity || grow.activeEntityType != "plants") {
+      console.log("mouse controls for plants only (TODO)")
       return
     }
 

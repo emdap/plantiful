@@ -302,7 +302,7 @@ export function createPlant(plant: Plant) {
   const plantEntity: GrowPlant = {
     ...PLANT_ENTITY_INIT(),
     id: 0,
-    plantId: plant.id,
+    plantId: plant.main_species_id, // see comment in garden module @Mutation CACHE_PLANT
     showName: true,
     name: plant.main_species.common_name,
     branches: [],
