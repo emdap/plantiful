@@ -1,7 +1,6 @@
 <template>
   <div id="grow-container" class="flex flex-grow h-full overflow-hidden">
-    <widget :widgetData="growWidget" @click.self="activateWindow(false)">
-      <slot></slot>
+    <widget :widgetData="growWidget">
       <span v-if="!hasGrowPlants" class="text-gray-500 font-semibold mt-10">
         Open up the search to find & grow plants!
         <button
@@ -21,6 +20,9 @@
         <plant v-for="plant in growPlants" :key="plant.id" :plantData="plant" />
       </div>
     </widget>
+    <widget :widgetData="controlsWidget">
+      <controls />
+    </widget>
   </div>
 </template>
 
@@ -28,6 +30,7 @@
 import Component from "vue-class-component"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import Plant from "@/components/Grow/Plant.vue"
+import Controls from "@/components/Grow/Controls.vue"
 import Widget from "@/components/Widget.vue"
 import { WidgetEntity } from "@/store/interfaces"
 import { Prop } from "vue-property-decorator"
@@ -35,11 +38,13 @@ import { Prop } from "vue-property-decorator"
 @Component({
   components: {
     Widget,
-    Plant
+    Plant,
+    Controls
   }
 })
 export default class Grow extends GrowMixin {
   @Prop({ required: true }) growWidget!: WidgetEntity
+  @Prop({ required: true }) controlsWidget!: WidgetEntity
 
   public removeActive() {
     grow.removeActivePlant()

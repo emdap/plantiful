@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
-import { GrowBranch, GrowEntity, GrowType } from "@/store/interfaces"
+import { GrowBranch } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 import Component from "vue-class-component"
 import { NO_ROTATION } from "@/fixtures/Grow/Defaults"

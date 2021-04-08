@@ -115,6 +115,7 @@ export default class Plant extends GrowMixin {
   public get styleGeneral() {
     const styleData = {
       ...this.plantData,
+      height: 0, // branches grow out of top of plant barrier, don't want it selectable below name
       rotation: NO_ROTATION()
     }
     return this.styleObj(styleData)

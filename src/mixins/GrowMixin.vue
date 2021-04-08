@@ -8,7 +8,7 @@ import { container } from "@/mixins/ContainerMixin.vue"
 import {
   GrowBasis,
   GrowPlant,
-  Coordinate,
+  Position,
   GrowShape,
   Plant,
   Rotation,
@@ -53,8 +53,16 @@ export default class GrowMixin extends Vue {
     return grow.activeEntity
   }
 
+  public get activeEntityType(): string | null {
+    return grow.activeEntityType
+  }
+
   public get getEntity() {
     return grow.getEntity
+  }
+
+  public get showControls() {
+    return grow.showControls
   }
 
   public get hasGrowPlants() {
@@ -86,9 +94,7 @@ export default class GrowMixin extends Vue {
     // TEMP to demo - TODO: make recursive function to create structures based on plant characteristics
     // TODO: add fixture for leaf shapes depending on plant properties
 
-    // temp, just returngin branches rn
-    const { branches, clustersWithLeaves, plant } = createPlant(basePlant)
-    // const allClusters = [] as GrowLeafCluster[]
+    const { branches, clustersWithLeaves, plant } = createPlant(basePlant, true)
     const branchIds = []
     const leafClusterIds = []
     for (const branch of branches) {
@@ -229,7 +235,7 @@ export default class GrowMixin extends Vue {
       // update position
       const currentTop = entity.position.y
       const currentLeft = entity.position.x
-      const newPositions: Coordinate = {
+      const newPositions: Position = {
         y: currentTop + e.pageY - this.startY,
         x: currentLeft + e.pageX - this.startX
       }

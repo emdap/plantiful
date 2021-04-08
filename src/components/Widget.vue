@@ -171,8 +171,20 @@ export default class Widget extends ContainerMixin {
   }
 
   public inDOM() {
-    for (const data of Object.values(this.$el.getBoundingClientRect())) {
-      if (data != 0) {
+    // getBoundingClientRect doesn't return a proper object
+    const {
+      top,
+      right,
+      bottom,
+      left,
+      width,
+      height,
+      x,
+      y
+    } = this.$el.getBoundingClientRect()
+    const rec = { top, right, bottom, left, width, height, x, y }
+    for (const value of Object.values(rec)) {
+      if (value != 0) {
         return true
       }
     }

@@ -2,13 +2,14 @@ import {
   GrowBorder,
   TopGrowBorder,
   GrowShape,
-  Coordinate,
+  Position,
   PlantOptions,
   Plant,
   LeafOptions,
   LeafTexture,
   BranchOptions,
-  GrowBranch
+  GrowBranch,
+  GrowPlant
 } from "@/store/interfaces"
 import {
   NO_ROTATION,
@@ -27,8 +28,8 @@ function radians(angle: number): number {
 function getBranchEndPoint(
   height: number,
   radians: number,
-  startPoint: Coordinate
-): Coordinate {
+  startPoint: Position
+): Position {
   // find out where the end of the branch is,
   // given its dimensions and angle/tilt
 
@@ -116,27 +117,38 @@ function getBranchOptions(options?: BranchOptions) {
   return options
 }
 
-function getLeafOptions(options?: {
-  texture?: LeafTexture
-  custom?: LeafOptions
-}): LeafOptions {
-  let leafOptions!: LeafOptions
-  if (options?.custom) {
-    leafOptions = options.custom
-  } else if (options?.texture) {
-    leafOptions = DEFAULT_LEAF_OPTIONS[options.texture]
-  } else {
-    leafOptions = DEFAULT_LEAF_OPTIONS[DEFAULT_LEAF_TEXTURE]
-  }
+function getLeafOptions(texture?: LeafTexture): LeafOptions {
+  // (options?: {
+  //   texture?: LeafTexture
+  //   custom?: LeafOptions
+  // }): LeafOptions {
+  // let leafOptions!: LeafOptions
+  // if (options?.custom) {
+  //   leafOptions = options.custom
+  // } else if (options?.texture) {
+  //   leafOptions = DEFAULT_LEAF_OPTIONS[options.texture]
+  // } else {
+  //   leafOptions = DEFAULT_LEAF_OPTIONS[DEFAULT_LEAF_TEXTURE]
+  // }
 
-  return leafOptions
+  // return leafOptions
+  return texture
+    ? DEFAULT_LEAF_OPTIONS[texture]
+    : DEFAULT_LEAF_OPTIONS[DEFAULT_LEAF_TEXTURE]
+}
+
+function getLeafClusterOptions(plant: PlantOptions) {
+  return {
+    colors: plant.leafColors,
+    texture: plant.leafTexture
+  }
 }
 
 function incrementColor(value: number, increment: number) {
   return Math.min(Math.max(value + increment, 0), 255)
 }
 
-function generateLeafColors(baseColors: string[]) {
+function varyLeafColors(baseColors: string[]) {
   const colors = [] as string[]
   for (let i = 0; i < baseColors.length; i++) {
     const colorRGB = colorConverter.fromString(baseColors[i]).toRgbaArray() // returns [r, g, b, a (alpha)]
@@ -154,10 +166,7 @@ function generateLeafColors(baseColors: string[]) {
   return colors
 }
 
-function getPlantOptions(plant?: Plant): PlantOptions {
-  if (!plant) {
-    return DEFAULT_PLANT_OPTIONS
-  }
+function getPlantOptions(plant: Plant, convertColors: boolean): PlantOptions {
   const plantOrientation =
     plant.main_species.specifications.shape_and_orientation
   const plantHeight = plant.main_species.specifications.average_height.cm
@@ -165,18 +174,25 @@ function getPlantOptions(plant?: Plant): PlantOptions {
   const plantFlowers = plant.main_species.flower.color
   const plantLeaves = plant.main_species.foliage
 
+  let leafColors = plantLeaves.color
+    ? plantLeaves.color
+    : DEFAULT_PLANT_OPTIONS.leafColors
+  let flowerColors = plantFlowers
+    ? plantFlowers
+    : DEFAULT_PLANT_OPTIONS.flowerColors
+  if (convertColors) {
+    leafColors = varyLeafColors(leafColors)
+    flowerColors = varyLeafColors(flowerColors)
+  }
+
   return {
     orientation: plantOrientation
       ? plantOrientation
       : DEFAULT_PLANT_OPTIONS.orientation,
     height: plantHeight ? plantHeight : DEFAULT_PLANT_OPTIONS.height,
     spread: plantSpread ? plantSpread : DEFAULT_PLANT_OPTIONS.spread,
-    flowerColors: plantFlowers
-      ? plantFlowers
-      : DEFAULT_PLANT_OPTIONS.flowerColors,
-    leafColors: plantLeaves.color
-      ? generateLeafColors(plantLeaves.color)
-      : DEFAULT_PLANT_OPTIONS.leafColors,
+    flowerColors,
+    leafColors,
     leafTexture: plantLeaves.texture
       ? plantLeaves.texture
       : DEFAULT_PLANT_OPTIONS.leafTexture,
@@ -286,5 +302,6 @@ export default {
   getBranchOptions,
   getBranchAngle,
   forceLeaves,
-  getBranchOptionBounds
+  getBranchOptionBounds,
+  getLeafClusterOptions
 }

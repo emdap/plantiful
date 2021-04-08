@@ -10,20 +10,22 @@ import {
   GrowLeaf,
   GrowBranch,
   BranchOptions,
-  Coordinate,
+  Position,
   GrowLeafCluster,
   Plant,
   BranchOutGlobals,
-  GrowPlant
+  GrowPlant,
+  LeafClusterOptions,
+  GrowShape
 } from "@/store/interfaces"
 import util from "../utilities/growUtil"
 
 export function createLeaves(
   order: number,
-  colors: string[],
+  clusterColors: string[],
   options: LeafOptions
 ): GrowLeaf[] {
-  const { topHeight, bottomHeight, spacing, sides, area } = options
+  const { color, topHeight, bottomHeight, spacing, sides, area } = options
   const adjustedSides = sides < 3 ? 3 : sides
 
   const width = util.getLeafWidth(bottomHeight, adjustedSides) - spacing
@@ -34,9 +36,15 @@ export function createLeaves(
   const angleInc = area / (adjustedSides - 1)
   const leaves = [] as GrowLeaf[]
   for (let i = 0; i < adjustedSides; i++) {
-    const colorIndex = Math.floor(Math.random() * colors.length)
-    const color = colors[colorIndex]
-    const shapes = util.leafTemplate(color, topBorder, bottomBorder)
+    let useColor!: string
+    if (!color) {
+      const colorIndex = Math.floor(Math.random() * clusterColors.length)
+      useColor = clusterColors[colorIndex]
+    } else {
+      useColor = color
+    }
+
+    const shapes = util.leafTemplate(useColor, topBorder, bottomBorder)
 
     const shiftedI = i - (adjustedSides - 1) / 2
     const angle = angleInc * shiftedI
@@ -60,7 +68,11 @@ export function createLeaves(
       width,
       shapes,
       transitionSpeed: 0.5,
-      zIndex: 10
+      zIndex: 10,
+      optionsReference: {
+        ...options,
+        color: useColor
+      }
     }
 
     leaves.push(leaf)
@@ -110,7 +122,7 @@ export function createBranch(
   const smallX = Math.min(endPoint.x, startPoint.x)
   const containerWidth = bigX - smallX + leftOffset / 2
   const containerHeight = endPoint.y - startPoint.y + topOffset
-  const containerPosition: Coordinate = {
+  const containerPosition: Position = {
     y: startPoint.y,
     x: smallX
   }
@@ -142,7 +154,8 @@ export function createBranch(
     },
     zIndex,
     transitionSpeed: 0.5,
-    id: 0
+    id: 0,
+    optionsReference: options
   }
 
   return branch
@@ -151,16 +164,18 @@ export function createBranch(
 export function createLeafCluster(
   order: number,
   baseBranch: GrowBranch,
-  colors: string[],
-  leafOptions?: { texture?: LeafTexture; custom?: LeafOptions }
+  clusterOptions: LeafClusterOptions,
+  leafOptions?: LeafOptions
 ): {
   leafCluster: GrowLeafCluster
   leaves: GrowLeaf[]
 } {
-  const options = util.getLeafOptions(leafOptions)
+  if (!leafOptions) {
+    leafOptions = util.getLeafOptions(clusterOptions.texture)
+  }
 
-  const leaves = createLeaves(order, colors, options)
-  const leafHeight = options.topHeight + options.bottomHeight
+  const leaves = createLeaves(order, clusterOptions.colors, leafOptions)
+  const leafHeight = leafOptions.topHeight + leafOptions.bottomHeight
   const leafCluster: GrowLeafCluster = {
     id: 0,
     order,
@@ -170,7 +185,8 @@ export function createLeafCluster(
     offSet: baseBranch.offSet,
     height: leafHeight,
     width: leafHeight,
-    leaves: []
+    leaves: [],
+    optionsReference: clusterOptions
   }
 
   return {
@@ -192,12 +208,10 @@ function branchOut(
   const baseBranch = createBranch(order, baseBranchOptions)
   if (forceLeaf) {
     baseBranch.hasLeaf = true
-    const { leafColors, leafTexture } = globalRefs.plantOptions
     const clusterWithLeaves = createLeafCluster(
       order + 1,
       baseBranch,
-      leafColors,
-      { texture: leafTexture }
+      globalRefs.leafClusterOptions
     )
     globalRefs.clustersWithLeaves.push(clusterWithLeaves)
   } else {
@@ -251,8 +265,9 @@ function branchOut(
   return
 }
 
-export function createPlant(plant: Plant) {
-  const plantOptions = util.getPlantOptions(plant)
+export function createPlant(plant: Plant, convertColors: boolean) {
+  const plantOptions = util.getPlantOptions(plant, convertColors)
+  const leafClusterOptions = util.getLeafClusterOptions(plantOptions)
   const {
     totalBaseBranches,
     midBranch,
@@ -268,7 +283,7 @@ export function createPlant(plant: Plant) {
   const branchOutGlobals: BranchOutGlobals = {
     branches: [],
     clustersWithLeaves: [],
-    plantOptions
+    leafClusterOptions
   }
   for (let branch = 0; branch < totalBaseBranches; branch++) {
     // init branches to default, but at different angles
@@ -308,7 +323,8 @@ export function createPlant(plant: Plant) {
     branches: [],
     leafClusters: [],
     height: maxHeight,
-    width: maxSideSpread * 2
+    width: maxSideSpread * 2,
+    optionsReference: plantOptions
   }
   return {
     branches: branchOutGlobals.branches,

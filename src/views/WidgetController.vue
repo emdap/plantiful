@@ -9,11 +9,11 @@
       @grow-plant="dockAndGrow"
     />
     <grow
-      v-if="growWidget"
+      v-if="growWidget && controlsWidget"
       :growWidget="growWidget"
+      :controlsWidget="controlsWidget"
       @search-plants="closeAndSearch"
-    >
-    </grow>
+    />
   </div>
 </template>
 
@@ -68,6 +68,10 @@ export default class WidgetController extends mixins(
     return this.getWidget("welcome")
   }
 
+  public get controlsWidget(): WidgetEntity | null {
+    return this.getWidget("controls")
+  }
+
   public closeAndSearch() {
     if (this.searchWidget && !this.searchWidget.open)
       container.toggleWidget(this.searchWidget)
@@ -115,10 +119,24 @@ export default class WidgetController extends mixins(
     }
   }
 
+  @Watch("growWidget.open")
+  public growToggled(open: boolean) {
+    if (this.controlsWidget && !open && this.controlsWidget.open) {
+      container.toggleWidget(this.controlsWidget)
+    }
+  }
+
   @Watch("hasGrowPlants")
   public noGrow(hasPlants: boolean) {
     if (this.growWidget && this.growWidget.open && !hasPlants) {
       container.toggleWidget(this.growWidget)
+    }
+  }
+
+  @Watch("showControls")
+  public toggleControls(show: boolean) {
+    if (this.controlsWidget && show != this.controlsWidget.open) {
+      container.toggleWidget(this.controlsWidget)
     }
   }
 }

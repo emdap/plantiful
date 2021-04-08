@@ -2,6 +2,7 @@ import { WidgetEntity } from "@/store/interfaces"
 import SearchIcon from "@/assets/icons/search.svg"
 import PlantIcon from "@/assets/icons/plant.svg"
 import WelcomeIcon from "@/assets/icons/welcome.svg"
+import ControlsIcon from "@/assets/icons/controls.svg"
 
 const widgets: WidgetEntity[] = [
   {
@@ -16,6 +17,18 @@ const widgets: WidgetEntity[] = [
       height: "100vh",
       minHeight: 500,
       minWidth: 200
+    }
+  },
+  {
+    name: "search",
+    order: 2,
+    icon: SearchIcon,
+    open: false,
+    launchDocked: true,
+    inMenu: true,
+    display: {
+      height: "full",
+      flexGrow: true
     }
   },
   {
@@ -49,15 +62,19 @@ const widgets: WidgetEntity[] = [
     }
   },
   {
-    name: "search",
-    order: 2,
-    icon: SearchIcon,
+    name: "controls",
+    order: 5,
+    icon: ControlsIcon,
     open: false,
+    isDocked: false,
     launchDocked: true,
     inMenu: true,
     display: {
-      height: "full",
-      flexGrow: true
+      height: 500,
+      width: 250,
+      left: "calc(30vw + 3rem + 520px)", // right of grow widget + some gap
+      minHeight: 250,
+      minWidth: 250
     }
   }
 ]

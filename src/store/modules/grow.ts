@@ -1,7 +1,7 @@
 import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
 import store from "@/store"
 import {
-  Coordinate,
+  Position,
   GrowData,
   GrowPlant,
   GrowState,
@@ -10,12 +10,11 @@ import {
   GrowLeaf,
   GrowLeafCluster,
   GrowFlower,
-  GrowBasis,
   GrowDataKey,
   GrowType
 } from "@/store/interfaces"
 import Vue from "vue"
-import { NO_POSITION, NO_ROTATION } from "@/fixtures/Grow/Defaults"
+import { NO_ROTATION } from "@/fixtures/Grow/Defaults"
 
 @Module({
   dynamic: true,
@@ -33,7 +32,7 @@ export default class GrowModule extends VuexModule implements GrowState {
   activeEntity: GrowType | null = null
   activeEntityType: GrowDataKey | null = null
   growWindowActive = false
-  showControls = true
+  showControls = false
   hasKeyListeners = false
 
   // TODO: add lists for which GrowTypes allow rotation, repositioning, etc, then check against
@@ -53,17 +52,21 @@ export default class GrowModule extends VuexModule implements GrowState {
 
   @Action
   setActivePlant(id: number) {
+    console.log("set active")
     if (this["plants"][id]) {
       this.ACTIVE_PLANT(id)
       this.context.dispatch("garden/getOnePlant", this["plants"][id].plantId, {
         root: true
       })
+      this.TOGGLE_CONTROLS(true)
     }
   }
 
   @Action
   removeActivePlant() {
+    console.log("remove active")
     this.ACTIVE_PLANT(null)
+    this.TOGGLE_CONTROLS(false)
   }
 
   @Action
@@ -153,6 +156,7 @@ export default class GrowModule extends VuexModule implements GrowState {
   @Action
   toggleControls(show: boolean) {
     this.TOGGLE_CONTROLS(show)
+    console.log(this.showControls)
   }
 
   @Action
@@ -176,7 +180,7 @@ export default class GrowModule extends VuexModule implements GrowState {
   setPosition(payload: {
     id: number
     dataKey: GrowDataKey
-    newPositions: Coordinate
+    newPositions: Position
   }) {
     if (this[payload.dataKey][payload.id]) {
       this.UPDATE_POSITION(payload)
@@ -203,7 +207,7 @@ export default class GrowModule extends VuexModule implements GrowState {
   UPDATE_POSITION(payload: {
     id: number
     dataKey: GrowDataKey
-    newPositions: Coordinate
+    newPositions: Position
   }) {
     const { id, dataKey, newPositions } = payload
     this[dataKey][id].position = newPositions

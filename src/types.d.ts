@@ -4,3 +4,4 @@ declare module "*.svg" {
 }
 
 declare module "css-color-converter"
+declare module "vue-color"

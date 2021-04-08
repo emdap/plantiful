@@ -5,6 +5,7 @@ const DEFAULT_BOTTOM_H = 45
 
 export const DEFAULT_LEAF_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
   fine: {
+    color: "", 
     topHeight: DEFAULT_TOP_H,
     bottomHeight: DEFAULT_BOTTOM_H,
     spacing: 25,
@@ -12,6 +13,7 @@ export const DEFAULT_LEAF_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
     area: 90
   },
   medium: {
+    color: "", 
     topHeight: DEFAULT_TOP_H,
     bottomHeight: DEFAULT_BOTTOM_H,
     spacing: 15,
@@ -19,6 +21,7 @@ export const DEFAULT_LEAF_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
     area: 90
   },
   coarse: {
+    color: "", 
     topHeight: DEFAULT_TOP_H,
     bottomHeight: DEFAULT_BOTTOM_H,
     spacing: 15,
