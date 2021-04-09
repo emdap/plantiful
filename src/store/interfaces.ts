@@ -318,6 +318,17 @@ export interface TopGrowBorder extends GrowBorder {
 // Controls
 export const ControlInputTypes = ["number", "color-list", "color"] as const
 
+export type GrowOptionsType =
+  | PlantOptions
+  | LeafOptions
+  | LeafClusterOptions
+  | BranchOptions
+export type PossibleNestedControl =
+  | Rotation
+  | Position
+  | (Rotation & Position)
+  | {}
+
 type ControlBase<Type> = {
   property: keyof Type
   text: string
@@ -353,6 +364,7 @@ export type ControlList<Parent, Child = {}> = AnyControl<Parent, Child>[]
 // Widgets
 export interface WidgetEntity {
   name: string
+  text: string
   order: number // higher order = higher z index
   icon?: string
   open: boolean

@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.control-input {
+  @apply shadow-md pl-2 pr-1 h-8 leading-8 border-1 border-solid rounded-md;
+}
+
+/* overriding color picker component */
+.vc-chrome {
+  box-shadow: none !important;
+}
+
+.vc-chrome-toggle-icon {
+  margin-top: none !important;
+}
+
+.vc-chrome-toggle-icon-highlight {
+  display: none;
+}

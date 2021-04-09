@@ -4,6 +4,9 @@ const colors = require("tailwindcss/colors")
 module.exports = {
   purge: [],
   darkMode: false, // or 'media' or 'class'
+  options: {
+    important: true
+  },
   theme: {
     extend: {
       transitionProperty: {
@@ -17,7 +20,11 @@ module.exports = {
         "1": "1px"
       },
       outline: {
-        green: "2px solid " + colors.green["300"]
+        green: "2px solid " + colors.green["300"],
+        "black-solid": "2px solid black"
+      },
+      margin: {
+        "-1/2": "-50%"
       }
     }
   },

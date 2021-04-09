@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full w-full flex flex-row">
+  <div class="h-full w-full flex flex-row overflow-auto">
     <welcome @search-plants="closeAndSearch" />
     <plant-search
       v-if="searchWidget && activePlantWidget"

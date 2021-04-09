@@ -1,7 +1,7 @@
 <template>
   <div id="welcome" class="text-left font-medium">
     <widget :widgetData="welcomeWidget">
-      <div class="flex-grow overflow-auto">
+      <section class="flex-grow overflow-auto">
         <h1 class="text-green-800 text-center">Welcome</h1>
         <p class="mb-4">
           Hello and welcome to the CSS garden. This website makes use of the
@@ -39,7 +39,7 @@
         <button class="btn-primary my-4 w-full" @click="$emit('search-plants')">
           Start Searching
         </button>
-      </div>
+      </section>
     </widget>
   </div>
 </template>

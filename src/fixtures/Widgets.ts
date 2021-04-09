@@ -7,6 +7,7 @@ import ControlsIcon from "@/assets/icons/controls.svg"
 const widgets: WidgetEntity[] = [
   {
     name: "welcome",
+    text: "Welcome",
     order: 3,
     icon: WelcomeIcon,
     open: true,
@@ -16,11 +17,12 @@ const widgets: WidgetEntity[] = [
       width: "30vw",
       height: "100vh",
       minHeight: 500,
-      minWidth: 200
+      minWidth: 250
     }
   },
   {
     name: "search",
+    text: "Plant Search",
     order: 2,
     icon: SearchIcon,
     open: false,
@@ -33,6 +35,7 @@ const widgets: WidgetEntity[] = [
   },
   {
     name: "active-plant",
+    text: "Active Plant",
     order: 4,
     icon: "A",
     open: false,
@@ -46,6 +49,7 @@ const widgets: WidgetEntity[] = [
   },
   {
     name: "grow",
+    text: "Grow",
     order: 1,
     icon: PlantIcon,
     open: false,
@@ -63,6 +67,7 @@ const widgets: WidgetEntity[] = [
   },
   {
     name: "controls",
+    text: "Grow Controls",
     order: 5,
     icon: ControlsIcon,
     open: false,
@@ -71,10 +76,10 @@ const widgets: WidgetEntity[] = [
     inMenu: true,
     display: {
       height: 500,
-      width: 250,
+      width: 350,
       left: "calc(30vw + 3rem + 520px)", // right of grow widget + some gap
-      minHeight: 250,
-      minWidth: 250
+      minHeight: 350,
+      minWidth: 350
     }
   }
 ]

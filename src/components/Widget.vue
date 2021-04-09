@@ -8,37 +8,46 @@
     @focus="inFocus = true"
     @blur="inFocus = false"
   >
-    <div class="flex flex-grow flex-col overflow-auto">
-      <div class="flex flex-row mb-1 sticky left-0 text-gray-500">
-        <docked-icon
-          class="cursor-pointer mr-3 fill-current text-pink-800 hover:text-green-600"
-          v-if="widgetData.isDocked"
-          @click="dockWidget()"
-        />
-        <not-docked-icon
-          class="cursor-pointer mr-3 fill-current hover:text-green-600"
-          v-else
-          @click="dockWidget()"
-        />
-        <move-icon
-          class="cursor-pointer fill-current hover:text-green-600"
-          :class="{ 'text-green-600': trackPosition }"
-          @mousedown="trackPosition = true"
-        />
-        <close-icon
-          class="ml-auto cursor-pointer fill-current hover:text-pink-800"
-          @click="closeWidget()"
-        />
-      </div>
+    <main class="flex flex-grow flex-col overflow-auto">
+      <nav
+        class="flex flex-row h-8 items-center whitespace-nowrap mb-1 sticky left-0 w-full text-gray-500"
+      >
+        <nav class="flex w-1/2 gap-3">
+          <docked-icon
+            class="cursor-pointer fill-current text-pink-800 hover:text-green-600"
+            v-if="widgetData.isDocked"
+            @click="dockWidget()"
+          />
+          <not-docked-icon
+            class="cursor-pointer fill-current hover:text-green-600"
+            v-else
+            @click="dockWidget()"
+          />
+          <move-icon
+            class="cursor-pointer fill-current hover:text-green-600"
+            :class="{ 'text-green-600': trackPosition }"
+            @mousedown="trackPosition = true"
+          />
+        </nav>
+        <header class="flex flex-grow items-center justify-center px-3">
+          <h2>{{ widgetData.text }}</h2>
+        </header>
+        <nav class="flex w-1/2 justify-end">
+          <close-icon
+            class="cursor-pointer fill-current hover:text-pink-800"
+            @click="closeWidget()"
+          />
+        </nav>
+      </nav>
       <slot></slot>
-      <div class="mt-auto sticky left-0 text-gray-500">
+      <footer class="mt-auto sticky left-0 text-gray-500">
         <resize-icon
           class="resize-widget mt-1 cursor-pointer ml-auto fill-current hover:text-green-600"
           :class="{ 'text-green-600': trackSize }"
           @mousedown="trackSize = true"
         />
-      </div>
-    </div>
+      </footer>
+    </main>
   </div>
 </template>
 

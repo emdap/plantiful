@@ -34,6 +34,7 @@ export default class App extends Vue {}
   display: grid;
   grid-template-areas: "menu container";
   grid-template-columns: 3rem 1fr;
+  overflow: hidden;
 }
 
 #menu {
@@ -42,5 +43,6 @@ export default class App extends Vue {}
 
 #container {
   grid-area: container;
+  overflow: auto;
 }
 </style>

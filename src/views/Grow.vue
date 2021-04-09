@@ -1,5 +1,8 @@
 <template>
-  <div id="grow-container" class="flex flex-grow h-full overflow-hidden">
+  <div
+    id="grow-container"
+    class="flex flex-grow h-full overflow-y-hidden flex-col md:flex-row"
+  >
     <widget :widgetData="growWidget">
       <span v-if="!hasGrowPlants" class="text-gray-500 font-semibold mt-10">
         Open up the search to find & grow plants!
@@ -30,7 +33,7 @@
 import Component from "vue-class-component"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import Plant from "@/components/Grow/Plant.vue"
-import Controls from "@/components/Grow/Controls.vue"
+import Controls from "@/views/Controls.vue"
 import Widget from "@/components/Widget.vue"
 import { WidgetEntity } from "@/store/interfaces"
 import { Prop } from "vue-property-decorator"

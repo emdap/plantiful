@@ -1,10 +1,7 @@
 <template>
-  <div class="overflow-auto">
-    <h1>
-      Controls
-    </h1>
+  <div id="controls" class="overflow-auto h-full">
     <div v-for="controlTuple in visibleControls" :key="controlTuple[0]">
-      <h3>{{ getControlSectionTitle(controlTuple[0]) }}</h3>
+      <h3 class="mb-2">{{ getControlSectionTitle(controlTuple[0]) }}</h3>
       <div
         v-for="controlList in ['onEntity', 'onOptions']"
         :key="controlList"
@@ -25,9 +22,7 @@
             >
               <control-field
                 :control="child"
-                :curValue="
-                  getCurValue(controlTuple[0], controlList, control, child)
-                "
+                :curValue="getCurValue(controlList, control, child)"
                 @value-updated="
                   updateProperty(...arguments, controlList, control.property)
                 "
@@ -37,7 +32,7 @@
           <template v-else>
             <control-field
               :control="control"
-              :curValue="getCurValue(controlTuple[0], controlList, control)"
+              :curValue="getCurValue(controlList, control)"
               @value-updated="updateProperty(...arguments, controlList)"
             />
           </template>
@@ -64,20 +59,35 @@ import {
   DropdownControl,
   Control,
   GrowType,
-  NestedControl
+  NestedControl,
+  GrowLeaf,
+  LeafOptions,
+  GrowLeafCluster,
+  LeafClusterOptions,
+  GrowBranch,
+  BranchOutGlobals,
+  GrowOptionsType,
+  PossibleNestedControl,
+  BranchOptions,
+  GrowFlower,
+  FlowerOptions
 } from "@/store/interfaces"
 import { Watch } from "vue-property-decorator"
 import { Position } from "node_modules/vue-router/types/router"
-import { Prop } from "vue/types/options"
 
+// this is hideous, not sure how to best improve. Define these types elsewhere? Stop with the options vs actual grow instance? remove nesting??
 type PropertyControls = {
-  [key in GrowDataKey]: PropertyData
+  plants: PropertyData<GrowPlant, PlantOptions, Rotation & Position>
+  branches: PropertyData<GrowBranch, BranchOptions>
+  leaves: PropertyData<{}, LeafOptions>
+  leafClusters: PropertyData<GrowLeafCluster, LeafClusterOptions, Rotation>
+  flowers: PropertyData<GrowFlower, FlowerOptions>
 }
 
-type PropertyData = {
+type PropertyData<P, O = {}, C = {}> = {
   show: boolean
-  onEntity?: ControlList<any, any>
-  onOptions?: ControlList<any, any>
+  onEntity?: ControlList<P, C>
+  onOptions?: ControlList<O>
   // user doesn't care if it's on the entity or on the build options for the entity, but i do
   // 1 requires direct change to object, the other is a parameter for a build function  -- is this always the case?
   // TODO: perhaps move everything to the build functions? is it possible
@@ -134,23 +144,18 @@ export default class Controls extends GrowMixin {
   }
 
   public getCurValue(
-    growDataKey: GrowDataKey,
+    // growDataKey: GrowDataKey,
     controlList: "onEntity" | "onOptions",
-    control: AnyControl<any, any>,
-    child: Control<any> | DropdownControl<any>
+    control: AnyControl<GrowType, PossibleNestedControl>,
+    child: Control<GrowType> | DropdownControl<GrowType>
   ) {
     // feel like this wasn't the best approach, struggled to figure out how to make this completely dynamic
-    console.log(
-      "getting cur value",
-      growDataKey,
-      controlList,
-      control.property,
-      child?.property
-    )
+
     let sourceEntity!: GrowType
-    if (growDataKey == "plants" && this.activeGrowPlant) {
-      sourceEntity = this.activeGrowPlant
-    } else if (this.activeEntity) {
+    // if (growDataKey == "plants" && this.activeGrowPlant) {
+    //   sourceEntity = this.activeGrowPlant
+    // } else
+    if (this.activeEntity) {
       sourceEntity = this.activeEntity
     } else {
       // somehow accessed controls without there being an active plant/entity
@@ -163,14 +168,9 @@ export default class Controls extends GrowMixin {
         const typesafeProp = control as Control<
           typeof sourceEntity.optionsReference
         >
-        console.log(
-          typesafeProp.property,
-          sourceEntity.optionsReference[typesafeProp.property]
-        )
         return sourceEntity.optionsReference[typesafeProp.property]
       }
       const typesafeProp = control as Control<typeof sourceEntity>
-      console.log(typesafeProp.property, sourceEntity[typesafeProp.property])
       return sourceEntity[typesafeProp.property]
     }
 
@@ -178,12 +178,6 @@ export default class Controls extends GrowMixin {
     // controls with children is only possible on the entity, not the entity options
     const parentControl = sourceEntity[typesafeProp.property]
     const typesafeChild = child as Control<typeof parentControl>
-    console.log(
-      typesafeProp.property,
-      parentControl,
-      typesafeChild.property,
-      parentControl && parentControl[typesafeChild.property]
-    )
     return parentControl && parentControl[typesafeChild.property]
   }
 
@@ -234,10 +228,16 @@ export default class Controls extends GrowMixin {
     }
   }
 
-  public get visibleControls(): [GrowDataKey[number], PropertyData][] {
+  public get visibleControls(): [
+    GrowDataKey[number],
+    PropertyData<GrowType, GrowOptionsType, PossibleNestedControl>
+  ][] {
     return Object.entries(this.controls).filter(c => {
       return c[1].show
-    })
+    }) as [
+      GrowDataKey[number],
+      PropertyData<GrowType, GrowOptionsType, PossibleNestedControl>
+    ][]
   }
 }
 </script>

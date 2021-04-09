@@ -152,15 +152,19 @@ function varyLeafColors(baseColors: string[]) {
   const colors = [] as string[]
   for (let i = 0; i < baseColors.length; i++) {
     const colorRGB = colorConverter.fromString(baseColors[i]).toRgbaArray() // returns [r, g, b, a (alpha)]
-    const same = `rgb(${colorRGB[0]}, ${colorRGB[1]}, ${colorRGB[2]})`
-    const lighter = `rgb(${incrementColor(colorRGB[0], -50)}, ${incrementColor(
-      colorRGB[1],
-      -50
-    )}, ${incrementColor(colorRGB[2], -50)})`
-    const darker = `rgb(${incrementColor(colorRGB[0], 50)}, ${incrementColor(
-      colorRGB[1],
-      50
-    )}, ${incrementColor(colorRGB[2], 50)})`
+    const same = `rgba(${colorRGB[0]}, ${colorRGB[1]}, ${colorRGB[2]}, 1)`
+    const lighter =
+      `rgba(` +
+      `${incrementColor(colorRGB[0], -50)}, ` +
+      `${incrementColor(colorRGB[1], -50)}, ` +
+      `${incrementColor(colorRGB[2], -50)}, ` +
+      `1)`
+    const darker =
+      `rgba(` +
+      `${incrementColor(colorRGB[0], 50)}, ` +
+      `${incrementColor(colorRGB[1], 50)}, ` +
+      `${incrementColor(colorRGB[2], 50)}, ` +
+      `1)`
     colors.push(lighter, same, darker)
   }
   return colors
