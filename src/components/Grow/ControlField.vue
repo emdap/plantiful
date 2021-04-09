@@ -16,9 +16,6 @@
         @remove-color="removeColor"
         @set-color-list="setColorList"
       />
-      <!-- </template>
-    <template v-else-if="control.dataType == 'color'"> -->
-      <!-- <color-field :colorList="[curValue]" :singular="true" @add-color="addColor"/> -->
     </template>
     <span v-else-if="control.dataType == 'dropdown'">
       <select v-model="updatedValue" class="control-input">

@@ -52,20 +52,15 @@ import {
   ControlList,
   GrowPlant,
   Rotation,
-  GrowShape,
   PlantOptions,
-  GrowEntity,
   AnyControl,
   DropdownControl,
   Control,
   GrowType,
-  NestedControl,
-  GrowLeaf,
   LeafOptions,
   GrowLeafCluster,
   LeafClusterOptions,
   GrowBranch,
-  BranchOutGlobals,
   GrowOptionsType,
   PossibleNestedControl,
   BranchOptions,
@@ -144,17 +139,12 @@ export default class Controls extends GrowMixin {
   }
 
   public getCurValue(
-    // growDataKey: GrowDataKey,
     controlList: "onEntity" | "onOptions",
     control: AnyControl<GrowType, PossibleNestedControl>,
     child: Control<GrowType> | DropdownControl<GrowType>
   ) {
     // feel like this wasn't the best approach, struggled to figure out how to make this completely dynamic
-
     let sourceEntity!: GrowType
-    // if (growDataKey == "plants" && this.activeGrowPlant) {
-    //   sourceEntity = this.activeGrowPlant
-    // } else
     if (this.activeEntity) {
       sourceEntity = this.activeEntity
     } else {
