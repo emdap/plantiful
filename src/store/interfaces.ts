@@ -315,6 +315,14 @@ export interface TopGrowBorder extends GrowBorder {
   bottom: BorderAttribute
 }
 
+export interface GrowPlantReturn {
+  branches: GrowBranch[]
+  clustersWithLeaves: {
+    leafCluster: GrowLeafCluster
+    leaves: GrowLeaf[]
+  }[]
+  plant: GrowPlant
+}
 // Controls
 export const ControlInputTypes = ["number", "color-list", "color"] as const
 

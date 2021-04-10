@@ -79,7 +79,7 @@ export default class GrowMixin extends Vue {
     }
   }
 
-  public growPlant(basePlant: Plant) {
+  public async growPlant(basePlant: Plant) {
     const growWidget = container.getWidget("grow")
     if (!growWidget) {
       // TODO: proper error
@@ -89,30 +89,30 @@ export default class GrowMixin extends Vue {
       container.toggleWidget(growWidget)
     }
 
-    const growWidgetEl = document.getElementById("grow-widget") as HTMLElement
-
     // TEMP to demo - TODO: make recursive function to create structures based on plant characteristics
     // TODO: add fixture for leaf shapes depending on plant properties
 
-    const { branches, clustersWithLeaves, plant } = createPlant(basePlant, true)
-    const branchIds = []
-    const leafClusterIds = []
-    for (const branch of branches) {
-      grow.addBranch(branch)
-      branchIds.push(branch.id)
-    }
-    for (const overallCluster of clustersWithLeaves) {
-      // leafCluster starts with empty list for leaf ids
-      const { leafCluster, leaves } = overallCluster
-      for (const leaf of leaves) {
-        grow.addLeaf(leaf)
-        // leaf now as id assigned
-        leafCluster.leaves.push(leaf.id)
-      }
-      grow.addLeafCluster(leafCluster)
-      leafClusterIds.push(leafCluster.id)
-    }
+    // const { branches, clustersWithLeaves, plant } = createPlant(basePlant, true)
+    // const branchIds = []
+    // const leafClusterIds = []
+    // for (const branch of branches) {
+    //   grow.addBranch(branch)
+    //   branchIds.push(branch.id)
+    // }
+    // for (const overallCluster of clustersWithLeaves) {
+    //   // leafCluster starts with empty list for leaf ids
+    //   const { leafCluster, leaves } = overallCluster
+    //   for (const leaf of leaves) {
+    //     grow.addLeaf(leaf)
+    //     // leaf now as id assigned
+    //     leafCluster.leaves.push(leaf.id)
+    //   }
+    //   grow.addLeafCluster(leafCluster)
+    //   leafClusterIds.push(leafCluster.id)
+    // }
+
     // widget element might not be positioned/styled yet, use defaults if so
+    const growWidgetEl = document.getElementById("grow-widget") as HTMLElement
     const growWidgetElWidth =
       growWidgetEl.getBoundingClientRect().width == 0
         ? (growWidget.display.minWidth as number)
@@ -122,15 +122,27 @@ export default class GrowMixin extends Vue {
         ? (growWidget.display.minHeight as number)
         : growWidgetEl.getBoundingClientRect().height
 
-    plant.branches = branchIds
-    plant.leafClusters = leafClusterIds
-    plant.position = {
+    const position: Position = {
       x: growWidgetElWidth / 2,
-      y: growWidgetElHeight / 2 + plant.height / 2
+      y: growWidgetElHeight / 2
     }
+
+    const plant = await grow.growPlant({
+      basePlant,
+      position
+    })
 
     grow.addPlant(plant)
     grow.setActivePlant(plant.id)
+    // plant.branches = branchIds
+    // plant.leafClusters = leafClusterIds
+    // plant.position = {
+    //   x: growWidgetElWidth / 2,
+    //   y: growWidgetElHeight / 2 + plant.height / 2
+    // }
+
+    // grow.addPlant(plant)
+    // grow.setActivePlant(plant.id)
     return plant
   }
 

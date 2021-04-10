@@ -1,8 +1,14 @@
 <template>
-  <div class="text-left grid grid-cols-2 mb-2 px-8">
-    <strong class="text-right mr-10">{{ control.text }}:</strong>
+  <div class="text-left grid grid-cols-2 mb-2 px-8 gap-8">
+    <strong class="text-right">{{ control.text }}:</strong>
     <template v-if="control.dataType == 'number'">
-      <input class="control-input" v-model="updatedValue" type="number" />
+      <input
+        class="control-input"
+        v-model="updatedValue"
+        type="number"
+        @focus="allowUpdate = false"
+        @blur="allowUpdate = true"
+      />
     </template>
     <template
       v-else-if="
@@ -17,13 +23,13 @@
         @set-color-list="setColorList"
       />
     </template>
-    <span v-else-if="control.dataType == 'dropdown'">
+    <template v-else-if="control.dataType == 'dropdown'">
       <select v-model="updatedValue" class="control-input">
         <option v-for="option in control.options" :key="option" :value="option">
           {{ option[0].toUpperCase() + option.substring(1) }}
         </option>
       </select>
-    </span>
+    </template>
   </div>
 </template>
 
@@ -35,6 +41,7 @@ import { Prop, Watch } from "vue-property-decorator"
 import {
   Control,
   DropdownControl,
+  GrowDataKey,
   GrowOptionsType,
   GrowType
 } from "@/store/interfaces"
@@ -49,28 +56,30 @@ export default class ControlField extends Vue {
     | Control<GrowType | GrowOptionsType>
     | DropdownControl<GrowType | GrowOptionsType>
   @Prop({ required: true }) curValue!: number | string | string[]
+  @Prop({ required: true }) dataKey!: GrowDataKey
 
   public updatedValue = this.curValue
   public showColorPicker = false
-
-  // public mounted() {
-  //   this.updatedValue = this.setUpdatedValue()
-  // }
-
-  // public setUpdatedValue() {
-  //   if (
-  //     this.control.dataType == "color-list" ||
-  //     this.control.dataType == "color"
-  //   ) {
-  //     return ""
-  //   } else {
-  //     return this.curValue
-  //   }
-  // }
+  public allowUpdate = true
 
   @Watch("updatedValue")
   public valueUpdated(newValue: string | number) {
-    this.$emit("value-updated", this.control.property, newValue)
+    if (this.allowUpdate && newValue != this.curValue) {
+      this.$emit("value-updated", this.dataKey, this.control.property, newValue)
+    }
+  }
+
+  @Watch("allowUpdate")
+  public updateAllowed(canUpdate: boolean) {
+    if (canUpdate && this.curValue != this.updatedValue) {
+      // TODO: extract duplicated code to new function
+      this.$emit(
+        "value-updated",
+        this.dataKey,
+        this.control.property,
+        this.updatedValue
+      )
+    }
   }
 
   @Watch("curValue")
@@ -81,7 +90,6 @@ export default class ControlField extends Vue {
 
   // Colors
   public addColor(color: string) {
-    console.log("color")
     if (this.control.dataType == "color") {
       this.updatedValue = color
     } else if (
@@ -93,7 +101,6 @@ export default class ControlField extends Vue {
   }
 
   public removeColor(index: number) {
-    console.log("color")
     if (Array.isArray(this.curValue)) {
       this.updatedValue = this.curValue.filter((c, cIndex) => {
         return cIndex != index
@@ -102,7 +109,6 @@ export default class ControlField extends Vue {
   }
 
   public setColorList(colorList: string[]) {
-    console.log("color")
     if (Array.isArray(this.curValue)) {
       this.updatedValue = colorList
     }

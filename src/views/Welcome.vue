@@ -72,8 +72,9 @@ export default class Welcome extends mixins(ContainerMixin, GrowMixin) {
     this.growTestPlant()
   }
 
-  public growTestPlant() {
-    this.testPlant = this.growPlant(TEST_PLANT)
+  public async growTestPlant() {
+    this.testPlant = await this.growPlant(TEST_PLANT)
+    console.log(this.testPlant)
     // want to toggle the animation
     grow.removeActivePlant()
     const clusterWait = this.testPlant.leafClusters.length / 2

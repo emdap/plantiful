@@ -34,6 +34,7 @@
         :style="{ background: color }"
       >
         <div
+          v-if="colorList.length > 1"
           class="ml-auto mb-auto w-3 h-6 fill-current"
           @click="removeColor(index)"
           :style="{ color: getTextColor(color) }"
@@ -52,7 +53,7 @@
     <div
       v-if="showColorPicker"
       ref="color-picker"
-      class="absolute bg-white shadow-md z-50"
+      class="absolute bg-white shadow-md z-50 transition-all"
       :style="colorPickerPos"
     >
       <chrome :value="colorPickerStart" @input="pickerInput" />
@@ -64,11 +65,11 @@
           Cancel
         </button>
         <button @click="addFromPicker()" class="btn-primary flex-grow">
-          {{ adjustIndex || singular ? "Update" : "Add" }}
+          {{ adjustIndex > -1 || singular ? "Update" : "Add" }}
         </button>
         <button
           @click="addFromPicker(true)"
-          v-if="adjustIndex && !singular"
+          v-if="adjustIndex > -1 && !singular"
           class="btn-primary flex-grow"
         >
           Duplicate
@@ -143,7 +144,7 @@ export default class ColorField extends Vue {
 
   public addFromPicker(duplicate = false) {
     const rgba = this.colorToStr(this.colorPickerPick)
-    if (this.adjustIndex && !duplicate) {
+    if (this.adjustIndex > -1 && !duplicate) {
       if (
         this.colorList.length > this.adjustIndex &&
         this.colorList[this.adjustIndex] != rgba
@@ -151,7 +152,7 @@ export default class ColorField extends Vue {
         // replace the color in the list, maintain original list order
         const newColorList = this.colorList.map((c, index) => {
           if (index == this.adjustIndex) {
-            return this.colorPickerPick
+            return rgba
           }
           return c
         })
@@ -196,6 +197,7 @@ export default class ColorField extends Vue {
       }
     } else {
       this.removePickerListeners()
+      this.adjustIndex = -1
     }
   }
 

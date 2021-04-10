@@ -39,12 +39,7 @@ export default class LeafCluster extends GrowMixin {
 
   public get containerStyle() {
     const styleData = {
-      rotation: {
-        x: 0,
-        y: 0,
-        z: this.leafClusterData.rotation.z,
-        translate: 0
-      },
+      rotation: this.leafClusterData.rotation,
       position: {
         x: this.leafClusterData.position.x - this.leafClusterData.height / 2,
         y:

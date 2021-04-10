@@ -72,7 +72,7 @@ const widgets: WidgetEntity[] = [
     icon: ControlsIcon,
     open: false,
     isDocked: false,
-    launchDocked: true,
+    launchDocked: false,
     inMenu: true,
     display: {
       height: 500,

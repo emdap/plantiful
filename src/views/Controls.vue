@@ -22,6 +22,7 @@
             >
               <control-field
                 :control="child"
+                :dataKey="controlTuple[0]"
                 :curValue="getCurValue(controlList, control, child)"
                 @value-updated="
                   updateProperty(...arguments, controlList, control.property)
@@ -32,6 +33,7 @@
           <template v-else>
             <control-field
               :control="control"
+              :dataKey="controlTuple[0]"
               :curValue="getCurValue(controlList, control)"
               @value-updated="updateProperty(...arguments, controlList)"
             />
@@ -43,7 +45,7 @@
 </template>
 
 <script lang="ts">
-import GrowMixin from "@/mixins/GrowMixin.vue"
+import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import Component from "vue-class-component"
 import properties from "@/fixtures/Grow/ModifiableProperties"
 import ControlField from "@/components/Grow/ControlField.vue"
@@ -78,6 +80,18 @@ type PropertyControls = {
   leafClusters: PropertyData<GrowLeafCluster, LeafClusterOptions, Rotation>
   flowers: PropertyData<GrowFlower, FlowerOptions>
 }
+
+type GrowControlKeys =
+  | keyof GrowPlant
+  | keyof GrowBranch
+  | keyof GrowLeafCluster
+  | keyof GrowFlower
+type GrowOptionsControlKeys =
+  | keyof PlantOptions
+  | keyof BranchOptions
+  | keyof LeafClusterOptions
+  | keyof LeafOptions
+  | keyof FlowerOptions
 
 type PropertyData<P, O = {}, C = {}> = {
   show: boolean
@@ -145,14 +159,13 @@ export default class Controls extends GrowMixin {
   ) {
     // feel like this wasn't the best approach, struggled to figure out how to make this completely dynamic
     let sourceEntity!: GrowType
-    if (this.activeEntity) {
-      sourceEntity = this.activeEntity
+    if (grow.activeEntity) {
+      sourceEntity = grow.activeEntity
     } else {
       // somehow accessed controls without there being an active plant/entity
       console.error("no active plant or active entity!")
       return
     }
-
     if (!child) {
       if (controlList == "onOptions") {
         const typesafeProp = control as Control<
@@ -172,20 +185,63 @@ export default class Controls extends GrowMixin {
   }
 
   public updateProperty(
-    property: string,
-    newValue: number | string,
+    dataKey: GrowDataKey,
+    property: GrowControlKeys | GrowOptionsControlKeys,
+    newValue: number | string | string[],
     propertyList: "onEntity" | "onOptions",
-    parentProperty?: string
+    parentProperty?: "rotation" | "position"
   ) {
-    console.log(
-      "update emit received for ",
-      property,
-      parentProperty,
-      " - update to ",
-      newValue,
-      "from list ",
-      propertyList
-    )
+    if (!grow.activeEntity) {
+      return // should be impossible
+    }
+    const entityPayload = {
+      id: grow.activeEntity.id,
+      dataKey
+    }
+    // console.log(
+    //   "update emit received for ",
+    //   dataKey,
+    //   property,
+    //   parentProperty,
+    //   " - update to ",
+    //   newValue,
+    //   "from list ",
+    //   propertyList
+    // )
+    if (parentProperty) {
+      const newValues = {
+        ...grow.activeEntity[parentProperty],
+        [property]: newValue
+      }
+      if (parentProperty == "rotation") {
+        grow.setRotation({
+          ...entityPayload,
+          newRotations: newValues as Rotation
+        })
+      } else if (parentProperty == "position") {
+        grow.setPosition({
+          ...entityPayload,
+          newPositions: newValues as Position
+        })
+      }
+    } else {
+      if (propertyList == "onEntity") {
+        const entityDup = { ...grow.activeEntity, [property]: newValue }
+        grow.setEntity({
+          ...entityPayload,
+          newEntity: entityDup
+        })
+      } else if (propertyList == "onOptions") {
+        const optionsDup = {
+          ...grow.activeEntity.optionsReference,
+          [property]: newValue
+        }
+        grow.setEntityOptions({
+          ...entityPayload,
+          newOptions: optionsDup as GrowOptionsType
+        })
+      }
+    }
   }
 
   @Watch("activeGrowPlant")
@@ -207,7 +263,6 @@ export default class Controls extends GrowMixin {
 
   public get getControlSectionTitle() {
     return (section: GrowDataKey) => {
-      console.log(section)
       if (section == "leafClusters") {
         return "Leaf Cluster Controls"
       }

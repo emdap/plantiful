@@ -16,7 +16,8 @@ import {
   BranchOutGlobals,
   GrowPlant,
   LeafClusterOptions,
-  GrowShape
+  GrowShape,
+  PlantOptions
 } from "@/store/interfaces"
 import util from "../utilities/growUtil"
 
@@ -179,7 +180,12 @@ export function createLeafCluster(
   const leafCluster: GrowLeafCluster = {
     id: 0,
     order,
-    rotation: baseBranch.rotation,
+    rotation: {
+      x: 0,
+      y: 0,
+      z: baseBranch.rotation.z,
+      translate: 0
+    },
     position: baseBranch.endPoint,
     zIndex: baseBranch.zIndex + 1,
     offSet: baseBranch.offSet,
@@ -265,8 +271,11 @@ function branchOut(
   return
 }
 
-export function createPlant(plant: Plant, convertColors: boolean) {
-  const plantOptions = util.getPlantOptions(plant, convertColors)
+export function createPlantFromOptions(
+  plantId: number,
+  name: string,
+  plantOptions: PlantOptions
+) {
   const leafClusterOptions = util.getLeafClusterOptions(plantOptions)
   const {
     totalBaseBranches,
@@ -317,9 +326,9 @@ export function createPlant(plant: Plant, convertColors: boolean) {
   const plantEntity: GrowPlant = {
     ...PLANT_ENTITY_INIT(),
     id: 0,
-    plantId: plant.main_species_id, // see comment in garden module @Mutation CACHE_PLANT
+    plantId,
+    name,
     showName: true,
-    name: plant.main_species.common_name,
     branches: [],
     leafClusters: [],
     height: maxHeight,
@@ -331,4 +340,11 @@ export function createPlant(plant: Plant, convertColors: boolean) {
     clustersWithLeaves: branchOutGlobals.clustersWithLeaves,
     plant: plantEntity
   }
+}
+
+export function createPlant(plant: Plant, convertColors: boolean) {
+  const plantOptions = util.getPlantOptions(plant, convertColors)
+  const plantId = plant.main_species_id // see comment in garden module @Mutation CACHE_PLANT
+  const name = plant.main_species.common_name
+  return createPlantFromOptions(plantId, name, plantOptions)
 }

@@ -11,10 +11,21 @@ import {
   GrowLeafCluster,
   GrowFlower,
   GrowDataKey,
-  GrowType
+  GrowType,
+  GrowOptionsType,
+  Plant,
+  PlantOptions,
+  GrowPlantReturn
 } from "@/store/interfaces"
 import Vue from "vue"
-import { NO_ROTATION } from "@/fixtures/Grow/Defaults"
+import { NO_POSITION, NO_ROTATION } from "@/fixtures/Grow/Defaults"
+import {
+  createLeafCluster,
+  createLeaves,
+  createPlant,
+  createPlantFromOptions
+} from "@/services/growPlants"
+import growUtil from "@/utilities/growUtil"
 
 @Module({
   dynamic: true,
@@ -35,10 +46,6 @@ export default class GrowModule extends VuexModule implements GrowState {
   showControls = false
   hasKeyListeners = false
 
-  // TODO: add lists for which GrowTypes allow rotation, repositioning, etc, then check against
-  // that list before activating mutation
-  // can re-use for which controls to display
-
   public get getEntity() {
     return (dataKey: GrowDataKey, id: number) => {
       return this[dataKey][id]
@@ -52,7 +59,6 @@ export default class GrowModule extends VuexModule implements GrowState {
 
   @Action
   setActivePlant(id: number) {
-    console.log("set active")
     if (this["plants"][id]) {
       this.ACTIVE_PLANT(id)
       this.context.dispatch("garden/getOnePlant", this["plants"][id].plantId, {
@@ -101,10 +107,103 @@ export default class GrowModule extends VuexModule implements GrowState {
     setTimeout(() => {
       this.UPDATE_ENTITY({
         dataKey: "branches",
-        entityId: tempBranch.id,
+        id: tempBranch.id,
         newEntity: branch
       })
     }, branch.order * 250)
+  }
+
+  @Action
+  setEntity(payload: {
+    id: number
+    dataKey: GrowDataKey
+    newEntity: GrowType
+  }) {
+    this.UPDATE_ENTITY(payload)
+  }
+
+  @Action
+  async setEntityOptions(payload: {
+    id: number
+    dataKey: GrowDataKey
+    newOptions: GrowOptionsType
+  }): Promise<void> {
+    const { id, dataKey, newOptions } = payload
+    if (dataKey == "plants") {
+      const existingPlant = this.getEntity(dataKey, id) as GrowPlant
+      const newPlant = await this.growPlant({
+        fromOptions: {
+          plantId: existingPlant.id,
+          name: existingPlant.name,
+          options: newOptions as PlantOptions
+        }
+      })
+      newPlant.position = existingPlant.position
+      newPlant.id = existingPlant.id
+      this.UPDATE_ENTITY({
+        dataKey,
+        id,
+        newEntity: newPlant
+      })
+      if (this.activeEntity?.id == id) {
+        // need to refresh entity reference
+        this.setActiveEntity({ id, dataKey })
+      }
+    } else if (dataKey == "leafClusters") {
+      const existingCluster = this.getEntity(dataKey, id) as GrowLeafCluster
+      // const newCluster = createLeafCluster(existingCluster.order, )
+    }
+    return Promise.resolve()
+  }
+
+  @Action
+  growPlant(payload: {
+    basePlant?: Plant
+    fromOptions?: { plantId: number; name: string; options: PlantOptions }
+    position?: Position
+  }): Promise<GrowPlant> {
+    const { basePlant, fromOptions, position } = payload
+    let plantReturn!: GrowPlantReturn
+    if (basePlant) {
+      plantReturn = createPlant(basePlant, true)
+    } else if (fromOptions) {
+      plantReturn = createPlantFromOptions(
+        fromOptions.plantId,
+        fromOptions.name,
+        fromOptions.options
+      )
+    }
+
+    const { branches, clustersWithLeaves, plant } = plantReturn
+
+    const branchIds = []
+    const leafClusterIds = []
+    for (const branch of branches) {
+      this.addBranch(branch)
+      branchIds.push(branch.id)
+    }
+    for (const overallCluster of clustersWithLeaves) {
+      // leafCluster starts with empty list for leaf ids
+      const { leafCluster, leaves } = overallCluster
+      for (const leaf of leaves) {
+        this.addLeaf(leaf)
+        // leaf now as id assigned
+        leafCluster.leaves.push(leaf.id)
+      }
+      this.addLeafCluster(leafCluster)
+      leafClusterIds.push(leafCluster.id)
+    }
+
+    plant.branches = branchIds
+    plant.leafClusters = leafClusterIds
+
+    plant.position = position
+      ? { ...position, y: position.y + plant.height / 2 }
+      : NO_POSITION()
+    // setPosition.y += plant.height / 2
+    // plant.position = setPosition
+
+    return plant
   }
 
   @Action
@@ -124,7 +223,7 @@ export default class GrowModule extends VuexModule implements GrowState {
     setTimeout(() => {
       this.UPDATE_ENTITY({
         dataKey: "leaves",
-        entityId: tempLeaf.id,
+        id: tempLeaf.id,
         newEntity: leaf
       })
     }, leaf.order * 300)
@@ -132,7 +231,7 @@ export default class GrowModule extends VuexModule implements GrowState {
     setTimeout(() => {
       this.UPDATE_ENTITY({
         dataKey: "leaves",
-        entityId: tempLeaf.id,
+        id: tempLeaf.id,
         newEntity: {
           ...leaf,
           rotation: NO_ROTATION()
@@ -142,7 +241,7 @@ export default class GrowModule extends VuexModule implements GrowState {
     setTimeout(() => {
       this.UPDATE_ENTITY({
         dataKey: "leaves",
-        entityId: tempLeaf.id,
+        id: tempLeaf.id,
         newEntity: leaf
       })
     }, leaf.order * 300 + 550)
@@ -156,7 +255,6 @@ export default class GrowModule extends VuexModule implements GrowState {
   @Action
   toggleControls(show: boolean) {
     this.TOGGLE_CONTROLS(show)
-    console.log(this.showControls)
   }
 
   @Action
@@ -262,11 +360,11 @@ export default class GrowModule extends VuexModule implements GrowState {
   @Mutation
   UPDATE_ENTITY(payload: {
     dataKey: GrowDataKey
-    entityId: number
+    id: number
     newEntity: GrowType
   }) {
-    const { dataKey, entityId, newEntity } = payload
-    this[dataKey][entityId] = newEntity
+    const { dataKey, id, newEntity } = payload
+    this[dataKey][id] = newEntity
   }
 
   @Action
