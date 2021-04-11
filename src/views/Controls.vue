@@ -23,6 +23,7 @@
               <control-field
                 :control="child"
                 :dataKey="controlTuple[0]"
+                :controlList="controlList"
                 :curValue="getCurValue(controlList, control, child)"
                 @value-updated="
                   updateProperty(...arguments, controlList, control.property)
@@ -34,6 +35,7 @@
             <control-field
               :control="control"
               :dataKey="controlTuple[0]"
+              :controlList="controlList"
               :curValue="getCurValue(controlList, control)"
               @value-updated="updateProperty(...arguments, controlList)"
             />

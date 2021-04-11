@@ -21,9 +21,9 @@ import Vue from "vue"
 import { NO_POSITION, NO_ROTATION } from "@/fixtures/Grow/Defaults"
 import {
   createLeafCluster,
-  createLeaves,
+  createLeaf,
   createPlant,
-  createPlantFromOptions
+  processPlantOptions
 } from "@/services/growPlants"
 import growUtil from "@/utilities/growUtil"
 
@@ -130,16 +130,13 @@ export default class GrowModule extends VuexModule implements GrowState {
   }): Promise<void> {
     const { id, dataKey, newOptions } = payload
     if (dataKey == "plants") {
-      const existingPlant = this.getEntity(dataKey, id) as GrowPlant
+      // const existingPlant = this.getEntity(dataKey, id) as GrowPlant
       const newPlant = await this.growPlant({
         fromOptions: {
-          plantId: existingPlant.id,
-          name: existingPlant.name,
+          curId: id,
           options: newOptions as PlantOptions
         }
       })
-      newPlant.position = existingPlant.position
-      newPlant.id = existingPlant.id
       this.UPDATE_ENTITY({
         dataKey,
         id,
@@ -159,23 +156,30 @@ export default class GrowModule extends VuexModule implements GrowState {
   @Action
   growPlant(payload: {
     basePlant?: Plant
-    fromOptions?: { plantId: number; name: string; options: PlantOptions }
+    fromOptions?: { curId: number; options: PlantOptions }
     position?: Position
   }): Promise<GrowPlant> {
     const { basePlant, fromOptions, position } = payload
     let plantReturn!: GrowPlantReturn
     if (basePlant) {
-      plantReturn = createPlant(basePlant, true)
+      const usePosition = position ? position : NO_POSITION()
+      plantReturn = createPlant(basePlant, usePosition, true)
     } else if (fromOptions) {
-      plantReturn = createPlantFromOptions(
-        fromOptions.plantId,
-        fromOptions.name,
-        fromOptions.options
-      )
+      const curPlant = this.getEntity("plants", fromOptions.curId)
+      if (!curPlant) {
+        return Promise.reject("Original plant did not exist")
+      }
+      plantReturn = processPlantOptions(fromOptions.options)
+      // add the new options to the existing plant
+      plantReturn.plant = { ...curPlant, ...plantReturn.plant }
+    } else {
+      return Promise.reject("Need to include a base plant, or plant options")
     }
 
     const { branches, clustersWithLeaves, plant } = plantReturn
+    const newPlant = plant as GrowPlant
 
+    // branch/leafCluster/leaf Ids are 0 until entity is added to state
     const branchIds = []
     const leafClusterIds = []
     for (const branch of branches) {
@@ -194,16 +198,10 @@ export default class GrowModule extends VuexModule implements GrowState {
       leafClusterIds.push(leafCluster.id)
     }
 
-    plant.branches = branchIds
-    plant.leafClusters = leafClusterIds
+    newPlant.branches = branchIds
+    newPlant.leafClusters = leafClusterIds
 
-    plant.position = position
-      ? { ...position, y: position.y + plant.height / 2 }
-      : NO_POSITION()
-    // setPosition.y += plant.height / 2
-    // plant.position = setPosition
-
-    return plant
+    return Promise.resolve(newPlant)
   }
 
   @Action

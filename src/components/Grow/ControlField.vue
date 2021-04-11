@@ -6,7 +6,7 @@
         class="control-input"
         v-model="updatedValue"
         type="number"
-        @focus="allowUpdate = false"
+        @focus="allowUpdate = controlList == 'onEntity'"
         @blur="allowUpdate = true"
       />
     </template>
@@ -57,22 +57,15 @@ export default class ControlField extends Vue {
     | DropdownControl<GrowType | GrowOptionsType>
   @Prop({ required: true }) curValue!: number | string | string[]
   @Prop({ required: true }) dataKey!: GrowDataKey
+  // updates on entity can get fired right away, on options wait till input blur
+  @Prop({ required: true }) controlList!: "onEntity" | "onOptions"
 
   public updatedValue = this.curValue
   public showColorPicker = false
   public allowUpdate = true
 
-  @Watch("updatedValue")
-  public valueUpdated(newValue: string | number) {
-    if (this.allowUpdate && newValue != this.curValue) {
-      this.$emit("value-updated", this.dataKey, this.control.property, newValue)
-    }
-  }
-
-  @Watch("allowUpdate")
-  public updateAllowed(canUpdate: boolean) {
-    if (canUpdate && this.curValue != this.updatedValue) {
-      // TODO: extract duplicated code to new function
+  public emitUpdate() {
+    if (this.allowUpdate && this.updatedValue != this.curValue) {
       this.$emit(
         "value-updated",
         this.dataKey,
@@ -80,6 +73,16 @@ export default class ControlField extends Vue {
         this.updatedValue
       )
     }
+  }
+
+  @Watch("updatedValue")
+  public valueUpdated() {
+    this.emitUpdate()
+  }
+
+  @Watch("allowUpdate")
+  public updateAllowed() {
+    this.emitUpdate()
   }
 
   @Watch("curValue")

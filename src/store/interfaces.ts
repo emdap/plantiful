@@ -40,12 +40,6 @@ export type GrowDataKey =
   | "leaves"
   | "flowers"
 
-export type BranchOutGlobals = {
-  branches: GrowBranch[]
-  clustersWithLeaves: { leafCluster: GrowLeafCluster; leaves: GrowLeaf[] }[]
-  leafClusterOptions: LeafClusterOptions
-}
-
 export type GrowData<Type> = {
   [key: number]: Type
 }
@@ -103,45 +97,6 @@ export interface MainSpecies extends PlantSnippet {
 export interface ActivePlantInfo {
   text: string
   value?: number | string | null
-}
-
-export interface FlowerOptions {
-  color: string
-}
-
-export interface LeafOptions {
-  color: string
-  topHeight: number
-  bottomHeight: number
-  spacing: number
-  sides: number
-  area: number
-}
-
-export interface LeafClusterOptions {
-  colors: string[]
-  texture?: LeafTexture
-  custom?: LeafOptions
-}
-
-export interface BranchOptions {
-  startPoint: Position
-  height: number
-  width: number
-  angle: number
-  hasLeaf: boolean
-  hasFlower: boolean
-  zIndex: number
-}
-
-export interface PlantOptions {
-  height: number
-  spread: number
-  flowerColors: string[]
-  leafColors: string[]
-  orientation: string
-  leafTexture: LeafTexture
-  leafDensity: number // not in API that i know of
 }
 
 // Types
@@ -256,7 +211,6 @@ export interface GrowLeafCluster extends GrowEntity<LeafClusterOptions> {
 }
 
 export interface GrowLeaf extends GrowEntity<LeafOptions> {
-  id: number
   shapes: GrowShape[]
   order: number
 }
@@ -287,6 +241,62 @@ export interface GrowShape extends GrowBasis {
   border: GrowBorder
   color: string
   opacity?: number
+}
+
+export type BranchOutGlobals = {
+  branches: GrowBranch[]
+  clustersWithLeaves: { leafCluster: GrowLeafCluster; leaves: GrowLeaf[] }[]
+  plantOptions: PlantOptions
+  // leafClusterOptions: LeafClusterOptions
+}
+
+export type BranchOutOptions = {
+  order: number
+  zIndex: number
+  heightLeft: number
+  widthLeft: number
+}
+
+export interface FlowerOptions {
+  color: string
+}
+
+export interface LeafOptions {
+  color: string
+  topHeight: number
+  bottomHeight: number
+  width: number
+  rotation: Rotation
+}
+
+export interface LeafClusterOptions {
+  colors: string[]
+  spacing: number
+  sides: number
+  area: number
+  texture: LeafTexture
+  // custom?: LeafOptions
+}
+
+export interface BranchOptions {
+  startPoint: Position
+  branchHeight: number
+  branchWidth: number
+  angle: number
+  growthHeight: number
+  // hasLeaf: boolean
+  // hasFlower: boolean
+  // zIndex: number
+}
+
+export interface PlantOptions {
+  height: number
+  spread: number
+  flowerColors: string[]
+  leafColors: string[]
+  orientation: string
+  leafTexture: LeafTexture
+  leafDensity: number // not in API that i know of
 }
 
 export interface GrowOffSet {
@@ -321,7 +331,9 @@ export interface GrowPlantReturn {
     leafCluster: GrowLeafCluster
     leaves: GrowLeaf[]
   }[]
-  plant: GrowPlant
+  plant:
+    | GrowPlant
+    | { height: number; width: number; optionsReference: PlantOptions }
 }
 // Controls
 export const ControlInputTypes = ["number", "color-list", "color"] as const

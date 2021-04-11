@@ -5,19 +5,14 @@ import {
   Position,
   PlantOptions,
   Plant,
-  LeafOptions,
-  LeafTexture,
-  BranchOptions,
   GrowBranch,
-  GrowPlant
+  BranchOutOptions
 } from "@/store/interfaces"
 import {
   NO_ROTATION,
   NO_POSITION,
   DEFAULT_PLANT_OPTIONS,
-  DEFAULT_LEAF_OPTIONS,
-  DEFAULT_LEAF_TEXTURE,
-  BRANCH_INIT
+  DEFAULT_LEAF_SIZE
 } from "@/fixtures/Grow/Defaults"
 import colorConverter from "css-color-converter"
 
@@ -109,40 +104,40 @@ function leafTemplate(
   ]
 }
 
-function getBranchOptions(options?: BranchOptions) {
-  // mostly moved this here for consistency
-  if (!options) {
-    return BRANCH_INIT()
-  }
-  return options
-}
+// function getBranchOptions(options?: BranchOptions) {
+//   // mostly moved this here for consistency
+//   if (!options) {
+//     return BRANCH_INIT()
+//   }
+//   return options
+// }
 
-function getLeafOptions(texture?: LeafTexture): LeafOptions {
-  // (options?: {
-  //   texture?: LeafTexture
-  //   custom?: LeafOptions
-  // }): LeafOptions {
-  // let leafOptions!: LeafOptions
-  // if (options?.custom) {
-  //   leafOptions = options.custom
-  // } else if (options?.texture) {
-  //   leafOptions = DEFAULT_LEAF_OPTIONS[options.texture]
-  // } else {
-  //   leafOptions = DEFAULT_LEAF_OPTIONS[DEFAULT_LEAF_TEXTURE]
-  // }
+// function getLeafOptions(texture?: LeafTexture): LeafOptions {
+//   // (options?: {
+//   //   texture?: LeafTexture
+//   //   custom?: LeafOptions
+//   // }): LeafOptions {
+//   // let leafOptions!: LeafOptions
+//   // if (options?.custom) {
+//   //   leafOptions = options.custom
+//   // } else if (options?.texture) {
+//   //   leafOptions = DEFAULT_LEAF_OPTIONS[options.texture]
+//   // } else {
+//   //   leafOptions = DEFAULT_LEAF_OPTIONS[DEFAULT_LEAF_TEXTURE]
+//   // }
 
-  // return leafOptions
-  return texture
-    ? DEFAULT_LEAF_OPTIONS[texture]
-    : DEFAULT_LEAF_OPTIONS[DEFAULT_LEAF_TEXTURE]
-}
+//   // return leafOptions
+//   return texture
+//     ? DEFAULT_LEAF_OPTIONS[texture]
+//     : DEFAULT_LEAF_OPTIONS[DEFAULT_LEAF_TEXTURE]
+// }
 
-function getLeafClusterOptions(plant: PlantOptions) {
-  return {
-    colors: plant.leafColors,
-    texture: plant.leafTexture
-  }
-}
+// function getLeafClusterOptions(plant: PlantOptions) {
+//   return {
+//     colors: plant.leafColors,
+//     texture: plant.leafTexture
+//   }
+// }
 
 function incrementColor(value: number, increment: number) {
   return Math.min(Math.max(value + increment, 0), 255)
@@ -219,15 +214,14 @@ function getBranchAngle(
   return newAngle
 }
 
-function forceLeaves(
-  branchOrder: number,
-  heightLeft: number,
-  widthLeft: number,
+function forceBranchEnd(
+  options: BranchOutOptions,
   baseAngle: number
 ): {
   forceLeft: boolean
   forceRight: boolean
 } {
+  const { order, heightLeft, widthLeft } = options
   let forceLeft!: boolean, forceRight!: boolean, forceOuter!: boolean
   // widthLeft constraint causing plants to be too short if they had low spread TODO: best way to tackle?
   if (heightLeft <= 0 || widthLeft <= 0) {
@@ -242,7 +236,7 @@ function forceLeaves(
     const leafProbDenom =
       1 +
       (heightLeft * heightWeight + widthLeft * widthWeight) /
-        (branchOrder * orderFactor)
+        (order * orderFactor)
     const forceLeaf = Math.random() <= 1 / leafProbDenom
 
     // want leaves along outer edge to be more likely
@@ -278,10 +272,17 @@ export function getBranchOptionBounds(plantOptions: PlantOptions) {
     angleMax = 45
     angleInc = Math.ceil((angleMax * 2) / (totalBaseBranches - 1))
   }
-  const maxHeight = Math.min(plantOptions.height, 450)
+  const maxHeight = Math.min(plantOptions.height, 800)
   const maxSideSpread = Math.min(plantOptions.spread / 2, 450) // spreads in two directions
 
   const maxBranchHeight = Math.max(maxHeight / 4, 50)
+  const branchWidth = 5
+  // can split this up into leaf/flower size later, if flowers are bigger/smaller
+  const { topHeight, bottomHeight } = DEFAULT_LEAF_SIZE[
+    plantOptions.leafTexture
+  ]
+  // want to stop growing a branch + add a growth once its height + growthSize is the max
+  const growthHeight = topHeight + bottomHeight
 
   return {
     totalBaseBranches,
@@ -290,7 +291,9 @@ export function getBranchOptionBounds(plantOptions: PlantOptions) {
     angleInc,
     maxHeight,
     maxSideSpread,
-    maxBranchHeight
+    maxBranchHeight,
+    branchWidth,
+    growthHeight
   }
 }
 
@@ -301,11 +304,11 @@ export default {
   bottomLeafBorder,
   getLeafWidth,
   leafTemplate,
-  getLeafOptions,
+  // getLeafOptions,
   getPlantOptions,
-  getBranchOptions,
+  // getBranchOptions,
   getBranchAngle,
-  forceLeaves,
-  getBranchOptionBounds,
-  getLeafClusterOptions
+  forceBranchEnd,
+  getBranchOptionBounds
+  // getLeafClusterOptions
 }

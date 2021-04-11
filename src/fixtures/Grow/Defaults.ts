@@ -3,27 +3,33 @@ import { GrowBasis, Plant, LeafTexture, LeafOptions, BranchOptions, PlantOptions
 const DEFAULT_TOP_H = 30
 const DEFAULT_BOTTOM_H = 45
 
-export const DEFAULT_LEAF_OPTIONS: {[key in LeafTexture]: LeafOptions} = {
+export const DEFAULT_LEAF_SIZE: {[key in LeafTexture]: {topHeight: number, bottomHeight: number}} = {
   fine: {
-    color: "", 
     topHeight: DEFAULT_TOP_H,
     bottomHeight: DEFAULT_BOTTOM_H,
+  },
+  medium: {
+    topHeight: DEFAULT_TOP_H,
+    bottomHeight: DEFAULT_BOTTOM_H,
+  },
+  coarse: {
+    topHeight: DEFAULT_TOP_H,
+    bottomHeight: DEFAULT_BOTTOM_H,
+  },
+}
+
+export const DEFAULT_LEAF_CLUSTER_SPREAD: {[key in LeafTexture]: {spacing: number, sides: number, area: number}} = {
+  fine: {
     spacing: 25,
     sides: 3,
     area: 90
   },
   medium: {
-    color: "", 
-    topHeight: DEFAULT_TOP_H,
-    bottomHeight: DEFAULT_BOTTOM_H,
     spacing: 15,
     sides: 4,
     area: 90
   },
   coarse: {
-    color: "", 
-    topHeight: DEFAULT_TOP_H,
-    bottomHeight: DEFAULT_BOTTOM_H,
     spacing: 15,
     sides: 5,
     area: 90
@@ -45,12 +51,12 @@ export const DEFAULT_PLANT_OPTIONS: PlantOptions = {
 export const BRANCH_INIT = (): BranchOptions => {
   return {
     startPoint: NO_POSITION(),
-    height: 50,
-    width: 5,
+    branchHeight: 50,
+    branchWidth: 5,
     angle: 45,
-    hasLeaf: false,
-    hasFlower: false,
-    zIndex: 10,
+    // hasLeaf: false,
+    // hasFlower: false,
+    // zIndex: 10,
   }
 }
 

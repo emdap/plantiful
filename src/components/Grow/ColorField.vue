@@ -1,23 +1,25 @@
 <template>
   <div class="w-full relative">
-    <div class="inline-block w-3/5 align-top">
-      <input
-        class="control-input w-full"
-        v-model="userEnteredColor"
-        @keyup.enter="addColor()"
-        type="string"
-      />
-    </div>
-    <div class="inline-block w-2/5 align-middle pl-2">
-      <button @click="addColor()" class="py-1" :disabled="!allowAdd">
-        {{ singular ? "Set" : "Add" }}
-      </button>
-      <div
-        @click="launchColorPicker(true)"
-        class="inline-block mx-2 cursor-pointer align-middle text-green-600 hover:text-pink-400 fill-current"
-        title="Open color picker"
-      >
-        <x :is="popOutIcon" />
+    <div class="flex">
+      <div class="align-top">
+        <input
+          class="control-input w-full"
+          v-model="userEnteredColor"
+          @keyup.enter="addColor()"
+          type="string"
+        />
+      </div>
+      <div class="flex flex-grow align-middle items -mr-4">
+        <button @click="addColor()" class="py-1 text-sm" :disabled="!allowAdd">
+          {{ singular ? "Set" : "Add" }}
+        </button>
+        <div
+          @click="launchColorPicker(true)"
+          class="cursor-pointer h-6 w-6 text-green-600 hover:text-pink-400 fill-current"
+          title="Open color picker"
+        >
+          <x :is="popOutIcon" height="100%" width="100%" viewBox="0 0 30 30" />
+        </div>
       </div>
     </div>
     <div
