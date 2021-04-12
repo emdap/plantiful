@@ -184,6 +184,7 @@ function getPlantOptions(plant: Plant, convertColors: boolean): PlantOptions {
     flowerColors = varyLeafColors(flowerColors)
   }
 
+  console.log(plantHeight, plantSpread)
   return {
     orientation: plantOrientation
       ? plantOrientation
@@ -252,7 +253,7 @@ function forceBranchEnd(
 
 export function getBranchOptionBounds(plantOptions: PlantOptions) {
   // TODO: tinker with this to create tighter/wider plants based on plant.orientation
-
+  console.log(plantOptions)
   // add more base branches the taller the plant is, up to 5
   let totalBaseBranches = Math.min(Math.ceil(plantOptions.height / 100), 5)
   // want there to be center branch

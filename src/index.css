@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .control-input {
-  @apply shadow-md pl-2 pr-1 h-8 leading-8 border-1 border-solid rounded-md;
+  @apply shadow-md pl-2 h-8 leading-8 border-1 border-solid rounded-md;
 }
 
 /* overriding color picker component */

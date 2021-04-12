@@ -225,7 +225,7 @@ export interface GrowBranch extends GrowEntity<BranchOptions> {
   id: number
   offSet: GrowOffSet
   startPoint: Position
-  endPoint: Position
+  endPoint(): Position
   hasLeaf: boolean
   hasFlower: boolean
   // the height/width of the rotated branch
@@ -335,8 +335,21 @@ export interface GrowPlantReturn {
     | GrowPlant
     | { height: number; width: number; optionsReference: PlantOptions }
 }
+
 // Controls
 export const ControlInputTypes = ["number", "color-list", "color"] as const
+
+export type GrowControlKeys =
+  | keyof GrowPlant
+  | keyof GrowBranch
+  | keyof GrowLeafCluster
+  | keyof GrowFlower
+export type GrowOptionsControlKeys =
+  | keyof PlantOptions
+  | keyof BranchOptions
+  | keyof LeafClusterOptions
+  | keyof LeafOptions
+  | keyof FlowerOptions
 
 export type GrowOptionsType =
   | PlantOptions

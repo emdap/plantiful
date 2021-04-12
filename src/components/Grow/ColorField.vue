@@ -9,7 +9,7 @@
           type="string"
         />
       </div>
-      <div class="flex flex-grow align-middle items -mr-4">
+      <div class="flex flex-grow align-middle items-center -mr-4">
         <button @click="addColor()" class="py-1 text-sm" :disabled="!allowAdd">
           {{ singular ? "Set" : "Add" }}
         </button>
@@ -24,13 +24,13 @@
     </div>
     <div
       class="col-span-2 my-2 w-100"
-      :class="{ '-ml-1/2 text-center': !singular }"
+      :class="{ '-ml-full text-center': !singular }"
     >
       <div
         v-for="(color, index) in colorList"
         :key="index"
-        class="h-6 w-9 p-1 inline-block mr-2 my-2 cursor-pointer text-right shadow-sm"
-        :class="singular ? 'w-3/5 h-full' : 'w-9 h-6'"
+        class="p-1 inline-block mr-2 cursor-pointer text-right shadow-sm"
+        :class="singular ? 'w-full h-9' : 'w-9 h-6 my-2'"
         title="Adjust color"
         @click.self="adjustColor(color, index)"
         :style="{ background: color }"
@@ -84,7 +84,7 @@
 <script lang="ts">
 import Vue from "vue"
 import Component from "vue-class-component"
-import { Prop, Ref } from "vue-property-decorator"
+import { Prop, Ref, Watch } from "vue-property-decorator"
 import { Chrome } from "vue-color"
 import colorConverter from "css-color-converter"
 import CloseIcon from "@/assets/icons/close.svg"
@@ -128,6 +128,10 @@ export default class ColorField extends Vue {
     this.removePickerListeners()
   }
 
+  @Watch("colorList")
+  public listUpdated(color: string[]) {
+    console.log("new color", color)
+  }
   // Emitters
   public addColor() {
     const newColor = colorConverter
@@ -140,13 +144,14 @@ export default class ColorField extends Vue {
       )
       return
     }
-    this.$emit("add-color", newColor)
+    const strColor = `rgba(${newColor[0]}, ${newColor[1]}, ${newColor[2]}, 1)`
+    this.$emit("add-color", strColor)
     this.userEnteredColor = ""
   }
 
   public addFromPicker(duplicate = false) {
     const rgba = this.colorToStr(this.colorPickerPick)
-    if (this.adjustIndex > -1 && !duplicate) {
+    if (this.adjustIndex > -1 && !duplicate && !this.singular) {
       if (
         this.colorList.length > this.adjustIndex &&
         this.colorList[this.adjustIndex] != rgba

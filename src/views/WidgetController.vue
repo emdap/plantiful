@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full w-full flex flex-row overflow-auto">
+  <div class="h-full w-full flex flex-row gap-2 overflow-auto">
     <welcome @search-plants="closeAndSearch" />
     <plant-search
       v-if="searchWidget && activePlantWidget"
@@ -141,5 +141,3 @@ export default class WidgetController extends mixins(
   }
 }
 </script>
-
-<style scoped></style>

@@ -74,17 +74,16 @@ export default class Welcome extends mixins(ContainerMixin, GrowMixin) {
 
   public async growTestPlant() {
     this.testPlant = await this.growPlant(TEST_PLANT)
-    console.log(this.testPlant)
     // want to toggle the animation
-    grow.removeActivePlant()
-    const clusterWait = this.testPlant.leafClusters.length / 2
+    // grow.removeActivePlant()
+    // const clusterWait = this.testPlant.leafClusters.length / 2
     // leaves in leafCluster all have same order as the cluster
     // leaf animation takes (order * 300 + 550) to complete
     // leafClusters at same level of plant on opposite (left/right) branches = same order
     // plant is mostly symmetrical -> max order ~= # of leafClusters / 2
-    setTimeout(() => {
-      grow.setActivePlant(this.testPlant.id)
-    }, clusterWait * 300 + 550)
+    // setTimeout(() => {
+    //   grow.setActivePlant(this.testPlant.id)
+    // }, clusterWait * 300 + 550)
   }
 
   @Watch("welcomeWidget.open")

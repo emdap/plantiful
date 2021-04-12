@@ -1,12 +1,12 @@
 <template>
-  <div class="text-left grid grid-cols-2 mb-2 px-8 gap-8">
+  <div class="text-left grid grid-cols-2 mb-2 px-8 gap-2 lg:gap-8">
     <strong class="text-right">{{ control.text }}:</strong>
     <template v-if="control.dataType == 'number'">
       <input
         class="control-input"
         v-model="updatedValue"
         type="number"
-        @focus="allowUpdate = controlList == 'onEntity'"
+        @focus="allowUpdate = controlList == 'onEntity' || dataKey != 'plants'"
         @blur="allowUpdate = true"
       />
     </template>
@@ -66,11 +66,18 @@ export default class ControlField extends Vue {
 
   public emitUpdate() {
     if (this.allowUpdate && this.updatedValue != this.curValue) {
+      let emitValue = this.updatedValue
+      if (
+        this.control.dataType == "number" &&
+        typeof this.updatedValue == "string"
+      ) {
+        emitValue = parseInt(this.updatedValue)
+      }
       this.$emit(
         "value-updated",
         this.dataKey,
         this.control.property,
-        this.updatedValue
+        emitValue
       )
     }
   }
@@ -94,6 +101,7 @@ export default class ControlField extends Vue {
   // Colors
   public addColor(color: string) {
     if (this.control.dataType == "color") {
+      console.log("add color 1")
       this.updatedValue = color
     } else if (
       this.control.dataType == "color-list" &&

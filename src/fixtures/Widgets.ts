@@ -53,16 +53,15 @@ const widgets: WidgetEntity[] = [
     order: 1,
     icon: PlantIcon,
     open: false,
-    isDocked: false,
     launchDocked: true,
     inMenu: true,
     display: {
       // flexGrow: true,
-      left: "calc(30vw + 3rem + 10px)", // size of welcome widget + side menu width + some gap
+      // left: "calc(30vw + 3rem + 10px)", // size of welcome widget + side menu width + some gap
       height: 500,
-      width: 500,
-      minHeight: 500,
-      minWidth: 500
+      width: "full",
+      minHeight: 400,
+      minWidth: 400
     }
   },
   {
@@ -71,13 +70,12 @@ const widgets: WidgetEntity[] = [
     order: 5,
     icon: ControlsIcon,
     open: false,
-    isDocked: false,
-    launchDocked: false,
+    launchDocked: true,
     inMenu: true,
     display: {
-      height: 500,
+      height: "calc(100vh - 500px)",
       width: 350,
-      left: "calc(30vw + 3rem + 520px)", // right of grow widget + some gap
+      // left: "calc(30vw + 3rem + 520px)", // right of grow widget + some gap
       minHeight: 350,
       minWidth: 350
     }

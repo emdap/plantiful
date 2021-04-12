@@ -34,6 +34,7 @@ export function processLeafOptions(options: LeafOptions) {
   return {
     shapes,
     height,
+    width, // re-return even though not calculated, need to update when options update
     position,
     rotation
   }
@@ -116,7 +117,7 @@ export function createLeafCluster(
   })
 
   // properties based on baseBranch
-  const rotation = { ...NO_ROTATION(), z: baseBranch.rotation.z }
+  const rotation = baseBranch.rotation
   const position = baseBranch.endPoint
   const zIndex = baseBranch.zIndex + 1
   const offSet = baseBranch.offSet
@@ -212,7 +213,6 @@ export function createBranch(
   // need to create flower shape template first
   const hasFlower = false
   const hasLeaf = forceEnd
-  // console.log(zIndex)
   const branch: GrowBranch = {
     id: 0,
     order,
@@ -338,7 +338,6 @@ export function processPlantOptions(plantOptions: PlantOptions) {
     const plantSpreadLeft = maxSideSpread
     const zIndex =
       (Math.floor(totalBaseBranches / 2) - distanceFromMid + 1) * 10
-    console.log(branch, zIndex)
 
     const baseBranchOptions: BranchOptions = {
       startPoint: NO_POSITION(),
@@ -363,6 +362,7 @@ export function processPlantOptions(plantOptions: PlantOptions) {
     width: maxSideSpread * 2,
     optionsReference: plantOptions
   }
+  console.log(plant)
   return {
     branches: branchOutGlobals.branches,
     clustersWithLeaves: branchOutGlobals.clustersWithLeaves,

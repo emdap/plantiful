@@ -94,5 +94,3 @@ export default class ActivePlant extends GardenMixin {
   }
 }
 </script>
-
-<style scoped></style>

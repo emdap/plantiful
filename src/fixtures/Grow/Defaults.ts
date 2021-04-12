@@ -19,7 +19,7 @@ export const DEFAULT_LEAF_SIZE: {[key in LeafTexture]: {topHeight: number, botto
 }
 
 export const DEFAULT_LEAF_CLUSTER_SPREAD: {[key in LeafTexture]: {spacing: number, sides: number, area: number}} = {
-  fine: {
+  coarse: {
     spacing: 25,
     sides: 3,
     area: 90
@@ -29,7 +29,7 @@ export const DEFAULT_LEAF_CLUSTER_SPREAD: {[key in LeafTexture]: {spacing: numbe
     sides: 4,
     area: 90
   },
-  coarse: {
+  fine: {
     spacing: 15,
     sides: 5,
     area: 90
@@ -48,17 +48,17 @@ export const DEFAULT_PLANT_OPTIONS: PlantOptions = {
   leafDensity: 5
 }
 
-export const BRANCH_INIT = (): BranchOptions => {
-  return {
-    startPoint: NO_POSITION(),
-    branchHeight: 50,
-    branchWidth: 5,
-    angle: 45,
-    // hasLeaf: false,
-    // hasFlower: false,
-    // zIndex: 10,
-  }
-}
+// export const BRANCH_INIT = (): BranchOptions => {
+//   return {
+//     startPoint: NO_POSITION(),
+//     branchHeight: 50,
+//     branchWidth: 5,
+//     angle: 45,
+//     // hasLeaf: false,
+//     // hasFlower: false,
+//     // zIndex: 10,
+//   }
+// }
 
 export const NO_ROTATION = () => {
   return {
@@ -112,9 +112,9 @@ export const TEST_PLANT: Plant = {
     image_url:
       "https://bs.plantnet.org/image/o/46619775d4319328b2fad6f1ba876ccca2d03534",
     flower: { color: ["purple"] },
-    foliage: { texture: "coarse", color: ["seagreen", "limegreen", "teal"] },
+    foliage: { texture: "fine", color: ["teal", "seagreen", "palevioletred"] },
     specifications: {
-      average_height: { cm: 250 },
+      average_height: { cm: 50 },
       shape_and_orientation: "Erect"
     },
     growth: { spread: { cm: 70 } },

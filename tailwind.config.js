@@ -24,7 +24,8 @@ module.exports = {
         "black-solid": "2px solid black"
       },
       margin: {
-        "-1/2": "-50%"
+        "-1/2": "-50%",
+        "-full": "-100%"
       }
     }
   },

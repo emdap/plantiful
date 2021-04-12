@@ -15,15 +15,29 @@ import {
   GrowOptionsType,
   Plant,
   PlantOptions,
-  GrowPlantReturn
+  GrowPlantReturn,
+  GrowControlKeys,
+  GrowOptionsControlKeys,
+  LeafClusterOptions,
+  GrowShape,
+  LeafTexture,
+  LeafOptions,
+  BranchOptions
 } from "@/store/interfaces"
 import Vue from "vue"
-import { NO_POSITION, NO_ROTATION } from "@/fixtures/Grow/Defaults"
+import {
+  DEFAULT_LEAF_CLUSTER_SPREAD,
+  NO_POSITION,
+  NO_ROTATION
+} from "@/fixtures/Grow/Defaults"
 import {
   createLeafCluster,
   createLeaf,
   createPlant,
-  processPlantOptions
+  processPlantOptions,
+  processLeafClusterOptions,
+  processLeafOptions,
+  processBranchOptions
 } from "@/services/growPlants"
 import growUtil from "@/utilities/growUtil"
 
@@ -70,7 +84,6 @@ export default class GrowModule extends VuexModule implements GrowState {
 
   @Action
   removeActivePlant() {
-    console.log("remove active")
     this.ACTIVE_PLANT(null)
     this.TOGGLE_CONTROLS(false)
   }
@@ -96,15 +109,18 @@ export default class GrowModule extends VuexModule implements GrowState {
   @Action
   addBranch(branch: GrowBranch) {
     // TODO: is this the best method for accomplishing this? maybe create a zeroing out function instead?
+    // need to maintain rotation reference! otherwise controls on angle don't update leaf cluster
+    const origAngle = branch.rotation.z
     const tempBranch: GrowBranch = {
       ...branch,
-      rotation: NO_ROTATION(),
       branchHeight: 0,
       height: 0
     }
+    tempBranch.rotation.z = 0
     this.ADD_ENTITY({ dataKey: "branches", entity: tempBranch })
     branch.id = tempBranch.id // id created upon adding
     setTimeout(() => {
+      branch.rotation.z = origAngle
       this.UPDATE_ENTITY({
         dataKey: "branches",
         id: tempBranch.id,
@@ -123,34 +139,179 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Action
+  mergeEntity(payload: {
+    dataKey: GrowDataKey
+    id: number
+    mergeData: {
+      [key in GrowControlKeys]?:
+        | GrowType[keyof GrowType]
+        | GrowShape[]
+        | number[]
+    }
+  }) {
+    const { dataKey, id, mergeData } = payload
+    const curEntity = this.getEntity(dataKey, id)
+    const newEntity = { ...curEntity, ...mergeData } as GrowType
+    this.UPDATE_ENTITY({ dataKey, id, newEntity })
+  }
+
+  @Action
+  // TODO: split this up into helper functions
   async setEntityOptions(payload: {
     id: number
     dataKey: GrowDataKey
-    newOptions: GrowOptionsType
-  }): Promise<void> {
-    const { id, dataKey, newOptions } = payload
-    if (dataKey == "plants") {
-      // const existingPlant = this.getEntity(dataKey, id) as GrowPlant
-      const newPlant = await this.growPlant({
-        fromOptions: {
-          curId: id,
-          options: newOptions as PlantOptions
-        }
-      })
-      this.UPDATE_ENTITY({
-        dataKey,
-        id,
-        newEntity: newPlant
-      })
-      if (this.activeEntity?.id == id) {
-        // need to refresh entity reference
-        this.setActiveEntity({ id, dataKey })
-      }
-    } else if (dataKey == "leafClusters") {
-      const existingCluster = this.getEntity(dataKey, id) as GrowLeafCluster
-      // const newCluster = createLeafCluster(existingCluster.order, )
+    // this is super annoying but idk how to avoid it without using any
+    newOptions: {
+      [key in GrowOptionsControlKeys]?:
+        | string
+        | number
+        | number[]
+        | string[]
+        | Position
     }
-    return Promise.resolve()
+    propertyRef: string
+  }) {
+    const { id, dataKey, newOptions, propertyRef } = payload
+    const curEntity = this.getEntity(dataKey, id)
+    let updatedEntity!: GrowType
+    if (dataKey == "leaves") {
+      const processedOptions = processLeafOptions(newOptions as LeafOptions)
+      const updatedOptions = {
+        ...curEntity.optionsReference,
+        ...(newOptions as LeafOptions)
+      }
+      updatedEntity = {
+        ...curEntity,
+        ...processedOptions,
+        optionsReference: updatedOptions
+      } as GrowLeaf
+    } else if (dataKey == "branches") {
+      console.log(curEntity.startPoint.x, newOptions.startPoint.x)
+      const processedOptions = processBranchOptions(newOptions as BranchOptions)
+      console.log(processedOptions.startPoint.x)
+      const updatedOptions = {
+        ...curEntity.optionsReference,
+        ...(newOptions as BranchOptions)
+      }
+      updatedEntity = {
+        ...curEntity,
+        ...processedOptions,
+        optionsReference: updatedOptions
+      } as GrowBranch
+      console.log(updatedEntity.position.x)
+    } else if (dataKey == "leafClusters") {
+      // leaf clusters are special case no matter what, as need to update all the leaves
+      let fullOptions = {
+        ...curEntity.optionsReference,
+        ...newOptions
+      } as LeafClusterOptions
+      // texture is special case, needs to be processed to update spacing/sides/area
+      if (propertyRef == "texture") {
+        fullOptions = {
+          ...fullOptions,
+          ...DEFAULT_LEAF_CLUSTER_SPREAD[newOptions.texture as LeafTexture]
+        }
+      }
+      this.updateLeafClusterOptions({
+        leafCluster: curEntity as GrowLeafCluster,
+        newOptions: fullOptions
+      })
+      return
+    } else if (dataKey == "plants") {
+      // special case if updating a property used by leafClusters
+      // plant option name -> cluster property name
+      const leafClusterProperties = {
+        leafColors: "colors",
+        leafTexture: "texture"
+      }
+      if (Object.keys(leafClusterProperties).indexOf(propertyRef) != -1) {
+        // make new cluster options using given leafColors/leafTexture & conver to equivalent property name
+        const clusterProperty =
+          leafClusterProperties[
+            propertyRef as keyof typeof leafClusterProperties
+          ]
+        const newClusterOptions = {
+          [clusterProperty]: newOptions[propertyRef as keyof typeof newOptions]
+        }
+        for (const clusterId of (curEntity as GrowPlant).leafClusters) {
+          // recursively call setEntityOptions to update the leaf cluster
+          this.setEntityOptions({
+            id: clusterId,
+            dataKey: "leafClusters",
+            newOptions: newClusterOptions,
+            propertyRef: clusterProperty
+          })
+        }
+        // update options on plant as well to reflect new color/texture
+        this.mergeEntity({
+          dataKey,
+          id,
+          mergeData: { optionsReference: newOptions as PlantOptions }
+        })
+        return
+      } else {
+        const fullOptions = { ...curEntity.optionsReference, ...newOptions }
+        console.log(fullOptions)
+        updatedEntity = await this.growPlant({
+          fromOptions: {
+            curId: id,
+            options: fullOptions as PlantOptions
+          }
+        })
+      }
+    }
+    this.UPDATE_ENTITY({
+      dataKey,
+      id,
+      newEntity: updatedEntity
+    })
+  }
+
+  @Action
+  updateLeafClusterOptions(payload: {
+    leafCluster: GrowLeafCluster
+    newOptions: LeafClusterOptions
+  }) {
+    const { leafCluster, newOptions } = payload
+    // const leafCluster = this.getEntity("leafClusters", id) as GrowLeafCluster
+    const processedOptions = processLeafClusterOptions(newOptions)
+    const leaves = []
+    let index = 0
+    // need to iterate through leaves in cluster, update with results of new cluster options
+    for (const leafOpt of processedOptions.leafOptions) {
+      let newLeaf!: GrowLeaf
+      if (leafCluster.leaves[index]) {
+        // update existing leaf
+        newLeaf = this.getEntity(
+          "leaves",
+          leafCluster.leaves[index]
+        ) as GrowLeaf
+        const mergeData = {
+          ...processLeafOptions(leafOpt),
+          optionsReference: leafOpt
+        }
+        this.mergeEntity({ dataKey: "leaves", id: newLeaf.id, mergeData })
+      } else {
+        // create new leaf
+        newLeaf = createLeaf(leafCluster.order, leafOpt)
+        this.addLeaf({ leaf: newLeaf, preventDelay: true })
+      }
+      leaves.push(newLeaf.id)
+      index++
+    }
+    // remove unneeded leaves
+    for (const oldLeafId of leafCluster.leaves) {
+      if (leaves.indexOf(oldLeafId) == -1) {
+        this.DELETE_ENTITY({ dataKey: "leaves", id: oldLeafId })
+      }
+    }
+    // update cluster
+    const mergeData = {
+      leaves,
+      height: processedOptions.clusterHeight,
+      optionsReference: newOptions
+    }
+    this.mergeEntity({ dataKey: "leafClusters", id: leafCluster.id, mergeData })
   }
 
   @Action
@@ -164,6 +325,7 @@ export default class GrowModule extends VuexModule implements GrowState {
     if (basePlant) {
       const usePosition = position ? position : NO_POSITION()
       plantReturn = createPlant(basePlant, usePosition, true)
+      console.log(plantReturn.plant.optionsReference.spread)
     } else if (fromOptions) {
       const curPlant = this.getEntity("plants", fromOptions.curId)
       if (!curPlant) {
@@ -190,7 +352,7 @@ export default class GrowModule extends VuexModule implements GrowState {
       // leafCluster starts with empty list for leaf ids
       const { leafCluster, leaves } = overallCluster
       for (const leaf of leaves) {
-        this.addLeaf(leaf)
+        this.addLeaf({ leaf })
         // leaf now as id assigned
         leafCluster.leaves.push(leaf.id)
       }
@@ -210,39 +372,45 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Action
-  addLeaf(leaf: GrowLeaf) {
-    const tempLeaf: GrowLeaf = {
-      ...leaf,
-      rotation: NO_ROTATION(),
-      shapes: []
+  addLeaf(payload: { leaf: GrowLeaf; preventDelay?: boolean }) {
+    const { leaf, preventDelay } = payload
+
+    if (preventDelay) {
+      this.ADD_ENTITY({ dataKey: "leaves", entity: leaf })
+    } else {
+      const tempLeaf: GrowLeaf = {
+        ...leaf,
+        rotation: NO_ROTATION(),
+        shapes: []
+      }
+      this.ADD_ENTITY({ dataKey: "leaves", entity: tempLeaf })
+      leaf.id = tempLeaf.id
+      setTimeout(() => {
+        this.UPDATE_ENTITY({
+          dataKey: "leaves",
+          id: tempLeaf.id,
+          newEntity: leaf
+        })
+      }, leaf.order * 300)
+      // TODO: better system for applying animations like this, this is temp for fun
+      setTimeout(() => {
+        this.UPDATE_ENTITY({
+          dataKey: "leaves",
+          id: tempLeaf.id,
+          newEntity: {
+            ...leaf,
+            rotation: NO_ROTATION()
+          }
+        })
+      }, leaf.order * 300 + 250)
+      setTimeout(() => {
+        this.UPDATE_ENTITY({
+          dataKey: "leaves",
+          id: tempLeaf.id,
+          newEntity: leaf
+        })
+      }, leaf.order * 300 + 550)
     }
-    this.ADD_ENTITY({ dataKey: "leaves", entity: tempLeaf })
-    leaf.id = tempLeaf.id
-    setTimeout(() => {
-      this.UPDATE_ENTITY({
-        dataKey: "leaves",
-        id: tempLeaf.id,
-        newEntity: leaf
-      })
-    }, leaf.order * 300)
-    // TODO: better system for applying animations like this, this is temp for fun
-    setTimeout(() => {
-      this.UPDATE_ENTITY({
-        dataKey: "leaves",
-        id: tempLeaf.id,
-        newEntity: {
-          ...leaf,
-          rotation: NO_ROTATION()
-        }
-      })
-    }, leaf.order * 300 + 250)
-    setTimeout(() => {
-      this.UPDATE_ENTITY({
-        dataKey: "leaves",
-        id: tempLeaf.id,
-        newEntity: leaf
-      })
-    }, leaf.order * 300 + 550)
   }
 
   @Action
@@ -266,7 +434,6 @@ export default class GrowModule extends VuexModule implements GrowState {
     dataKey: GrowDataKey
     newRotations: Rotation
   }) {
-    // TODO: for all set actions, check if dataKey is allowed to have rotation/whatever set
     if (this[payload.dataKey][payload.id]) {
       this.UPDATE_ROTATION(payload)
     }
@@ -296,7 +463,6 @@ export default class GrowModule extends VuexModule implements GrowState {
   }) {
     const { id, dataKey, newRotations } = payload
     this[dataKey][id].rotation = newRotations
-    // Vue.set(this[dataKey][id], "rotation", newRotations)
   }
 
   @Mutation
@@ -350,7 +516,10 @@ export default class GrowModule extends VuexModule implements GrowState {
   ADD_ENTITY(payload: { dataKey: GrowDataKey; entity: GrowType }) {
     const { dataKey, entity } = payload
     // ids are initialized at 0 when UI creates structure
-    const uniqueId = Object.keys(this[dataKey]).length + 1
+    const numberKeys = Object.keys(this[dataKey]).map(k => {
+      return parseInt(k)
+    })
+    const uniqueId = Math.max(0, ...numberKeys) + 1
     entity.id = uniqueId
     Vue.set(this[dataKey], uniqueId, entity)
   }
@@ -362,7 +531,36 @@ export default class GrowModule extends VuexModule implements GrowState {
     newEntity: GrowType
   }) {
     const { dataKey, id, newEntity } = payload
-    this[dataKey][id] = newEntity
+    if (dataKey == "branches") {
+      // when updating branches, need to maintain object refs instead of re-assigning
+      if (id == 1)
+        console.log(
+          this[dataKey][id].endPoint.x,
+          this[dataKey][id].startPoint.x
+        )
+      const { startPoint, endPoint, rotation } = this[dataKey][id] as GrowBranch
+      const growBranch = newEntity as GrowBranch
+      endPoint.x = growBranch.endPoint.x
+      endPoint.y = growBranch.endPoint.y
+      startPoint.x = growBranch.startPoint.x
+      startPoint.y = growBranch.startPoint.y
+      rotation.z = growBranch.rotation.z
+
+      this[dataKey][id] = growBranch
+      this[dataKey][id].endPoint = endPoint
+      this[dataKey][id].startPoint = startPoint
+      this[dataKey][id].rotation = rotation
+    } else {
+      this[dataKey][id] = newEntity as
+        | GrowPlant
+        | GrowLeafCluster
+        | GrowLeaf
+        | GrowFlower
+    }
+    // need to refresh active entity reference
+    if (this.activeEntity?.id == id && this.activeEntityType == dataKey) {
+      this.activeEntity = this[dataKey][id] ? this[dataKey][id] : null
+    }
   }
 
   @Action

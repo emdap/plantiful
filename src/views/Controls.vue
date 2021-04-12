@@ -14,7 +14,7 @@
           class="pb-2 mb-2 border-b-1 border-gray-200 border-solid"
         >
           <template v-if="control.children">
-            <h4 class="font-semibold">{{ control.text }}</h4>
+            <h4 class="font-semibold mb-1">{{ control.text }}</h4>
             <div
               v-for="child in control.children"
               :key="child.text"
@@ -49,7 +49,7 @@
 <script lang="ts">
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import Component from "vue-class-component"
-import properties from "@/fixtures/Grow/ModifiableProperties"
+import controlLists from "@/fixtures/Grow/ControlLists"
 import ControlField from "@/components/Grow/ControlField.vue"
 import {
   GrowDataKey,
@@ -69,7 +69,9 @@ import {
   PossibleNestedControl,
   BranchOptions,
   GrowFlower,
-  FlowerOptions
+  FlowerOptions,
+  GrowControlKeys,
+  GrowOptionsControlKeys
 } from "@/store/interfaces"
 import { Watch } from "vue-property-decorator"
 import { Position } from "node_modules/vue-router/types/router"
@@ -82,18 +84,6 @@ type PropertyControls = {
   leafClusters: PropertyData<GrowLeafCluster, LeafClusterOptions, Rotation>
   flowers: PropertyData<GrowFlower, FlowerOptions>
 }
-
-type GrowControlKeys =
-  | keyof GrowPlant
-  | keyof GrowBranch
-  | keyof GrowLeafCluster
-  | keyof GrowFlower
-type GrowOptionsControlKeys =
-  | keyof PlantOptions
-  | keyof BranchOptions
-  | keyof LeafClusterOptions
-  | keyof LeafOptions
-  | keyof FlowerOptions
 
 type PropertyData<P, O = {}, C = {}> = {
   show: boolean
@@ -116,23 +106,23 @@ export default class Controls extends GrowMixin {
     return {
       plants: {
         show: false,
-        onEntity: properties.plantControls,
-        onOptions: properties.plantOptionsControls
+        onEntity: controlLists.plantControls,
+        onOptions: controlLists.plantOptionsControls
       },
       branches: {
         show: false,
-        onEntity: properties.branchControls
-        // onOptions: [] as ControlList<any, any>
+        onEntity: controlLists.branchControls,
+        onOptions: controlLists.branchOptionsControls
       },
       leafClusters: {
         show: false,
-        onEntity: properties.leafClusterControls,
-        onOptions: properties.leafClusterOptionsControls
+        onEntity: controlLists.leafClusterControls,
+        onOptions: controlLists.leafClusterOptionsControls
       },
       leaves: {
         show: false,
         // onEntity: [] as ControlList<never, never>,
-        onOptions: properties.leafOptionsControls
+        onOptions: controlLists.leafOptionsControls
       },
       flowers: {
         show: false
@@ -210,40 +200,36 @@ export default class Controls extends GrowMixin {
     //   "from list ",
     //   propertyList
     // )
-    if (parentProperty) {
-      const newValues = {
-        ...grow.activeEntity[parentProperty],
+    if (propertyList == "onEntity") {
+      let mergeData!: { [key in GrowControlKeys]?: GrowType[keyof GrowType] }
+
+      if (parentProperty) {
+        mergeData = {
+          // merge with other parentcontrolLists, as updating only 1 child property at a time (rotation.x, position.y, etc)
+          [parentProperty]: {
+            ...grow.activeEntity[parentProperty],
+            [property]: newValue
+          }
+        }
+      } else {
+        mergeData = { [property]: newValue }
+      }
+
+      grow.mergeEntity({ ...entityPayload, mergeData })
+    } else if (propertyList == "onOptions") {
+      if (entityPayload.id == 1)
+        console.log(grow.activeEntity.optionsReference.startPoint)
+      const optionsDup = {
+        ...grow.activeEntity.optionsReference,
         [property]: newValue
       }
-      if (parentProperty == "rotation") {
-        grow.setRotation({
-          ...entityPayload,
-          newRotations: newValues as Rotation
-        })
-      } else if (parentProperty == "position") {
-        grow.setPosition({
-          ...entityPayload,
-          newPositions: newValues as Position
-        })
-      }
-    } else {
-      if (propertyList == "onEntity") {
-        const entityDup = { ...grow.activeEntity, [property]: newValue }
-        grow.setEntity({
-          ...entityPayload,
-          newEntity: entityDup
-        })
-      } else if (propertyList == "onOptions") {
-        const optionsDup = {
-          ...grow.activeEntity.optionsReference,
-          [property]: newValue
-        }
-        grow.setEntityOptions({
-          ...entityPayload,
-          newOptions: optionsDup as GrowOptionsType
-        })
-      }
+      grow.setEntityOptions({
+        ...entityPayload,
+        propertyRef: property as GrowOptionsControlKeys,
+        newOptions: optionsDup
+      })
     }
+    this.$forceUpdate()
   }
 
   @Watch("activeGrowPlant")
@@ -252,7 +238,7 @@ export default class Controls extends GrowMixin {
   }
 
   @Watch("activeEntityType")
-  public updatePropertiesList(current: GrowDataKey, previous: GrowDataKey) {
+  public updatecontrolListsList(current: GrowDataKey, previous: GrowDataKey) {
     if (current != previous) {
       if (!previous && !current) {
         this.controls = this.allControlsDisabled()

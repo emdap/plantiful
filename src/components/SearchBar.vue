@@ -87,5 +87,3 @@ export default class SearchBar extends GardenMixin {
   }
 }
 </script>
-
-<style scoped></style>

@@ -1,4 +1,5 @@
 import {
+  BranchOptions,
   Control,
   ControlList,
   GrowBorder,
@@ -109,14 +110,32 @@ const plantControls: ControlList<GrowPlant, Rotation & Position> = [
 ]
 
 const branchControls: ControlList<GrowBranch> = [
+  // {
+  //   property: "branchHeight",
+  //   text: "Height",
+  //   dataType: "number"
+  // },
+  {
+    property: "zIndex",
+    text: "Z-Index",
+    dataType: "number"
+  }
+]
+
+const branchOptionsControls: ControlList<BranchOptions> = [
   {
     property: "branchHeight",
     text: "Height",
     dataType: "number"
   },
   {
-    property: "zIndex",
-    text: "Z-Index",
+    property: "branchWidth",
+    text: "Width",
+    dataType: "number"
+  },
+  {
+    property: "angle",
+    text: "Angle",
     dataType: "number"
   }
 ]
@@ -161,19 +180,6 @@ const leafClusterOptionsControls: ControlList<LeafClusterOptions> = [
     text: "Leaf Texture",
     dataType: "dropdown",
     options: LeafTextureValues
-  }
-]
-
-const allLeafOptionsControls: ControlList<LeafOptions> = [
-  {
-    property: "topHeight",
-    text: "Top height of leaf",
-    dataType: "number"
-  },
-  {
-    property: "bottomHeight",
-    text: "Bottom height of leaf",
-    dataType: "number"
   },
   {
     property: "spacing",
@@ -191,6 +197,19 @@ const allLeafOptionsControls: ControlList<LeafOptions> = [
     dataType: "number"
   }
 ]
+
+// const allLeafOptionsControls: ControlList<LeafOptions> = [
+//   {
+//     property: "topHeight",
+//     text: "Top height of leaf",
+//     dataType: "number"
+//   },
+//   {
+//     property: "bottomHeight",
+//     text: "Bottom height of leaf",
+//     dataType: "number"
+//   }
+// ]
 
 const leafOptionsControls: ControlList<LeafOptions> = [
   {
@@ -214,8 +233,9 @@ export default {
   plantOptionsControls,
   plantControls,
   branchControls,
+  branchOptionsControls,
   leafClusterControls,
   leafClusterOptionsControls,
-  allLeafOptionsControls,
+  // allLeafOptionsControls,
   leafOptionsControls
 }
