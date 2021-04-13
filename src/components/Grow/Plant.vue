@@ -22,12 +22,18 @@
         :branchData="getEntity('branches', branch)"
         :allowSelection="plantActive"
       />
-      <leaf-cluster
-        v-for="leafCluster in plantData.leafClusters"
-        :key="'-leaf-cluster-' + leafCluster"
-        :leafClusterData="getEntity('leafClusters', leafCluster)"
-        :allowSelection="plantActive"
-      />
+      <template
+        v-for="clusterType in ['leafClusters', 'flowers']"
+        :index="clusterType"
+      >
+        <cluster
+          v-for="cluster in plantData[clusterType]"
+          :key="clusterKey(clusterType) + cluster"
+          :flowerOrLeafCluster="clusterType"
+          :clusterData="getEntity(clusterType, cluster)"
+          :allowSelection="plantActive"
+        />
+      </template>
     </div>
   </div>
 </template>
@@ -38,7 +44,8 @@ import Component from "vue-class-component"
 import { Prop, Watch } from "vue-property-decorator"
 import Shape from "@/components/Grow/Shape.vue"
 import Branch from "@/components/Grow/Branch.vue"
-import LeafCluster from "@/components/Grow/LeafCluster.vue"
+// import LeafCluster from "@/components/Grow/LeafCluster.vue"
+import Cluster from "@/components/Grow/Cluster.vue"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import { NO_POSITION, NO_ROTATION } from "@/fixtures/Grow/Defaults"
 
@@ -46,7 +53,7 @@ import { NO_POSITION, NO_ROTATION } from "@/fixtures/Grow/Defaults"
   components: {
     Shape,
     Branch,
-    LeafCluster
+    Cluster
   }
 })
 export default class Plant extends GrowMixin {
@@ -62,6 +69,17 @@ export default class Plant extends GrowMixin {
     } else if (this.plantActive) {
       this.textClass = this.subHighlightText
     }
+  }
+
+  public get clusterLists() {
+    return {
+      leafClusters: this.plantData.leafClusters,
+      flowers: this.plantData.flowers
+    }
+  }
+
+  public clusterKey(list: string) {
+    return list == "leafClusters" ? "leaf-cluster-" : "flower-"
   }
 
   public get plantIsActiveEntity(): boolean {

@@ -91,6 +91,7 @@ export default class Welcome extends mixins(ContainerMixin, GrowMixin) {
     if (nowOpen) {
       this.growTestPlant()
     } else {
+      grow.removeActivePlant()
       grow.deleteEntity({ dataKey: "plants", id: this.testPlant.id })
     }
   }

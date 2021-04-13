@@ -89,28 +89,6 @@ export default class GrowMixin extends Vue {
       container.toggleWidget(growWidget)
     }
 
-    // TEMP to demo - TODO: make recursive function to create structures based on plant characteristics
-    // TODO: add fixture for leaf shapes depending on plant properties
-
-    // const { branches, clustersWithLeaves, plant } = createPlant(basePlant, true)
-    // const branchIds = []
-    // const leafClusterIds = []
-    // for (const branch of branches) {
-    //   grow.addBranch(branch)
-    //   branchIds.push(branch.id)
-    // }
-    // for (const overallCluster of clustersWithLeaves) {
-    //   // leafCluster starts with empty list for leaf ids
-    //   const { leafCluster, leaves } = overallCluster
-    //   for (const leaf of leaves) {
-    //     grow.addLeaf(leaf)
-    //     // leaf now as id assigned
-    //     leafCluster.leaves.push(leaf.id)
-    //   }
-    //   grow.addLeafCluster(leafCluster)
-    //   leafClusterIds.push(leafCluster.id)
-    // }
-
     // widget element might not be positioned/styled yet, use defaults if so
     const growWidgetEl = document.getElementById("grow-widget") as HTMLElement
     const growWidgetElWidth =
@@ -134,15 +112,7 @@ export default class GrowMixin extends Vue {
 
     grow.addPlant(plant)
     grow.setActivePlant(plant.id)
-    // plant.branches = branchIds
-    // plant.leafClusters = leafClusterIds
-    // plant.position = {
-    //   x: growWidgetElWidth / 2,
-    //   y: growWidgetElHeight / 2 + plant.height / 2
-    // }
 
-    // grow.addPlant(plant)
-    // grow.setActivePlant(plant.id)
     return plant
   }
 

@@ -1,7 +1,16 @@
-import { GrowBasis, Plant, LeafTexture, LeafOptions, BranchOptions, PlantOptions } from "@/store/interfaces"
+import { Plant, LeafTexture, PlantOptions } from "@/store/interfaces"
 
 const DEFAULT_TOP_H = 30
 const DEFAULT_BOTTOM_H = 45
+
+export const DEFAULT_FLOWER_HEIGHT = 15
+
+export const DEFAULT_FLOWER = {
+  spacing: -2,
+  sides: 9,
+  area: 360,
+  centerColor: "red"
+}
 
 export const DEFAULT_LEAF_SIZE: {[key in LeafTexture]: {topHeight: number, bottomHeight: number}} = {
   fine: {
@@ -41,7 +50,7 @@ export const DEFAULT_LEAF_TEXTURE: LeafTexture = "medium"
 export const DEFAULT_PLANT_OPTIONS: PlantOptions = {
   height: 200,
   spread: 200,
-  flowerColors: ["pink", "magenta", "yellow"],
+  flowerColors: ["orange", "magenta", "yellow"],
   leafColors: ["green", "lime", "purple", "aqua", "blue"],
   leafTexture: DEFAULT_LEAF_TEXTURE,
   orientation: "ERECT", // common on the API :)
@@ -76,23 +85,23 @@ export const NO_POSITION = () => {
   }
 }
 
-export const PLANT_ENTITY_INIT = (): GrowBasis => {
-  return {
-    position: {
-      y: 100,
-      x: 0
-    },
-    rotation: {
-      x: 0,
-      y: 0,
-      z: 0,
-      translate: 0,
-    },
-    height: 0,
-    width: 200,
-    zIndex: 10
-  }
-}
+// export const PLANT_ENTITY_INIT = (): GrowBasis => {
+//   return {
+//     position: {
+//       y: 100,
+//       x: 0
+//     },
+//     rotation: {
+//       x: 0,
+//       y: 0,
+//       z: 0,
+//       translate: 0,
+//     },
+//     height: 0,
+//     width: 200,
+//     zIndex: 10
+//   }
+// }
 
 export const TEST_PLANT: Plant = {
   // I modified this
@@ -111,7 +120,7 @@ export const TEST_PLANT: Plant = {
     family_common_name: "Grass family",
     image_url:
       "https://bs.plantnet.org/image/o/46619775d4319328b2fad6f1ba876ccca2d03534",
-    flower: { color: ["purple"] },
+    flower: { color: ["orange"] },
     foliage: { texture: "fine", color: ["teal", "seagreen", "palevioletred"] },
     specifications: {
       average_height: { cm: 250 },

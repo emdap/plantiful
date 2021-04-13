@@ -1,14 +1,15 @@
 <template>
   <div
-    :id="'leaf-' + leafData.id"
-    class="absolute rounded-full origin-bottom"
-    :class="backgroundClass(defaultBg, highlight)"
-    :style="styleObj(leafData)"
-    @dblclick="activateLeaf"
+    :id="petalsOrLeaves + '-' + growData.id"
+    class="absolute rounded-full"
+    :class="[transformOrigin, backgroundClass(defaultBg, highlight)]"
+    :style="styleObj(growData)"
+    @dblclick="activateSelf"
   >
     <shape
-      v-for="(shape, index) in leafData.shapes"
-      :key="'leaf-' + leafData.id + '-shape-' + (index + 1)"
+      v-for="(shape, index) in growData.shapes"
+      :class="{ 'rounded-lg': petalsOrLeaves == 'petals' }"
+      :key="petalsOrLeaves + '-' + growData.id + '-shape-' + (index + 1)"
       :growData="shape"
     />
   </div>
@@ -16,7 +17,7 @@
 
 <script lang="ts">
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
-import { GrowLeaf } from "@/store/interfaces"
+import { GrowFlower, GrowLeaf, GrowPetal } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 import Shape from "@/components/Grow/Shape.vue"
 import Component from "vue-class-component"
@@ -26,8 +27,9 @@ import Component from "vue-class-component"
     Shape
   }
 })
-export default class Leaf extends GrowMixin {
-  @Prop({ required: true }) leafData!: GrowLeaf
+export default class PetalLeaf extends GrowMixin {
+  @Prop({ required: true }) petalsOrLeaves!: "petals" | "leaves"
+  @Prop({ required: true }) growData!: GrowPetal | GrowLeaf
   // two props for leaf as want to toggle highlight when cluster (parent) is active, or whole plant (grandparent) active
   @Prop({ default: false }) allowSelection!: boolean
   @Prop({ default: false }) clusterActive!: boolean
@@ -35,20 +37,26 @@ export default class Leaf extends GrowMixin {
   public defaultBg = "transparent"
   public highlight = false
 
-  public activateLeaf(e: MouseEvent) {
-    // TODO: might change this -- enforcing activating cluster FIRST, before leaf inside
+  public activateSelf(e: MouseEvent) {
     if (this.clusterActive) {
       e.stopPropagation()
-      this.activateEntity(true, "leaves", this.leafData.id)
+      this.activateEntity(true, this.petalsOrLeaves, this.growData.id)
     }
     // if !clusterActive, e propogates to parent (leafCluster), which then activates itself from the dbl click
   }
 
-  public get leafActive() {
+  public get selfActive() {
     return (
-      grow.activeEntityType == "leaves" &&
-      this.activeEntity?.id == this.leafData.id
+      grow.activeEntityType == this.petalsOrLeaves &&
+      this.activeEntity?.id == this.growData.id
     )
+  }
+
+  public get transformOrigin() {
+    if (this.petalsOrLeaves == "petals") {
+      return "origin-bottom-right"
+    }
+    return "origin-bottom"
   }
 
   @Watch("allowSelection")
@@ -65,7 +73,7 @@ export default class Leaf extends GrowMixin {
     }
   }
 
-  @Watch("leafActive")
+  @Watch("selfActive")
   public leafHighlight(active: boolean) {
     if (active) {
       this.toggleHighlight()

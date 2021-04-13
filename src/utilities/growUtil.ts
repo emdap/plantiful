@@ -1,18 +1,19 @@
 import {
-  GrowBorder,
-  TopGrowBorder,
-  GrowShape,
   Position,
   PlantOptions,
   Plant,
   GrowBranch,
-  BranchOutOptions
+  BranchOutOptions,
+  FlowerOptions,
+  LeafClusterOptions,
+  GrowOptionsType,
+  GrowLeafCluster,
+  GrowFlower
 } from "@/store/interfaces"
 import {
-  NO_ROTATION,
-  NO_POSITION,
   DEFAULT_PLANT_OPTIONS,
-  DEFAULT_LEAF_SIZE
+  DEFAULT_LEAF_SIZE,
+  NO_ROTATION
 } from "@/fixtures/Grow/Defaults"
 import colorConverter from "css-color-converter"
 
@@ -36,131 +37,31 @@ function getBranchEndPoint(
   return { x, y }
 }
 
-function topLeafBorder(width: number, height: number): TopGrowBorder {
-  return {
-    left: {
-      size: width / 2,
-      show: false
-    },
-    right: {
-      size: width / 2,
-      show: false
-    },
-    bottom: {
-      size: height,
-      show: true
-    }
-  }
-}
-
-function bottomLeafBorder(width: number, height: number): GrowBorder {
-  return {
-    left: {
-      size: width / 2,
-      show: false
-    },
-    right: {
-      size: width / 2,
-      show: false
-    },
-    top: {
-      size: height,
-      show: true
-    }
-  }
-}
-
 function getLeafWidth(height: number, sides: number): number {
   return Math.round(2 * height * Math.tan((Math.PI * 1) / (2 * sides)))
 }
 
-function leafTemplate(
-  color: string,
-  topBorder: TopGrowBorder,
-  bottomBorder: GrowBorder
-): GrowShape[] {
-  return [
-    {
-      color,
-      rotation: NO_ROTATION(),
-      position: NO_POSITION(),
-      height: 0,
-      width: 0,
-      border: topBorder,
-      transitionSpeed: 0.5,
-      zIndex: 10
-    },
-    {
-      color,
-      rotation: NO_ROTATION(),
-      position: {
-        y: topBorder.bottom.size - 1,
-        x: 0
-      },
-      height: 0,
-      width: 0,
-      border: bottomBorder,
-      transitionSpeed: 0.5,
-      zIndex: 10
-    }
-  ]
-}
-
-// function getBranchOptions(options?: BranchOptions) {
-//   // mostly moved this here for consistency
-//   if (!options) {
-//     return BRANCH_INIT()
-//   }
-//   return options
-// }
-
-// function getLeafOptions(texture?: LeafTexture): LeafOptions {
-//   // (options?: {
-//   //   texture?: LeafTexture
-//   //   custom?: LeafOptions
-//   // }): LeafOptions {
-//   // let leafOptions!: LeafOptions
-//   // if (options?.custom) {
-//   //   leafOptions = options.custom
-//   // } else if (options?.texture) {
-//   //   leafOptions = DEFAULT_LEAF_OPTIONS[options.texture]
-//   // } else {
-//   //   leafOptions = DEFAULT_LEAF_OPTIONS[DEFAULT_LEAF_TEXTURE]
-//   // }
-
-//   // return leafOptions
-//   return texture
-//     ? DEFAULT_LEAF_OPTIONS[texture]
-//     : DEFAULT_LEAF_OPTIONS[DEFAULT_LEAF_TEXTURE]
-// }
-
-// function getLeafClusterOptions(plant: PlantOptions) {
-//   return {
-//     colors: plant.leafColors,
-//     texture: plant.leafTexture
-//   }
-// }
-
 function incrementColor(value: number, increment: number) {
-  return Math.min(Math.max(value + increment, 0), 255)
+  // want to avoid having white, as won't show up
+  return Math.min(Math.max(value + increment, 0), 220)
 }
 
-function varyLeafColors(baseColors: string[]) {
+function varyColors(baseColors: string[]) {
   const colors = [] as string[]
   for (let i = 0; i < baseColors.length; i++) {
     const colorRGB = colorConverter.fromString(baseColors[i]).toRgbaArray() // returns [r, g, b, a (alpha)]
     const same = `rgba(${colorRGB[0]}, ${colorRGB[1]}, ${colorRGB[2]}, 1)`
     const lighter =
       `rgba(` +
-      `${incrementColor(colorRGB[0], -50)}, ` +
-      `${incrementColor(colorRGB[1], -50)}, ` +
-      `${incrementColor(colorRGB[2], -50)}, ` +
-      `1)`
-    const darker =
-      `rgba(` +
       `${incrementColor(colorRGB[0], 50)}, ` +
       `${incrementColor(colorRGB[1], 50)}, ` +
       `${incrementColor(colorRGB[2], 50)}, ` +
+      `1)`
+    const darker =
+      `rgba(` +
+      `${incrementColor(colorRGB[0], -50)}, ` +
+      `${incrementColor(colorRGB[1], -50)}, ` +
+      `${incrementColor(colorRGB[2], -50)}, ` +
       `1)`
     colors.push(lighter, same, darker)
   }
@@ -182,8 +83,8 @@ function getPlantOptions(plant: Plant, convertColors: boolean): PlantOptions {
     ? plantFlowers
     : DEFAULT_PLANT_OPTIONS.flowerColors
   if (convertColors) {
-    leafColors = varyLeafColors(leafColors)
-    flowerColors = varyLeafColors(flowerColors)
+    leafColors = varyColors(leafColors)
+    flowerColors = varyColors(flowerColors)
   }
 
   return {
@@ -220,14 +121,18 @@ function forceBranchEnd(
   options: BranchOutOptions,
   baseAngle: number
 ): {
-  forceLeft: boolean
-  forceRight: boolean
+  forceLeft: false | "leafCluster" | "flower"
+  forceRight: false | "leafCluster" | "flower"
 } {
   const { order, heightLeft, widthLeft } = options
-  let forceLeft!: boolean, forceRight!: boolean, forceOuter!: boolean
+  let forceLeft!: false | "leafCluster" | "flower",
+    forceRight!: false | "leafCluster" | "flower",
+    forceOuter!: boolean
   // widthLeft constraint causing plants to be too short if they had low spread TODO: best way to tackle?
   if (heightLeft <= 0 || widthLeft <= 0) {
-    forceLeft = forceRight = true
+    // want top branches to usually have leaf cluster
+    const leafCluster = Math.random() <= 0.8
+    forceLeft = forceRight = leafCluster ? "leafCluster" : "flower"
   } else if (baseAngle == 0) {
     forceLeft = forceRight = false
   } else {
@@ -235,18 +140,25 @@ function forceBranchEnd(
     const heightWeight = 0.7
     const widthWeight = 1 - heightWeight
     const orderFactor = 10
-    const leafProbDenom =
+    const probDenom =
       1 +
       (heightLeft * heightWeight + widthLeft * widthWeight) /
         (order * orderFactor)
-    const forceLeaf = Math.random() <= 1 / leafProbDenom
+    const forceEndProb = Math.random() <= 1 / probDenom
 
-    // want leaves along outer edge to be more likely
-    if (forceLeaf) {
+    // want branches along outer edge to be more likely to end
+    if (forceEndProb) {
       const outerProb = 0.7
       forceOuter = Math.random() <= outerProb
-      forceLeft = forceOuter && baseAngle < 0
-      forceRight = !forceLeft
+      // want inner branches to usually have flower
+      const flower = Math.random() <= 0.8
+      forceLeft =
+        forceOuter && baseAngle < 0
+          ? flower
+            ? "flower"
+            : "leafCluster"
+          : false
+      forceRight = forceLeft ? false : flower ? "flower" : "leafCluster"
     }
   }
   return { forceLeft, forceRight }
@@ -298,18 +210,85 @@ export function getBranchOptionBounds(plantOptions: PlantOptions) {
   }
 }
 
+function loopClusterHelper(
+  colors: string[],
+  sides: number,
+  area: number,
+  attachOptions: { [key: string]: number }
+) {
+  const adjustedSides = Math.max(3, sides)
+  const angleInc = area / (adjustedSides - 1) // how much to increment the rotation of each leaf/petal
+
+  const optionsList = []
+  for (let i = 0; i < sides; i++) {
+    const colorIndex = Math.floor(Math.random() * colors.length) // choose a random color
+    const color = colors[colorIndex]
+
+    // shift i to be between -(adjustedSides-1)/2 , (adjustedSides-1)/2
+    const shiftedI = i - (adjustedSides - 1) / 2
+    const angle = angleInc * shiftedI
+    const rotation = { ...NO_ROTATION(), z: angle }
+
+    const options = {
+      color,
+      rotation,
+      ...attachOptions
+    }
+
+    optionsList.push(options)
+  }
+  return optionsList
+}
+
+function createClusterHelper(
+  order: number,
+  baseBranch: GrowBranch,
+  size: number,
+  childList: "petals" | "leaves",
+  optionsRef: FlowerOptions | LeafClusterOptions
+) {
+  // properties based on baseBranch
+  const rotation = baseBranch.rotation
+  const position = baseBranch.endPoint
+  const zIndex = baseBranch.zIndex + 1
+  const offSet = baseBranch.offSet
+
+  const baseCluster = {
+    id: 0,
+    order,
+    rotation,
+    position,
+    zIndex,
+    offSet,
+    height: size,
+    width: size,
+    transitionSpeed: 0.5
+  }
+
+  if (childList == "petals") {
+    return {
+      ...baseCluster,
+      petals: [],
+      color: (optionsRef as FlowerOptions).centerColor,
+      optionsReference: optionsRef as FlowerOptions
+    }
+  }
+  return {
+    ...baseCluster,
+    leaves: [],
+    optionsReference: optionsRef as LeafClusterOptions
+  }
+}
+
 export default {
   radians,
   getBranchEndPoint,
-  topLeafBorder,
-  bottomLeafBorder,
   getLeafWidth,
-  leafTemplate,
-  // getLeafOptions,
   getPlantOptions,
-  // getBranchOptions,
   getBranchAngle,
   forceBranchEnd,
-  getBranchOptionBounds
-  // getLeafClusterOptions
+  getBranchOptionBounds,
+  loopClusterHelper,
+  createClusterHelper,
+  varyColors
 }

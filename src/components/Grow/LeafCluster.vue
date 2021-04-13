@@ -8,10 +8,11 @@
       activateEntity(allowSelection, 'leafClusters', leafClusterData.id)
     "
   >
-    <leaf
+    <petal-leaf
       v-for="leaf in leafClusterData.leaves"
+      petalsOrLeaves="leaves"
       :key="'leaf-' + leaf"
-      :leafData="getEntity('leaves', leaf)"
+      :growData="getEntity('leaves', leaf)"
       :allowSelection="allowSelection"
       :clusterActive="clusterActive"
     />
@@ -22,12 +23,12 @@
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import { GrowLeafCluster } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
-import Leaf from "@/components/Grow/Leaf.vue"
+import PetalLeaf from "@/components/Grow/PetalLeaf.vue"
 import Component from "vue-class-component"
 
 @Component({
   components: {
-    Leaf
+    PetalLeaf
   }
 })
 export default class LeafCluster extends GrowMixin {

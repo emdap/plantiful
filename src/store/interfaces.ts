@@ -33,12 +33,14 @@ export type GrowType =
   | GrowLeafCluster
   | GrowLeaf
   | GrowFlower
+  | GrowPetal
 export type GrowDataKey =
   | "plants"
   | "branches"
   | "leafClusters"
   | "leaves"
   | "flowers"
+  | "petals"
 
 export type GrowData<Type> = {
   [key: number]: Type
@@ -50,6 +52,7 @@ export interface GrowState {
   leafClusters: GrowData<GrowLeafCluster>
   leaves: GrowData<GrowLeaf>
   flowers: GrowData<GrowFlower>
+  petals: GrowData<GrowPetal>
   activeGrowPlant: GrowPlant | null
   activeEntity: GrowEntity | null
   activeEntityType: GrowDataKey | null
@@ -201,13 +204,22 @@ export interface GrowPlant extends GrowEntity<PlantOptions> {
   plantId: number
   showName: boolean
   leafClusters: number[]
+  flowers: number[]
   branches: number[]
 }
 
-export interface GrowLeafCluster extends GrowEntity<LeafClusterOptions> {
+export interface GrowCluster<T> extends GrowEntity<T> {
   offSet: GrowOffSet
-  leaves: number[]
   order: number
+}
+
+export interface GrowLeafCluster extends GrowCluster<LeafClusterOptions> {
+  leaves: number[]
+}
+
+export interface GrowFlower extends GrowCluster<FlowerOptions> {
+  color: string
+  petals: number[]
 }
 
 export interface GrowLeaf extends GrowEntity<LeafOptions> {
@@ -215,8 +227,7 @@ export interface GrowLeaf extends GrowEntity<LeafOptions> {
   order: number
 }
 
-export interface GrowFlower extends GrowEntity<FlowerOptions> {
-  id: number
+export interface GrowPetal extends GrowEntity<PetalOptions> {
   shapes: GrowShape[]
   order: number
 }
@@ -246,6 +257,7 @@ export interface GrowShape extends GrowBasis {
 export type BranchOutGlobals = {
   branches: GrowBranch[]
   clustersWithLeaves: { leafCluster: GrowLeafCluster; leaves: GrowLeaf[] }[]
+  flowersWithPetals: { flower: GrowFlower; petals: GrowPetal[] }[]
   plantOptions: PlantOptions
   // leafClusterOptions: LeafClusterOptions
 }
@@ -257,8 +269,24 @@ export type BranchOutOptions = {
   widthLeft: number
 }
 
-export interface FlowerOptions {
+export type GrowEntitySnippet = {
+  [key in GrowControlKeys]?: GrowType[keyof GrowType] | GrowShape[] | number[]
+}
+
+export type GrowOptionsSnippet = {
+  [key in GrowOptionsControlKeys]?:
+    | string
+    | number
+    | number[]
+    | string[]
+    | Position
+}
+
+export interface PetalOptions {
   color: string
+  width: number
+  height: number
+  rotation: Rotation
 }
 
 export interface LeafOptions {
@@ -269,13 +297,20 @@ export interface LeafOptions {
   rotation: Rotation
 }
 
-export interface LeafClusterOptions {
+export interface ClusterOptions {
   colors: string[]
   spacing: number
   sides: number
   area: number
+}
+
+export interface LeafClusterOptions extends ClusterOptions {
   texture: LeafTexture
   // custom?: LeafOptions
+}
+
+export interface FlowerOptions extends ClusterOptions {
+  centerColor: string
 }
 
 export interface BranchOptions {
@@ -330,6 +365,10 @@ export interface GrowPlantReturn {
   clustersWithLeaves: {
     leafCluster: GrowLeafCluster
     leaves: GrowLeaf[]
+  }[]
+  flowersWithPetals: {
+    flower: GrowFlower
+    petals: GrowPetal[]
   }[]
   plant:
     | GrowPlant

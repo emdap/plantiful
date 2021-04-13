@@ -5,15 +5,20 @@ import {
   GrowBorder,
   GrowBranch,
   GrowLeaf,
-  GrowLeafCluster,
+  GrowCluster,
   GrowPlant,
   GrowShape,
-  LeafClusterOptions,
+  ClusterOptions,
   LeafOptions,
   LeafTextureValues,
   NestedControl,
   PlantOptions,
-  Rotation
+  Rotation,
+  GrowLeafCluster,
+  LeafClusterOptions,
+  FlowerOptions,
+  PetalOptions,
+  GrowFlower
 } from "@/store/interfaces"
 import { Position } from "vue-router/types/router"
 
@@ -198,6 +203,63 @@ const leafClusterOptionsControls: ControlList<LeafClusterOptions> = [
   }
 ]
 
+const flowerOptionsControls: ControlList<FlowerOptions> = [
+  {
+    property: "colors",
+    text: "Flower Colors",
+    dataType: "color-list"
+  },
+  {
+    property: "spacing",
+    text: "Gap between petals",
+    dataType: "number"
+  },
+  {
+    property: "sides",
+    text: "Petals in flower",
+    dataType: "number"
+  },
+  {
+    property: "area",
+    text: "Flower area",
+    dataType: "number"
+  }
+]
+
+const flowerControls: ControlList<GrowFlower, Rotation> = [
+  {
+    property: "color",
+    text: "Flower center color",
+    dataType: "color"
+  },
+  {
+    property: "rotation",
+    text: "Rotation",
+    children: [
+      {
+        property: "x",
+        text: "X axis",
+        dataType: "number"
+      },
+      {
+        property: "y",
+        text: "Y axis",
+        dataType: "number"
+      },
+      {
+        property: "z",
+        text: "Z axis (tilt)",
+        dataType: "number"
+      }
+    ]
+  },
+  {
+    property: "zIndex",
+    text: "Z-Index",
+    dataType: "number"
+  }
+]
+
 // const allLeafOptionsControls: ControlList<LeafOptions> = [
 //   {
 //     property: "topHeight",
@@ -216,17 +278,32 @@ const leafOptionsControls: ControlList<LeafOptions> = [
     property: "color",
     text: "Color",
     dataType: "color"
-  },
-  {
-    property: "topHeight",
-    text: "Top height of leaf",
-    dataType: "number"
-  },
-  {
-    property: "bottomHeight",
-    text: "Bottom height of leaf",
-    dataType: "number"
   }
+  // disabled until can fix this from messing up cluster position
+  // {
+  //   property: "topHeight",
+  //   text: "Top height of leaf",
+  //   dataType: "number"
+  // },
+  // {
+  //   property: "bottomHeight",
+  //   text: "Bottom height of leaf",
+  //   dataType: "number"
+  // }
+]
+
+const petalOptionsControls: ControlList<PetalOptions> = [
+  {
+    property: "color",
+    text: "Color",
+    dataType: "color"
+  }
+  // disabled until can fix this from messing up cluster position
+  // {
+  //   property: "height",
+  //   text: "Height of petal",
+  //   dataType: "number"
+  // },
 ]
 
 export default {
@@ -237,5 +314,8 @@ export default {
   leafClusterControls,
   leafClusterOptionsControls,
   // allLeafOptionsControls,
-  leafOptionsControls
+  leafOptionsControls,
+  flowerControls,
+  flowerOptionsControls,
+  petalOptionsControls
 }

@@ -218,7 +218,7 @@ export default class ColorField extends Vue {
           : 0)
       let topDist = 0
       // TODO: why 30/60 px??? :'(
-      if (scrollBottom - scrollTop > pickerHeight) {
+      if (scrollBottom - scrollTop > pickerHeight + 60) {
         if (this.$el.offsetTop + 60 < scrollBottom) {
           const toTop = this.$el.offsetTop - scrollTop
           const margin = (scrollBottom - this.$el.offsetTop) / 2

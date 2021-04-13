@@ -71,7 +71,9 @@ import {
   GrowFlower,
   FlowerOptions,
   GrowControlKeys,
-  GrowOptionsControlKeys
+  GrowOptionsControlKeys,
+  GrowPetal,
+  PetalOptions
 } from "@/store/interfaces"
 import { Watch } from "vue-property-decorator"
 import { Position } from "node_modules/vue-router/types/router"
@@ -82,7 +84,8 @@ type PropertyControls = {
   branches: PropertyData<GrowBranch, BranchOptions>
   leaves: PropertyData<{}, LeafOptions>
   leafClusters: PropertyData<GrowLeafCluster, LeafClusterOptions, Rotation>
-  flowers: PropertyData<GrowFlower, FlowerOptions>
+  flowers: PropertyData<GrowFlower, FlowerOptions, Rotation>
+  petals: PropertyData<GrowPetal, PetalOptions>
 }
 
 type PropertyData<P, O = {}, C = {}> = {
@@ -90,8 +93,6 @@ type PropertyData<P, O = {}, C = {}> = {
   onEntity?: ControlList<P, C>
   onOptions?: ControlList<O>
   // user doesn't care if it's on the entity or on the build options for the entity, but i do
-  // 1 requires direct change to object, the other is a parameter for a build function  -- is this always the case?
-  // TODO: perhaps move everything to the build functions? is it possible
 }
 
 @Component({
@@ -125,9 +126,14 @@ export default class Controls extends GrowMixin {
         onOptions: controlLists.leafOptionsControls
       },
       flowers: {
-        show: false
+        show: false,
+        onEntity: controlLists.flowerControls,
+        onOptions: controlLists.flowerOptionsControls
+      },
+      petals: {
+        show: false,
         // onEntity: [] as ControlList<never, never>,
-        // onOptions: [] as ControlList<never, never>
+        onOptions: controlLists.petalOptionsControls
       }
     }
   }
