@@ -79,18 +79,10 @@ export default class PlantList extends GardenMixin {
     }
   ]
 
-  // public selectPlant(id: number) {
-  //   if (!this.plantListLoading) {
-  //     garden.getOnePlant(id)
-  //     this.$emit("show-active")
-  //   }
-  // }
-
   public async optionClicked(e: MouseEvent, id: number, option: string) {
     await garden.getOnePlant(id)
     switch (option) {
       case "show-active":
-        console.log("emitting show active")
         this.$emit("show-active")
         break
       case "grow-plant":

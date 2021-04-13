@@ -5,7 +5,6 @@
     :style="containerStyle"
     @dblclick="activateEntity(allowSelection, 'branches', branchData.id)"
   >
-    {{ branchData.position.x }}
     <div
       :class="['absolute z-10', backgroundClass(defaultBg, highlight)]"
       style="transform-origin: bottom center"
@@ -16,7 +15,7 @@
 
 <script lang="ts">
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
-import { GrowBranch } from "@/store/interfaces"
+import { GrowBranch, Position } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 import Component from "vue-class-component"
 import { NO_ROTATION } from "@/fixtures/Grow/Defaults"
@@ -29,30 +28,33 @@ export default class Branch extends GrowMixin {
   public defaultBg = "black"
   public highlight = false
 
-  public get containerStyle() {
-    // need to keep position computed so that it updates when user controls a branch
-    // console.log(this.branchData.endPoint.x, this.branchData.startPoint.x)
-    const position = {
-      y: this.branchData.startPoint.y,
-      x: Math.min(this.branchData.endPoint.x, this.branchData.startPoint.x)
+  public startPoint = { ...this.branchData.startPoint }
+
+  @Watch("startPoint")
+  public updateEndpoint(newStart: Position, oldStart: Position) {
+    // need to recompute endPoint so that any branches/leaf clusters referencing it get their startPoint updated
+    if (
+      !isNaN(newStart.x) &&
+      !isNaN(newStart.y) &&
+      (oldStart.y != newStart.y || oldStart.x != newStart.x)
+    ) {
+      grow.updateBranchEndPoint(this.branchData)
     }
+  }
+
+  public get containerStyle() {
+    // trigger watcher -- startPoint references same object as another branch's endPoint
+    this.startPoint = { ...this.branchData.startPoint }
+
     const styleData = {
       rotation: NO_ROTATION(),
-      position,
+      position: this.branchData.position,
       height: this.branchData.height,
       width: this.branchData.width,
-      zIndex: this.branchData.zIndex
+      zIndex: this.branchData.zIndex,
+      transitionSpeed: this.branchActive ? 0 : this.branchData.transitionSpeed
     }
-    if (this.branchData.id == 2) {
-      console.log(
-        position.x,
-        position.y,
-        "x's",
-        this.branchData.endPoint.x,
-        this.branchData.startPoint.x
-      )
-      console.log(this.getEntity("branches", 1).position.x)
-    }
+
     return this.styleObj(styleData, true)
   }
 

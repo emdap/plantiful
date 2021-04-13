@@ -69,7 +69,6 @@ export default class PlantSearch extends mixins(GardenMixin, ContainerMixin) {
   @Prop({ required: true }) activePlantWidget!: WidgetEntity
 
   public showActivePlant() {
-    console.log("show active plant received")
     if (!this.activePlantWidget.open) {
       container.toggleWidget(this.activePlantWidget)
     }

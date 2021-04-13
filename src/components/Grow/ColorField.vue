@@ -128,10 +128,6 @@ export default class ColorField extends Vue {
     this.removePickerListeners()
   }
 
-  @Watch("colorList")
-  public listUpdated(color: string[]) {
-    console.log("new color", color)
-  }
   // Emitters
   public addColor() {
     const newColor = colorConverter
@@ -222,12 +218,14 @@ export default class ColorField extends Vue {
           : 0)
       let topDist = 0
       // TODO: why 30/60 px??? :'(
-      if (this.$el.offsetTop + 60 < scrollBottom) {
-        const toTop = this.$el.offsetTop - scrollTop
-        const margin = (scrollBottom - this.$el.offsetTop) / 2
-        topDist = toTop > margin ? margin - pickerHeight + 30 : -toTop + 60
-      } else {
-        topDist = scrollBottom - this.$el.offsetTop - pickerHeight
+      if (scrollBottom - scrollTop > pickerHeight) {
+        if (this.$el.offsetTop + 60 < scrollBottom) {
+          const toTop = this.$el.offsetTop - scrollTop
+          const margin = (scrollBottom - this.$el.offsetTop) / 2
+          topDist = toTop > margin ? margin - pickerHeight + 30 : -toTop + 60
+        } else {
+          topDist = scrollBottom - this.$el.offsetTop - pickerHeight
+        }
       }
       this.colorPickerPos.top = topDist + "px"
     }

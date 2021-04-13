@@ -225,7 +225,7 @@ export interface GrowBranch extends GrowEntity<BranchOptions> {
   id: number
   offSet: GrowOffSet
   startPoint: Position
-  endPoint(): Position
+  endPoint: Position
   hasLeaf: boolean
   hasFlower: boolean
   // the height/width of the rotated branch

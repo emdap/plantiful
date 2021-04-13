@@ -28,10 +28,10 @@ function getBranchEndPoint(
   // find out where the end of the branch is,
   // given its dimensions and angle/tilt
 
-  const x = height * Math.sin(radians) + startPoint.x
+  const x = parseFloat((height * Math.sin(radians) + startPoint.x).toFixed(2))
   // positioning elements based on top
   // increase in y -> in CSS, closer to top = smaller top coord
-  const y = height * Math.cos(radians) + startPoint.y
+  const y = parseFloat((height * Math.cos(radians) + startPoint.y).toFixed(2))
 
   return { x, y }
 }
@@ -87,6 +87,7 @@ function leafTemplate(
       height: 0,
       width: 0,
       border: topBorder,
+      transitionSpeed: 0.5,
       zIndex: 10
     },
     {
@@ -99,6 +100,7 @@ function leafTemplate(
       height: 0,
       width: 0,
       border: bottomBorder,
+      transitionSpeed: 0.5,
       zIndex: 10
     }
   ]
@@ -184,7 +186,6 @@ function getPlantOptions(plant: Plant, convertColors: boolean): PlantOptions {
     flowerColors = varyLeafColors(flowerColors)
   }
 
-  console.log(plantHeight, plantSpread)
   return {
     orientation: plantOrientation
       ? plantOrientation
@@ -208,9 +209,9 @@ function getBranchAngle(
   const randomDiff = Math.random() * 15 // add up to 15 degrees variance
   let newAngle = 0
   if (direction == "left") {
-    newAngle = Math.max(baseAngle - randomDiff - 25, -65)
+    newAngle = Math.round(Math.max(baseAngle - randomDiff - 25, -65))
   } else {
-    newAngle = Math.min(baseAngle + randomDiff + 25, 65)
+    newAngle = Math.round(Math.min(baseAngle + randomDiff + 25, 65))
   }
   return newAngle
 }
@@ -253,7 +254,6 @@ function forceBranchEnd(
 
 export function getBranchOptionBounds(plantOptions: PlantOptions) {
   // TODO: tinker with this to create tighter/wider plants based on plant.orientation
-  console.log(plantOptions)
   // add more base branches the taller the plant is, up to 5
   let totalBaseBranches = Math.min(Math.ceil(plantOptions.height / 100), 5)
   // want there to be center branch

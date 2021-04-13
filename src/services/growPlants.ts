@@ -176,6 +176,7 @@ export function processBranchOptions(options: BranchOptions) {
   const smallX = Math.min(endPoint.x, startPoint.x)
   const containerWidth = bigX - smallX + leftOffset / 2
   const containerHeight = endPoint.y - startPoint.y + topOffset
+  // TODO: try NOT calculating this after endpoint adjustment
   const containerPosition: Position = {
     y: startPoint.y,
     x: smallX
@@ -320,6 +321,9 @@ export function processPlantOptions(plantOptions: PlantOptions) {
     branchWidth,
     growthHeight
   } = util.getBranchOptionBounds(plantOptions)
+  // these options get capped
+  plantOptions.height = maxHeight
+  plantOptions.spread = maxSideSpread * 2
 
   // lists are accumulators for recursive function
   // plantOptions is needed when adding leaves during recursion
@@ -362,7 +366,7 @@ export function processPlantOptions(plantOptions: PlantOptions) {
     width: maxSideSpread * 2,
     optionsReference: plantOptions
   }
-  console.log(plant)
+  console.log(maxHeight)
   return {
     branches: branchOutGlobals.branches,
     clustersWithLeaves: branchOutGlobals.clustersWithLeaves,

@@ -130,6 +130,19 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Action
+  updateBranchEndPoint(branch: GrowBranch) {
+    const updatedBranch = {
+      ...branch,
+      ...processBranchOptions(branch.optionsReference)
+    }
+    this.UPDATE_ENTITY({
+      dataKey: "branches",
+      id: branch.id,
+      newEntity: updatedBranch
+    })
+  }
+
+  @Action
   setEntity(payload: {
     id: number
     dataKey: GrowDataKey
@@ -186,9 +199,7 @@ export default class GrowModule extends VuexModule implements GrowState {
         optionsReference: updatedOptions
       } as GrowLeaf
     } else if (dataKey == "branches") {
-      console.log(curEntity.startPoint.x, newOptions.startPoint.x)
       const processedOptions = processBranchOptions(newOptions as BranchOptions)
-      console.log(processedOptions.startPoint.x)
       const updatedOptions = {
         ...curEntity.optionsReference,
         ...(newOptions as BranchOptions)
@@ -198,7 +209,6 @@ export default class GrowModule extends VuexModule implements GrowState {
         ...processedOptions,
         optionsReference: updatedOptions
       } as GrowBranch
-      console.log(updatedEntity.position.x)
     } else if (dataKey == "leafClusters") {
       // leaf clusters are special case no matter what, as need to update all the leaves
       let fullOptions = {
@@ -251,7 +261,6 @@ export default class GrowModule extends VuexModule implements GrowState {
         return
       } else {
         const fullOptions = { ...curEntity.optionsReference, ...newOptions }
-        console.log(fullOptions)
         updatedEntity = await this.growPlant({
           fromOptions: {
             curId: id,
@@ -325,7 +334,6 @@ export default class GrowModule extends VuexModule implements GrowState {
     if (basePlant) {
       const usePosition = position ? position : NO_POSITION()
       plantReturn = createPlant(basePlant, usePosition, true)
-      console.log(plantReturn.plant.optionsReference.spread)
     } else if (fromOptions) {
       const curPlant = this.getEntity("plants", fromOptions.curId)
       if (!curPlant) {
@@ -533,11 +541,6 @@ export default class GrowModule extends VuexModule implements GrowState {
     const { dataKey, id, newEntity } = payload
     if (dataKey == "branches") {
       // when updating branches, need to maintain object refs instead of re-assigning
-      if (id == 1)
-        console.log(
-          this[dataKey][id].endPoint.x,
-          this[dataKey][id].startPoint.x
-        )
       const { startPoint, endPoint, rotation } = this[dataKey][id] as GrowBranch
       const growBranch = newEntity as GrowBranch
       endPoint.x = growBranch.endPoint.x

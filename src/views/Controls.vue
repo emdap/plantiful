@@ -190,16 +190,6 @@ export default class Controls extends GrowMixin {
       id: grow.activeEntity.id,
       dataKey
     }
-    // console.log(
-    //   "update emit received for ",
-    //   dataKey,
-    //   property,
-    //   parentProperty,
-    //   " - update to ",
-    //   newValue,
-    //   "from list ",
-    //   propertyList
-    // )
     if (propertyList == "onEntity") {
       let mergeData!: { [key in GrowControlKeys]?: GrowType[keyof GrowType] }
 
@@ -214,11 +204,8 @@ export default class Controls extends GrowMixin {
       } else {
         mergeData = { [property]: newValue }
       }
-
       grow.mergeEntity({ ...entityPayload, mergeData })
     } else if (propertyList == "onOptions") {
-      if (entityPayload.id == 1)
-        console.log(grow.activeEntity.optionsReference.startPoint)
       const optionsDup = {
         ...grow.activeEntity.optionsReference,
         [property]: newValue

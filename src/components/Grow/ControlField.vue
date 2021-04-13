@@ -101,7 +101,6 @@ export default class ControlField extends Vue {
   // Colors
   public addColor(color: string) {
     if (this.control.dataType == "color") {
-      console.log("add color 1")
       this.updatedValue = color
     } else if (
       this.control.dataType == "color-list" &&
