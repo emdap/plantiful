@@ -1,7 +1,7 @@
 <template>
   <div
     id="grow-container"
-    class="flex flex-grow gap-1 h-full overflow-y-hidden flex-col md:flex-row"
+    class="p-2 flex flex-grow gap-1 h-full overflow-y-hidden flex-col md:flex-row"
   >
     <widget :widgetData="growWidget">
       <span v-if="!hasGrowPlants" class="text-gray-500 font-semibold mt-10">
