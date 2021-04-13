@@ -50,7 +50,13 @@ function varyColors(baseColors: string[]) {
   const colors = [] as string[]
   for (let i = 0; i < baseColors.length; i++) {
     const colorRGB = colorConverter.fromString(baseColors[i]).toRgbaArray() // returns [r, g, b, a (alpha)]
-    const same = `rgba(${colorRGB[0]}, ${colorRGB[1]}, ${colorRGB[2]}, 1)`
+    // want to avoid white -- won't show up!
+    const same =
+      `rgba(` +
+      `${Math.min(colorRGB[0], 240)}, ` +
+      `${Math.min(colorRGB[1], 240)}, ` +
+      `${Math.min(colorRGB[2], 240)}, ` +
+      `1)`
     const lighter =
       `rgba(` +
       `${incrementColor(colorRGB[0], 50)}, ` +

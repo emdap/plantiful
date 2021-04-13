@@ -96,10 +96,7 @@ export default class WidgetController extends mixins(
     const searchOnly = this.searchWidget.open && this.countOpenWidgets == 1
     if (searchOnly) {
       return "w-full"
-    } else if (
-      !this.searchWidget.open &&
-      (!this.activePlantWidget?.isDocked || !this.activePlantWidget?.open)
-    ) {
+    } else if (!this.searchWidget.open) {
       return 0
     } else {
       return "w-2/5"

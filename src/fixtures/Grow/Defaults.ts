@@ -120,7 +120,7 @@ export const TEST_PLANT: Plant = {
     family_common_name: "Grass family",
     image_url:
       "https://bs.plantnet.org/image/o/46619775d4319328b2fad6f1ba876ccca2d03534",
-    flower: { color: ["orange"] },
+    flower: { color: ["orangered"] },
     foliage: { texture: "fine", color: ["teal", "seagreen", "palevioletred"] },
     specifications: {
       average_height: { cm: 250 },
