@@ -15,6 +15,7 @@
       :growData="getEntity(childGrowDataKey, child)"
       :allowSelection="allowSelection"
       :clusterActive="clusterActive"
+      @height-update="recalcSize"
     />
   </div>
 </template>
@@ -40,6 +41,8 @@ export default class LeafCluster extends GrowMixin {
   public highlight = false
   public showFlowerCenter = false
 
+  // public originalHeight = this.clusterData.height
+
   public mounted() {
     this.toggleShowFlowerCenter()
   }
@@ -63,6 +66,37 @@ export default class LeafCluster extends GrowMixin {
       return "flowers-" + this.clusterData.id
     }
     return "leaf-cluster-" + this.clusterData.id
+  }
+
+  public recalcSize(newHeight: number) {
+    // when one leaf/petal changes size, need to adjust container size for proper alignment
+    console.log(this.clusterData.height)
+    const newProps = {
+      width: newHeight,
+      height: newHeight
+    }
+    grow.mergeEntity({
+      dataKey: this.flowerOrLeafCluster,
+      id: this.clusterData.id,
+      mergeData: newProps
+    })
+    console.log(this.clusterData.height)
+    // also need to update other leaves/petals in cluster to align with new cluster size
+    for (const childId of this.childList) {
+      const child = this.getEntity(this.childGrowDataKey, childId)
+      console.log(newHeight - child.height)
+      const position = {
+        position: {
+          x: newHeight / 2 - child.width / 2,
+          y: newHeight - child.height
+        }
+      }
+      grow.mergeEntity({
+        dataKey: this.childGrowDataKey,
+        id: childId,
+        mergeData: position
+      })
+    }
   }
 
   public get containerStyle() {

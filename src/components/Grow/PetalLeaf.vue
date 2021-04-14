@@ -45,6 +45,12 @@ export default class PetalLeaf extends GrowMixin {
     // if !clusterActive, e propogates to parent (leafCluster), which then activates itself from the dbl click
   }
 
+  @Watch("growData.height")
+  public newHeight(height: number) {
+    console.log("new height", height)
+    this.$emit("height-update", height)
+  }
+
   public get selfActive() {
     return (
       grow.activeEntityType == this.petalsOrLeaves &&

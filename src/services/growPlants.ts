@@ -136,29 +136,6 @@ export function processLeafClusterOptions(
   }) as LeafOptions[]
 
   return { clusterHeight, leafOptions }
-  // const adjustedSides = Math.max(3, sides)
-  // const angleInc = area / (adjustedSides - 1) // how much to increment the rotation of each leaf
-
-  // const leafOptions = [] as LeafOptions[]
-  // for (let i = 0; i < adjustedSides; i++) {
-  //   const colorIndex = Math.floor(Math.random() * colors.length) // choose a random color
-  //   const color = colors[colorIndex]
-
-  //   // shift i to be between -(adjustedSides-1)/2 , (adjustedSides-1)/2
-  //   const shiftedI = i - (adjustedSides - 1) / 2
-  //   const angle = angleInc * shiftedI
-  //   const rotation = { ...NO_ROTATION(), z: angle }
-
-  //   const options: LeafOptions = {
-  //     color,
-  //     topHeight,
-  //     bottomHeight,
-  //     width,
-  //     rotation
-  //   }
-
-  //   leafOptions.push(options)
-  // }
 }
 
 export function createLeafCluster(
@@ -182,26 +159,6 @@ export function createLeafCluster(
   const leaves = leafOptions.map(o => {
     return createLeaf(order, o)
   })
-
-  // properties based on baseBranch
-  // const rotation = baseBranch.rotation
-  // const position = baseBranch.endPoint
-  // const zIndex = baseBranch.zIndex + 1
-  // const offSet = baseBranch.offSet
-
-  // const leafCluster: GrowLeafCluster = {
-  //   id: 0,
-  //   order,
-  //   rotation,
-  //   position,
-  //   zIndex,
-  //   offSet,
-  //   height: clusterHeight,
-  //   width: clusterHeight,
-  //   leaves: [],
-  //   transitionSpeed: 0.5,
-  //   optionsReference: clusterOptions
-  // }
 
   const leafCluster = util.createClusterHelper(
     order,

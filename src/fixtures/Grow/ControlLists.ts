@@ -298,18 +298,17 @@ const leafOptionsControls: ControlList<LeafOptions> = [
     property: "color",
     text: "Color",
     dataType: "color"
+  },
+  {
+    property: "topHeight",
+    text: "Top height of leaf",
+    dataType: "number"
+  },
+  {
+    property: "bottomHeight",
+    text: "Bottom height of leaf",
+    dataType: "number"
   }
-  // disabled until can fix this from messing up cluster position
-  // {
-  //   property: "topHeight",
-  //   text: "Top height of leaf",
-  //   dataType: "number"
-  // },
-  // {
-  //   property: "bottomHeight",
-  //   text: "Bottom height of leaf",
-  //   dataType: "number"
-  // }
 ]
 
 const petalOptionsControls: ControlList<PetalOptions> = [
