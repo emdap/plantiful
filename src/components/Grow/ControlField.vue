@@ -65,7 +65,11 @@ export default class ControlField extends Vue {
   public allowUpdate = true
 
   public emitUpdate() {
-    if (this.allowUpdate && this.updatedValue != this.curValue) {
+    if (
+      this.allowUpdate &&
+      this.updatedValue != this.curValue &&
+      this.verifyUpdate()
+    ) {
       let emitValue = this.updatedValue
       if (
         this.control.dataType == "number" &&
@@ -82,9 +86,41 @@ export default class ControlField extends Vue {
     }
   }
 
+  public verifyUpdate(): boolean {
+    if (!this.control.verify) {
+      // no verification needed
+      return true
+    }
+    if (
+      this.updatedValue > this.control.verify.upperBound ||
+      this.updatedValue < this.control.verify.lowerBound
+    ) {
+      // TODO: proper error
+      if (this.updatedValue > this.control.verify.upperBound) {
+        console.error(
+          "New value exceeds upper bound of ",
+          this.control.verify.upperBound
+        )
+        this.updatedValue = this.control.verify.upperBound
+      } else {
+        console.error(
+          "New value does not meet lower bound of",
+          this.control.verify.lowerBound
+        )
+        this.updatedValue = this.control.verify.lowerBound
+      }
+      return false
+    }
+    return true
+  }
+
   @Watch("updatedValue")
   public valueUpdated() {
-    this.emitUpdate()
+    if (
+      typeof this.updatedValue == "string" &&
+      !isNaN(parseInt(this.updatedValue))
+    )
+      this.emitUpdate()
   }
 
   @Watch("allowUpdate")

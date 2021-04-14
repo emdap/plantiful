@@ -389,6 +389,7 @@ export type GrowOptionsControlKeys =
   | keyof LeafClusterOptions
   | keyof LeafOptions
   | keyof FlowerOptions
+  | keyof PetalOptions
 
 export type GrowOptionsType =
   | PlantOptions
@@ -404,6 +405,12 @@ export type PossibleNestedControl =
 type ControlBase<Type> = {
   property: keyof Type
   text: string
+  verify?: VerifyBounds
+}
+
+export type VerifyBounds = {
+  lowerBound: number
+  upperBound: number
 }
 
 export interface Control<Type> extends ControlBase<Type> {

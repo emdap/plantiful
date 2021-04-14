@@ -26,12 +26,20 @@ const plantOptionsControls: ControlList<PlantOptions> = [
   {
     property: "height",
     text: "Height",
-    dataType: "number"
+    dataType: "number",
+    verify: {
+      upperBound: 800,
+      lowerBound: 1
+    }
   },
   {
     property: "spread",
     text: "Spread",
-    dataType: "number"
+    dataType: "number",
+    verify: {
+      upperBound: 900,
+      lowerBound: 1
+    }
   },
   {
     property: "flowerColors",
@@ -65,6 +73,11 @@ const plantOptionsControls: ControlList<PlantOptions> = [
 ]
 
 const plantControls: ControlList<GrowPlant, Rotation & Position> = [
+  {
+    property: "zIndex",
+    text: "Z-Index",
+    dataType: "number"
+  },
   {
     property: "rotation",
     text: "Rotation",
@@ -106,11 +119,6 @@ const plantControls: ControlList<GrowPlant, Rotation & Position> = [
         dataType: "number"
       }
     ]
-  },
-  {
-    property: "zIndex",
-    text: "Z-Index",
-    dataType: "number"
   }
 ]
 
@@ -141,11 +149,20 @@ const branchOptionsControls: ControlList<BranchOptions> = [
   {
     property: "angle",
     text: "Angle",
-    dataType: "number"
+    dataType: "number",
+    verify: {
+      upperBound: 90,
+      lowerBound: -90
+    }
   }
 ]
 
 const leafClusterControls: ControlList<GrowLeafCluster, Rotation> = [
+  {
+    property: "zIndex",
+    text: "Z-Index",
+    dataType: "number"
+  },
   {
     property: "rotation",
     text: "Rotation",
@@ -166,11 +183,6 @@ const leafClusterControls: ControlList<GrowLeafCluster, Rotation> = [
         dataType: "number"
       }
     ]
-  },
-  {
-    property: "zIndex",
-    text: "Z-Index",
-    dataType: "number"
   }
 ]
 
@@ -199,7 +211,11 @@ const leafClusterOptionsControls: ControlList<LeafClusterOptions> = [
   {
     property: "area",
     text: "Cluster area",
-    dataType: "number"
+    dataType: "number",
+    verify: {
+      upperBound: 360,
+      lowerBound: 0
+    }
   }
 ]
 
@@ -222,11 +238,20 @@ const flowerOptionsControls: ControlList<FlowerOptions> = [
   {
     property: "area",
     text: "Flower area",
-    dataType: "number"
+    dataType: "number",
+    verify: {
+      upperBound: 360,
+      lowerBound: 0
+    }
   }
 ]
 
 const flowerControls: ControlList<GrowFlower, Rotation> = [
+  {
+    property: "zIndex",
+    text: "Z-Index",
+    dataType: "number"
+  },
   {
     property: "color",
     text: "Flower center color",
@@ -252,11 +277,6 @@ const flowerControls: ControlList<GrowFlower, Rotation> = [
         dataType: "number"
       }
     ]
-  },
-  {
-    property: "zIndex",
-    text: "Z-Index",
-    dataType: "number"
   }
 ]
 
