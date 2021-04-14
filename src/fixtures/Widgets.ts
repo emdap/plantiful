@@ -15,7 +15,7 @@ const widgets: WidgetEntity[] = [
     inMenu: true,
     display: {
       width: "30vw",
-      height: "100vh",
+      height: "full",
       minHeight: 500,
       minWidth: 250
     }
@@ -73,7 +73,7 @@ const widgets: WidgetEntity[] = [
     launchDocked: true,
     inMenu: true,
     display: {
-      height: "calc(100vh - 500px)",
+      height: "calc(100vh - 500px - 1rem)",
       width: 350,
       // left: "calc(30vw + 3rem + 520px)", // right of grow widget + some gap
       minHeight: 350,

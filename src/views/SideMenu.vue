@@ -1,7 +1,7 @@
 <template>
   <div
     id="side-menu"
-    class="bg-white h-screen pt-2 pb-4 items-center flex flex-col border-gray-100 border-solid border-r-2 font-bold text-2xl w-full"
+    class="bg-white h-screen pt-2 pb-4 items-center flex flex-col shadow-md font-bold text-2xl w-full"
   >
     <menu-icon
       :is="widget.icon"

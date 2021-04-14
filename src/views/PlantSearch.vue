@@ -1,7 +1,7 @@
 <template>
   <div
     id="plant-search"
-    class="flex flex-row gap-1 h-screen transition-all ease-in-out duration-1000 relative"
+    class="flex flex-row gap-1 h-full transition-all ease-in-out duration-1000 relative"
     :class="plantSearchSize"
   >
     <widget :widgetData="searchWidget">

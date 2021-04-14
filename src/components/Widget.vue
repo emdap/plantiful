@@ -373,8 +373,9 @@ export default class Widget extends ContainerMixin {
       startingTop = this.styleAttributes.position.top
     }
 
+    // want to avoid going under side menu completely
     this.styleAttributes.position.left = Math.max(
-      0,
+      48,
       startingLeft + e.pageX - this.posStartX
     )
     this.styleAttributes.position.top = Math.max(

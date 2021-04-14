@@ -40,10 +40,14 @@ export default class App extends Vue {}
 
 #menu {
   grid-area: menu;
+  z-index: 150;
+  @apply h-screen;
 }
 
 #container {
   grid-area: container;
   overflow: auto;
+  @apply pl-2;
+  @apply h-screen;
 }
 </style>
