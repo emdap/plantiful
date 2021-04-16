@@ -1,10 +1,10 @@
-import { WidgetEntity } from "@/store/interfaces"
+import { Widget } from "@/store/interfaces"
 import SearchIcon from "@/assets/icons/search.svg"
 import PlantIcon from "@/assets/icons/plant.svg"
 import WelcomeIcon from "@/assets/icons/welcome.svg"
 import ControlsIcon from "@/assets/icons/controls.svg"
 
-const widgets: WidgetEntity[] = [
+const widgets: Widget[] = [
   {
     name: "welcome",
     text: "Welcome",

@@ -93,11 +93,11 @@ export default class GrowMixin extends Vue {
     const growWidgetEl = document.getElementById("grow-widget") as HTMLElement
     const growWidgetElWidth =
       growWidgetEl.getBoundingClientRect().width == 0
-        ? (growWidget.display.minWidth as number)
+        ? (growWidget.width as number)
         : growWidgetEl.getBoundingClientRect().width
     const growWidgetElHeight =
       growWidgetEl.getBoundingClientRect().height == 0
-        ? (growWidget.display.minHeight as number)
+        ? (growWidget.height as number)
         : growWidgetEl.getBoundingClientRect().height
 
     const position: Position = {

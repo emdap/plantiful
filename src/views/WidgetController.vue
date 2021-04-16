@@ -22,12 +22,12 @@ import Component, { mixins } from "vue-class-component"
 import GardenMixin from "@/mixins/GardenMixin.vue"
 import ContainerMixin, { container } from "@/mixins/ContainerMixin.vue"
 import GrowMixin from "@/mixins/GrowMixin.vue"
-import widgetFixture from "@/fixtures/Widgets"
+import widgetFixture from "@/fixtures/Container/Widgets"
 import PlantSearch from "@/views/PlantSearch.vue"
 import Grow from "@/views/Grow.vue"
 import Welcome from "@/views/Welcome.vue"
 import Loading from "@/components/Loading.vue"
-import { WidgetEntity } from "@/store/interfaces"
+import { Widget } from "@/store/interfaces"
 import { Watch } from "vue-property-decorator"
 
 @Component({
@@ -52,23 +52,23 @@ export default class WidgetController extends mixins(
     }
   }
 
-  public get searchWidget(): WidgetEntity | null {
+  public get searchWidget(): Widget | null {
     return this.getWidget("search")
   }
 
-  public get activePlantWidget(): WidgetEntity | null {
+  public get activePlantWidget(): Widget | null {
     return this.getWidget("active-plant")
   }
 
-  public get growWidget(): WidgetEntity | null {
+  public get growWidget(): Widget | null {
     return this.getWidget("grow")
   }
 
-  public get welcomeWidget(): WidgetEntity | null {
+  public get welcomeWidget(): Widget | null {
     return this.getWidget("welcome")
   }
 
-  public get controlsWidget(): WidgetEntity | null {
+  public get controlsWidget(): Widget | null {
     return this.getWidget("controls")
   }
 

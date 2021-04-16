@@ -1,31 +1,28 @@
 <template>
-  <div
-    id="grow-container"
-    class="px-2 flex flex-grow gap-1 h-full overflow-y-hidden flex-col md:flex-row"
-  >
-    <widget :widgetData="growWidget">
-      <span v-if="!hasGrowPlants" class="text-gray-500 font-semibold mt-10">
-        Open up the search to find & grow plants!
-        <button
-          class="btn-primary my-4 mx-auto block"
-          @click="$emit('search-plants')"
-        >
-          Start Searching
-        </button>
-      </span>
-      <div
-        id="plant-wrapper"
-        class="h-full w-full"
-        @mousedown="activateWindow(true)"
-        @mouseup="activateWindow(false)"
-        @dblclick.self="removeActive()"
+  <div>
+    <!-- <adjustable :widgetData="widget"> -->
+    <span v-if="!hasGrowPlants" class="text-gray-500 font-semibold mt-10">
+      Open up the search to find & grow plants!
+      <button
+        class="btn-primary my-4 mx-auto block"
+        @click="$emit('search-plants')"
       >
-        <plant v-for="plant in growPlants" :key="plant.id" :plantData="plant" />
-      </div>
-    </widget>
-    <widget :widgetData="controlsWidget">
+        Start Searching
+      </button>
+    </span>
+    <div
+      id="plant-wrapper"
+      class="h-full w-full"
+      @mousedown="activateWindow(true)"
+      @mouseup="activateWindow(false)"
+      @dblclick.self="removeActive()"
+    >
+      <plant v-for="plant in growPlants" :key="plant.id" :plantData="plant" />
+    </div>
+    <!-- </adjustable> -->
+    <!-- <adjustable :widgetData="controlsWidget">
       <controls />
-    </widget>
+    </adjustable> -->
   </div>
 </template>
 
@@ -34,20 +31,20 @@ import Component from "vue-class-component"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import Plant from "@/components/Grow/Plant.vue"
 import Controls from "@/views/Controls.vue"
-import Widget from "@/components/Widget.vue"
-import { WidgetEntity } from "@/store/interfaces"
+import Adjustable from "@/components/Adjustable.vue"
+import { Widget, WidgetCopy } from "@/store/interfaces"
 import { Prop } from "vue-property-decorator"
 
 @Component({
   components: {
-    Widget,
+    Adjustable,
     Plant,
     Controls
   }
 })
 export default class Grow extends GrowMixin {
-  @Prop({ required: true }) growWidget!: WidgetEntity
-  @Prop({ required: true }) controlsWidget!: WidgetEntity
+  // @Prop({ required: true }) widget!: WidgetCopy
+  // @Prop({ required: true }) controlsWidget!: Widget
 
   public removeActive() {
     grow.removeActivePlant()

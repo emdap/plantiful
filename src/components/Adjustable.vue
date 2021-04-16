@@ -57,9 +57,10 @@
 <script lang="ts">
 import {
   WidgetBasis,
-  WidgetEntity,
+  Widget,
   Positions,
-  Dimensions
+  Dimensions,
+  WidgetCopy
 } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 import ContainerMixin, { container } from "@/mixins/ContainerMixin.vue"
@@ -79,8 +80,8 @@ import ResizeIcon from "@/assets/icons/resize.svg"
     ResizeIcon
   }
 })
-export default class Widget extends ContainerMixin {
-  @Prop({ required: true }) widgetData!: WidgetEntity
+export default class Adjustable extends ContainerMixin {
+  @Prop({ required: true }) widgetData!: WidgetCopy
 
   public minHeight = 0
   public minWidth = 0
@@ -100,34 +101,56 @@ export default class Widget extends ContainerMixin {
   public mounted() {
     this.initializeWidget()
     this.initMouseUpListeners()
+    this.styleAttributes = this.initStyle
   }
 
   // Initializers
   public initializeWidget() {
+    if (this.widgetData.currentZone) {
+      const zoneElem = document.getElementById(
+        "z-" + this.widgetData.currentZone
+      )
+      if (zoneElem instanceof HTMLElement) {
+        const { width, height, x, y } = zoneElem.getBoundingClientRect()
+        console.log(width, height, x, y)
+        container.setWidgetSize({
+          name: this.widgetData.name,
+          newHeight: height,
+          newWidth: width
+        })
+        container.setWidgetPosition({
+          name: this.widgetData.name,
+          newPosition: {
+            x,
+            y
+          }
+        })
+      }
+    }
     // assign default values where needed from initDisplay/entity props
-    if (this.widgetData.display.minHeight) {
-      this.minHeight = this.widgetData.display.minHeight
-    }
-    if (this.widgetData.display.minWidth) {
-      this.minWidth = this.widgetData.display.minWidth
-    }
-    if (this.widgetData.display.flexGrow) {
-      this.flexGrow = this.widgetData.display.flexGrow
-    }
-    if (this.widgetData.display.showOverflow) {
-      this.showOverflow = this.widgetData.display.showOverflow
-    }
+    // if (this.widgetData.display.minHeight) {
+    //   this.minHeight = this.widgetData.display.minHeight
+    // }
+    // if (this.widgetData.display.minWidth) {
+    //   this.minWidth = this.widgetData.display.minWidth
+    // }
+    // if (this.widgetData.display.flexGrow) {
+    //   this.flexGrow = this.widgetData.display.flexGrow
+    // }
+    // if (this.widgetData.display.showOverflow) {
+    //   this.showOverflow = this.widgetData.display.showOverflow
+    // }
   }
 
   public get initStyle(): WidgetBasis {
     return {
       position: {
-        top: this.convertSize(this.widgetData.display.top),
-        left: this.convertSize(this.widgetData.display.left)
+        top: this.convertSize(this.widgetData.position.y),
+        left: this.convertSize(this.widgetData.position.x)
       },
-      height: this.convertSize(this.widgetData.display.height, "height"),
-      width: this.convertSize(this.widgetData.display.width, "width"),
-      zIndex: this.widgetData.order * 10
+      height: this.convertSize(this.widgetData.height, "height"),
+      width: this.convertSize(this.widgetData.width, "width"),
+      zIndex: 10
     }
   }
 
@@ -256,7 +279,7 @@ export default class Widget extends ContainerMixin {
   @Watch("trackPosition")
   mouseUpdatesPosition(track: boolean) {
     if (track) {
-      if (this.widgetData.isDocked) {
+      if (this.widgetData.docked) {
         container.toggleDocked(this.widgetData)
       }
       document.addEventListener("mousemove", this.updatePosition)
@@ -269,32 +292,30 @@ export default class Widget extends ContainerMixin {
   // Styling getters
   public get styleObj(): Record<string, string | number> {
     return {
-      top: this.widgetData.isDocked
+      top: this.widgetData.docked
         ? 0
         : this.convertSize(this.styleAttributes.position.top),
-      left: this.widgetData.isDocked
+      left: this.widgetData.docked
         ? 0
         : this.convertSize(this.styleAttributes.position.left),
       height: this.convertSize(this.styleAttributes.height, "height"),
       width: this.convertSize(this.styleAttributes.width, "width"),
-      position: this.widgetData.isDocked ? "relative" : "absolute",
+      position: this.widgetData.docked ? "relative" : "absolute",
       "z-index":
-        this.inFocus && !this.widgetData.isDocked
+        this.inFocus && !this.widgetData.docked
           ? 100
           : this.styleAttributes.zIndex
     }
   }
 
   public get classObj(): Record<string, boolean> {
-    const isDocked =
-      this.widgetData.isDocked != undefined ? this.widgetData.isDocked : false
     return {
-      "flex-grow": this.flexGrow && isDocked,
+      "flex-grow": this.flexGrow && this.widgetData.docked,
       "overflow-hidden": !this.showOverflow,
       "overflow-auto": this.showOverflow,
-      "shadow-md": !isDocked,
-      "shadow-sm": isDocked,
-      "bg-opacity-95": !isDocked,
+      "shadow-md": !this.widgetData.docked,
+      "shadow-sm": this.widgetData.docked,
+      "bg-opacity-95": !this.widgetData.docked,
       "outline-green": this.trackPosition || this.trackSize,
       hidden: !this.widgetData.open
     }

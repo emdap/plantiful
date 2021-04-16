@@ -1,5 +1,7 @@
 // TODO: separate into diff files, understand more about typescript interfaces/types best practices and standardize
 
+import { VueConstructor } from "vue/types/umd"
+
 // States/stores
 export interface RootState {
   garden: {}
@@ -23,8 +25,32 @@ export interface GardenState {
 
 export interface ContainerState {
   widgets: {
-    [key: string]: WidgetEntity
+    [key: string]: WidgetCopy
   }
+  zones: {
+    [key: number]: ContainerZone
+  }
+  activeWidget: WidgetCopy | null
+  activeZone: ContainerZone | null
+}
+
+export const ContainerGridAreas = [
+  "z-0",
+  "z-1",
+  "z-2",
+  "z-3",
+  "z-4",
+  "z-5"
+] as const
+
+export interface ContainerZone {
+  id: number
+  width: number
+  height: number
+  gridArea: typeof ContainerGridAreas[number]
+  widgets: string[]
+  startPoint: Position
+  endPoint: Position
 }
 
 export type GrowType =
@@ -441,7 +467,7 @@ export type AnyControl<Parent, Child> =
 export type ControlList<Parent, Child = {}> = AnyControl<Parent, Child>[]
 
 // Widgets
-export interface WidgetEntity {
+export interface Widget {
   name: string
   text: string
   order: number // higher order = higher z index
@@ -451,6 +477,36 @@ export interface WidgetEntity {
   launchDocked: boolean
   inMenu: boolean
   display: WidgetDisplay
+}
+
+export interface WidgetCopy {
+  name: string
+  component: VueConstructor<Vue>
+  // text: string
+  // order: number // higher order = higher z index
+  open: boolean
+  docked: boolean
+  height: number
+  width: number
+  position: Position
+  defaultZone: number
+  currentZone?: number
+  // launchDocked: boolean
+  // inMenu: boolean
+  // display: WidgetDisplay
+}
+
+export const MenuGroups = [
+  "Find Plants",
+  "Create Plants",
+  "Information"
+] as const
+
+export interface MenuWidget {
+  widgetName: string
+  text: string
+  icon: string
+  group: typeof MenuGroups[number]
 }
 
 // these are used to style the widget. Leave blank = that attribute is not styled
@@ -466,7 +522,7 @@ export interface WidgetDisplay {
 }
 
 // export interface WidgetInit {
-//   entity: WidgetEntity
+//   entity: Widget
 //   display: WidgetDisplay
 // }
 
