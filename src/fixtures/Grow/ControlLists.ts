@@ -325,6 +325,17 @@ const petalOptionsControls: ControlList<PetalOptions> = [
   // },
 ]
 
+const specialPlantControls = [
+  {
+    text: "Convert all leaves to flowers",
+    code: "convert-leaves"
+  },
+  {
+    text: "Convert all flowers to leaves",
+    code: "convert-flowers"
+  }
+]
+
 export default {
   plantOptionsControls,
   plantControls,
@@ -336,5 +347,6 @@ export default {
   leafOptionsControls,
   flowerControls,
   flowerOptionsControls,
-  petalOptionsControls
+  petalOptionsControls,
+  specialPlantControls
 }

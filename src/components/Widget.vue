@@ -29,8 +29,11 @@
             @mousedown="trackPosition = true"
           />
         </nav>
-        <header class="flex flex-grow items-center justify-center px-3">
-          <h2>{{ widgetData.text }}</h2>
+        <header
+          class="flex flex-grow font-semibold items-center justify-center px-3"
+        >
+          {{ widgetData.text }}
+          <h2></h2>
         </header>
         <nav class="flex w-1/2 justify-end">
           <close-icon

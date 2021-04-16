@@ -42,6 +42,25 @@
           </template>
         </div>
       </div>
+      <div v-if="controls[controlTuple[0]].special">
+        <h3 class="mb-2">
+          Special {{ getControlSectionTitle(controlTuple[0]) }}
+        </h3>
+        <div
+          v-for="control in controls[controlTuple[0]].special"
+          :key="control.code"
+          class="flex flex-row items-center w-full"
+        >
+          <h4 class="flex font-semibold mb-1 inline-block mr-2">
+            {{ control.text }}
+          </h4>
+          <input
+            class="flex ml-auto mr-5"
+            type="checkbox"
+            @change="specialControl($event, control.code)"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -92,6 +111,7 @@ type PropertyData<P, O = {}, C = {}> = {
   show: boolean
   onEntity?: ControlList<P, C>
   onOptions?: ControlList<O>
+  special?: { text: string; code: string }[]
   // user doesn't care if it's on the entity or on the build options for the entity, but i do
 }
 
@@ -108,7 +128,8 @@ export default class Controls extends GrowMixin {
       plants: {
         show: false,
         onEntity: controlLists.plantControls,
-        onOptions: controlLists.plantOptionsControls
+        onOptions: controlLists.plantOptionsControls,
+        special: controlLists.specialPlantControls
       },
       branches: {
         show: false,
@@ -244,13 +265,32 @@ export default class Controls extends GrowMixin {
 
   public get getControlSectionTitle() {
     return (section: GrowDataKey) => {
-      if (section == "leafClusters") {
-        return "Leaf Cluster Controls"
+      let singular = ""
+      switch (section) {
+        case "leafClusters":
+          singular = "Leaf Cluster"
+          break
+        case "leaves":
+          singular = "Leaf"
+          break
+        case "branches":
+          singular = "Branch"
+          break
+        default:
+          singular = `${section[0].toUpperCase()}${section.substring(
+            1,
+            section.length - 1
+          )}`
+          break
       }
-      return `${section[0].toUpperCase()}${section.substring(
-        1,
-        section.length - 1
-      )} Controls`
+      return singular + " Controls"
+      // if (section == "leafClusters") {
+      //   return "Leaf Cluster Controls"
+      // }
+      // return `${section[0].toUpperCase()}${section.substring(
+      //   1,
+      //   section.length - 1
+      // )} Controls`
     }
   }
 

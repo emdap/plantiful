@@ -47,7 +47,6 @@ export default class PetalLeaf extends GrowMixin {
 
   @Watch("growData.height")
   public newHeight(height: number) {
-    console.log("new height", height)
     this.$emit("height-update", height)
   }
 

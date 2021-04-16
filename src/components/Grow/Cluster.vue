@@ -70,7 +70,6 @@ export default class LeafCluster extends GrowMixin {
 
   public recalcSize(newHeight: number) {
     // when one leaf/petal changes size, need to adjust container size for proper alignment
-    console.log(this.clusterData.height)
     const newProps = {
       width: newHeight,
       height: newHeight
@@ -80,11 +79,9 @@ export default class LeafCluster extends GrowMixin {
       id: this.clusterData.id,
       mergeData: newProps
     })
-    console.log(this.clusterData.height)
     // also need to update other leaves/petals in cluster to align with new cluster size
     for (const childId of this.childList) {
       const child = this.getEntity(this.childGrowDataKey, childId)
-      console.log(newHeight - child.height)
       const position = {
         position: {
           x: newHeight / 2 - child.width / 2,

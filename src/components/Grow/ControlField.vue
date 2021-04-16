@@ -76,6 +76,10 @@ export default class ControlField extends Vue {
         typeof this.updatedValue == "string"
       ) {
         emitValue = parseInt(this.updatedValue)
+        if (isNaN(emitValue)) {
+          this.updatedValue = this.curValue
+          return // don't update
+        }
       }
       this.$emit(
         "value-updated",
@@ -116,11 +120,7 @@ export default class ControlField extends Vue {
 
   @Watch("updatedValue")
   public valueUpdated() {
-    if (
-      typeof this.updatedValue == "string" &&
-      !isNaN(parseInt(this.updatedValue))
-    )
-      this.emitUpdate()
+    this.emitUpdate()
   }
 
   @Watch("allowUpdate")
