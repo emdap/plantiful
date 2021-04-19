@@ -1,5 +1,10 @@
 import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
-import { ContainerState, WidgetCopy, ContainerZone } from "@/store/interfaces"
+import {
+  GridContainer,
+  GridState,
+  GridWidget,
+  GridZone
+} from "@/store/interfaces"
 import { widgetMessages } from "@/fixtures/Messages"
 import store from "@/store"
 import Vue from "vue"
@@ -11,36 +16,36 @@ import { Position } from "vue-router/types/router"
   name: "container",
   store
 })
-export default class ContainerModule extends VuexModule
-  implements ContainerState {
-  widgets: { [key: string]: WidgetCopy } = {}
-  zones: { [key: number]: ContainerZone } = {}
-  activeWidget: WidgetCopy | null = null
-  activeZone: ContainerZone | null = null
+export default class GridModule extends VuexModule implements GridState {
+  containers: { [key: string]: GridContainer } = {}
+  widgets: { [key: string]: GridWidget } = {}
+  zones: { [key: number]: GridZone } = {}
+  activeWidget: GridWidget | null = null
+  activeZone: GridZone | null = null
 
   public get widgetMessages() {
     return widgetMessages
   }
 
   public get getWidget() {
-    return (name: string): WidgetCopy => {
+    return (name: string): GridWidget => {
       return this.widgets[name]
     }
   }
 
   public get getZone() {
-    return (id: number): ContainerZone => {
+    return (id: number): GridZone => {
       return this.zones[id]
     }
   }
 
   @Action
-  public addZone(zone: ContainerZone) {
+  public addZone(zone: GridZone) {
     this.ADD_ZONE(zone)
   }
 
   @Action
-  public addWidget(widget: WidgetCopy) {
+  public addWidget(widget: GridWidget) {
     this.ADD_WIDGET(widget)
     this.WIDGET_ZONE({ name: widget.name, zoneId: widget.defaultZone })
     this.ZONE_WIDGETS({
@@ -99,7 +104,7 @@ export default class ContainerModule extends VuexModule
     }
   }
   // @Action
-  // public registerWidget(widget: WidgetCopy) {
+  // public registerWidget(widget: GridWidget) {
   //   if (!widget.name) {
   //     throw console.error(this.widgetMessages.registerError)
   //   }
@@ -110,14 +115,14 @@ export default class ContainerModule extends VuexModule
   // }
 
   // @Action
-  // public toggleFocus(widget: WidgetCopy) {
+  // public toggleFocus(widget: GridWidget) {
   //   if (widget) {
   //     this.TOGGLE_FOCUS(widget)
   //   }
   // }
 
   @Action
-  public toggleWidget(widget: WidgetCopy) {
+  public toggleWidget(widget: GridWidget) {
     if (widget) {
       this.TOGGLE_WIDGET(widget)
       // initialize docked & in default zone for next open
@@ -129,7 +134,7 @@ export default class ContainerModule extends VuexModule
   }
 
   @Action
-  public toggleDocked(widget: WidgetCopy) {
+  public toggleDocked(widget: GridWidget) {
     if (widget) {
       this.TOGGLE_DOCKED(widget)
       // TODO: add code for assigning to nearest zone
@@ -156,7 +161,7 @@ export default class ContainerModule extends VuexModule
     prevZoneId?: number
   }) {
     const { widgetName, newZoneId, prevZoneId } = payload
-    let prevZone!: ContainerZone
+    let prevZone!: GridZone
     const newZone = this.zones[newZoneId]
 
     if (prevZoneId) {
@@ -237,22 +242,22 @@ export default class ContainerModule extends VuexModule
   }
 
   @Mutation
-  public ADD_WIDGET(widget: WidgetCopy) {
+  public ADD_WIDGET(widget: GridWidget) {
     Vue.set(this.widgets, widget.name, widget)
   }
 
   @Mutation
-  public ADD_ZONE(zone: ContainerZone) {
+  public ADD_ZONE(zone: GridZone) {
     Vue.set(this.zones, zone.id, zone)
   }
 
   @Mutation
-  public TOGGLE_WIDGET(widget: WidgetCopy) {
+  public TOGGLE_WIDGET(widget: GridWidget) {
     widget.open = !widget.open
   }
 
   @Mutation
-  public TOGGLE_DOCKED(widget: WidgetCopy) {
+  public TOGGLE_DOCKED(widget: GridWidget) {
     widget.docked = !widget.docked
   }
 }

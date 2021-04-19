@@ -42,23 +42,21 @@
 </template>
 
 <script lang="ts">
-import ContainerMixin from "@/mixins/ContainerMixin.vue"
-import Component, { mixins } from "vue-class-component"
-import Adjustable from "@/components/Adjustable.vue"
+// import GridMixin from "@/mixins/GridMixin.vue"
+import Component from "vue-class-component"
 import Plant from "@/components/Grow/Plant.vue"
 import { Watch } from "vue-property-decorator"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
-import { GrowPlant, WidgetCopy } from "@/store/interfaces"
-import { Prop } from "vue-property-decorator"
+import { GrowPlant } from "@/store/interfaces"
 
 @Component({
   components: {
-    Adjustable,
     Plant
   }
 })
-export default class Welcome extends mixins(ContainerMixin, GrowMixin) {
+// export default class Welcome extends mixins(GridMixin, GrowMixin) {
+export default class Welcome extends GrowMixin {
   // @Prop({required: true}) widget!: WidgetCopy
   public testPlant = {} as GrowPlant
 

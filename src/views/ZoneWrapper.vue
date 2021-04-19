@@ -1,11 +1,11 @@
 <template>
   <div id="zone-wrapper" class="h-full">
-    <!-- TODO: need containers afterall, for 2 separate grid systems -->
+    <!-- TODO: need grids afterall, for 2 separate grid systems -->
     <zone v-for="zone in zones" :key="zone.id" :zoneData="zone">
       <template v-for="widget in zone.widgets">
-        <adjustable :widgetData="getWidget(widget)" :key="widget">
+        <widget :widgetData="getWidget(widget)" :key="widget">
           <x :is="getWidget(widget).component" />
-        </adjustable>
+        </widget>
       </template>
     </zone>
   </div>
@@ -14,26 +14,26 @@
 <script lang="ts">
 import Vue from "vue"
 import Component from "vue-class-component"
-import ContainerMixin, { container } from "@/mixins/ContainerMixin.vue"
+import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import Zone from "@/components/Zone.vue"
-import zonesFixture from "@/fixtures/Container/Zones"
-import widgetsFixture from "@/fixtures/Container/Widgets copy"
-import Adjustable from "@/components/Adjustable.vue"
+import zonesFixture from "@/fixtures/Grid/Zones"
+import widgetsFixture from "@/fixtures/Grid/Widgets"
+import Widget from "@/components/Widget.vue"
 
 @Component({
   components: {
     Zone,
-    Adjustable
+    Widget
   }
 })
-export default class ZoneWrapper extends ContainerMixin {
+export default class ZoneWrapper extends GridMixin {
   public mounted() {
     // register all zones and then widgets
     for (const zone of zonesFixture) {
-      container.addZone(zone)
+      grid.addZone(zone)
     }
     for (const widget of widgetsFixture) {
-      container.addWidget(widget)
+      grid.addWidget(widget)
     }
   }
 }

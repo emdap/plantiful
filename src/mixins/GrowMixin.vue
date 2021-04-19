@@ -4,7 +4,7 @@ import Component from "vue-class-component"
 import { getModule } from "vuex-module-decorators"
 import { Watch } from "vue-property-decorator"
 import GrowModule from "@/store/modules/grow"
-import { container } from "@/mixins/ContainerMixin.vue"
+import { grid } from "@/mixins/GridMixin.vue"
 import {
   GrowBasis,
   GrowPlant,
@@ -80,24 +80,26 @@ export default class GrowMixin extends Vue {
   }
 
   public async growPlant(basePlant: Plant) {
-    const growWidget = container.getWidget("grow")
+    // TODO: move this logic
+    const growWidget = grid.getWidget("grow")
     if (!growWidget) {
       // TODO: proper error
       throw console.error("no widget??")
     }
     if (!growWidget.open) {
-      container.toggleWidget(growWidget)
+      grid.toggleWidget(growWidget)
     }
 
-    // widget element might not be positioned/styled yet, use defaults if so
-    const growWidgetEl = document.getElementById("grow-widget") as HTMLElement
+    // widget element might not be positioned/styled yet, use dims of default zone instead
+    const growWidgetEl = document.getElementById("grow") as HTMLElement
+    const zoneEl = document.getElementById("z-3") as HTMLElement
     const growWidgetElWidth =
       growWidgetEl.getBoundingClientRect().width == 0
-        ? (growWidget.width as number)
+        ? zoneEl.getBoundingClientRect().width
         : growWidgetEl.getBoundingClientRect().width
     const growWidgetElHeight =
       growWidgetEl.getBoundingClientRect().height == 0
-        ? (growWidget.height as number)
+        ? zoneEl.getBoundingClientRect().height
         : growWidgetEl.getBoundingClientRect().height
 
     const position: Position = {

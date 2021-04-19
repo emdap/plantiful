@@ -23,34 +23,18 @@ export interface GardenState {
   }
 }
 
-export interface ContainerState {
+export interface GridState {
+  containers: {
+    [key: string]: GridContainer
+  }
   widgets: {
-    [key: string]: WidgetCopy
+    [key: string]: GridWidget
   }
   zones: {
-    [key: number]: ContainerZone
+    [key: number]: GridZone
   }
-  activeWidget: WidgetCopy | null
-  activeZone: ContainerZone | null
-}
-
-export const ContainerGridAreas = [
-  "z-0",
-  "z-1",
-  "z-2",
-  "z-3",
-  "z-4",
-  "z-5"
-] as const
-
-export interface ContainerZone {
-  id: number
-  width: number
-  height: number
-  gridArea: typeof ContainerGridAreas[number]
-  widgets: string[]
-  startPoint: Position
-  endPoint: Position
+  activeWidget: GridWidget | null
+  activeZone: GridZone | null
 }
 
 export type GrowType =
@@ -466,20 +450,20 @@ export type AnyControl<Parent, Child> =
 
 export type ControlList<Parent, Child = {}> = AnyControl<Parent, Child>[]
 
-// Widgets
-export interface Widget {
-  name: string
-  text: string
-  order: number // higher order = higher z index
-  icon?: string
-  open: boolean
-  isDocked?: boolean
-  launchDocked: boolean
-  inMenu: boolean
-  display: WidgetDisplay
-}
+// Grid
+// export interface Widget {
+//   name: string
+//   text: string
+//   order: number // higher order = higher z index
+//   icon?: string
+//   open: boolean
+//   isDocked?: boolean
+//   launchDocked: boolean
+//   inMenu: boolean
+//   display: WidgetDisplay
+// }
 
-export interface WidgetCopy {
+export interface GridWidget {
   name: string
   component: VueConstructor<Vue>
   // text: string
@@ -531,6 +515,7 @@ export type WidgetPosition = {
 }
 
 // widget info that is NOT stored in state, modified directly from Widget.vue
+// TODO: convert to normal position
 export interface WidgetBasis extends InteractableBasis {
   position: WidgetPosition
   height: number | string | undefined
@@ -538,13 +523,31 @@ export interface WidgetBasis extends InteractableBasis {
   zIndex: number
 }
 
-// Constants & types
-export const WidgetStateOptionals = ["open", "docked", "inMenu"] as const
+export const GridContainerAreas = [
+  "z-0",
+  "z-1",
+  "z-2",
+  "z-3",
+  "z-4",
+  "z-5"
+] as const
 
-export const DefaultWidget = {
-  open: false,
-  docked: false,
-  inMenu: false
+export interface GridContainer {
+  id: number
+  name: string // just for readability
+  zones: number[]
 }
+
+export interface GridZone {
+  id: number
+  width: number
+  height: number
+  gridArea: typeof GridContainerAreas[number]
+  widgets: string[]
+  startPoint: Position
+  endPoint: Position
+}
+
+// Constants & types
 
 export type Dimensions = "height" | "width"

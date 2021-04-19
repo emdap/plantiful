@@ -57,13 +57,12 @@
 <script lang="ts">
 import {
   WidgetBasis,
-  Widget,
   Positions,
   Dimensions,
-  WidgetCopy
+  GridWidget
 } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
-import ContainerMixin, { container } from "@/mixins/ContainerMixin.vue"
+import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import Component from "vue-class-component"
 import CloseIcon from "@/assets/icons/close.svg"
 import DockedIcon from "@/assets/icons/docked.svg"
@@ -80,8 +79,8 @@ import ResizeIcon from "@/assets/icons/resize.svg"
     ResizeIcon
   }
 })
-export default class Adjustable extends ContainerMixin {
-  @Prop({ required: true }) widgetData!: WidgetCopy
+export default class Widget extends GridMixin {
+  @Prop({ required: true }) widgetData!: GridWidget
 
   public minHeight = 0
   public minWidth = 0
@@ -112,13 +111,12 @@ export default class Adjustable extends ContainerMixin {
       )
       if (zoneElem instanceof HTMLElement) {
         const { width, height, x, y } = zoneElem.getBoundingClientRect()
-        console.log(width, height, x, y)
-        container.setWidgetSize({
+        grid.setWidgetSize({
           name: this.widgetData.name,
           newHeight: height,
           newWidth: width
         })
-        container.setWidgetPosition({
+        grid.setWidgetPosition({
           name: this.widgetData.name,
           newPosition: {
             x,
@@ -280,7 +278,7 @@ export default class Adjustable extends ContainerMixin {
   mouseUpdatesPosition(track: boolean) {
     if (track) {
       if (this.widgetData.docked) {
-        container.toggleDocked(this.widgetData)
+        grid.toggleDocked(this.widgetData)
       }
       document.addEventListener("mousemove", this.updatePosition)
     } else {
@@ -323,11 +321,11 @@ export default class Adjustable extends ContainerMixin {
 
   // Toggles
   public closeWidget() {
-    container.toggleWidget(this.widgetData)
+    grid.toggleWidget(this.widgetData)
   }
 
   public dockWidget() {
-    container.toggleDocked(this.widgetData)
+    grid.toggleDocked(this.widgetData)
   }
 
   // Functions to modify display

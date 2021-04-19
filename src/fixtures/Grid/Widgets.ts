@@ -1,4 +1,4 @@
-import { WidgetCopy } from "@/store/interfaces"
+import { GridWidget } from "@/store/interfaces"
 import Welcome from "@/views/Welcome.vue"
 import PlantSearch from "@/views/PlantSearch.vue"
 import ActivePlant from "@/components/ActivePlant.vue"
@@ -6,7 +6,7 @@ import Grow from "@/views/Grow.vue"
 import Controls from "@/views/Controls.vue"
 import { NO_POSITION } from "../Grow/Defaults"
 
-const widgets: WidgetCopy[] = [
+const widgets: GridWidget[] = [
   {
     component: Welcome,
     name: "welcome",

@@ -16,11 +16,10 @@
 
 <script lang="ts">
 import Component from "vue-class-component"
-import ContainerMixin, { container } from "@/mixins/ContainerMixin.vue"
-import { Widget } from "@/store/interfaces"
+import GridMixin from "@/mixins/GridMixin.vue"
 
 @Component({})
-export default class Menu extends ContainerMixin {
+export default class Menu extends GridMixin {
   // public clickWidget(widget: string) {
   //   container.toggleWidget(widget)
   // }

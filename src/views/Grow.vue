@@ -1,6 +1,5 @@
 <template>
-  <div>
-    <!-- <adjustable :widgetData="widget"> -->
+  <div id="grow" class="h-full w-full">
     <span v-if="!hasGrowPlants" class="text-gray-500 font-semibold mt-10">
       Open up the search to find & grow plants!
       <button
@@ -19,10 +18,6 @@
     >
       <plant v-for="plant in growPlants" :key="plant.id" :plantData="plant" />
     </div>
-    <!-- </adjustable> -->
-    <!-- <adjustable :widgetData="controlsWidget">
-      <controls />
-    </adjustable> -->
   </div>
 </template>
 
@@ -31,20 +26,18 @@ import Component from "vue-class-component"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import Plant from "@/components/Grow/Plant.vue"
 import Controls from "@/views/Controls.vue"
-import Adjustable from "@/components/Adjustable.vue"
-import { Widget, WidgetCopy } from "@/store/interfaces"
+import { GridWidget } from "@/store/interfaces"
 import { Prop } from "vue-property-decorator"
 
 @Component({
   components: {
-    Adjustable,
     Plant,
     Controls
   }
 })
 export default class Grow extends GrowMixin {
-  // @Prop({ required: true }) widget!: WidgetCopy
-  // @Prop({ required: true }) controlsWidget!: Widget
+  // @Prop({ required: true }) widget!: GridWidgetCopy
+  // @Prop({ required: true }) controlsGridWidget!: GridWidget
 
   public removeActive() {
     grow.removeActivePlant()

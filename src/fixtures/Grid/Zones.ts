@@ -1,9 +1,9 @@
-import { ContainerZone } from "@/store/interfaces"
+import { GridZone } from "@/store/interfaces"
 import { NO_POSITION } from "../Grow/Defaults"
 
 // height/width are percentages
 
-const zones: ContainerZone[] = [
+const zones: GridZone[] = [
   {
     id: 0,
     width: 100,
