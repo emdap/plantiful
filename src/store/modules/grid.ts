@@ -39,9 +39,20 @@ export default class GridModule extends VuexModule implements GridState {
     }
   }
 
+  public get getContainer() {
+    return (id: number): GridContainer => {
+      return this.containers[id]
+    }
+  }
+
   @Action
   public addZone(zone: GridZone) {
     this.ADD_ZONE(zone)
+  }
+
+  @Action
+  public addContainer(container: GridContainer) {
+    this.ADD_CONTAINER(container)
   }
 
   @Action
@@ -53,6 +64,16 @@ export default class GridModule extends VuexModule implements GridState {
       newZoneId: widget.defaultZone
     })
   }
+
+  // @Action
+  // public resetWidget(widget: GridWidget) {
+  //   if (!widget.docked) {
+  //     this.TOGGLE_DOCKED(widget.name)
+  //   }
+  //   if (widget.currentZone != widget.defaultZone) {
+  //     this.WIDGET_ZONE
+  //   }
+  // }
 
   @Action
   public widgetToZone(payload: { name: string; zoneId: number }) {
@@ -69,6 +90,20 @@ export default class GridModule extends VuexModule implements GridState {
     newWidth: number
   }) {
     this.WIDGET_SIZE(payload)
+  }
+
+  @Action
+  public widgetSizeChange(payload: {
+    widget: GridWidget
+    newHeight: number
+    newWidth: number
+  }) {
+    const { widget, newHeight, newWidth } = payload
+    if (widget.docked && widget.currentZone) {
+      this.ZONE_SIZE({ id: widget.currentZone, newHeight, newWidth })
+    } else {
+      this.WIDGET_SIZE({ name: widget.name, newHeight, newWidth })
+    }
   }
 
   @Action
@@ -124,10 +159,10 @@ export default class GridModule extends VuexModule implements GridState {
   @Action
   public toggleWidget(widget: GridWidget) {
     if (widget) {
-      this.TOGGLE_WIDGET(widget)
+      this.TOGGLE_WIDGET(widget.name)
       // initialize docked & in default zone for next open
       if (!widget.open && !widget.docked) {
-        this.TOGGLE_DOCKED(widget)
+        this.TOGGLE_DOCKED(widget.name)
         this.WIDGET_ZONE({ name: widget.name, zoneId: widget.defaultZone })
       }
     }
@@ -136,7 +171,7 @@ export default class GridModule extends VuexModule implements GridState {
   @Action
   public toggleDocked(widget: GridWidget) {
     if (widget) {
-      this.TOGGLE_DOCKED(widget)
+      this.TOGGLE_DOCKED(widget.name)
       // TODO: add code for assigning to nearest zone
     }
   }
@@ -204,6 +239,18 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
+  public ZONE_SIZE(payload: {
+    id: number
+    newHeight: number
+    newWidth: number
+  }) {
+    const { id, newHeight, newWidth } = payload
+    const zone = this.zones[id]
+    zone.height = newHeight
+    zone.width = newWidth
+  }
+
+  @Mutation
   public WIDGET_POSITION(payload: { name: string; newPosition: Position }) {
     const { name, newPosition } = payload
     const widget = this.widgets[name]
@@ -252,12 +299,17 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  public TOGGLE_WIDGET(widget: GridWidget) {
-    widget.open = !widget.open
+  public ADD_CONTAINER(container: GridContainer) {
+    Vue.set(this.containers, container.id, container)
   }
 
   @Mutation
-  public TOGGLE_DOCKED(widget: GridWidget) {
-    widget.docked = !widget.docked
+  public TOGGLE_WIDGET(name: string) {
+    this.widgets[name].open = !this.widgets[name].open
+  }
+
+  @Mutation
+  public TOGGLE_DOCKED(name: string) {
+    this.widgets[name].docked = !this.widgets[name].docked
   }
 }

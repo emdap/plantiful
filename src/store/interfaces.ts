@@ -510,18 +510,17 @@ export interface WidgetDisplay {
 //   display: WidgetDisplay
 // }
 
-export type WidgetPosition = {
-  [key in RequiredPositions]: number | string
-}
+// export type WidgetPosition = {
+//   [key in RequiredPositions]: number | string
+// }
 
 // widget info that is NOT stored in state, modified directly from Widget.vue
-// TODO: convert to normal position
-export interface WidgetBasis extends InteractableBasis {
-  position: WidgetPosition
-  height: number | string | undefined
-  width: number | string | undefined
-  zIndex: number
-}
+// export interface WidgetBasis extends InteractableBasis {
+// position: Position
+// height: number | string | undefined
+// width: number | string | undefined
+// zIndex: number
+// }
 
 export const GridContainerAreas = [
   "z-0",
@@ -534,7 +533,7 @@ export const GridContainerAreas = [
 
 export interface GridContainer {
   id: number
-  name: string // just for readability
+  name: string // for DOM element ID
   zones: number[]
 }
 

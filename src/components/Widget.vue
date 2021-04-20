@@ -15,7 +15,7 @@
         <nav class="flex w-1/2 gap-3">
           <docked-icon
             class="cursor-pointer fill-current text-pink-800 hover:text-green-600"
-            v-if="widgetData.isDocked"
+            v-if="widgetData.docked"
             @click="dockWidget()"
           />
           <not-docked-icon
@@ -55,12 +55,7 @@
 </template>
 
 <script lang="ts">
-import {
-  WidgetBasis,
-  Positions,
-  Dimensions,
-  GridWidget
-} from "@/store/interfaces"
+import { Positions, Dimensions, GridWidget } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import Component from "vue-class-component"
@@ -94,38 +89,52 @@ export default class Widget extends GridMixin {
   public posStartX: null | number = null
   public inFocus = false
 
+  public actualWidth = 0
+  public actualHeight = 0
+
   // initialize so that user-modifiable properties are reactive
-  public styleAttributes: WidgetBasis = this.initStyle
+  // public styleAttributes: WidgetBasis = this.initStyle
 
   public mounted() {
     this.initializeWidget()
     this.initMouseUpListeners()
-    this.styleAttributes = this.initStyle
+    console.log(this.widgetData.name, this.$el.getBoundingClientRect())
+    // this.styleAttributes = this.initStyle
   }
 
   // Initializers
   public initializeWidget() {
-    if (this.widgetData.currentZone) {
-      const zoneElem = document.getElementById(
-        "z-" + this.widgetData.currentZone
-      )
-      if (zoneElem instanceof HTMLElement) {
-        const { width, height, x, y } = zoneElem.getBoundingClientRect()
-        grid.setWidgetSize({
-          name: this.widgetData.name,
-          newHeight: height,
-          newWidth: width
-        })
-        grid.setWidgetPosition({
-          name: this.widgetData.name,
-          newPosition: {
-            x,
-            y
-          }
-        })
-      }
-    }
+    console.log(this.widgetData.name, this.$el.getBoundingClientRect())
+    const { width, height, x, y } = this.$el.getBoundingClientRect()
+    // want to keep width/height at 100% while docked
+    this.actualWidth = width
+    this.actualHeight = height
+    grid.setWidgetPosition({
+      name: this.widgetData.name,
+      newPosition: { x, y }
+    })
+
+    // if (this.widgetData.currentZone) {
+    //   const zoneElem = document.getElementById(
+    //     "z-" + this.widgetData.currentZone
+    //   )
+    //   if (zoneElem instanceof HTMLElement) {
+    //     const { width, height, x, y } = zoneElem.getBoundingClientRect()
+    //     // grid.setWidgetSize({
+    //     //   name: this.widgetData.name,
+    //     //   newHeight: height,
+    //     //   newWidth: width
+    //     // })
+    //     grid.setWidgetPosition({
+    //       name: this.widgetData.name,
+    //       newPosition: {
+    //         x,
+    //         y
+    //       }
+    //     })
+    //   }
     // assign default values where needed from initDisplay/entity props
+    // }
     // if (this.widgetData.display.minHeight) {
     //   this.minHeight = this.widgetData.display.minHeight
     // }
@@ -140,17 +149,17 @@ export default class Widget extends GridMixin {
     // }
   }
 
-  public get initStyle(): WidgetBasis {
-    return {
-      position: {
-        top: this.convertSize(this.widgetData.position.y),
-        left: this.convertSize(this.widgetData.position.x)
-      },
-      height: this.convertSize(this.widgetData.height, "height"),
-      width: this.convertSize(this.widgetData.width, "width"),
-      zIndex: 10
-    }
-  }
+  // public get initStyle(): WidgetBasis {
+  //   return {
+  //     position: {
+  //       top: this.convertSize(this.widgetData.position.y),
+  //       left: this.convertSize(this.widgetData.position.x)
+  //     },
+  //     height: this.convertSize(this.widgetData.height, "height"),
+  //     width: this.convertSize(this.widgetData.width, "width"),
+  //     zIndex: 10
+  //   }
+  // }
 
   public initMouseUpListeners() {
     // stop tracking position/size when mouse is up
@@ -168,24 +177,24 @@ export default class Widget extends GridMixin {
 
   // Utilities
 
-  public convertSize(
-    convertValue: string | number | undefined,
-    dimension: Dimensions | undefined = undefined
-  ): string | number {
-    switch (typeof convertValue) {
-      case "string":
-        if (convertValue == "full") {
-          return "100%"
-        } else if (convertValue == "screen") {
-          return dimension == "width" ? "100vw" : "100vh"
-        }
-        return convertValue as string
-      case "undefined":
-        return ""
-      default:
-        return `${convertValue}px`
-    }
-  }
+  // public convertSize(
+  //   convertValue: string | number | undefined,
+  //   dimension: Dimensions | undefined = undefined
+  // ): string | number {
+  //   switch (typeof convertValue) {
+  //     case "string":
+  //       if (convertValue == "full") {
+  //         return "100%"
+  //       } else if (convertValue == "screen") {
+  //         return dimension == "width" ? "100vw" : "100vh"
+  //       }
+  //       return convertValue as string
+  //     case "undefined":
+  //       return ""
+  //     default:
+  //       return `${convertValue}px`
+  //   }
+  // }
 
   public setToCurrent(which: "size" | "position") {
     // set properties to the current actual values of the element in the DOM
@@ -194,12 +203,17 @@ export default class Widget extends GridMixin {
       return
     }
     if (which == "size") {
-      this.styleAttributes.width = this.getCurrent("width")
-      this.styleAttributes.height = this.getCurrent("height")
+      const newHeight = this.getCurrent("height")
+      const newWidth = this.getCurrent("width")
+      // grid.setWidgetSize({name: this.widgetData.name, newHeight, newWidth})
+      grid.widgetSizeChange({ widget: this.widgetData, newHeight, newWidth })
     }
     if (which == "position") {
-      this.styleAttributes.position.top = this.getCurrent("top")
-      this.styleAttributes.position.left = this.getCurrent("left")
+      const newPosition = {
+        x: this.getCurrent("left"),
+        y: this.getCurrent("top")
+      }
+      grid.setWidgetPosition({ name: this.widgetData.name, newPosition })
     }
   }
 
@@ -247,22 +261,23 @@ export default class Widget extends GridMixin {
   }
 
   // Watchers
-  @Watch("widgetData.isDocked")
-  dockChanged(docked: boolean) {
-    if (!docked) {
-      // update size/position so that won't snap when undocking
-      this.setToCurrent("position")
-      this.setToCurrent("size")
-    }
-  }
+  // @Watch("widgetData.isDocked")
+  // dockChanged(docked: boolean) {
+  //   if (!docked) {
+  //     // update size/position so that won't snap when undocking
+  //     this.setToCurrent("position")
+  //     this.setToCurrent("size")
+  //   }
+  // }
 
-  @Watch("widgetData.open")
-  openChanged(open: boolean) {
-    // reset to defaults so that reverts when next opened
-    if (!open) {
-      this.styleAttributes = this.initStyle
-    }
-  }
+  // @Watch("widgetData.open")
+  // openChanged(open: boolean) {
+  //   // reset to defaults so that reverts when next opened
+  //   if (!open) {
+  //     // this.styleAttributes = this.initStyle
+  //     grid.resetWidget(this.widgetData)
+  //   }
+  // }
 
   @Watch("trackSize")
   mouseUpdatesSize(track: boolean) {
@@ -289,28 +304,36 @@ export default class Widget extends GridMixin {
 
   // Styling getters
   public get styleObj(): Record<string, string | number> {
-    return {
-      top: this.widgetData.docked
-        ? 0
-        : this.convertSize(this.styleAttributes.position.top),
-      left: this.widgetData.docked
-        ? 0
-        : this.convertSize(this.styleAttributes.position.left),
-      height: this.convertSize(this.styleAttributes.height, "height"),
-      width: this.convertSize(this.styleAttributes.width, "width"),
-      position: this.widgetData.docked ? "relative" : "absolute",
-      "z-index":
-        this.inFocus && !this.widgetData.docked
-          ? 100
-          : this.styleAttributes.zIndex
+    if (!this.widgetData.docked) {
+      return {
+        top: this.widgetData.position.y + "px",
+        left: this.widgetData.position.x + "px",
+        height: this.widgetData.height + "px",
+        width: this.widgetData.width + "px",
+        position: "absolute",
+        // TODO: revisit this logic/align with active widget in state?
+        "z-index": this.inFocus ? 100 : 50
+      }
+    } else {
+      // height/width start off at 0 when docked, before any user-resizing
+      console.log(
+        "style getter, height:",
+        this.widgetData.height,
+        this.widgetData.height ? this.widgetData.height : "100%"
+      )
+      return {
+        height: this.widgetData.height ? this.widgetData.height + "px" : "100%",
+        width: this.widgetData.width ? this.widgetData.width + "px" : "100%",
+        position: "relative"
+      }
     }
   }
 
   public get classObj(): Record<string, boolean> {
     return {
-      "flex-grow": this.flexGrow && this.widgetData.docked,
-      "overflow-hidden": !this.showOverflow,
-      "overflow-auto": this.showOverflow,
+      // "flex-grow": this.flexGrow && this.widgetData.docked,
+      // "overflow-hidden": !this.showOverflow,
+      // "overflow-auto": this.showOverflow,
       "shadow-md": !this.widgetData.docked,
       "shadow-sm": this.widgetData.docked,
       "bg-opacity-95": !this.widgetData.docked,
@@ -339,32 +362,50 @@ export default class Widget extends GridMixin {
       this.sizeStartX = e.pageX
     }
 
-    if (
-      !this.styleAttributes.width ||
-      typeof this.styleAttributes.width == "string"
-    ) {
-      startingWidth = this.getCurrent("width")
-    } else {
-      startingWidth = this.styleAttributes.width
-    }
-    if (
-      !this.styleAttributes.height ||
-      typeof this.styleAttributes.height == "string"
-    ) {
+    // if (
+    //   !this.widgetData.width ||
+    //   typeof this.widgetData.width == "string"
+    // ) {
+    //   startingWidth = this.getCurrent("width")
+    // } else {
+    //   startingWidth = this.widgetData.width
+    // }
+    // if (
+    //   !this.widgetData.height ||
+    //   typeof this.widgetData.height == "string"
+    // ) {
+    //   startingHeight = this.getCurrent("height")
+    // } else {
+    //   startingHeight = this.styleAttributes.height
+    // }
+
+    // // set new size
+    // this.styleAttributes.width = Math.max(
+    //   this.minWidth,
+    //   startingWidth + e.pageX - this.sizeStartX
+    // )
+    // this.styleAttributes.height = Math.max(
+    //   this.minHeight,
+    //   startingHeight + e.pageY - this.sizeStartY
+    // )
+    // initialize size if it is still 0
+    if (!this.widgetData.height) {
       startingHeight = this.getCurrent("height")
     } else {
-      startingHeight = this.styleAttributes.height
+      startingHeight = this.widgetData.height
+    }
+    if (!this.widgetData.width) {
+      startingWidth = this.getCurrent("width")
+    } else {
+      startingWidth = this.widgetData.width
     }
 
-    // set new size
-    this.styleAttributes.width = Math.max(
-      this.minWidth,
-      startingWidth + e.pageX - this.sizeStartX
-    )
-    this.styleAttributes.height = Math.max(
-      this.minHeight,
-      startingHeight + e.pageY - this.sizeStartY
-    )
+    // TODO: add constraints to newHeight/width, based either on the widget itself, or constraints of zone?
+    const newHeight = startingHeight + e.pageY - this.sizeStartY
+    const newWidth = startingWidth + e.pageX - this.sizeStartX
+    // grid.setWidgetSize({name: this.widgetData.name, newHeight, newWidth})
+    grid.widgetSizeChange({ widget: this.widgetData, newHeight, newWidth })
+
     this.sizeStartX = e.pageX
     this.sizeStartY = e.pageY
   }
@@ -378,32 +419,24 @@ export default class Widget extends GridMixin {
       this.posStartX = e.pageX
     }
 
-    if (
-      !this.styleAttributes.position.left ||
-      typeof this.styleAttributes.position.left == "string"
-    ) {
+    if (!this.widgetData.position.x) {
       startingLeft = this.getCurrent("left")
     } else {
-      startingLeft = this.styleAttributes.position.left
+      startingLeft = this.widgetData.position.x
     }
-    if (
-      !this.styleAttributes.position.top ||
-      typeof this.styleAttributes.position.top == "string"
-    ) {
+    if (!this.widgetData.position.x) {
       startingTop = this.getCurrent("top")
     } else {
-      startingTop = this.styleAttributes.position.top
+      startingTop = this.widgetData.position.y
     }
 
     // want to avoid going under side menu completely
-    this.styleAttributes.position.left = Math.max(
-      48,
-      startingLeft + e.pageX - this.posStartX
-    )
-    this.styleAttributes.position.top = Math.max(
-      0,
-      startingTop + e.pageY - this.posStartY
-    )
+    const newPosition = {
+      x: Math.max(48, startingLeft + e.pageX - this.posStartX),
+      y: Math.max(0, startingTop + e.pageY - this.posStartY)
+    }
+    grid.setWidgetPosition({ name: this.widgetData.name, newPosition })
+
     this.posStartX = e.pageX
     this.posStartY = e.pageY
   }

@@ -10,6 +10,7 @@
       </button>
     </span>
     <div
+      v-else
       id="plant-wrapper"
       class="h-full w-full"
       @mousedown="activateWindow(true)"

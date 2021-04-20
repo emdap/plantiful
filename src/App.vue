@@ -5,7 +5,7 @@
     </div>
     <div id="container">
       <!-- <widget-controller /> -->
-      <zone-wrapper />
+      <container />
     </div>
   </div>
 </template>
@@ -14,13 +14,13 @@
 import Vue from "vue"
 import Component from "vue-class-component"
 import SideMenu from "@/views/SideMenu.vue"
-import WidgetController from "@/views/WidgetController.vue"
-import ZoneWrapper from "@/views/ZoneWrapper.vue"
+// import WidgetController from "@/views/WidgetController.vue"
+import Container from "@/views/Container.vue"
 
 @Component({
   components: {
-    WidgetController,
-    ZoneWrapper,
+    // WidgetController,
+    Container,
     SideMenu
   }
 })
