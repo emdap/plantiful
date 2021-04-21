@@ -141,6 +141,15 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
+  toggleWidgetName(payload: { name: string; forceShow?: boolean }) {
+    const { name, forceShow } = payload
+    const widget = this.getWidget(name)
+    if (widget && forceShow != undefined && widget.open != forceShow) {
+      this.toggleWidget(widget)
+    }
+  }
+
+  @Action
   toggleDocked(widget: GridWidget) {
     if (widget) {
       this.TOGGLE_DOCKED(widget.name)
@@ -265,6 +274,10 @@ export default class GridModule extends VuexModule implements GridState {
 
   @Mutation
   TOGGLE_WIDGET(name: string) {
+    // not allowing welcome and search to be open at same time for any reason
+    if (this.widgets["welcome"].open && name == "search") {
+      this.widgets["welcome"].open = false
+    }
     this.widgets[name].open = !this.widgets[name].open
   }
 

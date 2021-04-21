@@ -8,10 +8,8 @@ import { grid } from "@/mixins/GridMixin.vue"
 import {
   GrowBasis,
   GrowPlant,
-  Position,
   GrowShape,
   Plant,
-  Rotation,
   GrowData,
   GrowType,
   GrowDataKey
@@ -21,23 +19,19 @@ export const grow = getModule(GrowModule)
 
 @Component({})
 export default class GrowMixin extends Vue {
-  private ctrlDown = false
-  private shiftDown = false
-  private startY: number | null = null
-  private startX: number | null = null
-  public trackMouse = false
-
   public highlightBg = "pink-700"
   public highlightDuration = 1000
 
-  public mounted() {
-    if (!grow.hasKeyListeners) {
-      window.addEventListener("keydown", this.keyDown)
-      window.addEventListener("keyup", this.keyUp)
-      document.addEventListener("mousedown", this.mouseDown)
-      document.addEventListener("mouseup", this.mouseUp)
-      grow.addedListeners(true)
-    }
+  public toggleSearchPlants(forceShow?: boolean) {
+    grid.toggleWidgetName({ name: "search", forceShow })
+  }
+
+  public toggleControls(forceShow?: boolean) {
+    grid.toggleWidgetName({ name: "controls", forceShow })
+  }
+
+  public toggleGrow(forceShow?: boolean) {
+    grid.toggleWidgetName({ name: "grow", forceShow })
   }
 
   public get growPlants(): GrowData<GrowPlant> {
@@ -80,24 +74,11 @@ export default class GrowMixin extends Vue {
 
   @Watch("showControls")
   public openControls(show: boolean) {
-    const controlsWidget = grid.getWidget("controls")
-    if (!controlsWidget) {
-      // TODO: proper error
-      throw console.error("no widget??")
-    } else if (!controlsWidget.open && show) {
-      grid.toggleWidget(controlsWidget)
-    }
+    this.toggleControls(show)
   }
 
   public async growPlant(basePlant: Plant) {
-    // TODO: move this logic ?
-    const growWidget = grid.getWidget("grow")
-    if (!growWidget) {
-      // TODO: proper error
-      throw console.error("no widget??")
-    } else if (!growWidget.open) {
-      grid.toggleWidget(growWidget)
-    }
+    this.toggleGrow(true)
 
     const plant = await grow.growPlant({
       basePlant
@@ -162,114 +143,6 @@ export default class GrowMixin extends Vue {
   public get backgroundClass() {
     return (defaultBg: string, highlight: boolean) => {
       return "bg-" + (highlight ? this.highlightBg : defaultBg)
-    }
-  }
-
-  @Watch("trackMouse")
-  public mouseUpdatesEntity(track: boolean) {
-    if (track) {
-      document.addEventListener("mousemove", this.updateEntity)
-    } else {
-      this.startX = this.startY = null
-      document.removeEventListener("mousemove", this.updateEntity)
-    }
-  }
-
-  public updateEntity(e: MouseEvent) {
-    e.preventDefault()
-    if (!grow.activeEntity || grow.activeEntityType != "plants") {
-      console.log("mouse controls for plants only (TODO)")
-      return
-    }
-
-    const entity = grow.activeEntity
-
-    if (this.startX == null || this.startY == null) {
-      this.startX = e.pageX
-      this.startY = e.pageY
-    }
-
-    // update rotation
-    if (this.ctrlDown || this.shiftDown) {
-      const newRotations: Rotation = {
-        x: entity.rotation.x,
-        y: entity.rotation.y,
-        z: entity.rotation.z,
-        translate: entity.rotation.translate
-      }
-
-      if (this.ctrlDown && this.shiftDown) {
-        newRotations.translate += e.pageX - this.startX
-      } else if (this.ctrlDown) {
-        newRotations.z += e.pageX - this.startX
-      } else if (this.shiftDown) {
-        // rotating along x/y axis more intuitively tracks the movement of the cursor along opposite axis
-        newRotations.x += e.pageY - this.startY
-        newRotations.y += e.pageX - this.startX
-      }
-      grow.setRotation({
-        id: entity.id,
-        dataKey: "plants",
-        newRotations
-      })
-    } else {
-      // update position
-      const currentTop = (entity.position as Position).y
-      const currentLeft = (entity.position as Position).x
-      console.log(currentTop, currentLeft)
-      const newPositions: Position = {
-        y: currentTop + e.pageY - this.startY,
-        x: currentLeft + e.pageX - this.startX
-      }
-
-      grow.setPosition({ id: entity.id, dataKey: "plants", newPositions })
-    }
-    this.startY = e.pageY
-    this.startX = e.pageX
-  }
-
-  public mouseDown(e: MouseEvent) {
-    if (grow.activeEntity && grow.growWindowActive) {
-      e.preventDefault()
-      this.trackMouse = true
-    }
-  }
-
-  public mouseUp(e: MouseEvent) {
-    if (this.trackMouse) {
-      e.preventDefault()
-      this.trackMouse = false
-    }
-  }
-
-  public keyDown(e: KeyboardEvent) {
-    if (!this.activeEntity) {
-      return
-    } else if (e.key == "Escape") {
-      grow.removeActivePlant()
-      return
-    }
-    if (!this.ctrlDown && e.ctrlKey) {
-      this.ctrlDown = true
-    } else if (!this.shiftDown && e.shiftKey) {
-      this.shiftDown = true
-    }
-    if (this.trackMouse) {
-      e.preventDefault()
-    }
-  }
-
-  public keyUp(e: KeyboardEvent) {
-    if (!this.activeEntity) {
-      return
-    }
-    if (this.ctrlDown && e.key == "Control") {
-      this.ctrlDown = false
-    } else if (this.shiftDown && e.key == "Shift") {
-      this.shiftDown = false
-    }
-    if (this.trackMouse) {
-      e.preventDefault()
     }
   }
 }

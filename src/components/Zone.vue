@@ -7,7 +7,7 @@
   >
     <!-- :style="styleObj" -->
     <widget
-      v-for="widget in zoneWidgets(zoneData.id)"
+      v-for="widget in zoneOpenWidgets(zoneData)"
       :widgetData="widget"
       :key="'widget-' + widget.name"
     >

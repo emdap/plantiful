@@ -33,7 +33,7 @@
       Note that closing this Welcome window will delete the default plant! Don't
       worry, it will come back again if you re-open the Welcome window.
     </p>
-    <button class="btn-primary my-4 w-full" @click="$emit('search-plants')">
+    <button class="btn-primary my-4 w-full" @click="toggleSearchPlants">
       Start Searching
     </button>
   </section>
@@ -65,6 +65,7 @@ export default class Welcome extends GrowMixin {
   public beforeDestroy() {
     grow.removeActivePlant()
     grow.deleteEntity({ dataKey: "plants", id: this.testPlant.id })
+    this.toggleGrow(false)
   }
 }
 </script>

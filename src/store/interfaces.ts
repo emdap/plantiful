@@ -66,9 +66,7 @@ export interface GrowState {
   activeGrowPlant: GrowPlant | null
   activeEntity: GrowEntity | null
   activeEntityType: GrowDataKey | null
-  growWindowActive: boolean
   showControls: boolean
-  hasKeyListeners: boolean
 }
 
 // Plants

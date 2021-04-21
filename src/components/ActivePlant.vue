@@ -29,7 +29,7 @@
           </template>
         </li>
       </ul>
-      <slot> </slot>
+      <button class="btn-primary" @click="growPlant(activePlant)">Grow</button>
     </template>
   </div>
 </template>
@@ -38,6 +38,7 @@
 import Component, { mixins } from "vue-class-component"
 import { Watch } from "vue-property-decorator"
 import GardenMixin from "@/mixins/GardenMixin.vue"
+import GrowMixin from "@/mixins/GrowMixin.vue"
 import { ActivePlantInfo } from "@/store/interfaces"
 import Loading from "@/components/Loading.vue"
 
@@ -46,7 +47,7 @@ import Loading from "@/components/Loading.vue"
     Loading
   }
 })
-export default class ActivePlant extends GardenMixin {
+export default class ActivePlant extends mixins(GardenMixin, GrowMixin) {
   // have ability to display additional images in future
   public mainImgLoaded = false
 

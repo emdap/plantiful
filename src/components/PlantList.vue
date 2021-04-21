@@ -40,7 +40,7 @@
               ? 'cursor-wait text-gray-300'
               : 'cursor-pointer text-green-600 hover:text-pink-800'
           "
-          @click="optionClicked($event, plant.id, option.action)"
+          @click="optionClicked(plant.id, option.action)"
         >
           <x :is="option.icon" class="inline" />
         </span>
@@ -73,16 +73,17 @@ export default class PlantList extends GardenMixin {
     }
   ]
 
-  public async optionClicked(e: MouseEvent, id: number, option: string) {
+  public async optionClicked(id: number, option: string) {
     await garden.getOnePlant(id)
-    switch (option) {
-      case "show-active":
-        this.$emit("show-active")
-        break
-      case "grow-plant":
-        this.$emit("grow-plant", e)
-        break
-    }
+    this.$emit(option)
+    // switch (option) {
+    //   case "show-active":
+    //     this.toggleActivePlant(true)
+    //     break
+    //   case "grow-plant":
+    //     this.toggleGrow(true)
+    //     break
+    // }
   }
 
   @Watch("plantList")

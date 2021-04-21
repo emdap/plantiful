@@ -1,5 +1,4 @@
 <template>
-  <!-- <adjustable :widgetData="widget"> -->
   <div>
     <search-bar class="p-4" />
     <div class="relative">
@@ -14,26 +13,15 @@
         Page {{ currentPage }} of {{ lastPage }}
       </h3>
       <plant-list
-        @show-active="showActivePlant"
-        @grow-plant="$emit('grow-plant', $event)"
+        @show-active="toggleActivePlant(true)"
+        @grow-plant="growPlant(activePlant)"
         class="p-4"
       />
       <page-nav
         :class="plantListLoading ? 'text-gray-300' : 'text-green-800'"
       />
     </template>
-    <!-- </adjustable> -->
   </div>
-  <!-- <adjustable
-      v-if="plantList.length || plantLoading"
-      :widgetData="activePlantGridWidget"
-    >
-      <active-plant>
-        <button class="btn-primary" @click="$emit('grow-plant', $event)">
-          Grow
-        </button>
-      </active-plant>
-    </adjustable> -->
 </template>
 
 <script lang="ts">
@@ -44,7 +32,7 @@ import PlantList from "@/components/PlantList.vue"
 import PageNav from "@/components/PageNav.vue"
 import ActivePlant from "@/components/ActivePlant.vue"
 import GardenMixin from "@/mixins/GardenMixin.vue"
-import GridMixin from "@/mixins/GridMixin.vue"
+import GrowMixin from "@/mixins/GrowMixin.vue"
 
 @Component({
   components: {
@@ -55,5 +43,5 @@ import GridMixin from "@/mixins/GridMixin.vue"
     ActivePlant
   }
 })
-export default class PlantSearch extends mixins(GardenMixin, GridMixin) {}
+export default class PlantSearch extends mixins(GardenMixin, GrowMixin) {}
 </script>

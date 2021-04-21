@@ -29,8 +29,6 @@ import Zone from "@/components/Zone.vue"
 import containerFixture from "@/fixtures/Grid/Containers"
 import zonesFixture from "@/fixtures/Grid/Zones"
 import widgetsFixture from "@/fixtures/Grid/Widgets"
-import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
-import { Watch } from "vue-property-decorator"
 
 @Component({
   components: {

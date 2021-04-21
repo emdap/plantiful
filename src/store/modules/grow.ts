@@ -61,19 +61,12 @@ export default class GrowModule extends VuexModule implements GrowState {
   activeEntity: GrowType | null = null
   activeEntityType: GrowDataKey | null = null
 
-  growWindowActive = false
   showControls = false
-  hasKeyListeners = false
 
   public get getEntity() {
     return (dataKey: GrowDataKey, id: number) => {
       return this[dataKey][id]
     }
-  }
-
-  @Action
-  setGrowWindowActive(active: boolean) {
-    this.GROW_WINDOW_ACTIVE(active)
   }
 
   @Action
@@ -529,11 +522,6 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Action
-  addedListeners(added: boolean) {
-    this.ADDED_LISTENERS(added)
-  }
-
-  @Action
   setRotation(payload: {
     id: number
     dataKey: GrowDataKey
@@ -574,11 +562,6 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Mutation
-  GROW_WINDOW_ACTIVE(active: boolean) {
-    this.growWindowActive = active
-  }
-
-  @Mutation
   UPDATE_ROTATION(payload: {
     id: number
     dataKey: GrowDataKey
@@ -598,11 +581,6 @@ export default class GrowModule extends VuexModule implements GrowState {
     // this[dataKey][id].position = newPositions
     // plants start off with no position
     Vue.set(this[dataKey][id], "position", newPositions)
-  }
-
-  @Mutation
-  ADDED_LISTENERS(added: boolean) {
-    this.hasKeyListeners = added
   }
 
   @Mutation

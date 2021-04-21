@@ -2,6 +2,8 @@
 import Vue from "vue"
 import Component from "vue-class-component"
 import { getModule } from "vuex-module-decorators"
+import { grid } from "@/mixins/GridMixin.vue"
+import { grow } from "@/mixins/GrowMixin.vue"
 import GardenModule from "@/store/modules/garden"
 import { gardenMessages } from "@/fixtures/Messages"
 
@@ -9,6 +11,14 @@ export const garden = getModule(GardenModule)
 
 @Component({})
 export default class GardenMixin extends Vue {
+  public toggleActivePlant(forceShow?: boolean) {
+    grid.toggleWidgetName({ name: "active-plant", forceShow })
+  }
+
+  public toggleGrow(forceShow?: boolean) {
+    grid.toggleWidgetName({ name: "grow", forceShow })
+  }
+
   public get gardenMessages() {
     return gardenMessages
   }
