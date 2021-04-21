@@ -1,9 +1,9 @@
 <template>
   <div>
     <div
-      v-if="expanded"
       @click="expanded = false"
-      class="absolute top-0 left-0 h-screen w-screen bg-green-900 bg-opacity-70"
+      class="absolute top-0 left-0 bg-green-900 transition-opacity duration-500"
+      :class="expanded ? 'h-screen w-screen opacity-70' : 'h-0 w-0 opacity-0'"
     />
     <div
       id="side-menu"
@@ -11,8 +11,12 @@
       :class="expanded ? 'w-52' : 'w-12'"
     >
       <div
-        :class="expanded ? 'text-green-700' : 'text-gray-500'"
-        class="self-end mb-6 cursor-pointer fill-current hover:text-pink-600"
+        :class="
+          expanded
+            ? 'text-green-700 hover:text-pink-800'
+            : 'text-gray-500  hover:text-pink-400'
+        "
+        class="self-end mb-6 cursor-pointer fill-current"
         @click="expanded = !expanded"
       >
         <arrow-icon
