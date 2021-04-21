@@ -274,7 +274,6 @@ export type BranchOutGlobals = {
   clustersWithLeaves: { leafCluster: GrowLeafCluster; leaves: GrowLeaf[] }[]
   flowersWithPetals: { flower: GrowFlower; petals: GrowPetal[] }[]
   plantOptions: PlantOptions
-  // leafClusterOptions: LeafClusterOptions
 }
 
 export type BranchOutOptions = {
@@ -321,7 +320,6 @@ export interface ClusterOptions {
 
 export interface LeafClusterOptions extends ClusterOptions {
   texture: LeafTexture
-  // custom?: LeafOptions
 }
 
 export interface FlowerOptions extends ClusterOptions {
@@ -334,9 +332,6 @@ export interface BranchOptions {
   branchWidth: number
   angle: number
   growthHeight: number
-  // hasLeaf: boolean
-  // hasFlower: boolean
-  // zIndex: number
 }
 
 export interface PlantOptions {
@@ -437,16 +432,11 @@ export interface DropdownControl<Type> extends ControlBase<Type> {
   options: readonly string[] | readonly number[]
 }
 
-const plant = {} as GrowPlant
-type test = keyof typeof plant.rotation
-
 export type NestedControl<Parent, Child> = {
   property: keyof Parent
   text: string
   children: Control<Child>[]
 }
-
-// type ControlTypes = GrowPlant | GrowBranch | GrowLeafCluster | PlantOptions | LeafOptions
 
 export type AnyControl<Parent, Child> =
   | Control<Parent>
@@ -456,23 +446,10 @@ export type AnyControl<Parent, Child> =
 export type ControlList<Parent, Child = {}> = AnyControl<Parent, Child>[]
 
 // Grid
-// export interface Widget {
-//   name: string
-//   text: string
-//   order: number // higher order = higher z index
-//   icon?: string
-//   open: boolean
-//   isDocked?: boolean
-//   launchDocked: boolean
-//   inMenu: boolean
-//   display: WidgetDisplay
-// }
-
 export interface GridWidget {
   name: string
   component: VueConstructor<Vue>
   text: string
-  // order: number // higher order = higher z index
   open: boolean
   docked: boolean
   height: number
@@ -480,9 +457,6 @@ export interface GridWidget {
   position: Position
   defaultZone: number
   currentZone?: number
-  // launchDocked: boolean
-  // inMenu: boolean
-  // display: WidgetDisplay
 }
 
 export const MenuGroups = [
@@ -493,7 +467,6 @@ export const MenuGroups = [
 
 export interface MenuWidget {
   widgetName: string
-  // text: string
   icon: string
   group: typeof MenuGroups[number]
 }
@@ -509,23 +482,6 @@ export interface WidgetDisplay {
   minHeight?: number
   minWidth?: number
 }
-
-// export interface WidgetInit {
-//   entity: Widget
-//   display: WidgetDisplay
-// }
-
-// export type WidgetPosition = {
-//   [key in RequiredPositions]: number | string
-// }
-
-// widget info that is NOT stored in state, modified directly from Widget.vue
-// export interface WidgetBasis extends InteractableBasis {
-// position: Position
-// height: number | string | undefined
-// width: number | string | undefined
-// zIndex: number
-// }
 
 export const GridContainerAreas = [
   "z-0",

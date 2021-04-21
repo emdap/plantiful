@@ -80,84 +80,16 @@ export default class Widget extends GridMixin {
   @Prop({ required: true }) widgetData!: GridWidget
   @Ref("move-icon") moveIcon!: HTMLElement
 
-  // public minHeight = 0
-  // public minWidth = 0
-  // public flexGrow = false
-  // public showOverflow = false
   public trackPosition = false
   public trackSize = false
   public sizeStart: Position | null = null
   public posStart: Position | null = null
-  // public sizeStartY: null | number = null
-  // public sizeStartX: null | number = null
-  // public posStartY: null | number = null
-  // public posStartX: null | number = null
   public inFocus = false
 
-  // initialize so that user-modifiable properties are reactive
-  // public styleAttributes: WidgetBasis = this.initStyle
-
   public mounted() {
-    // this.initializeWidget()
     this.initMouseUpListeners()
     this.setToCurrent()
-    // this.styleAttributes = this.initStyle
   }
-
-  // Initializers
-  // public setToCurrent() {
-  //   const { width, height, x, y } = this.$el.getBoundingClientRect()
-  //   grid.setWidgetPosition({
-  //     name: this.widgetData.name,
-  //     newPosition: { x, y }
-  //   })
-
-  // if (this.widgetData.currentZone) {
-  //   const zoneElem = document.getElementById(
-  //     "z-" + this.widgetData.currentZone
-  //   )
-  //   if (zoneElem instanceof HTMLElement) {
-  //     const { width, height, x, y } = zoneElem.getBoundingClientRect()
-  //     // grid.setWidgetSize({
-  //     //   name: this.widgetData.name,
-  //     //   newHeight: height,
-  //     //   newWidth: width
-  //     // })
-  //     grid.setWidgetPosition({
-  //       name: this.widgetData.name,
-  //       newPosition: {
-  //         x,
-  //         y
-  //       }
-  //     })
-  //   }
-  // assign default values where needed from initDisplay/entity props
-  // }
-  // if (this.widgetData.display.minHeight) {
-  //   this.minHeight = this.widgetData.display.minHeight
-  // }
-  // if (this.widgetData.display.minWidth) {
-  //   this.minWidth = this.widgetData.display.minWidth
-  // }
-  // if (this.widgetData.display.flexGrow) {
-  //   this.flexGrow = this.widgetData.display.flexGrow
-  // }
-  // if (this.widgetData.display.showOverflow) {
-  //   this.showOverflow = this.widgetData.display.showOverflow
-  // }
-  // }
-
-  // public get initStyle(): WidgetBasis {
-  //   return {
-  //     position: {
-  //       top: this.convertSize(this.widgetData.position.y),
-  //       left: this.convertSize(this.widgetData.position.x)
-  //     },
-  //     height: this.convertSize(this.widgetData.height, "height"),
-  //     width: this.convertSize(this.widgetData.width, "width"),
-  //     zIndex: 10
-  //   }
-  // }
 
   public initMouseUpListeners() {
     // stop tracking position/size when mouse is up
@@ -174,68 +106,6 @@ export default class Widget extends GridMixin {
   }
 
   // Utilities
-
-  // public convertSize(
-  //   convertValue: string | number | undefined,
-  //   dimension: Dimensions | undefined = undefined
-  // ): string | number {
-  //   switch (typeof convertValue) {
-  //     case "string":
-  //       if (convertValue == "full") {
-  //         return "100%"
-  //       } else if (convertValue == "screen") {
-  //         return dimension == "width" ? "100vw" : "100vh"
-  //       }
-  //       return convertValue as string
-  //     case "undefined":
-  //       return ""
-  //     default:
-  //       return `${convertValue}px`
-  //   }
-  // }
-
-  // public setToCurrent(which: "size" | "position") {
-  //   // set properties to the current actual values of the element in the DOM
-  //   if (!this.inDOM()) {
-  //     // all properties are 0, likely isn't rendered in DOM fully yet
-  //     return
-  //   }
-  //   if (which == "size") {
-  //     const newHeight = this.getCurrent("height")
-  //     const newWidth = this.getCurrent("width")
-  //     // grid.setWidgetSize({name: this.widgetData.name, newHeight, newWidth})
-  //     grid.setWidgetSize({ widget: this.widgetData, newHeight, newWidth })
-  //   }
-  //   if (which == "position") {
-  //     const newPosition = {
-  //       x: this.getCurrent("left"),
-  //       y: this.getCurrent("top")
-  //     }
-  //     grid.setWidgetPosition({ name: this.widgetData.name, newPosition })
-  //   }
-  // }
-
-  // public inDOM() {
-  //   // getBoundingClientRect doesn't return a proper object
-  //   const {
-  //     top,
-  //     right,
-  //     bottom,
-  //     left,
-  //     width,
-  //     height,
-  //     x,
-  //     y
-  //   } = this.$el.getBoundingClientRect()
-  //   const rec = { top, right, bottom, left, width, height, x, y }
-  //   for (const value of Object.values(rec)) {
-  //     if (value != 0) {
-  //       return true
-  //     }
-  //   }
-  //   return false
-  // }
-
   public getCurrentRect() {
     const el = this.$el as HTMLElement
     const { width, height, x, y } = el.getBoundingClientRect()
@@ -251,25 +121,6 @@ export default class Widget extends GridMixin {
       offsetY
     }
   }
-
-  // Watchers
-  // @Watch("widgetData.isDocked")
-  // dockChanged(docked: boolean) {
-  //   if (!docked) {
-  //     // update size/position so that won't snap when undocking
-  //     this.setToCurrent("position")
-  //     this.setToCurrent("size")
-  //   }
-  // }
-
-  // @Watch("widgetData.open")
-  // openChanged(open: boolean) {
-  //   // reset to defaults so that reverts when next opened
-  //   if (!open) {
-  //     // this.styleAttributes = this.initStyle
-  //     grid.resetWidget(this.widgetData)
-  //   }
-  // }
 
   @Watch("trackSize")
   mouseUpdatesSize(track: boolean) {
@@ -306,21 +157,10 @@ export default class Widget extends GridMixin {
       // TODO: revisit this logic/align with active widget in state?
       "z-index": this.inFocus ? 100 : 50
     }
-    // } else {
-    //   // height/width start off at 0 when docked, before any user-resizing
-    //   return {
-    //     height: this.widgetData.height ? this.widgetData.height + "px" : "100%",
-    //     width: this.widgetData.width ? this.widgetData.width + "px" : "100%",
-    //     position: "relative"
-    //   }
-    // }
   }
 
   public get classObj(): Record<string, boolean> {
     return {
-      // "flex-grow": this.flexGrow && this.widgetData.docked,
-      // "overflow-hidden": !this.showOverflow,
-      // "overflow-auto": this.showOverflow,
       "shadow-md": !this.widgetData.docked,
       "shadow-sm": this.widgetData.docked,
       "bg-opacity-95": !this.widgetData.docked,
@@ -373,32 +213,6 @@ export default class Widget extends GridMixin {
       }
     }
 
-    // if (
-    //   !this.widgetData.width ||
-    //   typeof this.widgetData.width == "string"
-    // ) {
-    //   startWidth = this.getCurrent("width")
-    // } else {
-    //   startWidth = this.widgetData.width
-    // }
-    // if (
-    //   !this.widgetData.height ||
-    //   typeof this.widgetData.height == "string"
-    // ) {
-    //   startHeight = this.getCurrent("height")
-    // } else {
-    //   startHeight = this.styleAttributes.height
-    // }
-
-    // // set new size
-    // this.styleAttributes.width = Math.max(
-    //   this.minWidth,
-    //   startWidth + e.pageX - this.sizeStartX
-    // )
-    // this.styleAttributes.height = Math.max(
-    //   this.minHeight,
-    //   startHeight + e.pageY - this.sizeStartY
-    // )
     // initialize size if it is still 0
     if (!this.widgetData.height || !this.widgetData.width) {
       const { height, width } = this.getCurrentRect()
@@ -409,7 +223,6 @@ export default class Widget extends GridMixin {
       startWidth = this.widgetData.width
     }
 
-    // TODO: add constraints to newHeight/width, based either on the widget itself, or constraints of zone?
     const newHeight = Math.min(
       grid.overallHeight,
       startHeight + e.pageY - this.sizeStart.y
@@ -418,7 +231,6 @@ export default class Widget extends GridMixin {
       grid.overallWidth,
       startWidth + e.pageX - this.sizeStart.x
     )
-    // grid.setWidgetSize({name: this.widgetData.name, newHeight, newWidth})
     grid.setWidgetSize({
       widget: this.widgetData,
       setZone: this.widgetData.docked,

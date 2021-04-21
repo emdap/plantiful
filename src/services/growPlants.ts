@@ -490,11 +490,7 @@ export function processPlantOptions(plantOptions: PlantOptions) {
   }
 }
 
-export function createPlant(
-  basePlant: Plant,
-  // position: Position,
-  convertColors: boolean
-) {
+export function createPlant(basePlant: Plant, convertColors: boolean) {
   const plantOptions = util.getPlantOptions(basePlant, convertColors)
 
   const {
@@ -503,7 +499,6 @@ export function createPlant(
     flowersWithPetals,
     plant
   } = processPlantOptions(plantOptions)
-  // const adjustedPosition = { x: position.x, y: position.y + plant.height / 2 }
 
   const newPlant: GrowPlant = {
     id: 0,
@@ -511,7 +506,6 @@ export function createPlant(
     plantId: basePlant.main_species_id, // see comment in garden module @Mutation CACHE_PLANT
     showName: true,
     zIndex: 10,
-    // position: adjustedPosition,
     rotation: NO_ROTATION(),
     branches: [],
     leafClusters: [],

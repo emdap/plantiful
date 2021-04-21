@@ -38,20 +38,16 @@
 
 <script lang="ts">
 import Component, { mixins } from "vue-class-component"
-// import Adjustable from "@/components/Widget.vue"
 import Loading from "@/components/Loading.vue"
 import SearchBar from "@/components/SearchBar.vue"
 import PlantList from "@/components/PlantList.vue"
 import PageNav from "@/components/PageNav.vue"
 import ActivePlant from "@/components/ActivePlant.vue"
 import GardenMixin from "@/mixins/GardenMixin.vue"
-import GridMixin, { grid } from "@/mixins/GridMixin.vue"
-import { GridWidget } from "@/store/interfaces"
-import { Prop } from "vue-property-decorator"
+import GridMixin from "@/mixins/GridMixin.vue"
 
 @Component({
   components: {
-    // Adjustable,
     Loading,
     SearchBar,
     PlantList,
@@ -59,17 +55,5 @@ import { Prop } from "vue-property-decorator"
     ActivePlant
   }
 })
-export default class PlantSearch extends mixins(GardenMixin, GridMixin) {
-  // @Prop({ default: 0 }) plantSearchSize!: number
-  // @Prop({ required: true }) widget!: GridWidgetCopy
-  // @Prop({ required: true }) activePlantGridWidget!: GridWidgetCopy
-  // public mounted() {
-  //   console.log(this.widget)
-  // }
-  // public showActivePlant() {
-  //   if (!this.activePlantGridWidget.open) {
-  //     grid.toggleGridWidget(this.activePlantGridWidget)
-  //   }
-  // }
-}
+export default class PlantSearch extends mixins(GardenMixin, GridMixin) {}
 </script>

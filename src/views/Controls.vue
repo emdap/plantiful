@@ -143,7 +143,6 @@ export default class Controls extends GrowMixin {
       },
       leaves: {
         show: false,
-        // onEntity: [] as ControlList<never, never>,
         onOptions: controlLists.leafOptionsControls
       },
       flowers: {
@@ -153,7 +152,6 @@ export default class Controls extends GrowMixin {
       },
       petals: {
         show: false,
-        // onEntity: [] as ControlList<never, never>,
         onOptions: controlLists.petalOptionsControls
       }
     }
@@ -284,13 +282,6 @@ export default class Controls extends GrowMixin {
           break
       }
       return singular + " Controls"
-      // if (section == "leafClusters") {
-      //   return "Leaf Cluster Controls"
-      // }
-      // return `${section[0].toUpperCase()}${section.substring(
-      //   1,
-      //   section.length - 1
-      // )} Controls`
     }
   }
 

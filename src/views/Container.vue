@@ -14,11 +14,6 @@
           :key="'zone-' + zone.id"
           :zoneData="zone"
         >
-          <!-- <template v-for="widget in zoneWidgets(zone.id)">
-            <widget :widgetData="widget" :key="'widget-' + widget.id">
-              <x :is="widget.component" />
-            </widget>
-          </template> -->
         </zone>
       </template>
     </div>
@@ -28,11 +23,14 @@
 <script lang="ts">
 import Vue from "vue"
 import Component from "vue-class-component"
+import { grow } from "@/mixins/GrowMixin.vue"
 import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import Zone from "@/components/Zone.vue"
 import containerFixture from "@/fixtures/Grid/Containers"
 import zonesFixture from "@/fixtures/Grid/Zones"
 import widgetsFixture from "@/fixtures/Grid/Widgets"
+import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
+import { Watch } from "vue-property-decorator"
 
 @Component({
   components: {

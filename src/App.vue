@@ -14,12 +14,10 @@
 import Vue from "vue"
 import Component from "vue-class-component"
 import SideMenu from "@/views/SideMenu.vue"
-// import WidgetController from "@/views/WidgetController.vue"
 import Container from "@/views/Container.vue"
 
 @Component({
   components: {
-    // WidgetController,
     Container,
     SideMenu
   }
@@ -33,7 +31,6 @@ body {
 }
 
 #app {
-  // font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

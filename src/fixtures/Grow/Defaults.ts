@@ -57,18 +57,6 @@ export const DEFAULT_PLANT_OPTIONS: PlantOptions = {
   leafDensity: 5
 }
 
-// export const BRANCH_INIT = (): BranchOptions => {
-//   return {
-//     startPoint: NO_POSITION(),
-//     branchHeight: 50,
-//     branchWidth: 5,
-//     angle: 45,
-//     // hasLeaf: false,
-//     // hasFlower: false,
-//     // zIndex: 10,
-//   }
-// }
-
 export const NO_ROTATION = () => {
   return {
     x: 0,
@@ -84,24 +72,6 @@ export const NO_POSITION = () => {
     x: 0
   }
 }
-
-// export const PLANT_ENTITY_INIT = (): GrowBasis => {
-//   return {
-//     position: {
-//       y: 100,
-//       x: 0
-//     },
-//     rotation: {
-//       x: 0,
-//       y: 0,
-//       z: 0,
-//       translate: 0,
-//     },
-//     height: 0,
-//     width: 200,
-//     zIndex: 10
-//   }
-// }
 
 export const TEST_PLANT: Plant = {
   // I modified this

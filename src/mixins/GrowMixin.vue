@@ -99,21 +99,6 @@ export default class GrowMixin extends Vue {
       grid.toggleWidget(growWidget)
     }
 
-    // widget element might not be positioned/styled/exist yet, use dims of entire container instead
-    // const growWidgetElem = document.getElementById("grow") as HTMLElement
-    // const containerElem = document.getElementById(
-    //   "plant-playground"
-    // ) as HTMLElement
-    // const elemRef = growWidgetElem ? growWidgetElem : containerElem
-
-    // const growWidgetElWidth = elemRef.getBoundingClientRect().width
-    // const growWidgetElHeight = elemRef.getBoundingClientRect().height
-
-    // const position: Position = {
-    //   x: growWidgetElWidth / 2,
-    //   y: growWidgetElHeight / 2
-    // }
-
     const plant = await grow.growPlant({
       basePlant
     })

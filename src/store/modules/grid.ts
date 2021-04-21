@@ -25,45 +25,45 @@ export default class GridModule extends VuexModule implements GridState {
   overallHeight = 0
   overallWidth = 0
 
-  public get widgetMessages() {
+  get widgetMessages() {
     return widgetMessages
   }
 
-  public get getWidget() {
+  get getWidget() {
     return (name: string): GridWidget => {
       return this.widgets[name]
     }
   }
 
-  public get getZone() {
+  get getZone() {
     return (id: number): GridZone => {
       return this.zones[id]
     }
   }
 
-  public get getContainer() {
+  get getContainer() {
     return (id: number): GridContainer => {
       return this.containers[id]
     }
   }
 
   @Action
-  public setGridSize(payload: { height: number; width: number }) {
+  setGridSize(payload: { height: number; width: number }) {
     this.SET_GRID_SIZE(payload)
   }
 
   @Action
-  public addZone(zone: GridZone) {
+  addZone(zone: GridZone) {
     this.ADD_ZONE(zone)
   }
 
   @Action
-  public addContainer(container: GridContainer) {
+  addContainer(container: GridContainer) {
     this.ADD_CONTAINER(container)
   }
 
   @Action
-  public addWidget(widget: GridWidget) {
+  addWidget(widget: GridWidget) {
     this.ADD_WIDGET(widget)
     this.WIDGET_ZONE({ name: widget.name, zoneId: widget.defaultZone })
     this.ZONE_WIDGETS({
@@ -72,35 +72,16 @@ export default class GridModule extends VuexModule implements GridState {
     })
   }
 
-  // @Action
-  // public resetWidget(widget: GridWidget) {
-  //   if (!widget.docked) {
-  //     this.TOGGLE_DOCKED(widget.name)
-  //   }
-  //   if (widget.currentZone != widget.defaultZone) {
-  //     this.WIDGET_ZONE
-  //   }
-  // }
-
   @Action
-  public widgetToZone(payload: { name: string; zoneId: number }) {
+  widgetToZone(payload: { name: string; zoneId: number }) {
     const { name, zoneId } = payload
     const prevZoneId = this.getWidget(name).currentZone
     this.ZONE_WIDGETS({ widgetName: name, newZoneId: zoneId, prevZoneId })
     this.WIDGET_ZONE(payload)
   }
 
-  // @Action
-  // public setWidgetSize(payload: {
-  //   name: string
-  //   newHeight: number
-  //   newWidth: number
-  // }) {
-  //   this.WIDGET_SIZE(payload)
-  // }
-
   @Action
-  public setWidgetSize(payload: {
+  setWidgetSize(payload: {
     widget: GridWidget
     setZone: boolean
     newHeight: number
@@ -115,12 +96,12 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
-  public setWidgetPosition(payload: { name: string; newPosition: Position }) {
+  setWidgetPosition(payload: { name: string; newPosition: Position }) {
     this.WIDGET_POSITION(payload)
   }
 
   @Action
-  public setZonePosition(payload: {
+  setZonePosition(payload: {
     id: number
     newStart: Position
     newEnd: Position
@@ -129,7 +110,7 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
-  public setActive(payload: { which: "widget" | "zone"; id: string | number }) {
+  setActive(payload: { which: "widget" | "zone"; id: string | number }) {
     const { which, id } = payload
     if (which == "widget" && typeof id == "string") {
       this.ACTIVE_WIDGET(id)
@@ -139,33 +120,16 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
-  public removeActive(which: "widget" | "zone") {
+  removeActive(which: "widget" | "zone") {
     if (which == "widget") {
       this.ACTIVE_WIDGET(null)
     } else {
       this.ACTIVE_ZONE(null)
     }
   }
-  // @Action
-  // public registerWidget(widget: GridWidget) {
-  //   if (!widget.name) {
-  //     throw console.error(this.widgetMessages.registerError)
-  //   }
-  //   if (!this.getWidget(widget.name)) {
-  //     this.REGISTER_WIDGET(widget)
-  //     // this.SORT_WIDGETS()
-  //   }
-  // }
-
-  // @Action
-  // public toggleFocus(widget: GridWidget) {
-  //   if (widget) {
-  //     this.TOGGLE_FOCUS(widget)
-  //   }
-  // }
 
   @Action
-  public toggleWidget(widget: GridWidget) {
+  toggleWidget(widget: GridWidget) {
     if (widget) {
       this.TOGGLE_WIDGET(widget.name)
       // initialize docked & in default zone for next open
@@ -177,7 +141,7 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
-  public toggleDocked(widget: GridWidget) {
+  toggleDocked(widget: GridWidget) {
     if (widget) {
       this.TOGGLE_DOCKED(widget.name)
       // TODO: add code for assigning to nearest zone
@@ -185,7 +149,7 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  public WIDGET_ZONE(payload: { name: string; zoneId: number }) {
+  WIDGET_ZONE(payload: { name: string; zoneId: number }) {
     const { name, zoneId } = payload
     const widget = this.widgets[name]
 
@@ -198,7 +162,7 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  public ZONE_WIDGETS(payload: {
+  ZONE_WIDGETS(payload: {
     widgetName: string
     newZoneId: number
     prevZoneId?: number
@@ -235,11 +199,7 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  public WIDGET_SIZE(payload: {
-    name: string
-    newHeight: number
-    newWidth: number
-  }) {
+  WIDGET_SIZE(payload: { name: string; newHeight: number; newWidth: number }) {
     const { name, newHeight, newWidth } = payload
     const widget = this.widgets[name]
     widget.height = newHeight
@@ -247,11 +207,7 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  public ZONE_SIZE(payload: {
-    id: number
-    newHeight: number
-    newWidth: number
-  }) {
+  ZONE_SIZE(payload: { id: number; newHeight: number; newWidth: number }) {
     const { id, newHeight, newWidth } = payload
     const zone = this.zones[id]
     zone.height = newHeight
@@ -259,18 +215,14 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  public WIDGET_POSITION(payload: { name: string; newPosition: Position }) {
+  WIDGET_POSITION(payload: { name: string; newPosition: Position }) {
     const { name, newPosition } = payload
     const widget = this.widgets[name]
     widget.position = newPosition
   }
 
   @Mutation
-  public ZONE_POSITION(payload: {
-    id: number
-    newStart: Position
-    newEnd: Position
-  }) {
+  ZONE_POSITION(payload: { id: number; newStart: Position; newEnd: Position }) {
     const { id, newStart, newEnd } = payload
     const zone = this.zones[id]
 
@@ -279,7 +231,7 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  public ACTIVE_WIDGET(id: string | null) {
+  ACTIVE_WIDGET(id: string | null) {
     if (id) {
       this.activeWidget = this.widgets[id]
     } else {
@@ -288,7 +240,7 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  public ACTIVE_ZONE(id: number | null) {
+  ACTIVE_ZONE(id: number | null) {
     if (id) {
       this.activeZone = this.zones[id]
     } else {
@@ -297,32 +249,32 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  public ADD_WIDGET(widget: GridWidget) {
+  ADD_WIDGET(widget: GridWidget) {
     Vue.set(this.widgets, widget.name, widget)
   }
 
   @Mutation
-  public ADD_ZONE(zone: GridZone) {
+  ADD_ZONE(zone: GridZone) {
     Vue.set(this.zones, zone.id, zone)
   }
 
   @Mutation
-  public ADD_CONTAINER(container: GridContainer) {
+  ADD_CONTAINER(container: GridContainer) {
     Vue.set(this.containers, container.id, container)
   }
 
   @Mutation
-  public TOGGLE_WIDGET(name: string) {
+  TOGGLE_WIDGET(name: string) {
     this.widgets[name].open = !this.widgets[name].open
   }
 
   @Mutation
-  public TOGGLE_DOCKED(name: string) {
+  TOGGLE_DOCKED(name: string) {
     this.widgets[name].docked = !this.widgets[name].docked
   }
 
   @Mutation
-  public SET_GRID_SIZE(payload: { height: number; width: number }) {
+  SET_GRID_SIZE(payload: { height: number; width: number }) {
     this.overallHeight = payload.height
     this.overallWidth = payload.width
   }

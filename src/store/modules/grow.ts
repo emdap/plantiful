@@ -60,6 +60,7 @@ export default class GrowModule extends VuexModule implements GrowState {
   activeGrowPlant: GrowPlant | null = null
   activeEntity: GrowType | null = null
   activeEntityType: GrowDataKey | null = null
+
   growWindowActive = false
   showControls = false
   hasKeyListeners = false

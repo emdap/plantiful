@@ -20,14 +20,6 @@ export default class GridMixin extends Vue {
     }).length
   }
 
-  // public get widgets() {
-  //   return Object.values(grid.widgets)
-  // }
-
-  // public get zones() {
-  //   return Object.values(grid.zones)
-  // }
-
   public get containers() {
     return Object.values(grid.containers)
   }
@@ -69,14 +61,12 @@ export default class GridMixin extends Vue {
 
   public get getWidget() {
     return (name: string): GridWidget => {
-      //   return grid.getWidget(name)
       return grid.getWidget(name)
     }
   }
 
   public get getZone() {
     return (id: number): GridZone => {
-      //   return grid.getWidget(name)
       return grid.getZone(id)
     }
   }

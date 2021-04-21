@@ -27,8 +27,6 @@ import Component from "vue-class-component"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import Plant from "@/components/Grow/Plant.vue"
 import Controls from "@/views/Controls.vue"
-import { GridWidget } from "@/store/interfaces"
-import { Prop } from "vue-property-decorator"
 
 @Component({
   components: {
@@ -37,9 +35,6 @@ import { Prop } from "vue-property-decorator"
   }
 })
 export default class Grow extends GrowMixin {
-  // @Prop({ required: true }) widget!: GridWidgetCopy
-  // @Prop({ required: true }) controlsGridWidget!: GridWidget
-
   public removeActive() {
     grow.removeActivePlant()
   }

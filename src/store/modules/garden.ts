@@ -32,7 +32,7 @@ export default class GardenModule extends VuexModule implements GardenState {
   readonly resultsPerPage: number = 20
 
   @Action
-  public async getPlantList(payload: PlantListPayload) {
+  async getPlantList(payload: PlantListPayload) {
     let apiFunc: (payload: PlantListPayload) => Promise<PlantListResponse>
     // different API endpoint if user has a search query (?q="onion")
     if (payload.query.length) {
@@ -63,7 +63,7 @@ export default class GardenModule extends VuexModule implements GardenState {
   }
 
   @Action
-  public async getOnePlant(id: number) {
+  async getOnePlant(id: number) {
     let plant!: Plant
 
     if (this.plantCache[id]) {
@@ -85,7 +85,7 @@ export default class GardenModule extends VuexModule implements GardenState {
   }
 
   @Action
-  public async getPageByLink(payload: PageLinkPayload) {
+  async getPageByLink(payload: PageLinkPayload) {
     const { page, apiLink } = payload
     let pageData!: PlantListResponse
     this.SET_LOADING({ which: "plantList", loading: true })
@@ -107,17 +107,17 @@ export default class GardenModule extends VuexModule implements GardenState {
   }
 
   @Mutation
-  public CACHE_PAGE(payload: { page: number; pageData: PlantListResponse }) {
+  CACHE_PAGE(payload: { page: number; pageData: PlantListResponse }) {
     this.pageCache[payload.page] = payload.pageData
   }
 
   @Mutation
-  public CLEAR_PAGE_CACHE() {
+  CLEAR_PAGE_CACHE() {
     this.pageCache = {}
   }
 
   @Mutation
-  public CACHE_PLANT(plant: Plant) {
+  CACHE_PLANT(plant: Plant) {
     // confusing in API: when searching list of plants, plants returned have id property (id1)
     // when searching ONE plant, plant returned has id property (id2), and main_species_id property (id3)
     // id1 != id2, but id1 == id3
@@ -126,18 +126,12 @@ export default class GardenModule extends VuexModule implements GardenState {
   }
 
   @Mutation
-  public SET_LOADING(payload: {
-    which: "plantList" | "plant"
-    loading: boolean
-  }) {
+  SET_LOADING(payload: { which: "plantList" | "plant"; loading: boolean }) {
     this.loading[payload.which] = payload.loading
   }
 
   @Mutation
-  public PLANT_LIST_SUCCESS(payload: {
-    page: number
-    pageData: PlantListResponse
-  }) {
+  PLANT_LIST_SUCCESS(payload: { page: number; pageData: PlantListResponse }) {
     const { page, pageData } = payload
     this.currentPage = page
     this.plantList = pageData.data
@@ -147,12 +141,12 @@ export default class GardenModule extends VuexModule implements GardenState {
   }
 
   @Mutation
-  public SET_ACTIVE_PLANT(plant: Plant) {
+  SET_ACTIVE_PLANT(plant: Plant) {
     this.activePlant = plant
   }
 
   @Mutation
-  public RESET_ACTIVE_PLANT() {
+  RESET_ACTIVE_PLANT() {
     this.activePlant = null
   }
 

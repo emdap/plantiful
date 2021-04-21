@@ -1,5 +1,4 @@
 <template>
-  <!-- <adjustable :widgetData="widget"> -->
   <section id="welcome" class="text-left font-medium flex-grow overflow-auto">
     <h1 class="text-green-800 text-center">Welcome</h1>
     <p class="mb-4">
@@ -38,14 +37,11 @@
       Start Searching
     </button>
   </section>
-  <!-- </adjustable> -->
 </template>
 
 <script lang="ts">
-// import GridMixin from "@/mixins/GridMixin.vue"
 import Component from "vue-class-component"
 import Plant from "@/components/Grow/Plant.vue"
-import { Watch } from "vue-property-decorator"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
 import { GrowPlant } from "@/store/interfaces"
@@ -55,14 +51,8 @@ import { GrowPlant } from "@/store/interfaces"
     Plant
   }
 })
-// export default class Welcome extends mixins(GridMixin, GrowMixin) {
 export default class Welcome extends GrowMixin {
-  // @Prop({required: true}) widget!: WidgetCopy
   public testPlant = {} as GrowPlant
-
-  // public get welcomeWidget() {
-  //   return this.getWidget("welcome")
-  // }
 
   public mounted() {
     this.growTestPlant()
@@ -70,26 +60,11 @@ export default class Welcome extends GrowMixin {
 
   public async growTestPlant() {
     this.testPlant = await this.growPlant(TEST_PLANT)
-    // want to toggle the animation
-    // grow.removeActivePlant()
-    // const clusterWait = this.testPlant.leafClusters.length / 2
-    // leaves in leafCluster all have same order as the cluster
-    // leaf animation takes (order * 300 + 550) to complete
-    // leafClusters at same level of plant on opposite (left/right) branches = same order
-    // plant is mostly symmetrical -> max order ~= # of leafClusters / 2
-    // setTimeout(() => {
-    //   grow.setActivePlant(this.testPlant.id)
-    // }, clusterWait * 300 + 550)
   }
 
-  // @Watch("welcomeWidget.open")
-  // public welcomeClosed(nowOpen: boolean) {
-  //   if (nowOpen) {
-  //     this.growTestPlant()
-  //   } else {
-  //     grow.removeActivePlant()
-  //     grow.deleteEntity({ dataKey: "plants", id: this.testPlant.id })
-  //   }
-  // }
+  public beforeDestroy() {
+    grow.removeActivePlant()
+    grow.deleteEntity({ dataKey: "plants", id: this.testPlant.id })
+  }
 }
 </script>

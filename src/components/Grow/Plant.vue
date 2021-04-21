@@ -44,7 +44,6 @@ import Component from "vue-class-component"
 import { Prop, Watch } from "vue-property-decorator"
 import Shape from "@/components/Grow/Shape.vue"
 import Branch from "@/components/Grow/Branch.vue"
-// import LeafCluster from "@/components/Grow/LeafCluster.vue"
 import Cluster from "@/components/Grow/Cluster.vue"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import { NO_POSITION, NO_ROTATION } from "@/fixtures/Grow/Defaults"
@@ -107,7 +106,6 @@ export default class Plant extends GrowMixin {
   }
 
   public get plantActive(): boolean {
-    // return grow.activeEntityType == "plants" &&
     return grow.activeGrowPlant?.id == this.plantData.id
   }
 

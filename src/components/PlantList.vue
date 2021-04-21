@@ -53,7 +53,6 @@
 import Component from "vue-class-component"
 import GardenMixin, { garden } from "@/mixins/GardenMixin.vue"
 import { Ref, Watch } from "vue-property-decorator"
-// import DropDownIcon from "@/assets/icons/drop-down.svg"
 import PlantLineIcon from "@/assets/icons/plant-line.svg"
 import PopOutIcon from "@/assets/icons/pop-out.svg"
 
@@ -62,11 +61,6 @@ export default class PlantList extends GardenMixin {
   @Ref("plant-list") readonly plantListDiv!: HTMLDivElement
 
   public plantListOptions = [
-    // {
-    //   icon: DropDownIcon,
-    //   text: "Show more info",
-    //   action: "expand-data"
-    // },
     {
       icon: PlantLineIcon,
       text: "Grow this plant",

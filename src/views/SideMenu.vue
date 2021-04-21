@@ -90,17 +90,15 @@ export default class SideMenu extends Vue {
         grouped[mWidget.group] = []
       }
       const widget = grid.getWidget(mWidget.widgetName)
-      grouped[mWidget.group].push({ ...mWidget, widget })
+      if (widget) {
+        grouped[mWidget.group].push({ ...mWidget, widget })
+      }
     }
     return grouped
   }
 
   public toggleMenuWidget(widget: GridWidget) {
-    // const widget = grid.getWidget(menuWidget.widgetName)
     grid.toggleWidget(widget)
   }
-  // public menuWidgetOpen(menuWidget: MenuWidget) {
-  //   return grid.getWidget(menuWidget.widgetName)?.open
-  // }
 }
 </script>

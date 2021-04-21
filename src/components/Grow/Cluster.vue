@@ -41,8 +41,6 @@ export default class LeafCluster extends GrowMixin {
   public highlight = false
   public showFlowerCenter = false
 
-  // public originalHeight = this.clusterData.height
-
   public mounted() {
     this.toggleShowFlowerCenter()
   }

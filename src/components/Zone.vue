@@ -45,17 +45,5 @@ export default class Zone extends GridMixin {
     }
     return style
   }
-
-  // public mounted() {
-  //   // console.log(this.$el.getBoundingClientRect())
-  // }
-
-  // public get styleObj() {
-  //   return {
-  //     // height: this.zoneData.height + "%",
-  //     // width: this.zoneData.width + "%"
-  //     // height: this.zoneData.
-  //   }
-  // }
 }
 </script>
