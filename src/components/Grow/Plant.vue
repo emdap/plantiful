@@ -69,6 +69,23 @@ export default class Plant extends GrowMixin {
     } else if (this.plantActive) {
       this.textClass = this.subHighlightText
     }
+
+    if (!this.plantData.position) {
+      // init position once mounted
+      const plantElem = this.$el as HTMLElement
+      if (!plantElem) {
+        console.error("not mounted?")
+        return
+      }
+      grow.setPosition({
+        id: this.plantData.id,
+        dataKey: "plants",
+        newPositions: {
+          x: plantElem.offsetLeft,
+          y: plantElem.offsetTop + this.plantData.height / 2
+        }
+      })
+    }
   }
 
   public get clusterLists() {

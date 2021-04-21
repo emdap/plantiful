@@ -396,15 +396,15 @@ export default class GrowModule extends VuexModule implements GrowState {
   growPlant(payload: {
     basePlant?: Plant
     fromOptions?: { curId: number; options: PlantOptions }
-    position?: Position
+    // position?: Position
   }): Promise<GrowPlant> {
-    const { basePlant, fromOptions, position } = payload
+    const { basePlant, fromOptions } = payload
     let plantReturn!: GrowPlantReturn
 
     if (basePlant) {
       // create whole plant from Plant API data
-      const usePosition = position ? position : NO_POSITION()
-      plantReturn = createPlant(basePlant, usePosition, true)
+      // const usePosition = position ? position : NO_POSITION()
+      plantReturn = createPlant(basePlant, true)
     } else if (fromOptions) {
       // use the custom options to update existing GrowPlant
       const curPlant = this.getEntity("plants", fromOptions.curId)
@@ -594,8 +594,9 @@ export default class GrowModule extends VuexModule implements GrowState {
     newPositions: Position
   }) {
     const { id, dataKey, newPositions } = payload
-    this[dataKey][id].position = newPositions
-    // Vue.set(this[dataKey][id], "position", newPositions)
+    // this[dataKey][id].position = newPositions
+    // plants start off with no position
+    Vue.set(this[dataKey][id], "position", newPositions)
   }
 
   @Mutation

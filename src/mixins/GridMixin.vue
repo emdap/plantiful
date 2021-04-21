@@ -3,8 +3,12 @@ import Vue from "vue"
 import Component from "vue-class-component"
 import { getModule } from "vuex-module-decorators"
 import GridModule from "@/store/modules/grid"
-import { GridWidget, GridZone, GridContainer } from "@/store/interfaces"
-import menuWidgets from "@/fixtures/Grid/MenuWidgets"
+import {
+  GridWidget,
+  GridZone,
+  GridContainer,
+  MenuWidget
+} from "@/store/interfaces"
 
 export const grid = getModule(GridModule)
 
@@ -26,10 +30,6 @@ export default class GridMixin extends Vue {
 
   public get containers() {
     return Object.values(grid.containers)
-  }
-
-  public get menuWidgetList() {
-    return menuWidgets
   }
 
   public get containerZones() {

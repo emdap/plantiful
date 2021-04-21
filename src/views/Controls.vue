@@ -1,5 +1,5 @@
 <template>
-  <div id="controls" class="overflow-auto h-full">
+  <div id="controls" class="overflow-auto">
     <div v-for="controlTuple in visibleControls" :key="controlTuple[0]">
       <h3 class="mb-2">{{ getControlSectionTitle(controlTuple[0]) }}</h3>
       <div
@@ -96,7 +96,6 @@ import {
 } from "@/store/interfaces"
 import { Watch } from "vue-property-decorator"
 import { Position } from "node_modules/vue-router/types/router"
-import { Prop } from "vue-property-decorator"
 
 // this is hideous, not sure how to best improve. Define these types elsewhere? Stop with the options vs actual grow instance? remove nesting??
 type PropertyControls = {

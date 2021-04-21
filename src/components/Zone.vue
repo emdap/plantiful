@@ -1,5 +1,6 @@
 <template>
   <div
+    class="zone"
     :id="zoneData.gridArea"
     :class="{ absolute: zoneData.id == 0 }"
     :style="styleObj"
@@ -32,7 +33,10 @@ export default class Zone extends GridMixin {
   @Prop({ required: true }) zoneData!: GridZone
 
   public get styleObj() {
-    const style = {} as { width?: string; height?: string }
+    if (this.zoneData.id == 0) {
+      return { height: 0, width: 0 }
+    }
+    const style = { width: "", height: "" }
     if (this.zoneData.width) {
       style.width = this.zoneData.width + "px"
     }

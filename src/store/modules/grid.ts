@@ -22,6 +22,8 @@ export default class GridModule extends VuexModule implements GridState {
   zones: { [key: number]: GridZone } = {}
   activeWidget: GridWidget | null = null
   activeZone: GridZone | null = null
+  overallHeight = 0
+  overallWidth = 0
 
   public get widgetMessages() {
     return widgetMessages
@@ -43,6 +45,11 @@ export default class GridModule extends VuexModule implements GridState {
     return (id: number): GridContainer => {
       return this.containers[id]
     }
+  }
+
+  @Action
+  public setGridSize(payload: { height: number; width: number }) {
+    this.SET_GRID_SIZE(payload)
   }
 
   @Action
@@ -83,27 +90,28 @@ export default class GridModule extends VuexModule implements GridState {
     this.WIDGET_ZONE(payload)
   }
 
-  @Action
-  public setWidgetSize(payload: {
-    name: string
-    newHeight: number
-    newWidth: number
-  }) {
-    this.WIDGET_SIZE(payload)
-  }
+  // @Action
+  // public setWidgetSize(payload: {
+  //   name: string
+  //   newHeight: number
+  //   newWidth: number
+  // }) {
+  //   this.WIDGET_SIZE(payload)
+  // }
 
   @Action
-  public widgetSizeChange(payload: {
+  public setWidgetSize(payload: {
     widget: GridWidget
+    setZone: boolean
     newHeight: number
     newWidth: number
   }) {
-    const { widget, newHeight, newWidth } = payload
-    if (widget.docked && widget.currentZone) {
+    const { widget, setZone, newHeight, newWidth } = payload
+    // idea: keep widget size synced with zone
+    if (setZone && widget.currentZone) {
       this.ZONE_SIZE({ id: widget.currentZone, newHeight, newWidth })
-    } else {
-      this.WIDGET_SIZE({ name: widget.name, newHeight, newWidth })
     }
+    this.WIDGET_SIZE({ name: widget.name, newHeight, newWidth })
   }
 
   @Action
@@ -311,5 +319,11 @@ export default class GridModule extends VuexModule implements GridState {
   @Mutation
   public TOGGLE_DOCKED(name: string) {
     this.widgets[name].docked = !this.widgets[name].docked
+  }
+
+  @Mutation
+  public SET_GRID_SIZE(payload: { height: number; width: number }) {
+    this.overallHeight = payload.height
+    this.overallWidth = payload.width
   }
 }

@@ -16,7 +16,6 @@ import {
   GrowType,
   GrowDataKey
 } from "@/store/interfaces"
-import { createPlant } from "@/services/growPlants"
 
 export const grow = getModule(GrowModule)
 
@@ -79,35 +78,44 @@ export default class GrowMixin extends Vue {
     }
   }
 
+  @Watch("showControls")
+  public openControls(show: boolean) {
+    const controlsWidget = grid.getWidget("controls")
+    if (!controlsWidget) {
+      // TODO: proper error
+      throw console.error("no widget??")
+    } else if (!controlsWidget.open && show) {
+      grid.toggleWidget(controlsWidget)
+    }
+  }
+
   public async growPlant(basePlant: Plant) {
-    // TODO: move this logic
+    // TODO: move this logic ?
     const growWidget = grid.getWidget("grow")
     if (!growWidget) {
       // TODO: proper error
       throw console.error("no widget??")
-    }
-    if (!growWidget.open) {
+    } else if (!growWidget.open) {
       grid.toggleWidget(growWidget)
     }
 
     // widget element might not be positioned/styled/exist yet, use dims of entire container instead
-    const growWidgetElem = document.getElementById("grow") as HTMLElement
-    const containerElem = document.getElementById(
-      "plant-playground"
-    ) as HTMLElement
-    const elemRef = growWidgetElem ? growWidgetElem : containerElem
+    // const growWidgetElem = document.getElementById("grow") as HTMLElement
+    // const containerElem = document.getElementById(
+    //   "plant-playground"
+    // ) as HTMLElement
+    // const elemRef = growWidgetElem ? growWidgetElem : containerElem
 
-    const growWidgetElWidth = elemRef.getBoundingClientRect().width
-    const growWidgetElHeight = elemRef.getBoundingClientRect().height
+    // const growWidgetElWidth = elemRef.getBoundingClientRect().width
+    // const growWidgetElHeight = elemRef.getBoundingClientRect().height
 
-    const position: Position = {
-      x: growWidgetElWidth / 2,
-      y: growWidgetElHeight / 2
-    }
+    // const position: Position = {
+    //   x: growWidgetElWidth / 2,
+    //   y: growWidgetElHeight / 2
+    // }
 
     const plant = await grow.growPlant({
-      basePlant,
-      position
+      basePlant
     })
 
     grow.addPlant(plant)
@@ -135,19 +143,25 @@ export default class GrowMixin extends Vue {
         }
       }
 
+      const position = {
+        x: growData.position ? growData.position.x + "px" : "50%",
+        y: growData.position ? growData.position.y + "px" : "50%"
+      }
+
       const yPos = {
         top: "",
         bottom: ""
       }
       if (posBottom) {
-        yPos.bottom = growData.position.y + "px"
+        yPos.bottom = position.y
       } else {
-        yPos.top = growData.position.y + "px"
+        yPos.top = position.y
       }
+
       return {
         transform: `rotateX(${growData.rotation.x}deg) rotateY(${growData.rotation.y}deg) rotateZ(${growData.rotation.z}deg) translateZ(${growData.rotation.translate}px)`,
         ...yPos,
-        left: growData.position.x + "px",
+        left: position.x,
         height: growData.height + "px",
         width: growData.width + "px",
         transition: `all ${transitionSpeed}s`,
@@ -215,8 +229,9 @@ export default class GrowMixin extends Vue {
       })
     } else {
       // update position
-      const currentTop = entity.position.y
-      const currentLeft = entity.position.x
+      const currentTop = (entity.position as Position).y
+      const currentLeft = (entity.position as Position).x
+      console.log(currentTop, currentLeft)
       const newPositions: Position = {
         y: currentTop + e.pageY - this.startY,
         x: currentLeft + e.pageX - this.startX

@@ -198,7 +198,7 @@ export type Positions = RequiredPositions | "right" | "bottom"
 // Grow
 export interface GrowBasis extends InteractableBasis {
   rotation: Rotation
-  position: Position
+  position?: Position
   height: number
   width: number
   zIndex: number
@@ -220,6 +220,7 @@ export interface GrowPlant extends GrowEntity<PlantOptions> {
 
 export interface GrowCluster<T> extends GrowEntity<T> {
   offSet: GrowOffSet
+  position: Position
   order: number
 }
 
@@ -233,17 +234,20 @@ export interface GrowFlower extends GrowCluster<FlowerOptions> {
 }
 
 export interface GrowLeaf extends GrowEntity<LeafOptions> {
+  position: Position
   shapes: GrowShape[]
   order: number
 }
 
 export interface GrowPetal extends GrowEntity<PetalOptions> {
+  position: Position
   shapes: GrowShape[]
   order: number
 }
 
 export interface GrowBranch extends GrowEntity<BranchOptions> {
   id: number
+  position: Position
   offSet: GrowOffSet
   startPoint: Position
   endPoint: Position
@@ -259,6 +263,7 @@ export interface GrowBranch extends GrowEntity<BranchOptions> {
 }
 
 export interface GrowShape extends GrowBasis {
+  position: Position
   border: GrowBorder
   color: string
   opacity?: number
@@ -466,7 +471,7 @@ export type ControlList<Parent, Child = {}> = AnyControl<Parent, Child>[]
 export interface GridWidget {
   name: string
   component: VueConstructor<Vue>
-  // text: string
+  text: string
   // order: number // higher order = higher z index
   open: boolean
   docked: boolean
@@ -488,7 +493,7 @@ export const MenuGroups = [
 
 export interface MenuWidget {
   widgetName: string
-  text: string
+  // text: string
   icon: string
   group: typeof MenuGroups[number]
 }

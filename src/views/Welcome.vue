@@ -82,14 +82,14 @@ export default class Welcome extends GrowMixin {
     // }, clusterWait * 300 + 550)
   }
 
-  @Watch("welcomeWidget.open")
-  public welcomeClosed(nowOpen: boolean) {
-    if (nowOpen) {
-      this.growTestPlant()
-    } else {
-      grow.removeActivePlant()
-      grow.deleteEntity({ dataKey: "plants", id: this.testPlant.id })
-    }
-  }
+  // @Watch("welcomeWidget.open")
+  // public welcomeClosed(nowOpen: boolean) {
+  //   if (nowOpen) {
+  //     this.growTestPlant()
+  //   } else {
+  //     grow.removeActivePlant()
+  //     grow.deleteEntity({ dataKey: "plants", id: this.testPlant.id })
+  //   }
+  // }
 }
 </script>

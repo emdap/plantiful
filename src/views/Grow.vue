@@ -1,5 +1,5 @@
 <template>
-  <div id="grow" class="h-full w-full">
+  <div id="grow" class="h-full w-full overflow-hidden">
     <span v-if="!hasGrowPlants" class="text-gray-500 font-semibold mt-10">
       Open up the search to find & grow plants!
       <button
@@ -12,7 +12,7 @@
     <div
       v-else
       id="plant-wrapper"
-      class="h-full w-full"
+      class="h-full w-full relative overflow-hidden"
       @mousedown="activateWindow(true)"
       @mouseup="activateWindow(false)"
       @dblclick.self="removeActive()"

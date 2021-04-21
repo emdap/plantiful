@@ -55,6 +55,18 @@ export default class Container extends GridMixin {
     }
 
     this.fixturesAdded = true
+    this.setGridSize()
+    window.addEventListener("resize", this.setGridSize)
+  }
+
+  public setGridSize() {
+    // #container is defined in App.vue, is 100vh and 100vw - menu size
+    const container = document.getElementById("container")
+    if (!container) {
+      return console.error("Container does not exist?")
+    }
+    const { height, width } = container.getBoundingClientRect()
+    grid.setGridSize({ height, width })
   }
 }
 </script>
@@ -67,33 +79,42 @@ export default class Container extends GridMixin {
   /* grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; */
   gap: 0.25rem;
   grid-template-areas: "lookup playground";
-  max-height: 100%;
+  height: 100%;
 }
 
-#grid-container .container-wrapper {
-  max-height: 100%;
-  /* max-width: 100%; */
-  overflow-y: auto;
-}
+/* #grid-container .container-wrapper { */
+/* max-height: 100vh; */
+/* max-width: 100%; */
+/* overflow-y: auto; */
+/* } */
 
 #plant-lookup {
   /* grid-area: 1 / 1 / 1 / 2; */
   display: grid;
   grid-auto-rows: auto;
-  grid-gap: 0.25rem;
-  background-color: lime;
+  height: 100vh;
+  /* background-color: lime; */
 }
 
 #plant-playground {
   /* grid-area: 1 / 2 / 1 / 4; */
   display: grid;
   grid-auto-rows: auto;
-  grid-gap: 0.25rem;
-  background-color: green;
+  /* grid-gap: 0.25rem; */
+  height: 100vh;
+  /* background-color: green; */
+}
+
+.zone {
+  background-clip: content-box !important;
+  box-sizing: content-box;
+  overflow: auto;
+  @apply p-1;
 }
 
 #z-1 {
   background: blue;
+  max-height: 100%;
   grid-area: 1 / 1 / 2 / 2;
 }
 
@@ -104,6 +125,8 @@ export default class Container extends GridMixin {
 
 #z-3 {
   background: purple;
+  height: 62.5vh;
+  width: 64.5vw;
   grid-area: 1 / 1 / 3 / 2;
 }
 
@@ -114,6 +137,7 @@ export default class Container extends GridMixin {
 
 #z-5 {
   background: pink;
+  /* height: 37.5%; */
   grid-area: 3 / 1 / 4 / 3;
 }
 </style>
