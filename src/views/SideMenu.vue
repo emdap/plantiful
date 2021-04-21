@@ -54,6 +54,7 @@
         <div
           v-for="mWidget in menuWidgetList[group]"
           :key="mWidget.widgetName"
+          :title="mWidget.widget.text"
           :class="
             mWidget.widget.open
               ? 'text-green-600 hover:text-pink-800'

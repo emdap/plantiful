@@ -57,7 +57,7 @@ const widgets: GridWidget[] = [
   {
     component: Controls,
     name: "controls",
-    text: "Control Plant",
+    text: "Edit Plant",
     open: true,
     docked: true,
     height: 0,

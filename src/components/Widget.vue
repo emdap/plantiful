@@ -10,9 +10,9 @@
   >
     <main class="flex flex-grow flex-col overflow-auto">
       <nav
-        class="-mx-2 flex flex-row h-8 items-center whitespace-nowrap mb-1 sticky left-0 w-full text-gray-500"
+        class="flex flex-row h-8 items-center whitespace-nowrap mb-1 sticky left-0 w-full text-gray-500"
       >
-        <nav class="flex px-2 w-1/2 gap-3">
+        <nav class="flex w-1/2 gap-3">
           <docked-icon
             class="cursor-pointer fill-current text-pink-800 hover:text-green-600"
             v-if="widgetData.docked"
@@ -259,8 +259,10 @@ export default class Widget extends GridMixin {
       startX = this.widgetData.position.x
       startY = this.widgetData.position.y
     }
+    // offset not including parent padding for x?
     const remainingX =
-      grid.overallWidth - this.widgetData.width + this.moveIcon.offsetLeft
+      grid.overallWidth - this.widgetData.width + this.moveIcon.offsetLeft + 8
+
     const remainingY = grid.overallHeight - this.widgetData.height
     const rawX = startX + e.pageX - this.posStart.x
     const rawY = startY + e.pageY - this.posStart.y

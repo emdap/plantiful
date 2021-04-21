@@ -66,14 +66,14 @@ export default class Grow extends GrowMixin {
 
   public mouseDown(e: MouseEvent) {
     if (grow.activeEntity) {
-      e.preventDefault()
+      // e.preventDefault()
       this.trackMouse = true
     }
   }
 
   public mouseUp(e: MouseEvent) {
     if (this.trackMouse) {
-      e.preventDefault()
+      // e.preventDefault()
       this.trackMouse = false
     }
   }

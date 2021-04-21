@@ -1,8 +1,8 @@
 <template>
-  <div id="search-bar" class="shadow-sm flex mb-2">
+  <div id="search-bar" class="shadow-sm flex gap-2 mb-2">
     <input
       id="search-input"
-      class="p-2 flex-grow text-left"
+      class="font-semibold bg-gray-50 focus:bg-green-50 p-2 flex-grow text-left"
       type="text"
       v-model="searchQuery"
       :placeholder="gardenMessages.searchBar.placeholder"

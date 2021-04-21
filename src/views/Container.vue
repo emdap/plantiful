@@ -4,7 +4,7 @@
     <zone v-if="fixturesAdded" :zoneData="getZone(0)" />
     <div
       class="container-wrapper"
-      :class="growContainer(container.id) ? 'flex-grow' : 'flex-grow-0'"
+      :style="growContainer(container.id) ? 'flex-grow: 1' : 'width: 0'"
       v-for="container in containers"
       :key="container.id"
       :id="container.name"
