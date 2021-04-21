@@ -81,13 +81,11 @@ import Component from "vue-class-component"
 import { grid } from "@/mixins/GridMixin.vue"
 import { MenuWidget, MenuGroups, GridWidget } from "@/store/interfaces"
 import ArrowIcon from "@/assets/icons/arrow.svg"
-import CSSIcon from "@/assets/icons/css-garden.svg"
 import menuWidgets from "@/fixtures/Grid/MenuWidgets"
 
 @Component({
   components: {
-    ArrowIcon,
-    CSSIcon
+    ArrowIcon
   }
 })
 export default class SideMenu extends Vue {
