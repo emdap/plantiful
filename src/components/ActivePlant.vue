@@ -5,10 +5,7 @@
       class="mt-12"
       :loadingText="gardenMessages.activePlant.loading"
     />
-    <div
-      v-else-if="noActivePlant"
-      class="font-semibold flex items-center h-full"
-    >
+    <div v-else-if="noActivePlant" class="text-gray-500 font-semibold mt-10">
       <span>{{ noActivePlant }}</span>
     </div>
     <template v-else>

@@ -1,5 +1,5 @@
 <template>
-  <div id="search-bar" class="shadow-sm flex  mb-2">
+  <div id="search-bar" class="shadow-sm flex mb-2">
     <input
       id="search-input"
       class="p-2 flex-grow text-left"

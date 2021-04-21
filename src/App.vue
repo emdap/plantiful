@@ -50,7 +50,6 @@ body {
 #container {
   grid-area: container;
   overflow: auto;
-  @apply pl-2;
   @apply h-screen;
 }
 </style>

@@ -130,6 +130,7 @@ export default class GridModule extends VuexModule implements GridState {
 
   @Action
   toggleWidget(widget: GridWidget) {
+    console.log(widget.name, widget.open)
     if (widget) {
       this.TOGGLE_WIDGET(widget.name)
       // initialize docked & in default zone for next open
@@ -138,6 +139,7 @@ export default class GridModule extends VuexModule implements GridState {
         this.WIDGET_ZONE({ name: widget.name, zoneId: widget.defaultZone })
       }
     }
+    console.log(widget.name, widget.open)
   }
 
   @Action
@@ -275,7 +277,11 @@ export default class GridModule extends VuexModule implements GridState {
   @Mutation
   TOGGLE_WIDGET(name: string) {
     // not allowing welcome and search to be open at same time for any reason
-    if (this.widgets["welcome"].open && name == "search") {
+    if (
+      this.widgets["welcome"].open &&
+      name == "search" &&
+      !this.widgets[name].open
+    ) {
       this.widgets["welcome"].open = false
     }
     this.widgets[name].open = !this.widgets[name].open

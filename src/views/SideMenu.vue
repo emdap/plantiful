@@ -3,7 +3,11 @@
     <div
       @click="expanded = false"
       class="absolute top-0 left-0 bg-green-900 transition-opacity duration-500"
-      :class="expanded ? 'h-screen w-screen opacity-70' : 'h-0 w-0 opacity-0'"
+      :class="
+        expanded
+          ? 'h-screen w-screen delay-200 opacity-70'
+          : 'h-0 w-0 opacity-0'
+      "
     />
     <div
       id="side-menu"
@@ -11,27 +15,37 @@
       :class="expanded ? 'w-52' : 'w-12'"
     >
       <div
-        :class="
-          expanded
-            ? 'text-green-700 hover:text-pink-800'
-            : 'text-gray-500  hover:text-pink-400'
-        "
-        class="self-end mb-6 cursor-pointer fill-current"
+        class="flex items-center w-full mb-6 cursor-pointer fill-current"
         @click="expanded = !expanded"
       >
-        <arrow-icon
-          class="transform transition-all delay-100 duration-500"
-          :style="arrowStyle"
-        />
+        <div
+          class="text-base text-left whitespace-nowrap overflow-hidden transition-all text-green-900"
+          :class="expanded ? 'delay-200 duration-500 opacity-100' : 'opacity-0'"
+        >
+          CSS Garden
+        </div>
+        <div
+          class="ml-auto"
+          :class="
+            expanded
+              ? 'text-green-700 hover:text-pink-800'
+              : 'text-gray-500  hover:text-pink-400'
+          "
+        >
+          <arrow-icon
+            class="transform transition-all delay-100 duration-500"
+            :style="arrowStyle"
+          />
+        </div>
       </div>
       <div v-for="(group, index) in menuGroups" :key="index" class="mb-4">
         <div
-          class="h-6 mt-1 mb-4 whitespace-nowrap w-full 
-        border-gray-100 text-gray-600"
+          class="h-6 mb-2 whitespace-nowrap w-full 
+        border-gray-100 text-gray-500"
           :class="expanded ? 'border-t-0' : 'border-t-1'"
         >
           <div
-            class="border-b-1 pb-2  border-gray-100 transition-all text-left"
+            class="font-mono border-b-1 pb-1 text-xs tracking-wider border-gray-100 transition-all text-left"
             :class="expanded ? 'duration-500 opacity-100' : 'opacity-0'"
           >
             {{ group }}
@@ -67,11 +81,13 @@ import Component from "vue-class-component"
 import { grid } from "@/mixins/GridMixin.vue"
 import { MenuWidget, MenuGroups, GridWidget } from "@/store/interfaces"
 import ArrowIcon from "@/assets/icons/arrow.svg"
+import CSSIcon from "@/assets/icons/css-garden.svg"
 import menuWidgets from "@/fixtures/Grid/MenuWidgets"
 
 @Component({
   components: {
-    ArrowIcon
+    ArrowIcon,
+    CSSIcon
   }
 })
 export default class SideMenu extends Vue {

@@ -1,14 +1,15 @@
 <template>
   <div id="grow" class="h-full w-full overflow-hidden">
-    <span v-if="!hasGrowPlants" class="text-gray-500 font-semibold mt-10">
-      Open up the search to find & grow plants!
+    <div v-if="!hasGrowPlants" class="text-gray-500 font-semibold mt-10">
+      <!-- TODO: move to messages and maybe remove btton or make it focus -->
+      Open up the search to find & grow plants
       <button
         class="btn-primary my-4 mx-auto block"
         @click="toggleSearchPlants(true)"
       >
         Start Searching
       </button>
-    </span>
+    </div>
     <div
       v-else
       id="plant-wrapper"

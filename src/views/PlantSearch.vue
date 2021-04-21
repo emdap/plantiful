@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="plant-search" class="h-full overflow-auto">
     <search-bar class="p-4" />
     <div class="relative">
       <loading

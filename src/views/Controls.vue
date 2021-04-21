@@ -42,7 +42,7 @@
           </template>
         </div>
       </div>
-      <div v-if="controls[controlTuple[0]].special">
+      <!-- <div v-if="controls[controlTuple[0]].special">
         <h3 class="mb-2">
           Special {{ getControlSectionTitle(controlTuple[0]) }}
         </h3>
@@ -60,7 +60,7 @@
             @change="specialControl($event, control.code)"
           />
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

@@ -79,6 +79,22 @@ const plantControls: ControlList<GrowPlant, Rotation & Position> = [
     dataType: "number"
   },
   {
+    property: "position",
+    text: "Position",
+    children: [
+      {
+        property: "x",
+        text: "Left distance",
+        dataType: "number"
+      },
+      {
+        property: "y",
+        text: "Top distance",
+        dataType: "number"
+      }
+    ]
+  },
+  {
     property: "rotation",
     text: "Rotation",
     children: [
@@ -100,22 +116,6 @@ const plantControls: ControlList<GrowPlant, Rotation & Position> = [
       {
         property: "translate",
         text: "Z translate (depth)",
-        dataType: "number"
-      }
-    ]
-  },
-  {
-    property: "position",
-    text: "Position",
-    children: [
-      {
-        property: "x",
-        text: "Left distance",
-        dataType: "number"
-      },
-      {
-        property: "y",
-        text: "Top distance",
         dataType: "number"
       }
     ]

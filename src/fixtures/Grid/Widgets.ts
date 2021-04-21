@@ -7,12 +7,14 @@ import Controls from "@/views/Controls.vue"
 import EntitySelect from "@/components/Grow/EntitySelect.vue"
 import { NO_POSITION } from "../Grow/Defaults"
 
+// TODO: revert open to false for most of these -- just testing
+
 const widgets: GridWidget[] = [
   {
     component: Welcome,
     name: "welcome",
     text: "Welcome",
-    open: true,
+    open: false,
     docked: true,
     height: 0,
     width: 0,
@@ -23,7 +25,7 @@ const widgets: GridWidget[] = [
     component: PlantSearch,
     name: "search",
     text: "Plant Search",
-    open: false,
+    open: true,
     docked: true,
     height: 0,
     width: 0,
@@ -34,7 +36,7 @@ const widgets: GridWidget[] = [
     component: ActivePlant,
     name: "active-plant",
     text: "Investigate Plant",
-    open: false,
+    open: true,
     docked: true,
     height: 0,
     width: 0,
@@ -45,7 +47,7 @@ const widgets: GridWidget[] = [
     component: Grow,
     name: "grow",
     text: "Plant Window",
-    open: false,
+    open: true,
     docked: true,
     height: 0,
     width: 0,
@@ -56,7 +58,7 @@ const widgets: GridWidget[] = [
     component: Controls,
     name: "controls",
     text: "Control Plant",
-    open: false,
+    open: true,
     docked: true,
     height: 0,
     width: 0,
@@ -67,7 +69,7 @@ const widgets: GridWidget[] = [
     component: EntitySelect,
     name: "select",
     text: "Selection Helper",
-    open: false,
+    open: true,
     docked: true,
     height: 0,
     width: 0,

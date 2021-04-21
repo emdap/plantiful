@@ -1,18 +1,19 @@
 <template>
   <div
-    class="zone"
+    class="overflow-auto"
     :id="zoneData.gridArea"
-    :class="{ absolute: zoneData.id == 0 }"
-    :style="styleObj"
+    :class="[zoneData.id == 0 ? 'absolute' : 'static', 'bg-' + zoneData.color]"
   >
     <!-- :style="styleObj" -->
-    <widget
-      v-for="widget in zoneOpenWidgets(zoneData)"
-      :widgetData="widget"
-      :key="'widget-' + widget.name"
-    >
-      <x :is="widget.component" />
-    </widget>
+    <template v-if="ready">
+      <widget
+        v-for="widget in zoneOpenWidgets(zoneData)"
+        :widgetData="widget"
+        :key="'widget-' + widget.name"
+      >
+        <x :is="widget.component" />
+      </widget>
+    </template>
   </div>
 </template>
 
@@ -31,6 +32,11 @@ import Widget from "@/components/Widget.vue"
 })
 export default class Zone extends GridMixin {
   @Prop({ required: true }) zoneData!: GridZone
+  public ready = false
+
+  public mounted() {
+    this.ready = true
+  }
 
   public get styleObj() {
     if (this.zoneData.id == 0) {

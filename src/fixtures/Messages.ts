@@ -1,6 +1,6 @@
 export const gardenMessages = {
   activePlant: {
-    info: "Click on a plant name to see more information",
+    info: "Search & select a plant to see more information",
     loading: "Researching plant",
     error:
       "Sorry, this plant has incomplete information, and cannot be displayed. Please select another."

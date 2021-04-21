@@ -105,6 +105,20 @@ export default class Widget extends GridMixin {
     })
   }
 
+  public setToCurrent() {
+    const { height, width, x, y } = this.getCurrentRect()
+    grid.setWidgetSize({
+      widget: this.widgetData,
+      setZone: false,
+      newHeight: height,
+      newWidth: width
+    })
+    grid.setWidgetPosition({
+      name: this.widgetData.name,
+      newPosition: { x, y }
+    })
+  }
+
   // Utilities
   public getCurrentRect() {
     const el = this.$el as HTMLElement
@@ -180,24 +194,6 @@ export default class Widget extends GridMixin {
       this.setToCurrent()
     }
     grid.toggleDocked(this.widgetData)
-  }
-
-  public setToCurrent(which?: "size" | "position") {
-    const { height, width, x, y } = this.getCurrentRect()
-    if (!which || which == "size") {
-      grid.setWidgetSize({
-        widget: this.widgetData,
-        setZone: false,
-        newHeight: height,
-        newWidth: width
-      })
-    }
-    if (!which || which == "position") {
-      grid.setWidgetPosition({
-        name: this.widgetData.name,
-        newPosition: { x, y }
-      })
-    }
   }
 
   // Functions to modify display

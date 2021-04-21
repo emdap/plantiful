@@ -1,9 +1,10 @@
 <template>
-  <div id="grid-container" class="w-full">
+  <div id="grid-container" class="w-full h-full gap-2 px-2 py-1">
     <!-- zone used for undocked widgets -->
     <zone v-if="fixturesAdded" :zoneData="getZone(0)" />
     <div
       class="container-wrapper"
+      :class="growContainer(container.id) ? 'flex-grow' : 'flex-grow-0'"
       v-for="container in containers"
       :key="container.id"
       :id="container.name"
@@ -21,14 +22,13 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
 import Component from "vue-class-component"
-import { grow } from "@/mixins/GrowMixin.vue"
 import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import Zone from "@/components/Zone.vue"
 import containerFixture from "@/fixtures/Grid/Containers"
 import zonesFixture from "@/fixtures/Grid/Zones"
 import widgetsFixture from "@/fixtures/Grid/Widgets"
+import { GridContainer } from "@/store/interfaces"
 
 @Component({
   components: {
@@ -64,76 +64,69 @@ export default class Container extends GridMixin {
     const { height, width } = container.getBoundingClientRect()
     grid.setGridSize({ height, width })
   }
+
+  public get growContainer() {
+    return (id: number) => {
+      return this.containerZones(id).filter(z => {
+        return this.zoneOpenWidgets(z).length
+      }).length
+    }
+  }
 }
 </script>
 
 <style>
 #grid-container {
-  display: grid;
+  display: flex;
   /* grid-template-columns: 1fr 2fr; */
-  grid-template-columns: minmax(min-content, 1fr) minmax(min-content, 2fr);
-  /* grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; */
-  gap: 0.25rem;
-  grid-template-areas: "lookup playground";
-  height: 100%;
+  /* grid-template-columns: fit-content(33vw) auto; */
+  /* grid-template-areas: "lookup playground"; */
+  overflow: auto;
 }
 
-/* #grid-container .container-wrapper { */
-/* max-height: 100vh; */
-/* max-width: 100%; */
-/* overflow-y: auto; */
-/* } */
+#grid-container .container-wrapper {
+  height: 100%;
+  display: grid;
+  grid-auto-rows: 1fr;
+  grid-auto-columns: 1fr;
+  overflow: auto;
+  @apply gap-2;
+}
 
 #plant-lookup {
-  /* grid-area: 1 / 1 / 1 / 2; */
-  display: grid;
-  grid-auto-rows: auto;
-  height: 100vh;
-  /* background-color: lime; */
+  width: 33%;
 }
 
 #plant-playground {
-  /* grid-area: 1 / 2 / 1 / 4; */
-  display: grid;
-  grid-auto-rows: auto;
-  /* grid-gap: 0.25rem; */
-  height: 100vh;
-  /* background-color: green; */
+  width: 67%;
+  /* flex-grow: 2; */
 }
 
 .zone {
   background-clip: content-box !important;
   box-sizing: content-box;
   overflow: auto;
-  @apply p-1;
 }
 
 #z-1 {
-  background: blue;
-  max-height: 100%;
   grid-area: 1 / 1 / 2 / 2;
 }
 
 #z-2 {
-  background: teal;
   grid-area: 2 / 1 / 2 / 2;
 }
 
 #z-3 {
-  background: purple;
-  height: 62.5vh;
-  width: 64.5vw;
-  grid-area: 1 / 1 / 3 / 2;
+  grid-area: 1 / 1 / 3 / 3;
 }
 
 #z-4 {
-  background: violet;
-  grid-area: 1 / 2 / 3 / 3;
+  grid-area: 1 / 3 / 3 / 4;
 }
 
 #z-5 {
-  background: pink;
-  /* height: 37.5%; */
-  grid-area: 3 / 1 / 4 / 3;
+  grid-area: 3 / 1 / 4 / 4;
+  /* grid-area: auto; */
+  /* grid-column: 1 / -1; */
 }
 </style>

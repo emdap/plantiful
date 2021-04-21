@@ -502,6 +502,7 @@ export interface GridZone {
   height: number
   gridArea: typeof GridContainerAreas[number]
   widgets: string[]
+  color: string
   startPoint: Position
   endPoint: Position
 }
