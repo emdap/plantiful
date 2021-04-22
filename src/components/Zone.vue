@@ -57,10 +57,10 @@ export default class Zone extends GridMixin {
   public get zoneStyle() {
     if (this.zoneData.id) {
       const style = { width: "", height: "" }
-      if (this.zoneData.width && this.ready) {
+      if (this.zoneData.width) {
         style.width = this.zoneData.width + "px"
       }
-      if (this.zoneData.height && this.ready) {
+      if (this.zoneData.height) {
         style.height = this.zoneData.height + "px"
       }
       return style

@@ -10,7 +10,7 @@
   >
     <main class="flex flex-grow flex-col w-full">
       <nav
-        class="flex flex-row h-10 items-center whitespace-nowrap mb-1 sticky left-0 w-full scrollbar-none overflow-x-auto"
+        class="flex flex-row flex-shrink-0 h-6 items-center whitespace-nowrap mb-1 sticky left-0 w-full scrollbar-none overflow-x-auto"
       >
         <nav class="flex w-1/2 gap-3">
           <!-- TODO: all titles should be from fixture -->
@@ -44,7 +44,9 @@
           <close-icon class="icon close" @click="closeWidget()" />
         </nav>
       </nav>
-      <slot></slot>
+      <section class="flex flex-grow overflow-auto">
+        <slot></slot>
+      </section>
       <footer
         v-if="!widgetData.docked"
         class="mt-auto sticky left-0 text-gray-500"

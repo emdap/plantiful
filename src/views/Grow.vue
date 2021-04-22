@@ -15,6 +15,7 @@
       id="plant-wrapper"
       class="h-full w-full relative overflow-hidden"
       @dblclick.self="removeActive()"
+      @mouseleave="trackMouse = false"
     >
       <plant v-for="plant in growPlants" :key="plant.id" :plantData="plant" />
     </div>

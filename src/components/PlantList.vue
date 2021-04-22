@@ -2,7 +2,7 @@
   <div
     id="search-results"
     ref="plant-list"
-    class="flex-grow overflow-auto scrollbar-thin scrollbar-light dark:scrollbar-dark"
+    class="h-full overflow-auto scrollbar-thin scrollbar-light dark:scrollbar-dark"
   >
     <div
       v-for="(plant, index) in plantList"

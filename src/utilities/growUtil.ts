@@ -194,7 +194,7 @@ export function getBranchOptionBounds(plantOptions: PlantOptions) {
   const maxHeight = Math.min(plantOptions.height, 800)
   const maxSideSpread = Math.min(plantOptions.spread / 2, 450) // spreads in two directions
 
-  const maxBranchHeight = Math.max(maxHeight / 4, 50)
+  const maxBranchHeight = Math.min(Math.max(maxHeight / 4, 50), 150)
   const branchWidth = 5
   // can split this up into leaf/flower size later, if flowers are bigger/smaller
   const { topHeight, bottomHeight } = DEFAULT_LEAF_SIZE[

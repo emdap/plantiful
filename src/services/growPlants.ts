@@ -177,7 +177,7 @@ export function createFlower(
   colors: string[]
 ): { flower: GrowFlower; petals: GrowPetal[] } {
   const { spacing, sides, area } = DEFAULT_FLOWER
-  const centerColor = util.varyColors(colors)[0][0]
+  const centerColor = util.varyColors(colors)[0]
   const flowerOptions: FlowerOptions = {
     colors,
     spacing,
@@ -327,6 +327,7 @@ export function createBranch(
 function branchOut(
   globalRefs: BranchOutGlobals,
   forceEnd: false | "leafCluster" | "flower",
+  branchOrder: number,
   branchOutOptions: BranchOutOptions,
   baseBranchOptions: BranchOptions
 ) {
@@ -347,7 +348,7 @@ function branchOut(
     const flowerAndPetals = createFlower(order + 1, baseBranch, flowerColors)
     globalRefs.flowersWithPetals.push(flowerAndPetals)
   } else {
-    const newBranchHeight = Math.max(baseBranch.height / order, 50)
+    const newBranchHeight = Math.max(baseBranch.height / (branchOrder + 5), 50)
     const leftBranchAngle = util.getBranchAngle(baseBranch, "left")
     const rightBranchAngle = util.getBranchAngle(baseBranch, "right")
 
@@ -392,12 +393,14 @@ function branchOut(
     branchOut(
       globalRefs,
       forceEnd.forceLeft,
+      branchOrder + 1,
       newBranchOutOptions,
       leftBranchOptions
     )
     branchOut(
       globalRefs,
       forceEnd.forceRight,
+      branchOrder + 1,
       newBranchOutOptions,
       rightBranchOptions
     )
@@ -457,7 +460,7 @@ export function processPlantOptions(plantOptions: PlantOptions) {
       widthLeft: plantSpreadLeft
     }
 
-    branchOut(branchOutGlobals, false, branchOutOptions, baseBranchOptions)
+    branchOut(branchOutGlobals, false, 1, branchOutOptions, baseBranchOptions)
   }
 
   // want to have at least 1 flower
