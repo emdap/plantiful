@@ -1,7 +1,7 @@
 <template>
   <div
     :id="`${widgetData.name}-widget`"
-    class="widget flex p-2 bg-white dark:bg-gray-700 outline-none text-gray-400 dark:text-black"
+    class="widget flex p-2 bg-white dark:bg-gray-700 outline-none text-gray-600 dark:text-black"
     :style="styleObj"
     :class="classObj"
     tabindex="1"

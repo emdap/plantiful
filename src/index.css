@@ -37,7 +37,7 @@
 }
 
 .scrollbar-light {
-  @apply scrollbar-thumb-green-300 scrollbar-track-green-700;
+  @apply scrollbar-thumb-green-300 scrollbar-track-green-50;
 }
 
 @variants dark {

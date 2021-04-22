@@ -78,9 +78,6 @@ export default class Container extends GridMixin {
 <style>
 #grid-container {
   display: flex;
-  /* grid-template-columns: 1fr 2fr; */
-  /* grid-template-columns: fit-content(33vw) auto; */
-  /* grid-template-areas: "lookup playground"; */
   overflow: auto;
 }
 
@@ -90,6 +87,7 @@ export default class Container extends GridMixin {
   grid-auto-rows: 1fr;
   grid-auto-columns: 1fr;
   overflow: auto;
+
   @apply gap-2;
 }
 
@@ -99,7 +97,6 @@ export default class Container extends GridMixin {
 
 #plant-playground {
   width: 67%;
-  /* flex-grow: 2; */
 }
 
 .zone {
@@ -126,7 +123,5 @@ export default class Container extends GridMixin {
 
 #z-5 {
   grid-area: 3 / 1 / 4 / 4;
-  /* grid-area: auto; */
-  /* grid-column: 1 / -1; */
 }
 </style>

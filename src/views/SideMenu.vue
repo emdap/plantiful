@@ -11,7 +11,7 @@
     />
     <div
       id="side-menu"
-      class="transition-all duration-300 bg-white dark:bg-gray-900 h-screen pt-2 pb-4 px-3 flex flex-col shadow-md font-bold text-sm fixed"
+      class="transition-size duration-300 bg-white dark:bg-gray-900 h-screen pt-2 pb-4 px-3 flex flex-col shadow-md font-bold text-sm fixed"
       :class="expanded ? 'w-52' : 'w-12'"
     >
       <div
@@ -42,8 +42,8 @@
         border-gray-100 dark:border-gray-800 text-gray-500 border-t-1 transition-all"
           :class="
             expanded
-              ? 'border-opacity-0'
-              : 'duration-300 delay-300 border-opacity-100'
+              ? 'border-opacity-0 dark:border-opacity-0'
+              : 'duration-300 border-opacity-100'
           "
         >
           <div
@@ -73,7 +73,17 @@
           </div>
         </div>
       </div>
-      <!-- @click="clickWidget(widget)" -->
+      <div
+        class="mt-auto ml-auto icon"
+        :title="darkMode ? 'Day Mode' : 'Night Mode'"
+        @click="darkMode = !darkMode"
+      >
+        <dark-icon
+          class="text-yellow-400 hover:text-pink-400 "
+          v-if="darkMode"
+        />
+        <light-icon class="text-pink-400 hover:text-yellow-400" v-else />
+      </div>
     </div>
   </div>
 </template>
@@ -84,16 +94,44 @@ import Component from "vue-class-component"
 import { grid } from "@/mixins/GridMixin.vue"
 import { MenuWidget, MenuGroups, GridWidget } from "@/store/interfaces"
 import ArrowIcon from "@/assets/icons/arrow.svg"
+import LightIcon from "@/assets/icons/light-mode.svg"
+import DarkIcon from "@/assets/icons/dark-mode.svg"
 import menuWidgets from "@/fixtures/Grid/MenuWidgets"
+import { Watch } from "vue-property-decorator"
 
 @Component({
   components: {
-    ArrowIcon
+    ArrowIcon,
+    LightIcon,
+    DarkIcon
   }
 })
 export default class SideMenu extends Vue {
   public expanded = false
   public menuGroups = MenuGroups
+  public darkMode = false
+
+  // TODO: this should be someone elses responsibility
+  public mounted() {
+    if (
+      ("theme" in localStorage && localStorage.theme == "dark") ||
+      (!("theme" in localStorage) &&
+        !window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      this.darkMode = true
+    }
+  }
+
+  @Watch("darkMode")
+  public toggleDarkMode(dark: boolean) {
+    if (dark) {
+      localStorage.theme = "dark"
+      document.documentElement.classList.add("dark")
+    } else {
+      localStorage.theme = "light"
+      document.documentElement.classList.remove("dark")
+    }
+  }
 
   public get menuClass() {
     return this.expanded ? "items-center w-20" : "items-center w-full"

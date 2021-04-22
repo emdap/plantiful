@@ -3,7 +3,7 @@ const colors = require("tailwindcss/colors")
 
 module.exports = {
   purge: [],
-  darkMode: "media", // or 'media' or 'class'
+  darkMode: "class", // or 'media' or 'class'
   options: {
     important: true
   },
@@ -95,18 +95,18 @@ module.exports = {
             color: theme("colors.green.300")
           },
           ".btn-dark": {
-            background: theme("colors.yellow.700"),
+            background: theme("colors.green.700"),
             color: theme("colors.gray.50"),
             fontWeight: theme("fontWeight.semibold"),
             borderRadius: theme("borderRadius.sm")
           },
           ".btn-dark:hover:not(:disabled)": {
-            background: theme("colors.yellow.600")
+            background: theme("colors.green.600")
           },
-          ".btn-dark:focus": { outlineColor: theme("colors.yellow.500") },
+          ".btn-dark:focus": { outlineColor: theme("colors.green.500") },
           ".btn-dark:active": {
             outline: theme("outline.none"),
-            background: theme("colors.yellow.600")
+            background: theme("colors.green.600")
           },
           ".btn-dark:disabled": {
             color: theme("colors.gray.800"),

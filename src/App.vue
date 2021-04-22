@@ -26,10 +26,6 @@ export default class App extends Vue {}
 </script>
 
 <style lang="scss">
-body {
-  @apply bg-gray-50 dark:bg-gray-800;
-}
-
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -39,6 +35,8 @@ body {
   grid-template-areas: "menu container";
   grid-template-columns: 3rem 1fr;
   overflow: hidden;
+
+  @apply bg-gray-50 dark:bg-gray-800;
 }
 
 #menu {
