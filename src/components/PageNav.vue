@@ -8,7 +8,7 @@
       :class="
         plantListLoading
           ? 'text-gray-300 dark:text-gray-600'
-          : 'text-green-800 dark:text-yellow-700'
+          : 'text-green-800 dark:text-yellow-600'
       "
       class="transition-text text-sm font-medium focus:outline-none  tracking-normal hover:tracking-wide hover:text-purple-700 dark:hover:text-yellow-500 dark:btn-dark-transparent"
     >

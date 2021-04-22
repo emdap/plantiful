@@ -42,6 +42,6 @@
 
 @variants dark {
   .scrollbar-dark {
-    @apply scrollbar-thumb-yellow-500 scrollbar-track-yellow-800;
+    @apply scrollbar-thumb-yellow-700 scrollbar-track-gray-600;
   }
 }
