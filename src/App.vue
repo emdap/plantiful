@@ -36,7 +36,7 @@ export default class App extends Vue {}
   grid-template-columns: 3rem 1fr;
   overflow: hidden;
 
-  @apply bg-gray-50 dark:bg-gray-800;
+  @apply transition-colors bg-gray-50 dark:bg-gray-800;
 }
 
 #menu {

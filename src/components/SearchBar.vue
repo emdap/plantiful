@@ -1,7 +1,7 @@
 <template>
   <div
     id="search-bar"
-    class="border-b-1 border-gray-400 dark:border-gray-800  flex gap-2 mb-4 w-full"
+    class="border-b-1 border-gray-100 dark:border-gray-800  flex gap-2 mb-4 w-full"
   >
     <input
       id="search-input"

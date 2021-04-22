@@ -11,7 +11,7 @@
     />
     <div
       id="side-menu"
-      class="transition-size duration-300 bg-white dark:bg-gray-900 h-screen pt-2 pb-4 px-3 flex flex-col shadow-md font-bold text-sm fixed"
+      class="transition-all duration-300 bg-white dark:bg-gray-900 h-screen pt-2 pb-4 px-3 flex flex-col shadow-md font-bold text-sm fixed"
       :class="expanded ? 'w-52' : 'w-12'"
     >
       <div
@@ -74,15 +74,12 @@
         </div>
       </div>
       <div
-        class="mt-auto ml-auto icon"
+        class="text-pink-400 hover:text-yellow-400 mt-auto ml-auto icon"
         :title="darkMode ? 'Day Mode' : 'Night Mode'"
         @click="darkMode = !darkMode"
       >
-        <dark-icon
-          class="text-yellow-400 hover:text-pink-400 "
-          v-if="darkMode"
-        />
-        <light-icon class="text-pink-400 hover:text-yellow-400" v-else />
+        <dark-icon v-if="darkMode" />
+        <light-icon v-else />
       </div>
     </div>
   </div>

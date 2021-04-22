@@ -3,10 +3,10 @@
     id="welcome"
     class="text-left font-medium flex-grow overflow-auto scrollbar-thin scrollbar-light dark:scrollbar-dark"
   >
-    <h1 class="text-green-800 text-center">Welcome</h1>
+    <h1 class="text-green-800 dark:text-green-600 text-center">Welcome</h1>
     <p class="mb-4">
       Hello and welcome to the CSS garden. This website makes use of the
-      <a href="https://trefle.io" class="text-green-500 hover:text-pink-400"
+      <a href="https://trefle.io" class="text-yellow-600 hover:text-yellow-400"
         >Trefle API</a
       >
       to gather plant information. Some of that information is then used to
@@ -15,7 +15,7 @@
     <p class="mb-4">
       <strong> MORE INFO COMING SOON </strong>
     </p>
-    <h2 class="text-green-800">How to use</h2>
+    <h2 class="text-green-800 dark:text-green-600">How to use</h2>
     <p class="mb-2">
       To the right, you will see a demo plant that has been built. To build some
       more plants, open up the search window, search for some plants, and then
