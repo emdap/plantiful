@@ -6,7 +6,7 @@
     @mousedown="zoneSelected = true"
     @mouseup="zoneSelected = false"
   >
-    <div v-if="ready" class="h-full w-full" :class="widgetWrapperClass">
+    <div v-if="sized" class="h-full w-full" :class="widgetWrapperClass">
       <widget
         v-for="widget in zoneOpenWidgets(zoneData)"
         :widgetData="widget"
@@ -22,7 +22,7 @@
 import Component from "vue-class-component"
 import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import { Prop, Watch } from "vue-property-decorator"
-import { GridZone, Size } from "@/store/interfaces"
+import { GridContainer, GridZone, Size } from "@/store/interfaces"
 import Widget from "@/components/Widget.vue"
 
 @Component({
@@ -32,26 +32,38 @@ import Widget from "@/components/Widget.vue"
 })
 export default class Zone extends GridMixin {
   @Prop({ required: true }) zoneData!: GridZone
-  public ready = false
+  @Prop({ default: null }) containerId!: number
+
   public zoneSelected = false
+  public sized = false
+  public itWasMe = false
 
   public mounted() {
     // want zone sizes to be flexible based on widget content,
     // but start size as if grid cols/rows were set to 1fr instead of auto
-    this.initializeZone()
-    this.ready = true
+    this.setCurrentSize()
   }
 
-  public initializeZone() {
-    if (this.zoneData.id) {
-      const { width, height, x, y } = this.getCurrentRect()
-      grid.setZoneSize({
-        zone: this.zoneData,
-        newHeight: height,
-        newWidth: width
-      })
-      grid.setZonePoints({ zone: this.zoneData, newStart: { x, y } })
-    }
+  public beforeDestroy() {
+    grid.mountZone({ id: this.zoneData.id, mounted: false })
+    this.resetSize()
+  }
+
+  public setCurrentSize() {
+    // waiting for next tick ensures all zones in container are getting zoned when no zones have sizes
+    this.$nextTick(() => {
+      if (this.zoneData.id) {
+        const { width, height, x, y } = this.getCurrentRect()
+        grid.setZoneSize({
+          zone: this.zoneData,
+          newHeight: height,
+          newWidth: width
+        })
+        grid.setZonePoints({ zone: this.zoneData, newStart: { x, y } })
+      }
+      this.sized = true
+      grid.mountZone({ id: this.zoneData.id, mounted: true })
+    })
   }
 
   public get zoneStyle() {
@@ -112,6 +124,40 @@ export default class Zone extends GridMixin {
     const newWidth = newSize.width * widthRatio
 
     grid.setZoneSize({ zone: this.zoneData, newHeight, newWidth: newWidth })
+  }
+
+  public get mountedSiblings() {
+    return this.containerMountedZones(this.containerId).length
+  }
+
+  public get openChildren() {
+    return this.zoneOpenWidgets(this.zoneData).length
+  }
+
+  @Watch("openChildren")
+  public openZone(openCount: number) {
+    if (!openCount || !this.zoneData.open) {
+      grid.toggleZone(this.zoneData)
+    }
+  }
+
+  public get mountedChanged() {
+    return this.zoneData.mounted
+  }
+
+  @Watch("mountedChanged")
+  public refreshSize() {
+    this.sized = false
+    this.resetSize()
+    this.setCurrentSize()
+  }
+
+  public resetSize() {
+    grid.setZoneSize({
+      zone: this.zoneData,
+      newHeight: 0,
+      newWidth: 0
+    })
   }
 }
 </script>

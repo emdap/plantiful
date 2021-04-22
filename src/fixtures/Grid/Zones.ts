@@ -4,6 +4,7 @@ import { NO_POSITION } from "../Grow/Defaults"
 const zones: GridZone[] = [
   {
     id: 0,
+    containerId: 0,
     width: 0,
     height: 0,
     gridArea: "z-0",
@@ -14,6 +15,7 @@ const zones: GridZone[] = [
   },
   {
     id: 1,
+    containerId: 1,
     width: 0,
     height: 0,
     gridArea: "z-1",
@@ -24,6 +26,7 @@ const zones: GridZone[] = [
   },
   {
     id: 2,
+    containerId: 1,
     width: 0,
     height: 0,
     gridArea: "z-2",
@@ -34,6 +37,7 @@ const zones: GridZone[] = [
   },
   {
     id: 3,
+    containerId: 2,
     width: 0,
     height: 0,
     gridArea: "z-3",
@@ -44,6 +48,7 @@ const zones: GridZone[] = [
   },
   {
     id: 4,
+    containerId: 2,
     width: 0,
     height: 0,
     gridArea: "z-4",
@@ -54,6 +59,7 @@ const zones: GridZone[] = [
   },
   {
     id: 5,
+    containerId: 2,
     width: 0,
     height: 0,
     gridArea: "z-5",

@@ -3,22 +3,23 @@
     <div v-if="ready" id="grid-container" class="w-full h-full">
       <div
         class="container-wrapper"
-        :style="growContainer(container.id) ? 'flex-grow: 1' : 'width: 0'"
+        :class="containerClass(container.id)"
         v-for="container in containers"
         :key="container.id"
         :id="container.name"
       >
         <template v-for="zone in containerZones(container.id)">
           <zone
-            v-if="zoneOpenWidgets(zone).length"
+            v-if="zone.open"
             :key="'zone-' + zone.id"
             :zoneData="zone"
+            :containerId="container.id"
           >
           </zone>
         </template>
       </div>
     </div>
-    <!-- zone used for undocked widgets -->
+    <!-- zone used for undocked widgets -- // TODO: should make new component that just iterates widgets -->
     <zone v-if="ready" :zoneData="getZone(0)" />
   </div>
 </template>
@@ -53,12 +54,11 @@ export default class Container extends mixins(GridMixin, GrowMixin) {
   }
 
   public addFixtures() {
-    // zones first as both widgets and containers reference them
-    for (const zone of zonesFixture) {
-      grid.addZone(zone)
-    }
     for (const container of containerFixture) {
       grid.addContainer(container)
+    }
+    for (const zone of zonesFixture) {
+      grid.addZone(zone)
     }
     for (const widget of widgetsFixture) {
       grid.addWidget(widget)
@@ -79,11 +79,11 @@ export default class Container extends mixins(GridMixin, GrowMixin) {
     grid.setGridSize({ height, width })
   }
 
-  public get growContainer() {
+  public get containerClass() {
     return (id: number) => {
-      return this.containerZones(id).filter(z => {
-        return this.zoneOpenWidgets(z).length
-      }).length
+      // might have to add more to this
+      // TODO: dynamic sizing for containers like there is for zones, or leverage CSS
+      return this.containerOpenZones(id).length ? "flex-grow" : "w-0"
     }
   }
 
@@ -165,7 +165,7 @@ export default class Container extends mixins(GridMixin, GrowMixin) {
 }
 
 #z-2 {
-  grid-area: 2 / 1 / 2 / 2;
+  /* grid-area: 2 / 1 / 2 / 2; */
 }
 
 #z-3 {

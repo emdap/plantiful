@@ -85,6 +85,11 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
+  mountZone(payload: { id: number; mounted: boolean }) {
+    this.ZONE_MOUNTED(payload)
+  }
+
+  @Action
   setTargetZone(mousePos: Position) {
     const closestZone = this.findClosestZone(mousePos)
     this.SET_TARGET_ZONE(closestZone.id)
@@ -119,11 +124,13 @@ export default class GridModule extends VuexModule implements GridState {
   @Action
   widgetToZone(payload: { widget: GridWidget; zoneId: number }) {
     const { widget, zoneId } = payload
+    this.TOGGLE_ZONE({ id: zoneId, open: true })
     if (zoneId == widget.currentZone) {
       // happens if container re-renders
       return
     }
     const prevZoneId = widget.currentZone
+    // TODO: break down mutation
     if (zoneId && this.zones[zoneId].widgets.length) {
       // need to displace existing widget from non-0 zone
     }
@@ -232,6 +239,22 @@ export default class GridModule extends VuexModule implements GridState {
     }
   }
 
+  get containerZones() {
+    return (containerId: number) => {
+      const container = this.getContainer(containerId)
+      return container
+        ? container.zones.map(id => {
+            return this.getZone(id)
+          })
+        : []
+    }
+  }
+
+  @Action
+  toggleZone(zone: GridZone) {
+    this.TOGGLE_ZONE({ id: zone.id })
+  }
+
   @Action
   toggleWidgetName(payload: { name: string; forceShow?: boolean }) {
     const { name, forceShow } = payload
@@ -262,6 +285,23 @@ export default class GridModule extends VuexModule implements GridState {
     } else {
       this.widgetToZone({ widget, zoneId: closestZone.id })
     }
+  }
+
+  @Mutation
+  TOGGLE_ZONE(payload: { id: number; open?: true }) {
+    const { id, open } = payload
+    const zone = this.zones[id]
+    Vue.set(zone, "open", open ? true : !zone.open)
+    for (const id of this.containers[zone.containerId].zones) {
+      Vue.set(this.zones[id], "mounted", false)
+    }
+  }
+
+  // TODO: Merge with above and split Actions differently
+  @Mutation
+  ZONE_MOUNTED(payload: { id: number; mounted: boolean }) {
+    const { id, mounted } = payload
+    Vue.set(this.zones[id], "mounted", mounted)
   }
 
   @Mutation
@@ -385,6 +425,9 @@ export default class GridModule extends VuexModule implements GridState {
   @Mutation
   ADD_ZONE(zone: GridZone) {
     Vue.set(this.zones, zone.id, zone)
+    if (zone.containerId) {
+      this.containers[zone.containerId].zones.push(zone.id)
+    }
   }
 
   @Mutation

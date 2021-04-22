@@ -30,8 +30,22 @@ export default class GridMixin extends Vue {
 
   public get containerZones() {
     return (containerId: number) => {
-      return grid.getContainer(containerId).zones.map(id => {
-        return grid.getZone(id)
+      return grid.containerZones(containerId)
+    }
+  }
+
+  public get containerOpenZones() {
+    return (containerId: number) => {
+      return this.containerZones(containerId).filter(zone => {
+        return zone.open
+      })
+    }
+  }
+
+  public get containerMountedZones() {
+    return (containerId: number) => {
+      return this.containerZones(containerId).filter(zone => {
+        return zone.mounted
       })
     }
   }

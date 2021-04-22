@@ -509,6 +509,7 @@ export interface GridContainer {
 
 export interface GridZone {
   id: number
+  containerId: number
   width: number
   height: number
   gridArea: typeof GridContainerAreas[number]
@@ -516,6 +517,8 @@ export interface GridZone {
   color: string
   startPoint: Position
   endPoint: Position
+  open?: boolean
+  mounted?: boolean
 }
 
 // Constants & types
