@@ -9,6 +9,9 @@ import { widgetMessages } from "@/fixtures/Messages"
 import store from "@/store"
 import Vue from "vue"
 import { Position } from "vue-router/types/router"
+import util from "@/utilities/containerUtil"
+
+// TODO: possibly defunct functions marked with // D
 
 @Module({
   dynamic: true,
@@ -20,10 +23,15 @@ export default class GridModule extends VuexModule implements GridState {
   containers: { [key: string]: GridContainer } = {}
   widgets: { [key: string]: GridWidget } = {}
   zones: { [key: number]: GridZone } = {}
-  activeWidget: GridWidget | null = null
-  activeZone: GridZone | null = null
+  movingZones = false
+  targetZone: GridZone | null = null
+
   overallHeight = 0
   overallWidth = 0
+  // D
+  activeWidget: GridWidget | null = null
+  // D
+  activeZone: GridZone | null = null
 
   get widgetMessages() {
     return widgetMessages
@@ -47,6 +55,41 @@ export default class GridModule extends VuexModule implements GridState {
     }
   }
 
+  get findClosestZone() {
+    return (position: Position): GridZone => {
+      let approxZone!: GridZone
+      let zone!: GridZone
+      for (zone of Object.values(this.zones)) {
+        if (zone.id == 0) {
+          continue
+        }
+        const distance = util.checkMouseZoneDistance(
+          position,
+          zone.startPoint,
+          zone.endPoint
+        )
+        if (distance.x == 0 && distance.y == 0) {
+          return zone
+        } else if (distance.x <= 16 && distance.y <= 16) {
+          approxZone = zone
+        }
+      }
+      // if approxZone didn't match either, return the last zone it matched, OR the last zone iterated
+      return approxZone ? approxZone : this.targetZone ? this.targetZone : zone
+    }
+  }
+
+  @Action
+  zonesTrackMouse(track: boolean) {
+    this.SET_MOVING_ZONES(track)
+  }
+
+  @Action
+  setTargetZone(mousePos: Position) {
+    const closestZone = this.findClosestZone(mousePos)
+    this.SET_TARGET_ZONE(closestZone.id)
+  }
+
   @Action
   setGridSize(payload: { height: number; width: number }) {
     this.SET_GRID_SIZE(payload)
@@ -65,19 +108,57 @@ export default class GridModule extends VuexModule implements GridState {
   @Action
   addWidget(widget: GridWidget) {
     this.ADD_WIDGET(widget)
-    this.WIDGET_ZONE({ name: widget.name, zoneId: widget.defaultZone })
-    this.ZONE_WIDGETS({
-      widgetName: widget.name,
-      newZoneId: widget.defaultZone
-    })
+    if (widget.open) {
+      this.widgetToZone({
+        widget,
+        zoneId: widget.defaultZone
+      })
+    }
   }
 
   @Action
-  widgetToZone(payload: { name: string; zoneId: number }) {
-    const { name, zoneId } = payload
-    const prevZoneId = this.getWidget(name).currentZone
-    this.ZONE_WIDGETS({ widgetName: name, newZoneId: zoneId, prevZoneId })
-    this.WIDGET_ZONE(payload)
+  widgetToZone(payload: { widget: GridWidget; zoneId: number }) {
+    const { widget, zoneId } = payload
+    if (zoneId == widget.currentZone) {
+      // happens if container re-renders
+      return
+    }
+    const prevZoneId = widget.currentZone
+    if (zoneId && this.zones[zoneId].widgets.length) {
+      // need to displace existing widget from non-0 zone
+    }
+    this.ZONE_WIDGETS({
+      widgetName: widget.name,
+      newZoneId: zoneId,
+      prevZoneId
+    })
+    this.WIDGET_ZONE({ name: widget.name, zoneId })
+  }
+
+  @Action
+  setZoneSize(payload: {
+    zone: GridZone
+    newHeight: number
+    newWidth: number
+  }) {
+    const { zone, newHeight, newWidth } = payload
+    this.ZONE_SIZE({ id: zone.id, newHeight, newWidth })
+  }
+
+  // D
+  @Action
+  propogateZoneSize(zone: GridZone) {
+    for (const widgetName in zone.widgets) {
+      const widget = this.widgets[widgetName]
+      if (widget.open) {
+        this.setWidgetSize({
+          widget,
+          setZone: false,
+          newHeight: zone.height,
+          newWidth: zone.width
+        })
+      }
+    }
   }
 
   @Action
@@ -101,12 +182,17 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
-  setZonePosition(payload: {
-    id: number
-    newStart: Position
-    newEnd: Position
-  }) {
-    this.ZONE_POSITION(payload)
+  setZonePoints(payload: { zone: GridZone; newStart: Position }) {
+    const { zone, newStart } = payload
+    const newEnd = {
+      x: newStart.x + zone.width,
+      y: newStart.y + zone.height
+    }
+    this.ZONE_POSITION({
+      id: zone.id,
+      newStart,
+      newEnd
+    })
   }
 
   @Action
@@ -130,16 +216,20 @@ export default class GridModule extends VuexModule implements GridState {
 
   @Action
   toggleWidget(widget: GridWidget) {
-    console.log(widget.name, widget.open)
     if (widget) {
-      this.TOGGLE_WIDGET(widget.name)
-      // initialize docked & in default zone for next open
-      if (!widget.open && !widget.docked) {
+      if (!widget.open) {
+        // move widget to its default zone before opening
+        this.widgetToZone({ widget, zoneId: widget.defaultZone })
+      } else if (!widget.docked) {
+        // initialize docked for next open
         this.TOGGLE_DOCKED(widget.name)
-        this.WIDGET_ZONE({ name: widget.name, zoneId: widget.defaultZone })
+        // if has current zone/!=0, remove widget from zone list
+        if (widget.currentZone) {
+          this.RESET_ZONE_WIDGETS(widget.currentZone)
+        }
       }
+      this.TOGGLE_WIDGET(widget.name)
     }
-    console.log(widget.name, widget.open)
   }
 
   @Action
@@ -152,10 +242,36 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
-  toggleDocked(widget: GridWidget): Promise<void> {
+  toggleDocked(widget: GridWidget) {
     this.TOGGLE_DOCKED(widget.name)
-    return Promise.resolve()
-    // TODO: add code for assigning to nearest zone
+    if (!widget.docked) {
+      this.widgetToZone({ widget, zoneId: 0 })
+    } else {
+      if (widget.currentZone == 0) {
+        this.widgetToZone({ widget, zoneId: widget.defaultZone })
+      }
+    }
+  }
+
+  @Action
+  widgetToClosestZone(payload: { widget: GridWidget; mousePos: Position }) {
+    const { widget, mousePos } = payload
+    const closestZone = this.findClosestZone(mousePos)
+    if (!closestZone && widget.docked) {
+      this.toggleDocked(widget)
+    } else {
+      this.widgetToZone({ widget, zoneId: closestZone.id })
+    }
+  }
+
+  @Mutation
+  SET_MOVING_ZONES(moving: boolean) {
+    this.movingZones = moving
+  }
+
+  @Mutation
+  SET_TARGET_ZONE(id: number) {
+    this.targetZone = this.zones[id]
   }
 
   @Mutation
@@ -181,7 +297,7 @@ export default class GridModule extends VuexModule implements GridState {
     let prevZone!: GridZone
     const newZone = this.zones[newZoneId]
 
-    if (prevZoneId) {
+    if (prevZoneId != undefined) {
       prevZone = this.zones[prevZoneId]
       prevZone.widgets = prevZone.widgets.filter(name => {
         return name != widgetName
@@ -202,9 +318,12 @@ export default class GridModule extends VuexModule implements GridState {
         newZone.widgets = []
         prevZone.widgets.push(moveWidgetName)
         moveWidget.currentZone = prevZoneId
+        if (prevZoneId == 0) {
+          moveWidget.docked = false
+          moveWidget.position = this.widgets[widgetName].position
+        }
       }
     }
-
     newZone.widgets.push(widgetName)
   }
 
@@ -275,6 +394,7 @@ export default class GridModule extends VuexModule implements GridState {
 
   @Mutation
   TOGGLE_WIDGET(name: string) {
+    // TODO: revise this / move logic to action
     // not allowing welcome and search to be open at same time for any reason
     if (
       this.widgets["welcome"].open &&
@@ -292,8 +412,23 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
+  RESET_ZONE_WIDGETS(id: number) {
+    this.zones[id].widgets = []
+  }
+
+  @Mutation
   SET_GRID_SIZE(payload: { height: number; width: number }) {
     this.overallHeight = payload.height
     this.overallWidth = payload.width
+  }
+
+  // D
+  @Mutation
+  REFRESH_CONTAINERS() {
+    const containers = Object.values(this.containers)
+    for (const container of containers) {
+      Vue.delete(this.containers, container.id)
+      Vue.set(this.containers, container.id, container)
+    }
   }
 }

@@ -33,6 +33,11 @@ export interface GridState {
   zones: {
     [key: number]: GridZone
   }
+  movingZones: boolean
+  targetZone: GridZone | null
+  overallHeight: number
+  overallWidth: number
+
   activeWidget: GridWidget | null
   activeZone: GridZone | null
 }
@@ -350,6 +355,12 @@ export interface GrowOffSet {
 export type Position = {
   x: number
   y: number
+}
+
+// TODO: convert all height/width instances to this D:
+export type Size = {
+  height: number
+  width: number
 }
 
 export interface BorderAttribute {

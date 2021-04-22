@@ -33,7 +33,8 @@ module.exports = {
   variants: {
     extend: {
       letterSpacing: ["hover"],
-      outline: ["dark"]
+      outline: ["dark"],
+      opacity: ["dark"]
     }
   },
   plugins: [

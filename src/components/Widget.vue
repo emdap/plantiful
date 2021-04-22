@@ -1,26 +1,37 @@
 <template>
   <div
     :id="`${widgetData.name}-widget`"
-    class="widget flex p-2 transition-colors bg-white dark:bg-gray-700 outline-none text-gray-600 dark:text-black"
-    :style="styleObj"
-    :class="classObj"
+    class="widget flex p-2 transition-colors bg-white dark:bg-gray-700 outline-none text-gray-600 dark:text-black overflow-auto"
+    :style="widgetStyle"
+    :class="widgetClass"
     tabindex="1"
     @focus="inFocus = true"
     @blur="inFocus = false"
   >
-    <main class="flex flex-grow flex-col">
+    <main class="flex flex-grow flex-col w-full">
       <nav
-        class="flex flex-row h-8 items-center whitespace-nowrap mb-1 sticky left-0 w-full "
+        class="flex flex-row h-10 items-center whitespace-nowrap mb-1 sticky left-0 w-full scrollbar-none overflow-x-auto"
       >
         <nav class="flex w-1/2 gap-3">
-          <docked-icon
-            class="icon"
-            v-if="widgetData.docked"
-            @click="dockWidget()"
-          />
-          <not-docked-icon class="icon" v-else @click="dockWidget()" />
-          <span ref="move-icon">
-            <move-icon class="icon" @mousedown="trackPosition = true" />
+          <!-- TODO: all titles should be from fixture -->
+          <span :title="widgetData.docked ? 'Un-dock widget' : 'Dock widget'">
+            <docked-icon
+              class="icon"
+              v-if="widgetData.docked"
+              @click="dockWidget()"
+            />
+            <not-docked-icon class="icon" v-else @click="dockWidget()" />
+          </span>
+          <span
+            ref="move-icon"
+            :title="widgetData.docked ? 'Swap zone' : 'Move widget'"
+          >
+            <move-dock-icon
+              v-if="widgetData.docked"
+              class="icon"
+              @mousedown="trackPosition = true"
+            />
+            <move-icon v-else class="icon" @mousedown="trackPosition = true" />
           </span>
         </nav>
         <header
@@ -34,11 +45,16 @@
         </nav>
       </nav>
       <slot></slot>
-      <footer class="mt-auto sticky left-0 text-gray-500">
-        <resize-icon
-          class="icon resize-widget mt-1 ml-auto"
-          @mousedown="trackSize = true"
-        />
+      <footer
+        v-if="!widgetData.docked"
+        class="mt-auto sticky left-0 text-gray-500"
+      >
+        <span title="Resize">
+          <resize-icon
+            class="icon resize-widget mt-1 ml-auto"
+            @mousedown="trackSize = true"
+          />
+        </span>
       </footer>
     </main>
   </div>
@@ -53,6 +69,7 @@ import CloseIcon from "@/assets/icons/close.svg"
 import DockedIcon from "@/assets/icons/docked.svg"
 import NotDockedIcon from "@/assets/icons/not-docked.svg"
 import MoveIcon from "@/assets/icons/move.svg"
+import MoveDockIcon from "@/assets/icons/drag.svg"
 import ResizeIcon from "@/assets/icons/resize.svg"
 
 @Component({
@@ -61,6 +78,7 @@ import ResizeIcon from "@/assets/icons/resize.svg"
     DockedIcon,
     NotDockedIcon,
     MoveIcon,
+    MoveDockIcon,
     ResizeIcon
   }
 })
@@ -76,20 +94,37 @@ export default class Widget extends GridMixin {
 
   public mounted() {
     this.initMouseUpListeners()
-    this.setToCurrent()
+    // un/re-docking, moving zones actually re-mounts Widget
+    // zone it belongs to is dynamically rendering it
+    if (this.widgetData.currentZone != 0) {
+      this.syncWithZone()
+    }
+  }
+
+  public beforeDestroy() {
+    document.removeEventListener("mouseup", this.mouseUpListener)
   }
 
   public initMouseUpListeners() {
     // stop tracking position/size when mouse is up
-    document.addEventListener("mouseup", (e: MouseEvent) => {
-      if (this.trackPosition) {
-        e.preventDefault()
-        this.trackPosition = false
-      }
-      if (this.trackSize) {
-        e.preventDefault()
-        this.trackSize = false
-      }
+    document.addEventListener("mouseup", this.mouseUpListener)
+  }
+
+  public mouseUpListener(e: MouseEvent) {
+    if (this.trackPosition) {
+      e.preventDefault()
+      this.trackPosition = false
+    }
+    if (this.trackSize) {
+      e.preventDefault()
+      this.trackSize = false
+    }
+  }
+
+  public syncWithZone() {
+    // need to wait for next tick so that widget has in fact updated in DOM
+    this.$nextTick(() => {
+      this.setToCurrent()
     })
   }
 
@@ -121,31 +156,43 @@ export default class Widget extends GridMixin {
   @Watch("trackPosition")
   mouseUpdatesPosition(track: boolean) {
     if (track) {
-      if (this.widgetData.docked) {
-        this.dockWidget()
-      }
       document.addEventListener("mousemove", this.updatePosition)
+      if (this.widgetData.docked) {
+        grid.zonesTrackMouse(true)
+      }
     } else {
-      this.posStart = null
       document.removeEventListener("mousemove", this.updatePosition)
+      if (this.widgetData.docked) {
+        this.moveZone()
+        grid.zonesTrackMouse(false)
+      }
+      this.posStart = null
     }
   }
 
+  public moveZone() {
+    // posStart is recording where the mouse currently is as mouse moves
+    const mousePos = this.posStart ? this.posStart : this.widgetData.position
+    grid.widgetToClosestZone({ widget: this.widgetData, mousePos })
+    this.syncWithZone()
+  }
+
   // Styling getters
-  public get styleObj(): Record<string, string | number> {
-    // if (!this.widgetData.docked) {
+  public get widgetStyle() {
+    // dragging from one zone to another -- stay 'docked' in state, but allow movement
+    const inPlace = this.widgetData.docked && !this.trackPosition
     return {
-      top: this.widgetData.docked ? 0 : this.widgetData.position.y + "px",
-      left: this.widgetData.docked ? 0 : this.widgetData.position.x + "px",
-      height: this.widgetData.docked ? "100%" : this.widgetData.height + "px",
-      width: this.widgetData.docked ? "100%" : this.widgetData.width + "px",
-      position: this.widgetData.docked ? "relative" : "absolute",
+      top: inPlace ? 0 : this.widgetData.position.y + "px",
+      left: inPlace ? 0 : this.widgetData.position.x + "px",
+      height: inPlace ? "100%" : this.widgetData.height + "px",
+      width: inPlace ? "100%" : this.widgetData.width + "px",
+      position: inPlace ? "relative" : "absolute",
       // TODO: revisit this logic/align with active widget in state?
       "z-index": this.inFocus ? 100 : 50
     }
   }
 
-  public get classObj(): Record<string, boolean> {
+  public get widgetClass() {
     return {
       "shadow-md": !this.widgetData.docked,
       "shadow-sm": this.widgetData.docked,
@@ -166,9 +213,7 @@ export default class Widget extends GridMixin {
       this.setToCurrent()
       grid.toggleDocked(this.widgetData)
     } else {
-      grid.toggleDocked(this.widgetData).then(() => {
-        this.setToCurrent()
-      })
+      grid.toggleDocked(this.widgetData)
     }
   }
 
@@ -198,11 +243,11 @@ export default class Widget extends GridMixin {
     const el = this.$el as HTMLElement
 
     const newHeight = Math.min(
-      grid.overallHeight - 8,
+      this.gridSize.height - 8,
       startHeight + e.pageY - this.sizeStart.y
     )
     const newWidth = Math.min(
-      grid.overallWidth - el.offsetLeft + 40,
+      this.gridSize.width - el.offsetLeft + 40,
       startWidth + e.pageX - this.sizeStart.x
     )
     grid.setWidgetSize({
@@ -239,9 +284,9 @@ export default class Widget extends GridMixin {
     }
     // offset not including parent padding for x?
     const remainingX =
-      grid.overallWidth - this.widgetData.width + this.moveIcon.offsetLeft + 8
+      this.gridSize.width - this.widgetData.width + this.moveIcon.offsetLeft + 8
 
-    const remainingY = grid.overallHeight - this.widgetData.height
+    const remainingY = this.gridSize.height - this.widgetData.height
     const rawX = startX + e.pageX - this.posStart.x
     const rawY = startY + e.pageY - this.posStart.y
 

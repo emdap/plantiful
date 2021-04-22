@@ -26,7 +26,7 @@ export default class GrowMixin extends Vue {
     grid.toggleWidgetName({ name: "search", forceShow })
   }
 
-  public toggleControls(forceShow?: boolean) {
+  public toggleControlsWidget(forceShow?: boolean) {
     grid.toggleWidgetName({ name: "controls", forceShow })
   }
 
@@ -72,11 +72,6 @@ export default class GrowMixin extends Vue {
     }
   }
 
-  @Watch("showControls")
-  public openControls(show: boolean) {
-    this.toggleControls(show)
-  }
-
   public async growPlant(basePlant: Plant) {
     this.toggleGrow(true)
 
@@ -90,7 +85,7 @@ export default class GrowMixin extends Vue {
     return plant
   }
 
-  public get styleObj() {
+  public get entityStyle() {
     // convert entity attributes to CSS style properties
     return (growData: GrowBasis | GrowShape, posBottom = false) => {
       const transitionSpeed = growData.transitionSpeed

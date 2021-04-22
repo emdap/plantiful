@@ -119,7 +119,7 @@ export default class LeafCluster extends GrowMixin {
       width: this.clusterData.width,
       zIndex: this.clusterData.zIndex
     }
-    return this.styleObj(styleData, true)
+    return this.entityStyle(styleData, true)
   }
 
   public get flowerCenterStyle() {

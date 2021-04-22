@@ -3,7 +3,7 @@
     :id="petalsOrLeaves + '-' + growData.id"
     class="absolute rounded-full"
     :class="[transformOrigin, backgroundClass(defaultBg, highlight)]"
-    :style="styleObj(growData)"
+    :style="entityStyle(growData)"
     @dblclick="activateSelf"
   >
     <shape

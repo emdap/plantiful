@@ -14,6 +14,10 @@ export const grid = getModule(GridModule)
 
 @Component({})
 export default class GridMixin extends Vue {
+  public get movingZones() {
+    return grid.movingZones
+  }
+
   public get countOpenWidgets() {
     return Object.values(grid.widgets).filter(w => {
       return w.open
@@ -77,6 +81,13 @@ export default class GridMixin extends Vue {
     }
   }
 
+  public get gridSize() {
+    return {
+      height: grid.overallHeight,
+      width: grid.overallWidth
+    }
+  }
+
   public getCurrentRect() {
     const el = this.$el as HTMLElement
     const { width, height, x, y } = el.getBoundingClientRect()
@@ -84,8 +95,8 @@ export default class GridMixin extends Vue {
     const offsetY = el.offsetTop
 
     return {
-      width,
-      height,
+      width: parseFloat(width.toFixed(2)),
+      height: parseFloat(height.toFixed(2)),
       x,
       y,
       offsetX,

@@ -24,6 +24,7 @@
 <script lang="ts">
 import Component from "vue-class-component"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
+import { grid } from "@/mixins/GridMixin.vue"
 import Plant from "@/components/Grow/Plant.vue"
 import Controls from "@/views/Controls.vue"
 import { Watch } from "vue-property-decorator"
@@ -173,6 +174,11 @@ export default class Grow extends GrowMixin {
       x: e.pageX,
       y: e.pageY
     }
+  }
+
+  @Watch("showControls")
+  public openControls(show: boolean) {
+    this.toggleControlsWidget(show)
   }
 }
 </script>

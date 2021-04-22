@@ -55,7 +55,7 @@ export default class Branch extends GrowMixin {
       transitionSpeed: this.branchActive ? 0 : this.branchData.transitionSpeed
     }
 
-    return this.styleObj(styleData, true)
+    return this.entityStyle(styleData, true)
   }
 
   public get branchStyle() {
@@ -66,7 +66,7 @@ export default class Branch extends GrowMixin {
       position: this.branchData.branchPosition,
       zIndex: 10
     }
-    return this.styleObj(styleData)
+    return this.entityStyle(styleData)
   }
 
   public get branchActive() {

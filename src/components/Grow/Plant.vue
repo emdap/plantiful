@@ -151,7 +151,7 @@ export default class Plant extends GrowMixin {
       height: 0, // branches grow out of top of plant barrier, don't want it selectable below name
       rotation: NO_ROTATION()
     }
-    return this.styleObj(styleData)
+    return this.entityStyle(styleData)
   }
 
   public get styleRotation() {
@@ -163,7 +163,7 @@ export default class Plant extends GrowMixin {
       zIndex: 10
     }
 
-    return this.styleObj(styleData)
+    return this.entityStyle(styleData)
   }
 }
 </script>

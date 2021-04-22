@@ -47,31 +47,12 @@
 
 <script lang="ts">
 import Component from "vue-class-component"
-import Plant from "@/components/Grow/Plant.vue"
-import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
-import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
-import { GrowPlant } from "@/store/interfaces"
+// import Vue from "vue"
+// import Plant from "@/components/Grow/Plant.vue"
+import GrowMixin from "@/mixins/GrowMixin.vue"
+// import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
+// import { GrowPlant } from "@/store/interfaces"
 
-@Component({
-  components: {
-    Plant
-  }
-})
-export default class Welcome extends GrowMixin {
-  public testPlant = {} as GrowPlant
-
-  public mounted() {
-    this.growTestPlant()
-  }
-
-  public async growTestPlant() {
-    this.testPlant = await this.growPlant(TEST_PLANT)
-  }
-
-  public beforeDestroy() {
-    grow.removeActivePlant()
-    grow.deleteEntity({ dataKey: "plants", id: this.testPlant.id })
-    this.toggleGrow(false)
-  }
-}
+@Component({})
+export default class Welcome extends GrowMixin {}
 </script>
