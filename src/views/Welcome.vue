@@ -1,5 +1,8 @@
 <template>
-  <section id="welcome" class="text-left font-medium flex-grow overflow-auto">
+  <section
+    id="welcome"
+    class="text-left font-medium flex-grow overflow-auto scrollbar-thin scrollbar-light dark:scrollbar-dark"
+  >
     <h1 class="text-green-800 text-center">Welcome</h1>
     <p class="mb-4">
       Hello and welcome to the CSS garden. This website makes use of the
@@ -33,7 +36,10 @@
       Note that closing this Welcome window will delete the default plant! Don't
       worry, it will come back again if you re-open the Welcome window.
     </p>
-    <button class="btn-primary my-4 w-full" @click="toggleSearchPlants">
+    <button
+      class="btn-light dark:btn-dark my-4 w-full"
+      @click="toggleSearchPlants"
+    >
       Start Searching
     </button>
   </section>

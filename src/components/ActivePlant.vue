@@ -1,11 +1,14 @@
 <template>
-  <div id="active-plant" class="p-4 flex-grow overflow-auto flex-col">
+  <div
+    id="active-plant"
+    class="p-4 flex-grow overflow-auto scrollbar-thin scrollbar-light dark:scrollbar-dark flex-col"
+  >
     <loading
       v-if="plantLoading"
       class="mt-12"
       :loadingText="gardenMessages.activePlant.loading"
     />
-    <div v-else-if="noActivePlant" class="text-gray-500 font-semibold mt-10">
+    <div v-else-if="noActivePlant" class="font-semibold mt-10">
       <span>{{ noActivePlant }}</span>
     </div>
     <template v-else>
@@ -26,7 +29,7 @@
           </template>
         </li>
       </ul>
-      <button class="btn-primary" @click="growPlant(activePlant)">Grow</button>
+      <button class="btn-light" @click="growPlant(activePlant)">Grow</button>
     </template>
   </div>
 </template>

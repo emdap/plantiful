@@ -76,5 +76,21 @@ export default class GridMixin extends Vue {
       return grid.getContainer(id)
     }
   }
+
+  public getCurrentRect() {
+    const el = this.$el as HTMLElement
+    const { width, height, x, y } = el.getBoundingClientRect()
+    const offsetX = el.offsetLeft
+    const offsetY = el.offsetTop
+
+    return {
+      width,
+      height,
+      x,
+      y,
+      offsetX,
+      offsetY
+    }
+  }
 }
 </script>

@@ -19,7 +19,7 @@ export const grow = getModule(GrowModule)
 
 @Component({})
 export default class GrowMixin extends Vue {
-  public highlightBg = "pink-700"
+  public highlightBg = "pink"
   public highlightDuration = 1000
 
   public toggleSearchPlants(forceShow?: boolean) {
@@ -141,8 +141,16 @@ export default class GrowMixin extends Vue {
   }
 
   public get backgroundClass() {
-    return (defaultBg: string, highlight: boolean) => {
-      return "bg-" + (highlight ? this.highlightBg : defaultBg)
+    return (defaultBg: "transparent" | "black", highlight: boolean) => {
+      // could simplify this -- only used by Branch and PetalLeaf
+      if (defaultBg != "transparent" || highlight) {
+        if (highlight) {
+          return `bg-${this.highlightBg}-700 dark:bg-${this.highlightBg}-400`
+        } else {
+          return `bg-${defaultBg} dark:bg-white`
+        }
+      }
+      return "bg-" + defaultBg
     }
   }
 }

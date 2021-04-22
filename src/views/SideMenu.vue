@@ -2,7 +2,7 @@
   <div>
     <div
       @click="expanded = false"
-      class="absolute top-0 left-0 bg-green-900 transition-opacity duration-500"
+      class="absolute top-0 left-0 bg-green-900 dark:bg-gray-900 transition-opacity duration-500"
       :class="
         expanded
           ? 'h-screen w-screen delay-200 opacity-70'
@@ -11,27 +11,25 @@
     />
     <div
       id="side-menu"
-      class="transition-all duration-300 bg-white h-screen pt-2 pb-4 px-3 flex flex-col shadow-md font-bold text-sm fixed"
+      class="transition-all duration-300 bg-white dark:bg-gray-900 h-screen pt-2 pb-4 px-3 flex flex-col shadow-md font-bold text-sm fixed"
       :class="expanded ? 'w-52' : 'w-12'"
     >
       <div
         class="flex items-center w-full mb-6 cursor-pointer fill-current"
         @click="expanded = !expanded"
+        :class="
+          expanded
+            ? 'text-green-700 hover:text-pink-800 dark:text-yellow-600 dark:hover:text-yellow-900'
+            : 'text-gray-500  hover:text-pink-400 dark:hover:text-yellow-400'
+        "
       >
         <div
-          class="text-base text-left whitespace-nowrap overflow-hidden transition-all text-green-900"
+          class="text-base text-left whitespace-nowrap overflow-hidden transition-all"
           :class="expanded ? 'delay-200 duration-500 opacity-100' : 'opacity-0'"
         >
           CSS Garden
         </div>
-        <div
-          class="ml-auto"
-          :class="
-            expanded
-              ? 'text-green-700 hover:text-pink-800'
-              : 'text-gray-500  hover:text-pink-400'
-          "
-        >
+        <div class="ml-auto">
           <arrow-icon
             class="transform transition-all delay-100 duration-500"
             :style="arrowStyle"
@@ -41,11 +39,15 @@
       <div v-for="(group, index) in menuGroups" :key="index" class="mb-4">
         <div
           class="h-6 mb-2 whitespace-nowrap w-full 
-        border-gray-100 text-gray-500"
-          :class="expanded ? 'border-t-0' : 'border-t-1'"
+        border-gray-100 dark:border-gray-800 text-gray-500 border-t-1 transition-all"
+          :class="
+            expanded
+              ? 'border-opacity-0'
+              : 'duration-300 delay-300 border-opacity-100'
+          "
         >
           <div
-            class="font-mono border-b-1 pb-1 text-xs tracking-wider border-gray-100 transition-all text-left"
+            class="font-mono dark:border-gray-500 border-b-1 pb-1 text-xs tracking-wider transition-all text-left"
             :class="expanded ? 'duration-500 opacity-100' : 'opacity-0'"
           >
             {{ group }}
@@ -57,10 +59,10 @@
           :title="mWidget.widget.text"
           :class="
             mWidget.widget.open
-              ? 'text-green-600 hover:text-pink-800'
-              : 'text-gray-300 hover:text-pink-400'
+              ? 'text-green-600 hover:text-green-900 dark:text-yellow-600 dark:hover:text-yellow-800'
+              : 'hover:tracking-wider text-gray-300 hover:text-pink-400 dark:text-gray-500 dark:hover:text-yellow-400'
           "
-          class="mb-4 transition-all cursor-pointer fill-current hover:tracking-wider flex items-center gap-3 text-left"
+          class="mb-4 transition-all cursor-pointer fill-current flex items-center gap-3 text-left"
           @click="toggleMenuWidget(mWidget.widget)"
         >
           <div class="w-6">

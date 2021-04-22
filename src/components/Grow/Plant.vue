@@ -9,7 +9,7 @@
       v-if="plantData.showName"
       :class="textClass"
       :style="`margin-left: -${plantData.width}px; width: ${plantData.width}px`"
-      class="whitespace-nowrap text-center transition-all duration-75 font-semibold cursor-pointer"
+      class="whitespace-nowrap text-center transition-all duration-75 font-semibold cursor-pointer dark:text-white"
       @dblclick.self="setActiveEntity"
     >
       <!-- @mousedown.prevent="" -->
@@ -126,12 +126,12 @@ export default class Plant extends GrowMixin {
   }
 
   public get highlightText() {
-    return "text-" + this.highlightBg + " font-semibold"
+    return `text-${this.highlightBg}-700 dark:text-${this.highlightBg}-400 font-semibold`
   }
 
   // for when plant is active, but one of its children is selected
   public get subHighlightText() {
-    return "text-" + this.subHighlightBg + " font-semibold"
+    return `text-${this.subHighlightBg} dark:text-${this.subHighlightBg} font-semibold`
   }
 
   @Watch("plantIsActiveEntity")

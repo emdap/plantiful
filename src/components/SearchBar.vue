@@ -1,8 +1,11 @@
 <template>
-  <div id="search-bar" class="shadow-sm flex gap-2 mb-2">
+  <div
+    id="search-bar"
+    class="border-b-1 border-gray-400 dark:border-gray-800  flex gap-2 mb-4 w-full"
+  >
     <input
       id="search-input"
-      class="font-semibold bg-gray-50 focus:bg-green-50 p-2 flex-grow text-left"
+      class="font-semibold w-full bg-gray-50 dark:bg-gray-600 focus:bg-green-50 dark:focus:bg-gray-500 p-2 flex-grow text-left"
       type="text"
       v-model="searchQuery"
       :placeholder="gardenMessages.searchBar.placeholder"
@@ -12,7 +15,7 @@
     <button
       :disabled="!searchUpdated"
       @click="plantSearch()"
-      class="btn-primary"
+      class="btn-light dark:btn-dark"
     >
       Search plants
     </button>

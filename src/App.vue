@@ -27,7 +27,7 @@ export default class App extends Vue {}
 
 <style lang="scss">
 body {
-  @apply bg-gray-50;
+  @apply bg-gray-50 dark:bg-gray-800;
 }
 
 #app {
@@ -44,12 +44,14 @@ body {
 #menu {
   grid-area: menu;
   z-index: 150;
+
   @apply h-screen;
 }
 
 #container {
   grid-area: container;
   overflow: auto;
+
   @apply h-screen;
 }
 </style>

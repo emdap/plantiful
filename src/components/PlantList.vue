@@ -1,13 +1,17 @@
 <template>
-  <div id="search-results" ref="plant-list" class="flex-grow overflow-auto">
+  <div
+    id="search-results"
+    ref="plant-list"
+    class="flex-grow overflow-auto scrollbar-thin scrollbar-light dark:scrollbar-dark"
+  >
     <div
       v-for="(plant, index) in plantList"
       :key="`plant ${index}`"
       class="mb-2 px-4 py-2 text-left h-22 grid grid-cols-3 gap-2 items-center"
       :class="
         plantListLoading
-          ? 'text-gray-300 cursor-wait'
-          : 'hover:bg-green-200 hover:tracking-wide transition-text'
+          ? 'text-gray-300 dark:text-gray-600 cursor-wait'
+          : 'hover:bg-green-200 dark:text-black dark:hover:bg-gray-600 hover:tracking-wide transition-text'
       "
     >
       <div
@@ -24,7 +28,7 @@
           <h3>
             {{ plant.common_name }}
           </h3>
-          <h5>
+          <h5 class="font-semibold opacity-80">
             {{ plant.scientific_name }}
           </h5>
         </span>
@@ -37,8 +41,8 @@
           class="ml-4 fill-current"
           :class="
             plantLoading || plantListLoading
-              ? 'cursor-wait text-gray-300'
-              : 'cursor-pointer text-green-600 hover:text-pink-800'
+              ? 'cursor-wait'
+              : 'cursor-pointer icon dark:text-gray-400'
           "
           @click="optionClicked(plant.id, option.action)"
         >

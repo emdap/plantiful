@@ -152,11 +152,10 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
-  toggleDocked(widget: GridWidget) {
-    if (widget) {
-      this.TOGGLE_DOCKED(widget.name)
-      // TODO: add code for assigning to nearest zone
-    }
+  toggleDocked(widget: GridWidget): Promise<void> {
+    this.TOGGLE_DOCKED(widget.name)
+    return Promise.resolve()
+    // TODO: add code for assigning to nearest zone
   }
 
   @Mutation

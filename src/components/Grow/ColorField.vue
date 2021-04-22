@@ -3,7 +3,7 @@
     <div class="flex">
       <div class="align-top">
         <input
-          class="control-input w-full"
+          class="control-input w-full dark:bg-gray-300 font-semibold"
           v-model="userEnteredColor"
           @keyup.enter="addColor()"
           type="string"
@@ -15,7 +15,7 @@
         </button>
         <div
           @click="launchColorPicker(true)"
-          class="cursor-pointer h-6 w-6 text-green-600 hover:text-pink-400 fill-current"
+          class="icon h-6 w-6"
           title="Open color picker"
         >
           <x :is="popOutIcon" height="100%" width="100%" viewBox="0 0 30 30" />
@@ -55,24 +55,27 @@
     <div
       v-if="showColorPicker"
       ref="color-picker"
-      class="absolute bg-white shadow-md z-50 transition-all"
+      class="absolute bg-white z-50 transition-all"
       :style="colorPickerPos"
     >
       <chrome :value="colorPickerStart" @input="pickerInput" />
       <div class="flex gap-1">
         <button
           @click="launchColorPicker(false)"
-          class="bg-gray-100 font-semibold hover:text-green-500 hover:bg-gray-50"
+          class="bg-gray-100 dark:bg-gray-500 font-semibold hover:text-green-500 hover:bg-gray-50 dark:hover:bg-gray-400 dark:hover:text-green-800"
         >
           Cancel
         </button>
-        <button @click="addFromPicker()" class="btn-primary flex-grow">
+        <button
+          @click="addFromPicker()"
+          class="btn-light dark:btn-dark flex-grow"
+        >
           {{ adjustIndex > -1 || singular ? "Update" : "Add" }}
         </button>
         <button
           @click="addFromPicker(true)"
           v-if="adjustIndex > -1 && !singular"
-          class="btn-primary flex-grow"
+          class="btn-light dark:btn-dark flex-grow"
         >
           Duplicate
         </button>

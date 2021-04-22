@@ -1,5 +1,7 @@
 <template>
-  <div class="text-sm font-semibold text-green-700 bg-opacity-70 p-5">
+  <div
+    class="text-sm font-semibold text-green-700 dark:text-yellow-600 bg-opacity-70 p-5"
+  >
     <div class="lds-spinner">
       <div></div>
       <div></div>
@@ -14,7 +16,7 @@
       <div></div>
       <div></div>
     </div>
-    <span class="bg-white ml-2">{{ loadingText }}</span>
+    <span class="bg-white dark:bg-transparent ml-2">{{ loadingText }}</span>
   </div>
 </template>
 

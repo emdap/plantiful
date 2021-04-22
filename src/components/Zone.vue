@@ -1,10 +1,13 @@
 <template>
   <div
-    class="overflow-auto"
+    class="overflow-auto scrollbar-thin scrollbar-light dark:scrollbar-dark justify-self-stretch align-self-stretch justify-items-stretch"
     :id="zoneData.gridArea"
-    :class="[zoneData.id == 0 ? 'absolute' : 'static', 'bg-' + zoneData.color]"
+    :class="[
+      zoneData.id == 0 ? 'absolute' : 'static',
+      `bg-opacity-20 bg-${zoneData.color}-200 dark:bg-${zoneData.color}-900 hover:bg-opacity-50`
+    ]"
+    :style="styleObj"
   >
-    <!-- :style="styleObj" -->
     <template v-if="ready">
       <widget
         v-for="widget in zoneOpenWidgets(zoneData)"
@@ -18,7 +21,6 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
 import Component from "vue-class-component"
 import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import { Prop } from "vue-property-decorator"

@@ -3,7 +3,7 @@ const colors = require("tailwindcss/colors")
 
 module.exports = {
   purge: [],
-  darkMode: false, // or 'media' or 'class'
+  darkMode: "media", // or 'media' or 'class'
   options: {
     important: true
   },
@@ -21,6 +21,7 @@ module.exports = {
       },
       outline: {
         green: "2px solid " + colors.green["300"],
+        yellow: "2px solid " + colors.yellow["600"],
         "black-solid": "2px solid black"
       },
       margin: {
@@ -31,10 +32,12 @@ module.exports = {
   },
   variants: {
     extend: {
-      letterSpacing: ["hover"]
+      letterSpacing: ["hover"],
+      outline: ["dark"]
     }
   },
   plugins: [
+    require("tailwind-scrollbar"),
     plugin(function({ addBase, addUtilities, theme }) {
       addBase({
         h1: {
@@ -68,29 +71,60 @@ module.exports = {
           letterSpacing: "normal"
         }
       })
-      addUtilities({
-        ".btn-primary": {
-          background: theme("colors.green.600"),
-          color: "white",
-          fontWeight: theme("fontWeight.semibold"),
-          borderRadius: theme("borderRadius.sm")
+      addUtilities(
+        {
+          ".btn-light": {
+            background: theme("colors.green.600"),
+            color: "white",
+            fontWeight: theme("fontWeight.semibold"),
+            borderRadius: theme("borderRadius.sm")
+          },
+          ".btn-light:hover:not(:disabled)": {
+            background: theme("colors.green.400")
+          },
+          ".btn-light:focus": { outlineColor: theme("colors.green.300") },
+          ".btn-light:active": {
+            outline: theme("outline.none"),
+            background: theme("colors.green.800")
+          },
+          ".btn-light:disabled": {
+            color: theme("colors.green.300"),
+            background: theme("colors.green.100")
+          },
+          ".btn-light:disabled:hover": {
+            color: theme("colors.green.300")
+          },
+          ".btn-dark": {
+            background: theme("colors.yellow.700"),
+            color: theme("colors.gray.50"),
+            fontWeight: theme("fontWeight.semibold"),
+            borderRadius: theme("borderRadius.sm")
+          },
+          ".btn-dark:hover:not(:disabled)": {
+            background: theme("colors.yellow.600")
+          },
+          ".btn-dark:focus": { outlineColor: theme("colors.yellow.500") },
+          ".btn-dark:active": {
+            outline: theme("outline.none"),
+            background: theme("colors.yellow.600")
+          },
+          ".btn-dark:disabled": {
+            color: theme("colors.gray.800"),
+            background: theme("colors.gray.600")
+          },
+          ".btn-dark:disabled:hover": {
+            color: theme("colors.gray.800"),
+            background: theme("colors.gray.600")
+          },
+          ".btn-dark-transparent:disabled:hover": {
+            color: theme("colors.gray.800")
+          },
+          ".btn-dark-transparent:disabled": {
+            color: theme("colors.gray.800")
+          }
         },
-        ".btn-primary:hover:not(:disabled)": {
-          background: theme("colors.green.400")
-        },
-        ".btn-primary:focus": { outlineColor: theme("colors.green.300") },
-        ".btn-primary:active": {
-          outline: theme("outline.none"),
-          background: theme("colors.green.800")
-        },
-        ".btn-primary:disabled": {
-          color: theme("colors.green.300"),
-          background: theme("colors.green.100")
-        },
-        ".btn-primary:disabled:hover": {
-          color: theme("colors.green.300")
-        }
-      })
+        { variants: ["dark"] }
+      )
     })
   ]
 }

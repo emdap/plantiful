@@ -10,7 +10,7 @@ const zones: GridZone[] = [
     startPoint: NO_POSITION(),
     endPoint: NO_POSITION(),
     widgets: [] as string[],
-    color: "white"
+    color: "gray"
   },
   {
     id: 1,
@@ -20,7 +20,7 @@ const zones: GridZone[] = [
     startPoint: NO_POSITION(),
     endPoint: NO_POSITION(),
     widgets: [] as string[],
-    color: "blue-200"
+    color: "blue"
   },
   {
     id: 2,
@@ -30,7 +30,7 @@ const zones: GridZone[] = [
     startPoint: NO_POSITION(),
     endPoint: NO_POSITION(),
     widgets: [] as string[],
-    color: "purple-200"
+    color: "purple"
   },
   {
     id: 3,
@@ -40,7 +40,7 @@ const zones: GridZone[] = [
     startPoint: NO_POSITION(),
     endPoint: NO_POSITION(),
     widgets: [] as string[],
-    color: "green-200"
+    color: "green"
   },
   {
     id: 4,
@@ -50,7 +50,7 @@ const zones: GridZone[] = [
     startPoint: NO_POSITION(),
     endPoint: NO_POSITION(),
     widgets: [] as string[],
-    color: "pink-200"
+    color: "pink"
   },
   {
     id: 5,
@@ -60,7 +60,7 @@ const zones: GridZone[] = [
     startPoint: NO_POSITION(),
     endPoint: NO_POSITION(),
     widgets: [] as string[],
-    color: "yellow-200"
+    color: "yellow"
   }
 ]
 

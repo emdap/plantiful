@@ -1,7 +1,12 @@
 <template>
-  <div id="controls" class="overflow-auto">
+  <div
+    id="controls"
+    class="overflow-auto scrollbar-thin scrollbar-light dark:scrollbar-dark"
+  >
     <div v-for="controlTuple in visibleControls" :key="controlTuple[0]">
-      <h3 class="mb-2">{{ getControlSectionTitle(controlTuple[0]) }}</h3>
+      <h3 class="mb-2 dark:text-black">
+        {{ getControlSectionTitle(controlTuple[0]) }}
+      </h3>
       <div
         v-for="controlList in ['onEntity', 'onOptions']"
         :key="controlList"
@@ -11,7 +16,7 @@
           v-for="control in controls[controlTuple[0]][controlList]"
           :key="control.text"
           :id="`${controlTuple[0]}-${control.text}`"
-          class="pb-2 mb-2 border-b-1 border-gray-200 border-solid"
+          class="pb-2 mb-2 border-b-1 border-gray-200 dark:border-gray-800 dark:text-black border-solid"
         >
           <template v-if="control.children">
             <h4 class="font-semibold mb-1">{{ control.text }}</h4>

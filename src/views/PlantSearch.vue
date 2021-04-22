@@ -1,5 +1,5 @@
 <template>
-  <div id="plant-search" class="h-full overflow-auto">
+  <div id="plant-search" class="flex overflow-auto flex-grow flex-col gap-1">
     <search-bar class="p-4" />
     <div class="relative">
       <loading
@@ -9,7 +9,13 @@
       />
     </div>
     <template v-if="plantList.length">
-      <h3 :class="plantListLoading ? 'text-gray-300' : 'text-green-800'">
+      <h3
+        :class="
+          plantListLoading
+            ? 'text-gray-300 dark:text-gray-800'
+            : 'text-green-800 dark:text-black'
+        "
+      >
         Page {{ currentPage }} of {{ lastPage }}
       </h3>
       <plant-list
@@ -18,7 +24,11 @@
         class="p-4"
       />
       <page-nav
-        :class="plantListLoading ? 'text-gray-300' : 'text-green-800'"
+        :class="
+          plantListLoading
+            ? 'text-gray-300 dark:text-gray-800'
+            : 'text-green-800 dark:text-green-600'
+        "
       />
     </template>
   </div>

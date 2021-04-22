@@ -1,54 +1,42 @@
 <template>
   <div
     :id="`${widgetData.name}-widget`"
-    class="widget flex p-2 bg-white outline-none"
+    class="widget flex p-2 bg-white dark:bg-gray-700 outline-none text-gray-400 dark:text-black"
     :style="styleObj"
     :class="classObj"
     tabindex="1"
     @focus="inFocus = true"
     @blur="inFocus = false"
   >
-    <main class="flex flex-grow flex-col overflow-auto">
+    <main class="flex flex-grow flex-col">
       <nav
-        class="flex flex-row h-8 items-center whitespace-nowrap mb-1 sticky left-0 w-full text-gray-500"
+        class="flex flex-row h-8 items-center whitespace-nowrap mb-1 sticky left-0 w-full "
       >
         <nav class="flex w-1/2 gap-3">
           <docked-icon
-            class="cursor-pointer fill-current text-pink-800 hover:text-green-600"
+            class="icon"
             v-if="widgetData.docked"
             @click="dockWidget()"
           />
-          <not-docked-icon
-            class="cursor-pointer fill-current hover:text-green-600"
-            v-else
-            @click="dockWidget()"
-          />
+          <not-docked-icon class="icon" v-else @click="dockWidget()" />
           <span ref="move-icon">
-            <move-icon
-              class="cursor-pointer fill-current hover:text-green-600"
-              :class="{ 'text-green-600': trackPosition }"
-              @mousedown="trackPosition = true"
-            />
+            <move-icon class="icon" @mousedown="trackPosition = true" />
           </span>
         </nav>
         <header
-          class="flex flex-grow font-semibold items-center justify-center px-3"
+          class="flex flex-grow font-semibold items-center justify-center px-3 dark:text-black"
         >
           {{ widgetData.text }}
           <h2></h2>
         </header>
         <nav class="flex w-1/2 justify-end">
-          <close-icon
-            class="cursor-pointer fill-current hover:text-pink-800"
-            @click="closeWidget()"
-          />
+          <close-icon class="icon close" @click="closeWidget()" />
         </nav>
       </nav>
       <slot></slot>
       <footer class="mt-auto sticky left-0 text-gray-500">
         <resize-icon
-          class="resize-widget mt-1 cursor-pointer ml-auto fill-current hover:text-green-600"
-          :class="{ 'text-green-600': trackSize }"
+          class="icon resize-widget mt-1 ml-auto"
           @mousedown="trackSize = true"
         />
       </footer>
@@ -120,22 +108,6 @@ export default class Widget extends GridMixin {
   }
 
   // Utilities
-  public getCurrentRect() {
-    const el = this.$el as HTMLElement
-    const { width, height, x, y } = el.getBoundingClientRect()
-    const offsetX = el.offsetLeft
-    const offsetY = el.offsetTop
-
-    return {
-      width,
-      height,
-      x,
-      y,
-      offsetX,
-      offsetY
-    }
-  }
-
   @Watch("trackSize")
   mouseUpdatesSize(track: boolean) {
     if (track) {
@@ -178,7 +150,7 @@ export default class Widget extends GridMixin {
       "shadow-md": !this.widgetData.docked,
       "shadow-sm": this.widgetData.docked,
       "bg-opacity-95": !this.widgetData.docked,
-      "outline-green": this.trackPosition || this.trackSize,
+      "outline-green dark:outline-yellow": this.trackPosition || this.trackSize,
       hidden: !this.widgetData.open
     }
   }
@@ -189,11 +161,15 @@ export default class Widget extends GridMixin {
   }
 
   public dockWidget() {
+    // record the zone size before/after un/re-docking
     if (this.widgetData.docked) {
-      // set properties to current size/location before undocking
       this.setToCurrent()
+      grid.toggleDocked(this.widgetData)
+    } else {
+      grid.toggleDocked(this.widgetData).then(() => {
+        this.setToCurrent()
+      })
     }
-    grid.toggleDocked(this.widgetData)
   }
 
   // Functions to modify display
@@ -219,12 +195,14 @@ export default class Widget extends GridMixin {
       startWidth = this.widgetData.width
     }
 
+    const el = this.$el as HTMLElement
+
     const newHeight = Math.min(
-      grid.overallHeight,
+      grid.overallHeight - 8,
       startHeight + e.pageY - this.sizeStart.y
     )
     const newWidth = Math.min(
-      grid.overallWidth,
+      grid.overallWidth - el.offsetLeft + 40,
       startWidth + e.pageX - this.sizeStart.x
     )
     grid.setWidgetSize({
@@ -280,5 +258,3 @@ export default class Widget extends GridMixin {
   }
 }
 </script>
-
-<style></style>
