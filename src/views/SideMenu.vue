@@ -19,7 +19,7 @@
         @click="expanded = !expanded"
         :class="
           expanded
-            ? 'text-green-700 hover:text-pink-800 dark:text-yellow-600 dark:hover:text-yellow-900'
+            ? 'text-green-700 hover:text-pink-800 dark:text-yellow-700 dark:hover:text-yellow-900'
             : 'text-gray-500  hover:text-pink-400 dark:hover:text-yellow-400'
         "
       >

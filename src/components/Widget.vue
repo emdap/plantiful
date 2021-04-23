@@ -201,7 +201,7 @@ export default class Widget extends GridMixin {
       "bg-opacity-95": !this.widgetData.docked,
       "shadow-sm": this.widgetData.docked,
       "border-1 border-pink-300 dark:border-yellow-800":
-        !this.widgetData.docked && !this.trackPosition,
+        !this.widgetData.docked && !this.trackPosition && !this.trackSize,
       "border-2 border-green-300 dark:border-yellow-400":
         this.trackPosition || this.trackSize
       // hidden: !this.widgetData.open

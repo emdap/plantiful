@@ -6,7 +6,9 @@
     <h1 class="text-green-800 dark:text-green-600 text-center">Welcome</h1>
     <p class="mb-4">
       Hello and welcome to the CSS garden. This website makes use of the
-      <a href="https://trefle.io" class="text-yellow-600 hover:text-yellow-400"
+      <a
+        href="https://trefle.io"
+        class="dark:text-yellow-600 text-green-500 hover:text-pink-400 dark:hover:text-yellow-400"
         >Trefle API</a
       >
       to gather plant information. Some of that information is then used to
