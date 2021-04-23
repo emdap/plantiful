@@ -87,7 +87,7 @@
 <script lang="ts">
 import Vue from "vue"
 import Component from "vue-class-component"
-import { Prop, Ref, Watch } from "vue-property-decorator"
+import { Prop, Ref } from "vue-property-decorator"
 import { controlMessages } from "@/fixtures/Messages"
 import { Chrome } from "vue-color"
 import colorConverter from "css-color-converter"

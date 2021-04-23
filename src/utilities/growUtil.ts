@@ -5,10 +5,7 @@ import {
   GrowBranch,
   BranchOutOptions,
   FlowerOptions,
-  LeafClusterOptions,
-  GrowOptionsType,
-  GrowLeafCluster,
-  GrowFlower
+  LeafClusterOptions
 } from "@/store/interfaces"
 import {
   DEFAULT_PLANT_OPTIONS,

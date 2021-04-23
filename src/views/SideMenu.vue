@@ -90,7 +90,7 @@
 import Vue from "vue"
 import Component from "vue-class-component"
 import { grid } from "@/mixins/GridMixin.vue"
-import { MenuWidget, MenuGroups, GridWidget } from "@/store/interfaces"
+import { MenuGroups, GridWidget } from "@/store/interfaces"
 import ArrowIcon from "@/assets/icons/arrow.svg"
 import LightIcon from "@/assets/icons/light-mode.svg"
 import DarkIcon from "@/assets/icons/dark-mode.svg"

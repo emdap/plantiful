@@ -72,7 +72,7 @@
 </template>
 
 <script lang="ts">
-import { Positions, Dimensions, GridWidget, Position } from "@/store/interfaces"
+import { GridWidget, Position } from "@/store/interfaces"
 import { Prop, Ref, Watch } from "vue-property-decorator"
 import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import Component from "vue-class-component"

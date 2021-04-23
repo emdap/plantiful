@@ -3,7 +3,6 @@ import Vue from "vue"
 import Component from "vue-class-component"
 import { getModule } from "vuex-module-decorators"
 import { grid } from "@/mixins/GridMixin.vue"
-import { grow } from "@/mixins/GrowMixin.vue"
 import GardenModule from "@/store/modules/garden"
 import { gardenMessages } from "@/fixtures/Messages"
 

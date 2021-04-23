@@ -11,7 +11,6 @@ import {
   PageLinkPayload
 } from "@/store/interfaces"
 import { listPlants, getPlant, getLink, searchPlants } from "@/services/plants"
-import { gardenMessages } from "@/fixtures/Messages"
 
 @Module({
   dynamic: true,

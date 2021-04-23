@@ -12,7 +12,6 @@
       class="whitespace-nowrap text-center transition-all duration-75 font-semibold cursor-pointer dark:text-white"
       @dblclick.self="setActiveEntity"
     >
-      <!-- @mousedown.prevent="" -->
       {{ plantData.name }}
     </span>
     <div :style="styleRotation" class="absolute">
@@ -39,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { GrowPlant, Position, Rotation } from "@/store/interfaces"
+import { GrowPlant } from "@/store/interfaces"
 import Component from "vue-class-component"
 import { Prop, Watch } from "vue-property-decorator"
 import Shape from "@/components/Grow/Shape.vue"

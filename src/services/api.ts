@@ -1,5 +1,5 @@
 import { JWTResponse } from "@/store/interfaces"
-import { create, ApiResponse, ApiErrorResponse, ApiOkResponse } from "apisauce"
+import { create, ApiResponse } from "apisauce"
 import { AxiosRequestConfig } from "axios"
 
 const PLANT_API = process.env.VUE_APP_PLANT_API
@@ -35,6 +35,7 @@ plantAPI.addAsyncRequestTransform(async (request: AxiosRequestConfig) => {
   request.headers.Authorization = `Bearer ${JWT.token}`
 })
 
+// eslint-disable-next-line  @typescript-eslint/no-explicit-any
 export const resolve = <S, E>(response: ApiResponse<S, E>): any => {
   if (response.ok) {
     return response.data

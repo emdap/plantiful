@@ -65,16 +65,14 @@ export default class Grow extends GrowMixin {
     grow.removeActivePlant()
   }
 
-  public mouseDown(e: MouseEvent) {
+  public mouseDown() {
     if (grow.activeEntity) {
-      // e.preventDefault()
       this.trackMouse = true
     }
   }
 
-  public mouseUp(e: MouseEvent) {
+  public mouseUp() {
     if (this.trackMouse) {
-      // e.preventDefault()
       this.trackMouse = false
     }
   }

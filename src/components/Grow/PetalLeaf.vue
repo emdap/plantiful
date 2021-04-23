@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
-import { GrowFlower, GrowLeaf, GrowPetal } from "@/store/interfaces"
+import { GrowLeaf, GrowPetal } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 import Shape from "@/components/Grow/Shape.vue"
 import Component from "vue-class-component"
