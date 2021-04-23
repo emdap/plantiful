@@ -5,6 +5,7 @@ import { getModule } from "vuex-module-decorators"
 import { Watch } from "vue-property-decorator"
 import GrowModule from "@/store/modules/grow"
 import { grid } from "@/mixins/GridMixin.vue"
+import { growMessages } from "@/fixtures/Messages"
 import {
   GrowBasis,
   GrowPlant,
@@ -19,6 +20,7 @@ export const grow = getModule(GrowModule)
 
 @Component({})
 export default class GrowMixin extends Vue {
+  public messages = growMessages
   public highlightBg = "pink"
   public highlightDuration = 1000
 

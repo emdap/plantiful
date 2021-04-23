@@ -2,21 +2,21 @@
   <div
     id="search-results"
     ref="plant-list"
-    class="h-full overflow-auto scrollbar-thin scrollbar-light dark:scrollbar-dark"
+    class="h-full overflow-auto scrollbar-light dark:scrollbar-dark"
   >
     <div
       v-for="(plant, index) in plantList"
       :key="`plant ${index}`"
-      class="mb-2 px-4 py-2 text-left h-22 grid grid-cols-3 gap-2 items-center"
+      class="py-2 px-4 text-left h-22 grid grid-cols-3 items-center"
       :class="
         plantListLoading
           ? 'text-gray-300 dark:text-gray-600 cursor-wait'
-          : 'hover:bg-green-200 dark:text-black dark:hover:bg-gray-600 hover:tracking-wide transition-text'
+          : 'hover:bg-green-200 dark:hover:bg-gray-600 hover:tracking-wide transition-text'
       "
     >
       <div
         class="col-span-2 cursor-pointer flex items-center"
-        @click="optionClicked($event, plant.id, 'show-active')"
+        @click="optionClicked(plant.id, 'show-active')"
       >
         <img
           v-if="plant.image_url"
@@ -80,14 +80,6 @@ export default class PlantList extends GardenMixin {
   public async optionClicked(id: number, option: string) {
     await garden.getOnePlant(id)
     this.$emit(option)
-    // switch (option) {
-    //   case "show-active":
-    //     this.toggleActivePlant(true)
-    //     break
-    //   case "grow-plant":
-    //     this.toggleGrow(true)
-    //     break
-    // }
   }
 
   @Watch("plantList")

@@ -5,7 +5,6 @@ import {
   GridWidget,
   GridZone
 } from "@/store/interfaces"
-import { widgetMessages } from "@/fixtures/Messages"
 import store from "@/store"
 import Vue from "vue"
 import { Position } from "vue-router/types/router"
@@ -28,14 +27,9 @@ export default class GridModule extends VuexModule implements GridState {
 
   overallHeight = 0
   overallWidth = 0
-  // D
   activeWidget: GridWidget | null = null
   // D
   activeZone: GridZone | null = null
-
-  get widgetMessages() {
-    return widgetMessages
-  }
 
   get getWidget() {
     return (name: string): GridWidget => {
@@ -124,22 +118,48 @@ export default class GridModule extends VuexModule implements GridState {
   @Action
   widgetToZone(payload: { widget: GridWidget; zoneId: number }) {
     const { widget, zoneId } = payload
-    if (zoneId) this.TOGGLE_ZONE({ id: zoneId, open: widget.docked })
+    // open or close the zone
+    if (zoneId) this.TOGGLE_ZONES({ openZone: zoneId, open: widget.docked })
     if (zoneId == widget.currentZone) {
-      // happens if container re-renders
+      // happens if container re-renders TODO: investigate more
       return
     }
+
+    let swapWidget!: GridWidget
+    let curPosition!: Position
     const prevZoneId = widget.currentZone
-    // TODO: break down mutation
-    if (zoneId && this.zones[zoneId].widgets.length) {
-      // need to displace existing widget from non-0 zone
+
+    // check if there's already a widget in this zone
+    if (zoneId && this.getZone(zoneId).widgets.length) {
+      const swapName = this.getZone(zoneId).widgets[0]
+      // will need to move this widget after
+      swapWidget = this.getWidget(swapName)
+      curPosition = { ...widget.position }
     }
+    this.WIDGET_ZONE({ name: widget.name, zoneId })
     this.ZONE_WIDGETS({
       widgetName: widget.name,
-      newZoneId: zoneId,
+      zoneId,
       prevZoneId
     })
-    this.WIDGET_ZONE({ name: widget.name, zoneId })
+
+    // move swapWidget to the zone our widget currently occupies
+    if (swapWidget && swapWidget.open) {
+      // move to zone 0 if previously undocked & closed widget is re-opening into zone
+      const newZone = prevZoneId && prevZoneId != zoneId ? prevZoneId : 0
+      if (!prevZoneId && swapWidget.docked) {
+        this.WIDGET_POSITION({
+          name: swapWidget.name,
+          newPosition: curPosition
+        })
+        // moving to zone 0 -> undock
+        this.TOGGLE_DOCKED(swapWidget.name)
+      }
+      this.widgetToZone({
+        widget: swapWidget,
+        zoneId: newZone
+      })
+    }
   }
 
   @Action
@@ -225,13 +245,17 @@ export default class GridModule extends VuexModule implements GridState {
   toggleWidget(widget: GridWidget) {
     if (!widget.open) {
       // move widget to its default zone before opening
+      // will also toggle zone open if not already
       this.widgetToZone({ widget, zoneId: widget.defaultZone })
     } else if (!widget.docked) {
       // initialize docked for next open
       this.TOGGLE_DOCKED(widget.name)
       // if has current zone/!=0, remove widget from zone list
       if (widget.currentZone) {
-        this.RESET_ZONE_WIDGETS(widget.currentZone)
+        this.ZONE_WIDGETS({
+          widgetName: widget.name,
+          prevZoneId: widget.currentZone
+        })
       }
     }
     this.TOGGLE_WIDGET(widget.name)
@@ -250,16 +274,25 @@ export default class GridModule extends VuexModule implements GridState {
 
   @Action
   toggleZone(zone: GridZone) {
-    this.TOGGLE_ZONE({ id: zone.id })
+    this.TOGGLE_ZONES({ openZone: zone.id })
   }
 
   @Action
   toggleWidgetName(payload: { name: string; forceShow?: boolean }) {
     const { name, forceShow } = payload
     const widget = this.getWidget(name)
-    if (widget && forceShow != undefined && widget.open != forceShow) {
-      this.toggleWidget(widget)
+    if (widget && forceShow != undefined) {
+      if (widget.open != forceShow) {
+        this.toggleWidget(widget)
+      } else if (forceShow == true) {
+        this.ACTIVE_WIDGET(name)
+      }
     }
+  }
+
+  @Action
+  setActiveWidget(name?: string) {
+    this.ACTIVE_WIDGET(name ? name : null)
   }
 
   @Action
@@ -286,19 +319,18 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  TOGGLE_ZONE(payload: { id: number; open?: boolean }) {
-    const { id, open } = payload
-    if (!id) {
+  TOGGLE_ZONES(payload: { openZone: number; open?: boolean }) {
+    const { openZone, open } = payload
+    if (!openZone) {
       return
     }
-    const zone = this.zones[id]
+    const zone = this.zones[openZone]
     Vue.set(zone, "open", open ? true : !zone.open)
     for (const id of this.containers[zone.containerId].zones) {
       Vue.set(this.zones[id], "mounted", false)
     }
   }
 
-  // TODO: Merge with above and split Actions differently
   @Mutation
   ZONE_MOUNTED(payload: { id: number; mounted: boolean }) {
     const { id, mounted } = payload
@@ -331,41 +363,24 @@ export default class GridModule extends VuexModule implements GridState {
   @Mutation
   ZONE_WIDGETS(payload: {
     widgetName: string
-    newZoneId: number
+    zoneId?: number
     prevZoneId?: number
   }) {
-    const { widgetName, newZoneId, prevZoneId } = payload
-    let prevZone!: GridZone
-    const newZone = this.zones[newZoneId]
+    const { widgetName, zoneId, prevZoneId } = payload
 
+    // remove from previous zone if there is one
     if (prevZoneId != undefined) {
-      prevZone = this.zones[prevZoneId]
+      const prevZone = this.zones[prevZoneId]
       prevZone.widgets = prevZone.widgets.filter(name => {
         return name != widgetName
       })
-    } else {
-      prevZone = this.zones[0]
     }
 
-    // don't allow 2 open widgets in zone at same time, unless zone 0
-    if (
-      this.widgets[widgetName].open &&
-      newZoneId != 0 &&
-      newZone.widgets.length
-    ) {
-      const moveWidgetName = newZone.widgets[0]
-      const moveWidget = this.widgets[moveWidgetName]
-      if (moveWidget.open) {
-        newZone.widgets = []
-        prevZone.widgets.push(moveWidgetName)
-        moveWidget.currentZone = prevZoneId
-        if (prevZoneId == 0) {
-          moveWidget.docked = false
-          moveWidget.position = this.widgets[widgetName].position
-        }
-      }
+    // add to zone if there is one
+    if (zoneId != undefined) {
+      const zone = this.zones[zoneId]
+      zone.widgets.push(widgetName)
     }
-    newZone.widgets.push(widgetName)
   }
 
   @Mutation
@@ -438,26 +453,12 @@ export default class GridModule extends VuexModule implements GridState {
 
   @Mutation
   TOGGLE_WIDGET(name: string) {
-    // TODO: revise this / move logic to action
-    // not allowing welcome and search to be open at same time for any reason
-    if (
-      this.widgets["welcome"].open &&
-      name == "search" &&
-      !this.widgets[name].open
-    ) {
-      this.widgets["welcome"].open = false
-    }
     this.widgets[name].open = !this.widgets[name].open
   }
 
   @Mutation
   TOGGLE_DOCKED(name: string) {
     this.widgets[name].docked = !this.widgets[name].docked
-  }
-
-  @Mutation
-  RESET_ZONE_WIDGETS(id: number) {
-    this.zones[id].widgets = []
   }
 
   @Mutation

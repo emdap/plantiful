@@ -6,7 +6,11 @@
     @mousedown="zoneSelected = true"
     @mouseup="zoneSelected = false"
   >
-    <div v-if="sized" class="h-full w-full" :class="widgetWrapperClass">
+    <div
+      v-if="sized"
+      class="h-full w-full transition-opacity"
+      :class="widgetWrapperClass"
+    >
       <widget
         v-for="widget in zoneOpenWidgets(zoneData)"
         :widgetData="widget"
@@ -22,8 +26,8 @@
 import Component from "vue-class-component"
 import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import { Prop, Watch } from "vue-property-decorator"
-import { GridContainer, GridZone, Size } from "@/store/interfaces"
-import Widget from "@/components/Widget.vue"
+import { GridZone, Size } from "@/store/interfaces"
+import Widget from "@/components/Grid/Widget.vue"
 
 @Component({
   components: {
@@ -42,10 +46,16 @@ export default class Zone extends GridMixin {
     // want zone sizes to be flexible based on widget content,
     // but start size as if grid cols/rows were set to 1fr instead of auto
     this.setCurrentSize()
+    document.addEventListener("mouseup", this.notSelected)
+  }
+
+  public notSelected() {
+    this.zoneSelected = false
   }
 
   public beforeDestroy() {
     grid.mountZone({ id: this.zoneData.id, mounted: false })
+    document.removeEventListener("mouseup", this.notSelected)
     this.resetSize()
   }
 
@@ -86,7 +96,6 @@ export default class Zone extends GridMixin {
       const normalBg = "bg-opacity-50 dark:bg-opacity-50"
       return [
         "zone",
-        "scrollbar-thin",
         "scrollbar-light dark:scrollbar-dark",
         "justify-self-stretch",
         "align-self-stretch",

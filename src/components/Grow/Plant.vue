@@ -73,7 +73,7 @@ export default class Plant extends GrowMixin {
       // init position once mounted
       const plantElem = this.$el as HTMLElement
       if (!plantElem) {
-        console.error("not mounted?")
+        this.$toasted.error(this.messages.generalError)
         return
       }
       grow.setPosition({

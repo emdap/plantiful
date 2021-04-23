@@ -40,6 +40,7 @@
 import Vue from "vue"
 import Component from "vue-class-component"
 import ColorField from "@/components/Grow/ColorField.vue"
+import { controlMessages } from "@/fixtures/Messages"
 import { Prop, Watch } from "vue-property-decorator"
 import {
   Control,
@@ -102,17 +103,14 @@ export default class ControlField extends Vue {
       this.updatedValue > this.control.verify.upperBound ||
       this.updatedValue < this.control.verify.lowerBound
     ) {
-      // TODO: proper error
       if (this.updatedValue > this.control.verify.upperBound) {
-        console.error(
-          "New value exceeds upper bound of ",
-          this.control.verify.upperBound
+        this.$toasted.error(
+          controlMessages.upperBoundError + this.control.verify.upperBound
         )
         this.updatedValue = this.control.verify.upperBound
       } else {
-        console.error(
-          "New value does not meet lower bound of",
-          this.control.verify.lowerBound
+        this.$toasted.error(
+          controlMessages.lowerBoundError + this.control.verify.lowerBound
         )
         this.updatedValue = this.control.verify.lowerBound
       }

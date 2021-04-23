@@ -1,10 +1,7 @@
 <template>
-  <div
-    id="controls"
-    class="overflow-auto scrollbar-thin scrollbar-light dark:scrollbar-dark"
-  >
+  <div id="controls" class="overflow-auto scrollbar-light dark:scrollbar-dark">
     <div v-for="controlTuple in visibleControls" :key="controlTuple[0]">
-      <h3 class="mb-2 dark:text-black">
+      <h3 class="mb-2 text-black dark:text-gray-100">
         {{ getControlSectionTitle(controlTuple[0]) }}
       </h3>
       <div
@@ -16,7 +13,7 @@
           v-for="control in controls[controlTuple[0]][controlList]"
           :key="control.text"
           :id="`${controlTuple[0]}-${control.text}`"
-          class="pb-2 mb-2 border-b-1 border-gray-200 dark:border-gray-800 dark:text-black border-solid"
+          class="pb-2 mb-2 border-b-1 border-gray-200 dark:border-gray-800 border-solid"
         >
           <template v-if="control.children">
             <h4 class="font-semibold mb-1">{{ control.text }}</h4>
@@ -185,7 +182,7 @@ export default class Controls extends GrowMixin {
       sourceEntity = grow.activeEntity
     } else {
       // somehow accessed controls without there being an active plant/entity
-      console.error("no active plant or active entity!")
+      this.$toasted.error(this.messages.noActiveEntity)
       return
     }
     if (!child) {

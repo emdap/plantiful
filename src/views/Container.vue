@@ -19,7 +19,7 @@
         </template>
       </div>
     </div>
-    <!-- zone used for undocked widgets -- // TODO: should make new component that just iterates widgets -->
+    <!-- zone used for undocked widgets -->
     <zone v-if="ready" :zoneData="getZone(0)" />
   </div>
 </template>
@@ -32,7 +32,7 @@ import zonesFixture from "@/fixtures/Grid/Zones"
 import widgetsFixture from "@/fixtures/Grid/Widgets"
 import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
-import Zone from "@/components/Zone.vue"
+import Zone from "@/components/Grid/Zone.vue"
 import util from "@/utilities/containerUtil"
 import { GrowPlant } from "@/store/interfaces"
 import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
@@ -73,7 +73,8 @@ export default class Container extends mixins(GridMixin, GrowMixin) {
     // #container is defined in App.vue, is 100vh and 100vw - menu size
     const container = document.getElementById("container")
     if (!container) {
-      return console.error("Container does not exist?")
+      this.$toasted.error(this.messages.generalError)
+      return
     }
     const { height, width } = container.getBoundingClientRect()
     grid.setGridSize({ height, width })
@@ -84,7 +85,8 @@ export default class Container extends mixins(GridMixin, GrowMixin) {
       // might have to add more to this
       // TODO: dynamic sizing for containers like there is for zones, or leverage CSS
       // TODO: need to just track the size in state!! resize zones if another container comes in/out
-      return this.containerOpenZones(id).length ? "flex-grow: 1" : "width: 0"
+      // return this.containerOpenZones(id).length ? "flex-grow: 1" : "width: 0"
+      return ""
     }
   }
 
@@ -116,17 +118,55 @@ export default class Container extends mixins(GridMixin, GrowMixin) {
   }
 
   // Particular logic for widgets can go here
+  public get activePlantWidget() {
+    return this.getWidget("active-plant")
+  }
+
+  public get searchWidget() {
+    return this.getWidget("search")
+  }
+
   public get welcomeWidget() {
     return this.getWidget("welcome")
+  }
+
+  public closeSearchers() {
+    if (this.searchWidget?.open) {
+      grid.toggleWidget(this.searchWidget)
+    }
+    if (this.activePlantWidget?.open) {
+      grid.toggleWidget(this.activePlantWidget)
+    }
+  }
+
+  public closeWelcome() {
+    if (this.welcomeWidget.open) {
+      grid.toggleWidget(this.welcomeWidget)
+    }
   }
 
   @Watch("welcomeWidget.open")
   public toggleWelcome(open: boolean) {
     if (open) {
       this.growTestPlant()
+      this.closeSearchers()
     } else {
       grow.removeActivePlant()
       grow.deleteEntity({ dataKey: "plants", id: this.testPlant.id })
+    }
+  }
+
+  @Watch("searchWidget.open")
+  public searchOpen(open: boolean) {
+    if (open) {
+      this.closeWelcome()
+    }
+  }
+
+  @Watch("activePlantWidget.open")
+  public activePlantOpen(open: boolean) {
+    if (open) {
+      this.closeWelcome()
     }
   }
 }

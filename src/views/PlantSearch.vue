@@ -9,20 +9,20 @@
       />
     </div>
     <template v-if="plantList.length">
-      <h3
-        :class="
-          plantListLoading
-            ? 'text-gray-300 dark:text-gray-800'
-            : 'text-green-800 dark:text-black'
-        "
-      >
-        Page {{ currentPage }} of {{ lastPage }}
-      </h3>
       <plant-list
         @show-active="toggleActivePlant(true)"
         @grow-plant="growPlant(activePlant)"
         class="p-4"
       />
+      <h4
+        :class="
+          plantListLoading
+            ? 'text-gray-300 dark:text-gray-800'
+            : 'text-green-800 dark:text-yellow-600'
+        "
+      >
+        Page {{ currentPage }} of {{ lastPage }}
+      </h4>
       <page-nav
         :class="
           plantListLoading
@@ -37,10 +37,9 @@
 <script lang="ts">
 import Component, { mixins } from "vue-class-component"
 import Loading from "@/components/Loading.vue"
-import SearchBar from "@/components/SearchBar.vue"
-import PlantList from "@/components/PlantList.vue"
-import PageNav from "@/components/PageNav.vue"
-import ActivePlant from "@/components/ActivePlant.vue"
+import SearchBar from "@/components/Garden/SearchBar.vue"
+import PlantList from "@/components/Garden/PlantList.vue"
+import PageNav from "@/components/Garden/PageNav.vue"
 import GardenMixin from "@/mixins/GardenMixin.vue"
 import GrowMixin from "@/mixins/GrowMixin.vue"
 
@@ -49,8 +48,7 @@ import GrowMixin from "@/mixins/GrowMixin.vue"
     Loading,
     SearchBar,
     PlantList,
-    PageNav,
-    ActivePlant
+    PageNav
   }
 })
 export default class PlantSearch extends mixins(GardenMixin, GrowMixin) {}

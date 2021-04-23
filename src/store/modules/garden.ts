@@ -1,3 +1,4 @@
+import Vue from "vue"
 import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
 import store from "@/store"
 import {
@@ -10,6 +11,7 @@ import {
   PageLinkPayload
 } from "@/store/interfaces"
 import { listPlants, getPlant, getLink, searchPlants } from "@/services/plants"
+import { gardenMessages } from "@/fixtures/Messages"
 
 @Module({
   dynamic: true,
@@ -150,9 +152,8 @@ export default class GardenModule extends VuexModule implements GardenState {
     this.activePlant = null
   }
 
-  @Mutation
-  private API_ERROR(error: Error) {
-    // TODO: do something with the error, a pop up or something, + add to entity
-    console.error(error)
+  @Action
+  private API_ERROR(error: string) {
+    Vue.toasted.error(error)
   }
 }

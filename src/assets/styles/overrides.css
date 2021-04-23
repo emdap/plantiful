@@ -1,0 +1,21 @@
+/* toasted */
+.toasted-custom.error {
+  @apply bg-red-600 !important;
+}
+
+.toasted-container-custom {
+  @apply right-2 bottom-2 !important;
+}
+
+/* color picker */
+.vc-chrome {
+  box-shadow: none !important;
+}
+
+.vc-chrome-toggle-icon {
+  margin-top: none !important;
+}
+
+.vc-chrome-toggle-icon-highlight {
+  display: none;
+}

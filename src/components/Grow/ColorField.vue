@@ -88,6 +88,7 @@
 import Vue from "vue"
 import Component from "vue-class-component"
 import { Prop, Ref, Watch } from "vue-property-decorator"
+import { controlMessages } from "@/fixtures/Messages"
 import { Chrome } from "vue-color"
 import colorConverter from "css-color-converter"
 import CloseIcon from "@/assets/icons/close.svg"
@@ -137,10 +138,7 @@ export default class ColorField extends Vue {
       .fromString(this.userEnteredColor)
       ?.toRgbaArray()
     if (!newColor) {
-      // TODO: error toast
-      console.error(
-        "Not a valid color name! Please try again, or use the color picker"
-      )
+      this.$toasted.error(controlMessages.colorError)
       return
     }
     const strColor = `rgba(${newColor[0]}, ${newColor[1]}, ${newColor[2]}, 1)`

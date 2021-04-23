@@ -2,6 +2,11 @@
 
 import { VueConstructor } from "vue/types/umd"
 
+export interface JWTResponse {
+  token: string
+  expiration: string
+}
+
 // States/stores
 export interface RootState {
   garden: {}

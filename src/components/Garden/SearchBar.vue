@@ -5,7 +5,7 @@
   >
     <input
       id="search-input"
-      class="font-semibold w-full bg-gray-50 dark:bg-gray-600 focus:bg-green-50 dark:focus:bg-gray-500 p-2 flex-grow text-left"
+      class="font-semibold w-full bg-gray-50 dark:bg-gray-600 focus:bg-green-50 dark:focus:bg-gray-500 p-2 pl-4 flex-grow text-left"
       type="text"
       v-model="searchQuery"
       :placeholder="gardenMessages.searchBar.placeholder"

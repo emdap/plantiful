@@ -1,7 +1,7 @@
 <template>
   <div
     id="active-plant"
-    class="p-4 flex-grow overflow-auto scrollbar-thin scrollbar-light dark:scrollbar-dark flex-col"
+    class="p-4 flex-grow overflow-auto scrollbar-light dark:scrollbar-dark flex-col"
   >
     <loading
       v-if="plantLoading"

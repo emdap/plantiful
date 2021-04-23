@@ -1,7 +1,7 @@
 <template>
   <div
     :id="`${widgetData.name}-widget`"
-    class="widget flex transition-colors p-2 bg-white dark:bg-gray-700 outline-none text-gray-600 dark:text-black  overflow-auto"
+    class="widget flex transition-colors py-2 px-1 bg-white dark:bg-gray-700 outline-none text-gray-600 dark:text-gray-300  overflow-auto"
     :style="widgetStyle"
     :class="widgetClass"
     tabindex="1"
@@ -13,8 +13,13 @@
         class="flex flex-row flex-shrink-0 h-6 items-center whitespace-nowrap mb-1 sticky left-0 w-full scrollbar-none overflow-x-auto"
       >
         <nav class="flex w-1/2 gap-3">
-          <!-- TODO: all titles should be from fixture -->
-          <span :title="widgetData.docked ? 'Un-dock widget' : 'Dock widget'">
+          <span
+            :title="
+              widgetData.docked
+                ? messages.iconTitles.unDock
+                : messages.iconTitles.dock
+            "
+          >
             <docked-icon
               class="icon"
               v-if="widgetData.docked"
@@ -24,7 +29,11 @@
           </span>
           <span
             ref="move-icon"
-            :title="widgetData.docked ? 'Swap zone' : 'Move widget'"
+            :title="
+              widgetData.docked
+                ? messages.iconTitles.swap
+                : messages.iconTitles.move
+            "
           >
             <move-dock-icon
               v-if="widgetData.docked"
@@ -40,18 +49,18 @@
           {{ widgetData.text }}
           <h2></h2>
         </header>
-        <nav class="flex w-1/2 justify-end">
+        <nav class="flex w-1/2 justify-end" :title="messages.iconTitles.close">
           <close-icon class="icon close" @click="closeWidget()" />
         </nav>
       </nav>
-      <section class="flex flex-grow overflow-auto">
+      <section class="flex flex-grow overflow-auto px-1">
         <slot></slot>
       </section>
       <footer
         v-if="!widgetData.docked"
         class="mt-auto sticky left-0 text-gray-500"
       >
-        <span title="Resize">
+        <span :title="messages.iconTitles.resize">
           <resize-icon
             class="icon resize-widget mt-1 ml-auto"
             @mousedown="trackSize = true"
@@ -93,6 +102,7 @@ export default class Widget extends GridMixin {
   public sizeStart: Position | null = null
   public posStart: Position | null = null
   public inFocus = false
+  public active = false
 
   public mounted() {
     this.initMouseUpListeners()
@@ -123,6 +133,7 @@ export default class Widget extends GridMixin {
     }
   }
 
+  // Utilities
   public syncWithZone() {
     // need to wait for next tick so that widget has in fact updated in DOM
     this.$nextTick(() => {
@@ -144,7 +155,25 @@ export default class Widget extends GridMixin {
     })
   }
 
-  // Utilities
+  public moveZone() {
+    // posStart is recording where the mouse currently is as mouse moves
+    const mousePos = this.posStart ? this.posStart : this.widgetData.position
+    grid.widgetToClosestZone({ widget: this.widgetData, mousePos })
+    this.syncWithZone()
+  }
+
+  public flashActive() {
+    this.active = true
+    setTimeout(() => {
+      this.active = false
+      // remove from active if still active
+      if (this.activeWidget && this.activeWidget.name == this.widgetData.name) {
+        grid.setActiveWidget()
+      }
+    }, 500)
+  }
+
+  // Watchers
   @Watch("trackSize")
   mouseUpdatesSize(track: boolean) {
     if (track) {
@@ -172,11 +201,11 @@ export default class Widget extends GridMixin {
     }
   }
 
-  public moveZone() {
-    // posStart is recording where the mouse currently is as mouse moves
-    const mousePos = this.posStart ? this.posStart : this.widgetData.position
-    grid.widgetToClosestZone({ widget: this.widgetData, mousePos })
-    this.syncWithZone()
+  @Watch("activeWidget")
+  newActiveWidget(active: GridWidget | null) {
+    if (active && active.name == this.widgetData.name) {
+      this.flashActive()
+    }
   }
 
   // Styling getters
@@ -189,7 +218,6 @@ export default class Widget extends GridMixin {
       height: inPlace ? "100%" : this.widgetData.height + "px",
       width: inPlace ? "100%" : this.widgetData.width + "px",
       position: inPlace ? "relative" : "absolute",
-      // TODO: revisit this logic/align with active widget in state?
       "z-index": this.inFocus ? 100 : 50
     }
   }
@@ -198,13 +226,14 @@ export default class Widget extends GridMixin {
     return {
       "shadow-lg": !this.widgetData.docked,
       "rounded-md": !this.widgetData.docked,
-      "bg-opacity-95": !this.widgetData.docked,
       "shadow-sm": this.widgetData.docked,
+      "bg-opacity-95": !this.widgetData.docked && !this.active,
+      "bg-pink-400 dark:bg-yellow-400": !this.widgetData.docked && this.active,
+      "bg-opacity-10 dark:bg-opacity-10": this.active,
       "border-1 border-pink-300 dark:border-yellow-800":
         !this.widgetData.docked && !this.trackPosition && !this.trackSize,
       "border-2 border-green-300 dark:border-yellow-400":
         this.trackPosition || this.trackSize
-      // hidden: !this.widgetData.open
     }
   }
 

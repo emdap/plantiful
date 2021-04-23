@@ -1,7 +1,7 @@
 import { GridWidget } from "@/store/interfaces"
 import Welcome from "@/views/Welcome.vue"
 import PlantSearch from "@/views/PlantSearch.vue"
-import ActivePlant from "@/components/ActivePlant.vue"
+import ActivePlant from "@/components/Garden/ActivePlant.vue"
 import Grow from "@/views/Grow.vue"
 import Controls from "@/views/Controls.vue"
 import EntitySelect from "@/components/Grow/EntitySelect.vue"

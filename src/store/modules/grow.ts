@@ -23,13 +23,11 @@ import {
   FlowerOptions,
   PetalOptions,
   GrowEntitySnippet,
-  GrowOptionsSnippet,
-  GrowOptionsType
+  GrowOptionsSnippet
 } from "@/store/interfaces"
 import Vue from "vue"
 import {
   DEFAULT_LEAF_CLUSTER_SPREAD,
-  NO_POSITION,
   NO_ROTATION
 } from "@/fixtures/Grow/Defaults"
 import {

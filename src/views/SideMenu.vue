@@ -11,7 +11,7 @@
     />
     <div
       id="side-menu"
-      class="transition-all duration-300 bg-white dark:bg-gray-900 h-screen pt-2 pb-4 px-3 flex flex-col shadow-md font-bold text-sm fixed"
+      class="transition-all duration-300 bg-white dark:bg-gray-900 h-screen pt-2 pb-4 px-3 flex flex-col shadow-md text-sm fixed"
       :class="expanded ? 'w-52' : 'w-12'"
     >
       <div
@@ -19,12 +19,12 @@
         @click="expanded = !expanded"
         :class="
           expanded
-            ? 'text-green-700 hover:text-pink-800 dark:text-yellow-700 dark:hover:text-yellow-900'
+            ? 'text-green-700 hover:text-pink-800 dark:text-yellow-600 dark:hover:text-yellow-800'
             : 'text-gray-500  hover:text-pink-400 dark:hover:text-yellow-400'
         "
       >
         <div
-          class="text-base text-left whitespace-nowrap overflow-hidden transition-all"
+          class="text-base text-left whitespace-nowrap overflow-hidden transition-all font-bold"
           :class="expanded ? 'delay-200 duration-500 opacity-100' : 'opacity-0'"
         >
           CSS Garden
@@ -39,7 +39,7 @@
       <div v-for="(group, index) in menuGroups" :key="index" class="mb-4">
         <div
           class="h-6 mb-2 whitespace-nowrap w-full 
-        border-gray-100 dark:border-gray-800 text-gray-500 border-t-1 transition-all"
+        border-gray-100 dark:border-gray-800 text-gray-500 dark:text-gray-300 border-t-1 transition-all"
           :class="
             expanded
               ? 'border-opacity-0 dark:border-opacity-0'
@@ -47,7 +47,7 @@
           "
         >
           <div
-            class="font-mono dark:border-gray-500 border-b-1 pb-1 text-xs tracking-wider transition-all text-left"
+            class="font-mono dark:border-gray-500 border-b-1 pb-1 text-xs tracking-wider transition-all text-left font-bold "
             :class="expanded ? 'duration-500 opacity-100' : 'opacity-0'"
           >
             {{ group }}
@@ -59,11 +59,12 @@
           :title="mWidget.widget.text"
           :class="
             mWidget.widget.open
-              ? 'text-green-600 hover:text-green-900 dark:text-yellow-600 dark:hover:text-yellow-800'
+              ? 'text-green-600 hover:text-green-900 dark:text-yellow-500 dark:hover:text-yellow-700'
               : 'hover:tracking-wider text-gray-300 hover:text-pink-400 dark:text-gray-500 dark:hover:text-yellow-400'
           "
-          class="mb-4 transition-all cursor-pointer fill-current flex items-center gap-3 text-left"
+          class="mb-4 transition-all cursor-pointer fill-current flex items-center gap-3 text-left font-medium tracking-wide"
           @click="toggleMenuWidget(mWidget.widget)"
+          @mouseenter="flashWidget(mWidget.widget)"
         >
           <div class="w-6">
             <icon :is="mWidget.icon" />
@@ -155,6 +156,12 @@ export default class SideMenu extends Vue {
 
   public toggleMenuWidget(widget: GridWidget) {
     grid.toggleWidget(widget)
+  }
+
+  public flashWidget(widget: GridWidget) {
+    if (widget.open) {
+      grid.setActiveWidget(widget.name)
+    }
   }
 }
 </script>

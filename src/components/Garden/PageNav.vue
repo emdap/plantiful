@@ -61,8 +61,7 @@ export default class PageNav extends GardenMixin {
     if (apiLink) {
       garden.getPageByLink({ page, apiLink })
     } else {
-      // TODO: handle error
-      console.error("no link for", link)
+      this.$toasted.error(`'${link}' ${this.gardenMessages.pageNav.error}`)
     }
   }
 }

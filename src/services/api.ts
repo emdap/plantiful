@@ -1,9 +1,10 @@
+import { JWTResponse } from "@/store/interfaces"
 import { create, ApiResponse, ApiErrorResponse, ApiOkResponse } from "apisauce"
 import { AxiosRequestConfig } from "axios"
 
 const PLANT_API = process.env.VUE_APP_PLANT_API
 const TOKEN_API = process.env.VUE_APP_TOKEN_API
-let JWT!: string
+let JWT!: JWTResponse
 
 const plantAPI = create({
   baseURL: PLANT_API,
@@ -15,22 +16,30 @@ const tokenAPI = create({
   headers: { "content-type": "application/json" }
 })
 
+function expirationPassed(): boolean {
+  return JWT && new Date() > new Date(JWT.expiration)
+}
+
 plantAPI.addAsyncRequestTransform(async (request: AxiosRequestConfig) => {
   // initialize token
-  if (!JWT) {
-    // TODO: type
-    const tokenResponse = (await tokenAPI.get("/jwt")) as ApiResponse<any>
-    JWT = tokenResponse.data.token
+  if (!JWT || expirationPassed()) {
+    const tokenResponse = (await tokenAPI.get("/jwt")) as ApiResponse<
+      JWTResponse
+    >
+    if (tokenResponse.ok && tokenResponse.data) {
+      JWT = tokenResponse.data
+    } else {
+      throw tokenResponse.originalError
+    }
   }
-  request.headers.Authorization = `Bearer ${JWT}`
+  request.headers.Authorization = `Bearer ${JWT.token}`
 })
 
 export const resolve = <S, E>(response: ApiResponse<S, E>): any => {
   if (response.ok) {
     return response.data
   } else {
-    // TODO -- handle 401s here
-    throw "error"
+    throw response.originalError
   }
 }
 

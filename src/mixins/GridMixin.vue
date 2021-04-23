@@ -3,17 +3,15 @@ import Vue from "vue"
 import Component from "vue-class-component"
 import { getModule } from "vuex-module-decorators"
 import GridModule from "@/store/modules/grid"
-import {
-  GridWidget,
-  GridZone,
-  GridContainer,
-  MenuWidget
-} from "@/store/interfaces"
+import { gridMessages } from "@/fixtures/Messages"
+import { GridWidget, GridZone, GridContainer } from "@/store/interfaces"
 
 export const grid = getModule(GridModule)
 
 @Component({})
 export default class GridMixin extends Vue {
+  public messages = gridMessages
+
   public get movingZones() {
     return grid.movingZones
   }

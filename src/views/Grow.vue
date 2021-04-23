@@ -2,7 +2,7 @@
   <div id="grow" class="h-full w-full overflow-hidden">
     <div v-if="!hasGrowPlants" class="font-semibold mt-10">
       <!-- TODO: move to messages and maybe remove btton or make it focus -->
-      Open up the search to find & grow plants
+      {{ messages.openSearch }}
       <button
         class="btn-light dark:btn-dark my-4 mx-auto block"
         @click="toggleSearchPlants(true)"
@@ -25,7 +25,6 @@
 <script lang="ts">
 import Component from "vue-class-component"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
-import { grid } from "@/mixins/GridMixin.vue"
 import Plant from "@/components/Grow/Plant.vue"
 import Controls from "@/views/Controls.vue"
 import { Watch } from "vue-property-decorator"
@@ -124,7 +123,8 @@ export default class Grow extends GrowMixin {
   public updateEntity(e: MouseEvent) {
     e.preventDefault()
     if (!grow.activeEntity || grow.activeEntityType != "plants") {
-      console.log("mouse controls for plants only (TODO)")
+      this.$toasted.info("Sorry, mouse controls only work for plants (so far!)")
+      document.removeEventListener("mousemove", this.updateEntity)
       return
     }
 

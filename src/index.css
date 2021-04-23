@@ -2,21 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "assets/styles/overrides.css";
+
 .control-input {
   @apply shadow-md pl-2 h-8 leading-8 border-1 border-solid rounded-md;
-}
-
-/* overriding color picker component */
-.vc-chrome {
-  box-shadow: none !important;
-}
-
-.vc-chrome-toggle-icon {
-  margin-top: none !important;
-}
-
-.vc-chrome-toggle-icon-highlight {
-  display: none;
 }
 
 .icon {
@@ -36,12 +25,13 @@
   @apply hover:text-pink-800 dark:hover:text-yellow-700;
 }
 
+/* p-1 to avoid scrollbar from overlaying content */
 .scrollbar-light {
-  @apply scrollbar-thumb-green-300 scrollbar-track-green-50;
+  @apply scrollbar-thin scrollbar-thumb-green-300 scrollbar-track-green-50 pr-2;
 }
 
 @variants dark {
   .scrollbar-dark {
-    @apply scrollbar-thumb-yellow-700 scrollbar-track-gray-600;
+    @apply scrollbar-thin scrollbar-thumb-yellow-700 scrollbar-track-gray-600 pr-2;
   }
 }
