@@ -147,9 +147,6 @@ export default class Zone extends GridMixin {
 
   @Watch("mountedChanged")
   public refreshSize() {
-    if (this.zoneData.id == 5) {
-      console.log(this.zoneData.mounted)
-    }
     this.sized = false
     this.resetSize()
     this.setCurrentSize()

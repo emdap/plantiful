@@ -83,6 +83,7 @@ export default class Container extends mixins(GridMixin, GrowMixin) {
     return (id: number) => {
       // might have to add more to this
       // TODO: dynamic sizing for containers like there is for zones, or leverage CSS
+      // TODO: need to just track the size in state!! resize zones if another container comes in/out
       return this.containerOpenZones(id).length ? "flex-grow: 1" : "width: 0"
     }
   }

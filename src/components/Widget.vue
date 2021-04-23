@@ -1,7 +1,7 @@
 <template>
   <div
     :id="`${widgetData.name}-widget`"
-    class="widget flex p-2 transition-colors bg-white dark:bg-gray-700 outline-none text-gray-600 dark:text-black overflow-auto"
+    class="widget flex transition-colors p-2 bg-white dark:bg-gray-700 outline-none text-gray-600 dark:text-black  overflow-auto"
     :style="widgetStyle"
     :class="widgetClass"
     tabindex="1"
@@ -196,11 +196,15 @@ export default class Widget extends GridMixin {
 
   public get widgetClass() {
     return {
-      "shadow-md": !this.widgetData.docked,
-      "shadow-sm": this.widgetData.docked,
+      "shadow-lg": !this.widgetData.docked,
+      "rounded-md": !this.widgetData.docked,
       "bg-opacity-95": !this.widgetData.docked,
-      "outline-green dark:outline-yellow": this.trackPosition || this.trackSize,
-      hidden: !this.widgetData.open
+      "shadow-sm": this.widgetData.docked,
+      "border-1 border-pink-300 dark:border-yellow-800":
+        !this.widgetData.docked && !this.trackPosition,
+      "border-2 border-green-300 dark:border-yellow-400":
+        this.trackPosition || this.trackSize
+      // hidden: !this.widgetData.open
     }
   }
 

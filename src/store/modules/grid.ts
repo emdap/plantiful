@@ -124,7 +124,7 @@ export default class GridModule extends VuexModule implements GridState {
   @Action
   widgetToZone(payload: { widget: GridWidget; zoneId: number }) {
     const { widget, zoneId } = payload
-    this.TOGGLE_ZONE({ id: zoneId, open: true })
+    if (zoneId) this.TOGGLE_ZONE({ id: zoneId, open: widget.docked })
     if (zoneId == widget.currentZone) {
       // happens if container re-renders
       return
@@ -223,20 +223,18 @@ export default class GridModule extends VuexModule implements GridState {
 
   @Action
   toggleWidget(widget: GridWidget) {
-    if (widget) {
-      if (!widget.open) {
-        // move widget to its default zone before opening
-        this.widgetToZone({ widget, zoneId: widget.defaultZone })
-      } else if (!widget.docked) {
-        // initialize docked for next open
-        this.TOGGLE_DOCKED(widget.name)
-        // if has current zone/!=0, remove widget from zone list
-        if (widget.currentZone) {
-          this.RESET_ZONE_WIDGETS(widget.currentZone)
-        }
+    if (!widget.open) {
+      // move widget to its default zone before opening
+      this.widgetToZone({ widget, zoneId: widget.defaultZone })
+    } else if (!widget.docked) {
+      // initialize docked for next open
+      this.TOGGLE_DOCKED(widget.name)
+      // if has current zone/!=0, remove widget from zone list
+      if (widget.currentZone) {
+        this.RESET_ZONE_WIDGETS(widget.currentZone)
       }
-      this.TOGGLE_WIDGET(widget.name)
     }
+    this.TOGGLE_WIDGET(widget.name)
   }
 
   get containerZones() {
@@ -288,8 +286,11 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  TOGGLE_ZONE(payload: { id: number; open?: true }) {
+  TOGGLE_ZONE(payload: { id: number; open?: boolean }) {
     const { id, open } = payload
+    if (!id) {
+      return
+    }
     const zone = this.zones[id]
     Vue.set(zone, "open", open ? true : !zone.open)
     for (const id of this.containers[zone.containerId].zones) {
