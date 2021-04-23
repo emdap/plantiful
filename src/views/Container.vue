@@ -3,7 +3,7 @@
     <div v-if="ready" id="grid-container" class="w-full h-full">
       <div
         class="container-wrapper"
-        :class="containerClass(container.id)"
+        :style="containerStyle(container.id)"
         v-for="container in containers"
         :key="container.id"
         :id="container.name"
@@ -79,11 +79,11 @@ export default class Container extends mixins(GridMixin, GrowMixin) {
     grid.setGridSize({ height, width })
   }
 
-  public get containerClass() {
+  public get containerStyle() {
     return (id: number) => {
       // might have to add more to this
       // TODO: dynamic sizing for containers like there is for zones, or leverage CSS
-      return this.containerOpenZones(id).length ? "flex-grow" : "w-0"
+      return this.containerOpenZones(id).length ? "flex-grow: 1" : "width: 0"
     }
   }
 
@@ -177,6 +177,6 @@ export default class Container extends mixins(GridMixin, GrowMixin) {
 }
 
 #z-5 {
-  grid-area: 3 / 1 / 4 / 4;
+  grid-column: 1 / 4;
 }
 </style>
