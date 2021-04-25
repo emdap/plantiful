@@ -3,7 +3,8 @@ import {
   GridContainer,
   GridState,
   GridWidget,
-  GridZone
+  GridZone,
+  Size,
 } from "@/store/interfaces"
 import store from "@/store"
 import Vue from "vue"
@@ -16,7 +17,7 @@ import util from "@/utilities/containerUtil"
   dynamic: true,
   namespaced: true,
   name: "container",
-  store
+  store,
 })
 export default class GridModule extends VuexModule implements GridState {
   containers: { [key: string]: GridContainer } = {}
@@ -24,10 +25,11 @@ export default class GridModule extends VuexModule implements GridState {
   zones: { [key: number]: GridZone } = {}
   movingZones = false
   targetZone: GridZone | null = null
-
+  activeWidget: GridWidget | null = null
+  // these are still useful for widgets
   overallHeight = 0
   overallWidth = 0
-  activeWidget: GridWidget | null = null
+
   // D
   activeZone: GridZone | null = null
 
@@ -95,6 +97,20 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
+  setContainerSize(payload: { id: number; newSize: Size; newRatio?: Size }) {
+    // TODO: could merge this with setZoneSize
+    const { id, newSize, newRatio } = payload
+    this.CONTAINER_SIZE({ id, newSize })
+    if (newRatio) {
+      const roundedRatio: Size = {
+        height: parseFloat(newRatio.height.toFixed(2)),
+        width: parseFloat(newRatio.width.toFixed(2)),
+      }
+      this.CONTAINER_RATIO({ id, newRatio: roundedRatio })
+    }
+  }
+
+  @Action
   addZone(zone: GridZone) {
     this.ADD_ZONE(zone)
   }
@@ -110,7 +126,7 @@ export default class GridModule extends VuexModule implements GridState {
     if (widget.open) {
       this.widgetToZone({
         widget,
-        zoneId: widget.defaultZone
+        zoneId: widget.defaultZone,
       })
     }
   }
@@ -140,7 +156,7 @@ export default class GridModule extends VuexModule implements GridState {
     this.ZONE_WIDGETS({
       widgetName: widget.name,
       zoneId,
-      prevZoneId
+      prevZoneId,
     })
 
     // move swapWidget to the zone our widget currently occupies
@@ -150,57 +166,61 @@ export default class GridModule extends VuexModule implements GridState {
       if (!prevZoneId && swapWidget.docked) {
         this.WIDGET_POSITION({
           name: swapWidget.name,
-          newPosition: curPosition
+          newPosition: curPosition,
         })
         // moving to zone 0 -> undock
         this.TOGGLE_DOCKED(swapWidget.name)
       }
       this.widgetToZone({
         widget: swapWidget,
-        zoneId: newZone
+        zoneId: newZone,
       })
     }
   }
 
   @Action
-  setZoneSize(payload: {
-    zone: GridZone
-    newHeight: number
-    newWidth: number
-  }) {
-    const { zone, newHeight, newWidth } = payload
-    this.ZONE_SIZE({ id: zone.id, newHeight, newWidth })
+  setZoneSize(payload: { zone: GridZone; newSize: Size; newRatio?: Size }) {
+    const { zone, newSize, newRatio } = payload
+    this.ZONE_SIZE({ id: zone.id, newSize })
+    if (newRatio) {
+      const roundedRatio: Size = {
+        height: parseFloat(newRatio.height.toFixed(2)),
+        width: parseFloat(newRatio.width.toFixed(2)),
+      }
+      this.ZONE_RATIO({ id: zone.id, newRatio: roundedRatio })
+    }
   }
 
   // D
-  @Action
-  propogateZoneSize(zone: GridZone) {
-    for (const widgetName in zone.widgets) {
-      const widget = this.widgets[widgetName]
-      if (widget.open) {
-        this.setWidgetSize({
-          widget,
-          setZone: false,
-          newHeight: zone.height,
-          newWidth: zone.width
-        })
-      }
-    }
-  }
+  // @Action
+  // propogateZoneSize(zone: GridZone) {
+  //   for (const widgetName in zone.widgets) {
+  //     const widget = this.widgets[widgetName]
+  //     if (widget.open) {
+  //       this.setWidgetSize({
+  //         widget,
+  //         setZone: false,
+  //         newHeight: zone.height,
+  //         newWidth: zone.width
+  //       })
+  //     }
+  //   }
+  // }
 
   @Action
   setWidgetSize(payload: {
     widget: GridWidget
     setZone: boolean
-    newHeight: number
-    newWidth: number
+    newSize: Size
   }) {
-    const { widget, setZone, newHeight, newWidth } = payload
+    // TODO: need to revisit this once widgets can resize zone -- when to update ratio
+    // const { widget, setZone, newSize } = payload
     // idea: keep widget size synced with zone
-    if (setZone && widget.currentZone) {
-      this.ZONE_SIZE({ id: widget.currentZone, newHeight, newWidth })
-    }
-    this.WIDGET_SIZE({ name: widget.name, newHeight, newWidth })
+    // if (setZone && widget.currentZone) {
+    //   this.ZONE_SIZE({ id: widget.currentZone, newSize })
+    // }
+    const { widget, newSize } = payload
+    this.WIDGET_SIZE({ name: widget.name, newSize })
   }
 
   @Action
@@ -212,13 +232,13 @@ export default class GridModule extends VuexModule implements GridState {
   setZonePoints(payload: { zone: GridZone; newStart: Position }) {
     const { zone, newStart } = payload
     const newEnd = {
-      x: newStart.x + zone.width,
-      y: newStart.y + zone.height
+      x: newStart.x + zone.size.width,
+      y: newStart.y + zone.size.height,
     }
     this.ZONE_POSITION({
       id: zone.id,
       newStart,
-      newEnd
+      newEnd,
     })
   }
 
@@ -254,7 +274,7 @@ export default class GridModule extends VuexModule implements GridState {
       if (widget.currentZone) {
         this.ZONE_WIDGETS({
           widgetName: widget.name,
-          prevZoneId: widget.currentZone
+          prevZoneId: widget.currentZone,
         })
       }
     }
@@ -384,19 +404,40 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  WIDGET_SIZE(payload: { name: string; newHeight: number; newWidth: number }) {
-    const { name, newHeight, newWidth } = payload
+  WIDGET_SIZE(payload: { name: string; newSize: Size }) {
+    const { name, newSize } = payload
     const widget = this.widgets[name]
-    widget.height = newHeight
-    widget.width = newWidth
+    // TODO: need to convert widget dims to Size
+    widget.height = newSize.height
+    widget.width = newSize.width
   }
 
   @Mutation
-  ZONE_SIZE(payload: { id: number; newHeight: number; newWidth: number }) {
-    const { id, newHeight, newWidth } = payload
+  ZONE_SIZE(payload: { id: number; newSize: Size }) {
+    const { id, newSize } = payload
     const zone = this.zones[id]
-    zone.height = newHeight
-    zone.width = newWidth
+    zone.size = newSize
+  }
+
+  @Mutation
+  ZONE_RATIO(payload: { id: number; newRatio: Size }) {
+    const { id, newRatio } = payload
+    const zone = this.zones[id]
+    zone.sizeRatio = newRatio
+  }
+
+  @Mutation
+  CONTAINER_SIZE(payload: { id: number; newSize: Size }) {
+    const { id, newSize } = payload
+    const container = this.containers[id]
+    container.size = newSize
+  }
+
+  @Mutation
+  CONTAINER_RATIO(payload: { id: number; newRatio: Size }) {
+    const { id, newRatio } = payload
+    const container = this.containers[id]
+    container.sizeRatio = newRatio
   }
 
   @Mutation

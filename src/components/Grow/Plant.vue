@@ -45,14 +45,14 @@ import Shape from "@/components/Grow/Shape.vue"
 import Branch from "@/components/Grow/Branch.vue"
 import Cluster from "@/components/Grow/Cluster.vue"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
-import { NO_POSITION, NO_ROTATION } from "@/fixtures/Grow/Defaults"
+import { NO_POSITION, NO_ROTATION } from "@/fixtures/Defaults"
 
 @Component({
   components: {
     Shape,
     Branch,
-    Cluster
-  }
+    Cluster,
+  },
 })
 export default class Plant extends GrowMixin {
   @Prop({ required: true }) plantData!: GrowPlant
@@ -80,8 +80,8 @@ export default class Plant extends GrowMixin {
         dataKey: "plants",
         newPositions: {
           x: plantElem.offsetLeft,
-          y: plantElem.offsetTop + this.plantData.height / 2
-        }
+          y: plantElem.offsetTop + this.plantData.height / 2,
+        },
       })
     }
   }
@@ -89,7 +89,7 @@ export default class Plant extends GrowMixin {
   public get clusterLists() {
     return {
       leafClusters: this.plantData.leafClusters,
-      flowers: this.plantData.flowers
+      flowers: this.plantData.flowers,
     }
   }
 
@@ -148,7 +148,7 @@ export default class Plant extends GrowMixin {
     const styleData = {
       ...this.plantData,
       height: 0, // branches grow out of top of plant barrier, don't want it selectable below name
-      rotation: NO_ROTATION()
+      rotation: NO_ROTATION(),
     }
     return this.entityStyle(styleData)
   }
@@ -159,7 +159,7 @@ export default class Plant extends GrowMixin {
       rotation: this.plantData.rotation,
       height: 0,
       width: 0,
-      zIndex: 10
+      zIndex: 10,
     }
 
     return this.entityStyle(styleData)

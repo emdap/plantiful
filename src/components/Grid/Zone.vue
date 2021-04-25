@@ -1,6 +1,6 @@
 <template>
   <div
-    :id="zoneData.gridArea"
+    :id="zoneData.name"
     :style="zoneStyle"
     :class="zoneClass"
     @mousedown="zoneSelected = true"
@@ -28,11 +28,12 @@ import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import { Prop, Watch } from "vue-property-decorator"
 import { GridZone, Size } from "@/store/interfaces"
 import Widget from "@/components/Grid/Widget.vue"
+import { NO_SIZE } from "@/fixtures/Defaults"
 
 @Component({
   components: {
-    Widget
-  }
+    Widget,
+  },
 })
 export default class Zone extends GridMixin {
   @Prop({ required: true }) zoneData!: GridZone
@@ -59,15 +60,26 @@ export default class Zone extends GridMixin {
     this.resetSize()
   }
 
+  public get myContainer() {
+    return this.getContainer(this.zoneData.containerId)
+  }
+
   public setCurrentSize() {
     // waiting for next tick ensures all zones in container are getting zoned when no zones have sizes
     this.$nextTick(() => {
       if (this.zoneData.id) {
         const { width, height, x, y } = this.getCurrentRect()
+        const containerSize = this.myContainer.size
         grid.setZoneSize({
           zone: this.zoneData,
-          newHeight: height,
-          newWidth: width
+          newSize: {
+            height,
+            width,
+          },
+          newRatio: {
+            height: height / containerSize.height,
+            width: width / containerSize.width,
+          },
         })
         grid.setZonePoints({ zone: this.zoneData, newStart: { x, y } })
       }
@@ -79,11 +91,11 @@ export default class Zone extends GridMixin {
   public get zoneStyle() {
     if (this.zoneData.id) {
       const style = { width: "", height: "" }
-      if (this.zoneData.width) {
-        style.width = this.zoneData.width + "px"
+      if (this.zoneData.size.width) {
+        style.width = this.zoneData.size.width + "px"
       }
-      if (this.zoneData.height) {
-        style.height = this.zoneData.height + "px"
+      if (this.zoneData.size.height) {
+        style.height = this.zoneData.size.height + "px"
       }
       return style
     }
@@ -101,7 +113,7 @@ export default class Zone extends GridMixin {
         "align-self-stretch",
         "justify-items-stretch",
         `bg-${this.zoneData.color}-200 dark:bg-${this.zoneData.color}-900`,
-        this.isTargetZone ? targetBg : normalBg
+        this.isTargetZone ? targetBg : normalBg,
       ]
     }
     return "z-50"
@@ -120,19 +132,22 @@ export default class Zone extends GridMixin {
     return grid.targetZone && grid.targetZone.id == this.zoneData.id
   }
 
-  @Watch("gridSize")
-  public gridSizeChange(newSize: Size, oldSize: Size) {
+  @Watch("myContainer.size")
+  public gridSizeChange(gridSize: Size) {
     // CSS rounds to 2 decimals
-    const heightRatio = parseFloat(
-      (this.zoneData.height / oldSize.height).toFixed(2)
-    )
-    const widthRatio = parseFloat(
-      (this.zoneData.width / oldSize.width).toFixed(2)
-    )
-    const newHeight = newSize.height * heightRatio
-    const newWidth = newSize.width * widthRatio
+    // const heightRatio = parseFloat(
+    //   (this.zoneData.size.height / this/.height).toFixed(2)
+    // )
+    // const widthRatio = parseFloat(
+    //   (this.zoneData.size.width / oldSize.width).toFixed(2)
+    // )
 
-    grid.setZoneSize({ zone: this.zoneData, newHeight, newWidth: newWidth })
+    const newSize = {
+      height: this.myContainer.size.height * this.zoneData.sizeRatio.height,
+      width: this.myContainer.size.width * this.zoneData.sizeRatio.width,
+    }
+
+    grid.setZoneSize({ zone: this.zoneData, newSize })
   }
 
   public get mountedSiblings() {
@@ -164,8 +179,7 @@ export default class Zone extends GridMixin {
   public resetSize() {
     grid.setZoneSize({
       zone: this.zoneData,
-      newHeight: 0,
-      newWidth: 0
+      newSize: NO_SIZE(),
     })
   }
 }

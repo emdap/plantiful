@@ -34,13 +34,13 @@ import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import Zone from "@/components/Grid/Zone.vue"
 import util from "@/utilities/containerUtil"
-import { GrowPlant } from "@/store/interfaces"
-import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
+import { GrowPlant, Size } from "@/store/interfaces"
+import { TEST_PLANT } from "@/fixtures/Grow/TestPlant"
 
 @Component({
   components: {
-    Zone
-  }
+    Zone,
+  },
 })
 export default class Container extends mixins(GridMixin, GrowMixin) {
   public ready = false
@@ -48,9 +48,12 @@ export default class Container extends mixins(GridMixin, GrowMixin) {
 
   public mounted() {
     this.addFixtures()
-    this.setGridSize()
-    window.addEventListener("resize", this.setGridSize)
+    window.addEventListener("resize", this.windowResize)
     this.ready = true
+    this.$nextTick(() => {
+      // containers won't be fully mounted until tick after ready = true
+      this.setContainerSize(true)
+    })
   }
 
   public addFixtures() {
@@ -69,24 +72,52 @@ export default class Container extends mixins(GridMixin, GrowMixin) {
     this.testPlant = await this.growPlant(TEST_PLANT)
   }
 
-  public setGridSize() {
+  public windowResize() {
+    this.setContainerSize()
+  }
+
+  public setContainerSize(updateRatio = false) {
     // #container is defined in App.vue, is 100vh and 100vw - menu size
-    const container = document.getElementById("container")
-    if (!container) {
+    const parentContainer = document.getElementById("container")
+    if (!parentContainer) {
       this.$toasted.error(this.messages.generalError)
       return
     }
-    const { height, width } = container.getBoundingClientRect()
-    grid.setGridSize({ height, width })
+    const parentRect = parentContainer.getBoundingClientRect()
+    grid.setGridSize({ height: parentRect.height, width: parentRect.width })
+
+    for (const container of this.containers) {
+      const containerEl = document.getElementById(container.name)
+      if (!containerEl) {
+        this.$toasted.error(this.messages.generalError)
+        return
+      }
+      const { height, width } = containerEl.getBoundingClientRect()
+      let newRatio!: Size
+
+      if (updateRatio) {
+        newRatio = {
+          height: height / parentRect.height,
+          width: width / parentRect.width,
+        }
+      }
+      grid.setContainerSize({
+        id: container.id,
+        newSize: { height, width },
+        newRatio,
+      })
+    }
   }
 
   public get containerStyle() {
     return (id: number) => {
-      // might have to add more to this
-      // TODO: dynamic sizing for containers like there is for zones, or leverage CSS
-      // TODO: need to just track the size in state!! resize zones if another container comes in/out
-      // return this.containerOpenZones(id).length ? "flex-grow: 1" : "width: 0"
-      return ""
+      const container = this.getContainer(id)
+      if (container.sizeRatio.height && container.sizeRatio.width) {
+        return {
+          height: container.sizeRatio.height * 100 + "%",
+          width: container.sizeRatio.width * 100 + "%",
+        }
+      }
     }
   }
 

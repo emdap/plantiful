@@ -4,8 +4,8 @@ import {
   DEFAULT_LEAF_CLUSTER_SPREAD,
   DEFAULT_LEAF_SIZE,
   NO_POSITION,
-  NO_ROTATION
-} from "@/fixtures/Grow/Defaults"
+  NO_ROTATION,
+} from "@/fixtures/Defaults"
 import {
   LeafTexture,
   LeafOptions,
@@ -23,7 +23,7 @@ import {
   PetalOptions,
   GrowPetal,
   FlowerOptions,
-  GrowFlower
+  GrowFlower,
 } from "@/store/interfaces"
 import util from "../utilities/growUtil"
 import templates from "../utilities/growTemplates"
@@ -43,7 +43,7 @@ export function processLeafOptions(options: LeafOptions) {
     height,
     width, // re-return even though not calculated, need to update when options update
     position,
-    rotation
+    rotation,
   }
 }
 
@@ -62,7 +62,7 @@ export function createLeaf(order: number, options: LeafOptions): GrowLeaf {
     width,
     zIndex: 10,
     transitionSpeed: 0.5,
-    optionsReference: options
+    optionsReference: options,
   }
 
   return leaf
@@ -81,7 +81,7 @@ export function processPetalOptions(options: PetalOptions) {
     height,
     width, // re-return even though not calculated, need to update when options update
     position,
-    rotation
+    rotation,
   }
 }
 
@@ -100,7 +100,7 @@ export function createPetal(order: number, options: PetalOptions): GrowPetal {
     width,
     zIndex: 10,
     transitionSpeed: 0.5,
-    optionsReference: options
+    optionsReference: options,
   }
 
   return petal
@@ -114,7 +114,7 @@ export function processFlowerOptions(options: FlowerOptions) {
 
   const petalOptions = util.loopClusterHelper(colors, sides, area, {
     height: DEFAULT_FLOWER_HEIGHT,
-    width
+    width,
   }) as PetalOptions[]
 
   return { flowerHeight, petalOptions }
@@ -132,7 +132,7 @@ export function processLeafClusterOptions(
   const leafOptions = util.loopClusterHelper(colors, sides, area, {
     topHeight,
     bottomHeight,
-    width
+    width,
   }) as LeafOptions[]
 
   return { clusterHeight, leafOptions }
@@ -150,7 +150,7 @@ export function createLeafCluster(
     spacing,
     sides,
     area,
-    texture
+    texture,
   }
 
   const { clusterHeight, leafOptions } = processLeafClusterOptions(
@@ -183,7 +183,7 @@ export function createFlower(
     spacing,
     sides,
     area,
-    centerColor
+    centerColor,
   }
 
   const { flowerHeight, petalOptions } = processFlowerOptions(flowerOptions)
@@ -213,7 +213,7 @@ function replaceClusterWithFlower(
     spacing,
     sides,
     area,
-    centerColor
+    centerColor,
   }
   const { flowerHeight, petalOptions } = processFlowerOptions(flowerOptions)
   const petals = petalOptions.map(o => {
@@ -230,7 +230,7 @@ function replaceClusterWithFlower(
     height: flowerHeight,
     width: flowerHeight,
     color: centerColor,
-    optionsReference: flowerOptions
+    optionsReference: flowerOptions,
   }
 
   return { flower, petals }
@@ -275,7 +275,7 @@ export function processBranchOptions(options: BranchOptions) {
   const containerHeight = endPoint.y - startPoint.y + topOffset
   const containerPosition: Position = {
     y: startPoint.y,
-    x: smallX
+    x: smallX,
   }
 
   return {
@@ -289,12 +289,12 @@ export function processBranchOptions(options: BranchOptions) {
     position: containerPosition,
     offSet: {
       top: topOffset,
-      left: leftOffset
+      left: leftOffset,
     },
     branchPosition: {
       x: left,
-      y: top
-    }
+      y: top,
+    },
   }
 }
 
@@ -318,7 +318,7 @@ export function createBranch(
     zIndex,
     transitionSpeed: 0.5,
     optionsReference: options,
-    ...processedOptions
+    ...processedOptions,
   }
 
   return branch
@@ -356,17 +356,17 @@ function branchOut(
       branchHeight: newBranchHeight,
       startPoint: baseBranch.endPoint,
       branchWidth: baseBranchOptions.branchWidth,
-      growthHeight: baseBranchOptions.growthHeight
+      growthHeight: baseBranchOptions.growthHeight,
     }
 
     const leftBranchOptions: BranchOptions = {
       angle: leftBranchAngle,
-      ...consistentOptions
+      ...consistentOptions,
     }
 
     const rightBranchOptions: BranchOptions = {
       angle: rightBranchAngle,
-      ...consistentOptions
+      ...consistentOptions,
     }
 
     const newBranchOutOptions: BranchOutOptions = {
@@ -374,12 +374,12 @@ function branchOut(
       heightLeft:
         heightLeft - consistentOptions.growthHeight - baseBranch.branchHeight,
       widthLeft: widthLeft - baseBranch.width,
-      zIndex
+      zIndex,
     }
 
     let forceEnd = {
       forceRight: "leafCluster" as false | "leafCluster" | "flower",
-      forceLeft: "leafCluster" as false | "leafCluster" | "flower"
+      forceLeft: "leafCluster" as false | "leafCluster" | "flower",
     }
 
     // 1 or none of the new branches can have a leaf/flower if there's enough height left
@@ -420,7 +420,7 @@ export function processPlantOptions(plantOptions: PlantOptions) {
     maxSideSpread,
     maxBranchHeight,
     branchWidth,
-    growthHeight
+    growthHeight,
   } = util.getBranchOptionBounds(plantOptions)
   // these options get capped
   plantOptions.height = maxHeight
@@ -432,7 +432,7 @@ export function processPlantOptions(plantOptions: PlantOptions) {
     branches: [],
     clustersWithLeaves: [],
     flowersWithPetals: [],
-    plantOptions
+    plantOptions,
   }
 
   for (let branch = 0; branch < totalBaseBranches; branch++) {
@@ -450,14 +450,14 @@ export function processPlantOptions(plantOptions: PlantOptions) {
       branchWidth,
       branchHeight: maxBranchHeight,
       angle: -angleMax + branch * angleInc,
-      growthHeight
+      growthHeight,
     }
 
     const branchOutOptions: BranchOutOptions = {
       order,
       zIndex,
       heightLeft: plantHeightLeft,
-      widthLeft: plantSpreadLeft
+      widthLeft: plantSpreadLeft,
     }
 
     branchOut(branchOutGlobals, false, 1, branchOutOptions, baseBranchOptions)
@@ -483,13 +483,13 @@ export function processPlantOptions(plantOptions: PlantOptions) {
   const plant = {
     height: maxHeight,
     width: maxSideSpread * 2,
-    optionsReference: plantOptions
+    optionsReference: plantOptions,
   }
   return {
     branches: branchOutGlobals.branches,
     clustersWithLeaves: branchOutGlobals.clustersWithLeaves,
     flowersWithPetals: branchOutGlobals.flowersWithPetals,
-    plant
+    plant,
   }
 }
 
@@ -500,7 +500,7 @@ export function createPlant(basePlant: Plant, convertColors: boolean) {
     branches,
     clustersWithLeaves,
     flowersWithPetals,
-    plant
+    plant,
   } = processPlantOptions(plantOptions)
 
   const newPlant: GrowPlant = {
@@ -513,7 +513,7 @@ export function createPlant(basePlant: Plant, convertColors: boolean) {
     branches: [],
     leafClusters: [],
     flowers: [],
-    ...plant
+    ...plant,
   }
 
   return { branches, clustersWithLeaves, flowersWithPetals, plant: newPlant }

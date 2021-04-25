@@ -1,73 +1,49 @@
 import { GridZone } from "@/store/interfaces"
-import { NO_POSITION } from "../Grow/Defaults"
+import { INIT_ZONE } from "../Defaults"
 
 const zones: GridZone[] = [
   {
     id: 0,
+    name: "z-0",
     containerId: 0,
-    width: 0,
-    height: 0,
-    gridArea: "z-0",
-    startPoint: NO_POSITION(),
-    endPoint: NO_POSITION(),
-    widgets: [] as string[],
-    color: "gray"
+    color: "gray",
+    ...INIT_ZONE(),
   },
   {
     id: 1,
+    name: "z-1",
     containerId: 1,
-    width: 0,
-    height: 0,
-    gridArea: "z-1",
-    startPoint: NO_POSITION(),
-    endPoint: NO_POSITION(),
-    widgets: [] as string[],
-    color: "blue"
+    color: "blue",
+    ...INIT_ZONE(),
   },
   {
     id: 2,
+    name: "z-2",
     containerId: 1,
-    width: 0,
-    height: 0,
-    gridArea: "z-2",
-    startPoint: NO_POSITION(),
-    endPoint: NO_POSITION(),
-    widgets: [] as string[],
-    color: "purple"
+    color: "purple",
+    ...INIT_ZONE(),
   },
   {
     id: 3,
+    name: "z-3",
     containerId: 2,
-    width: 0,
-    height: 0,
-    gridArea: "z-3",
-    startPoint: NO_POSITION(),
-    endPoint: NO_POSITION(),
-    widgets: [] as string[],
-    color: "green"
+    color: "green",
+    ...INIT_ZONE(),
   },
   {
     id: 4,
+    name: "z-4",
     containerId: 2,
-    width: 0,
-    height: 0,
-    gridArea: "z-4",
-    startPoint: NO_POSITION(),
-    endPoint: NO_POSITION(),
-    widgets: [] as string[],
-    color: "pink"
+    color: "pink",
+    ...INIT_ZONE(),
   },
   {
     id: 5,
+    name: "z-5",
     containerId: 2,
-    width: 0,
-    height: 0,
-    gridArea: "z-5",
-    startPoint: NO_POSITION(),
-    endPoint: NO_POSITION(),
-    widgets: [] as string[],
-    color: "yellow"
-  }
+    color: "yellow",
+    ...INIT_ZONE(),
+  },
 ]
 
 export default zones

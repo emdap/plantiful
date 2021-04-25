@@ -5,13 +5,13 @@ import {
   GrowBranch,
   BranchOutOptions,
   FlowerOptions,
-  LeafClusterOptions
+  LeafClusterOptions,
 } from "@/store/interfaces"
 import {
   DEFAULT_PLANT_OPTIONS,
   DEFAULT_LEAF_SIZE,
-  NO_ROTATION
-} from "@/fixtures/Grow/Defaults"
+  NO_ROTATION,
+} from "@/fixtures/Defaults"
 import colorConverter from "css-color-converter"
 
 function radians(angle: number): number {
@@ -101,7 +101,7 @@ function getPlantOptions(plant: Plant, convertColors: boolean): PlantOptions {
     leafTexture: plantLeaves.texture
       ? plantLeaves.texture
       : DEFAULT_PLANT_OPTIONS.leafTexture,
-    leafDensity: DEFAULT_PLANT_OPTIONS.leafDensity
+    leafDensity: DEFAULT_PLANT_OPTIONS.leafDensity,
   }
 }
 
@@ -209,7 +209,7 @@ export function getBranchOptionBounds(plantOptions: PlantOptions) {
     maxSideSpread,
     maxBranchHeight,
     branchWidth,
-    growthHeight
+    growthHeight,
   }
 }
 
@@ -235,7 +235,7 @@ function loopClusterHelper(
     const options = {
       color,
       rotation,
-      ...attachOptions
+      ...attachOptions,
     }
 
     optionsList.push(options)
@@ -265,7 +265,7 @@ function createClusterHelper(
     offSet,
     height: size,
     width: size,
-    transitionSpeed: 0.5
+    transitionSpeed: 0.5,
   }
 
   if (childList == "petals") {
@@ -273,13 +273,13 @@ function createClusterHelper(
       ...baseCluster,
       petals: [],
       color: (optionsRef as FlowerOptions).centerColor,
-      optionsReference: optionsRef as FlowerOptions
+      optionsReference: optionsRef as FlowerOptions,
     }
   }
   return {
     ...baseCluster,
     leaves: [],
-    optionsReference: optionsRef as LeafClusterOptions
+    optionsReference: optionsRef as LeafClusterOptions,
   }
 }
 
@@ -293,5 +293,5 @@ export default {
   getBranchOptionBounds,
   loopClusterHelper,
   createClusterHelper,
-  varyColors
+  varyColors,
 }

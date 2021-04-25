@@ -126,7 +126,7 @@ export type LeafTexture = typeof LeafTextureValues[number]
 export const PlantOrientationValues = [
   "erect",
   "semi-erect",
-  "decumbent"
+  "decumbent",
 ] as const
 export type PlantOrientation = typeof PlantOrientationValues[number]
 
@@ -476,7 +476,7 @@ export interface GridWidget {
 export const MenuGroups = [
   "Find Plants",
   "Create Plants",
-  "Information"
+  "Information",
 ] as const
 
 export interface MenuWidget {
@@ -503,21 +503,23 @@ export const GridContainerAreas = [
   "z-2",
   "z-3",
   "z-4",
-  "z-5"
+  "z-5",
 ] as const
 
 export interface GridContainer {
   id: number
   name: string // for DOM element ID
   zones: number[]
+  size: Size
+  sizeRatio: Size
 }
 
 export interface GridZone {
   id: number
+  name: typeof GridContainerAreas[number] // for DOM element ID
   containerId: number
-  width: number
-  height: number
-  gridArea: typeof GridContainerAreas[number]
+  size: Size
+  sizeRatio: Size
   widgets: string[]
   color: string
   startPoint: Position

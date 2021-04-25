@@ -1,20 +1,20 @@
 import { GrowBorder, TopGrowBorder, GrowShape } from "@/store/interfaces"
-import { NO_ROTATION, NO_POSITION } from "@/fixtures/Grow/Defaults"
+import { NO_ROTATION, NO_POSITION } from "@/fixtures/Defaults"
 
 function topLeafBorder(width: number, height: number): TopGrowBorder {
   return {
     left: {
       size: width / 2,
-      show: false
+      show: false,
     },
     right: {
       size: width / 2,
-      show: false
+      show: false,
     },
     bottom: {
       size: height,
-      show: true
-    }
+      show: true,
+    },
   }
 }
 
@@ -22,16 +22,16 @@ function bottomLeafBorder(width: number, height: number): GrowBorder {
   return {
     left: {
       size: width / 2,
-      show: false
+      show: false,
     },
     right: {
       size: width / 2,
-      show: false
+      show: false,
     },
     top: {
       size: height,
-      show: true
-    }
+      show: true,
+    },
   }
 }
 
@@ -39,20 +39,20 @@ function topFlowerBorder(): GrowBorder {
   return {
     left: {
       size: 5,
-      show: true
+      show: true,
     },
     right: {
       size: 5,
-      show: true
+      show: true,
     },
     top: {
       size: 5,
-      show: true
+      show: true,
     },
     bottom: {
       size: 5,
-      show: true
-    }
+      show: true,
+    },
   }
 }
 
@@ -70,21 +70,21 @@ function leafTemplate(
       width: 0,
       border: topBorder,
       transitionSpeed: 0.5,
-      zIndex: 10
+      zIndex: 10,
     },
     {
       color,
       rotation: NO_ROTATION(),
       position: {
         y: topBorder.bottom.size - 1,
-        x: 0
+        x: 0,
       },
       height: 0,
       width: 0,
       border: bottomBorder,
       transitionSpeed: 0.5,
-      zIndex: 10
-    }
+      zIndex: 10,
+    },
   ]
 }
 
@@ -99,21 +99,21 @@ function flowerTemplate(color: string, border: GrowBorder): GrowShape[] {
       width: 0,
       border,
       transitionSpeed: 0.5,
-      zIndex: 10
+      zIndex: 10,
     },
     {
       color,
       rotation: NO_ROTATION(),
       position: {
         y: -5,
-        x: 0
+        x: 0,
       },
       height: 0,
       width: 0,
       border: topFlowerBorder(),
       transitionSpeed: 0.5,
-      zIndex: 10
-    }
+      zIndex: 10,
+    },
   ]
 }
 
@@ -121,5 +121,5 @@ export default {
   topLeafBorder,
   bottomLeafBorder,
   leafTemplate,
-  flowerTemplate
+  flowerTemplate,
 }

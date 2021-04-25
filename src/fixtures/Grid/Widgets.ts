@@ -5,7 +5,7 @@ import ActivePlant from "@/components/Garden/ActivePlant.vue"
 import Grow from "@/views/Grow.vue"
 import Controls from "@/views/Controls.vue"
 import EntitySelect from "@/components/Grow/EntitySelect.vue"
-import { NO_POSITION } from "../Grow/Defaults"
+import { NO_POSITION } from "../Defaults"
 
 // TODO: revert open to false for most of these -- just testing
 
@@ -19,7 +19,7 @@ const widgets: GridWidget[] = [
     height: 0,
     width: 0,
     position: NO_POSITION(),
-    defaultZone: 1
+    defaultZone: 1,
   },
   {
     component: PlantSearch,
@@ -30,7 +30,7 @@ const widgets: GridWidget[] = [
     height: 0,
     width: 0,
     position: NO_POSITION(),
-    defaultZone: 1
+    defaultZone: 1,
   },
   {
     component: ActivePlant,
@@ -41,7 +41,7 @@ const widgets: GridWidget[] = [
     height: 0,
     width: 0,
     position: NO_POSITION(),
-    defaultZone: 2
+    defaultZone: 2,
   },
   {
     component: Grow,
@@ -52,7 +52,7 @@ const widgets: GridWidget[] = [
     height: 0,
     width: 0,
     position: NO_POSITION(),
-    defaultZone: 3
+    defaultZone: 3,
   },
   {
     component: Controls,
@@ -63,7 +63,7 @@ const widgets: GridWidget[] = [
     height: 0,
     width: 0,
     position: NO_POSITION(),
-    defaultZone: 4
+    defaultZone: 4,
   },
   {
     component: EntitySelect,
@@ -74,8 +74,8 @@ const widgets: GridWidget[] = [
     height: 0,
     width: 0,
     position: NO_POSITION(),
-    defaultZone: 5
-  }
+    defaultZone: 5,
+  },
 ]
 
 export default widgets

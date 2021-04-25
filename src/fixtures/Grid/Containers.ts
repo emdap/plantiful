@@ -1,16 +1,17 @@
 import { GridContainer } from "@/store/interfaces"
+import { INIT_CONTAINER } from "../Defaults"
 
 const containers: GridContainer[] = [
   {
     id: 1,
     name: "plant-lookup",
-    zones: []
+    ...INIT_CONTAINER(),
   },
   {
     id: 2,
     name: "plant-playground",
-    zones: []
-  }
+    ...INIT_CONTAINER(),
+  },
 ]
 
 export default containers

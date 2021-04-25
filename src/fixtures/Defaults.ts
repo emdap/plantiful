@@ -9,10 +9,12 @@ export const DEFAULT_FLOWER = {
   spacing: -2,
   sides: 9,
   area: 360,
-  centerColor: "red"
+  centerColor: "red",
 }
 
-export const DEFAULT_LEAF_SIZE: {[key in LeafTexture]: {topHeight: number, bottomHeight: number}} = {
+export const DEFAULT_LEAF_SIZE: {
+  [key in LeafTexture]: { topHeight: number; bottomHeight: number }
+} = {
   fine: {
     topHeight: DEFAULT_TOP_H,
     bottomHeight: DEFAULT_BOTTOM_H,
@@ -27,21 +29,23 @@ export const DEFAULT_LEAF_SIZE: {[key in LeafTexture]: {topHeight: number, botto
   },
 }
 
-export const DEFAULT_LEAF_CLUSTER_SPREAD: {[key in LeafTexture]: {spacing: number, sides: number, area: number}} = {
+export const DEFAULT_LEAF_CLUSTER_SPREAD: {
+  [key in LeafTexture]: { spacing: number; sides: number; area: number }
+} = {
   coarse: {
     spacing: 25,
     sides: 3,
-    area: 90
+    area: 90,
   },
   medium: {
     spacing: 15,
     sides: 4,
-    area: 90
+    area: 90,
   },
   fine: {
     spacing: 15,
     sides: 5,
-    area: 90
+    area: 90,
   },
 }
 
@@ -54,7 +58,7 @@ export const DEFAULT_PLANT_OPTIONS: PlantOptions = {
   leafColors: ["green", "lime", "purple", "aqua", "blue"],
   leafTexture: DEFAULT_LEAF_TEXTURE,
   orientation: "ERECT", // common on the API :)
-  leafDensity: 5
+  leafDensity: 5,
 }
 
 export const NO_ROTATION = () => {
@@ -68,35 +72,32 @@ export const NO_ROTATION = () => {
 
 export const NO_POSITION = () => {
   return {
+    x: 0,
     y: 0,
-    x: 0
   }
 }
 
-export const TEST_PLANT: Plant = {
-  // I modified this
-  id: 137442,
-  common_name: "Dream plant",
-  scientific_name: "Holcus lanatus",
-  main_species_id: 143075,
-  image_url:
-    "https://bs.plantnet.org/image/o/46619775d4319328b2fad6f1ba876ccca2d03534",
-  family_common_name: "Grass family",
-  family: "Poaceae",
-  main_species: {
-    id: 143075,
-    common_name: "Default Plant",
-    scientific_name: "Holcus lanatus",
-    family_common_name: "Grass family",
-    image_url:
-      "https://bs.plantnet.org/image/o/46619775d4319328b2fad6f1ba876ccca2d03534",
-    flower: { color: ["orangered"] },
-    foliage: { texture: "fine", color: ["teal", "seagreen", "palevioletred"] },
-    specifications: {
-      average_height: { cm: 250 },
-      shape_and_orientation: "Erect"
-    },
-    growth: { spread: { cm: 70 } },
-    family: "Poaceae"
+export const NO_SIZE = () => {
+  return {
+    height: 0,
+    width: 0,
+  }
+}
+
+export const INIT_ZONE = () => {
+  return {
+    size: NO_SIZE(),
+    sizeRatio: NO_SIZE(),
+    startPoint: NO_POSITION(),
+    endPoint: NO_POSITION(),
+    widgets: [] as string[],
+  }
+}
+
+export const INIT_CONTAINER = () => {
+  return {
+    zones: [],
+    size: NO_SIZE(),
+    sizeRatio: NO_SIZE(),
   }
 }

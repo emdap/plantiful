@@ -90,8 +90,8 @@ import ResizeIcon from "@/assets/icons/resize.svg"
     NotDockedIcon,
     MoveIcon,
     MoveDockIcon,
-    ResizeIcon
-  }
+    ResizeIcon,
+  },
 })
 export default class Widget extends GridMixin {
   @Prop({ required: true }) widgetData!: GridWidget
@@ -143,15 +143,18 @@ export default class Widget extends GridMixin {
 
   public setToCurrent() {
     const { height, width, x, y } = this.getCurrentRect()
+    const newSize = {
+      height,
+      width,
+    }
     grid.setWidgetSize({
       widget: this.widgetData,
       setZone: false,
-      newHeight: height,
-      newWidth: width
+      newSize,
     })
     grid.setWidgetPosition({
       name: this.widgetData.name,
-      newPosition: { x, y }
+      newPosition: { x, y },
     })
   }
 
@@ -218,7 +221,7 @@ export default class Widget extends GridMixin {
       height: inPlace ? "100%" : this.widgetData.height + "px",
       width: inPlace ? "100%" : this.widgetData.width + "px",
       position: inPlace ? "static" : "absolute",
-      "z-index": this.inFocus ? 100 : 50
+      "z-index": this.inFocus ? 100 : 50,
     }
   }
 
@@ -233,7 +236,7 @@ export default class Widget extends GridMixin {
       "border-1 border-pink-300 dark:border-yellow-800":
         !this.widgetData.docked && !this.trackPosition && !this.trackSize,
       "border-2 border-green-300 dark:border-yellow-400":
-        this.trackPosition || this.trackSize
+        this.trackPosition || this.trackSize,
     }
   }
 
@@ -261,7 +264,7 @@ export default class Widget extends GridMixin {
     if (this.sizeStart == null) {
       this.sizeStart = {
         x: e.pageX,
-        y: e.pageY
+        y: e.pageY,
       }
     }
 
@@ -277,24 +280,26 @@ export default class Widget extends GridMixin {
 
     const el = this.$el as HTMLElement
 
-    const newHeight = Math.min(
+    const height = Math.min(
       this.gridSize.height - 8,
       startHeight + e.pageY - this.sizeStart.y
     )
-    const newWidth = Math.min(
+    const width = Math.min(
       this.gridSize.width - el.offsetLeft + 40,
       startWidth + e.pageX - this.sizeStart.x
     )
     grid.setWidgetSize({
       widget: this.widgetData,
       setZone: this.widgetData.docked,
-      newHeight,
-      newWidth
+      newSize: {
+        height,
+        width,
+      },
     })
 
     this.sizeStart = {
       x: e.pageX,
-      y: e.pageY
+      y: e.pageY,
     }
   }
 
@@ -305,7 +310,7 @@ export default class Widget extends GridMixin {
     if (this.posStart == null) {
       this.posStart = {
         x: e.pageX,
-        y: e.pageY
+        y: e.pageY,
       }
     }
 
@@ -327,13 +332,13 @@ export default class Widget extends GridMixin {
 
     const newPosition = {
       x: Math.max(48, Math.min(remainingX, rawX)), // 48 to prevent going under menu
-      y: Math.max(0, Math.min(remainingY, rawY))
+      y: Math.max(0, Math.min(remainingY, rawY)),
     }
     grid.setWidgetPosition({ name: this.widgetData.name, newPosition })
 
     this.posStart = {
       x: e.pageX,
-      y: e.pageY
+      y: e.pageY,
     }
   }
 }
