@@ -3,7 +3,7 @@
     <strong class="text-right">{{ control.text }}:</strong>
     <template v-if="control.dataType == 'number'">
       <input
-        class="control-input dark:bg-gray-300 font-semibold"
+        class="control-input dark:bg-gray-300 dark:text-black font-semibold"
         v-model="updatedValue"
         type="number"
         @focus="allowUpdate = controlList == 'onEntity' || dataKey != 'plants'"
@@ -26,7 +26,7 @@
     <template v-else-if="control.dataType == 'dropdown'">
       <select
         v-model="updatedValue"
-        class="control-input dark:bg-gray-300 font-semibold"
+        class="control-input dark:bg-gray-300 dark:text-black font-semibold"
       >
         <option v-for="option in control.options" :key="option" :value="option">
           {{ option[0].toUpperCase() + option.substring(1) }}

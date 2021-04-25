@@ -217,7 +217,7 @@ export default class Widget extends GridMixin {
       left: inPlace ? 0 : this.widgetData.position.x + "px",
       height: inPlace ? "100%" : this.widgetData.height + "px",
       width: inPlace ? "100%" : this.widgetData.width + "px",
-      position: inPlace ? "relative" : "absolute",
+      position: inPlace ? "static" : "absolute",
       "z-index": this.inFocus ? 100 : 50
     }
   }

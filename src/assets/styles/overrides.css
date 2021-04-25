@@ -7,15 +7,42 @@
   @apply right-2 bottom-2 !important;
 }
 
-/* color picker */
+/* color picker -- some things were mis-aligned & no dark mode */
 .vc-chrome {
-  box-shadow: none !important;
+  @apply shadow-none font-sans !important;
+}
+
+.vc-chrome input {
+  @apply dark:bg-gray-300 font-semibold !important;
+}
+
+.vc-editable-input span {
+  @apply leading-normal mt-0 mb-2 !important;
+}
+
+.vc-checkerboard {
+  /* having the checkerboard bg the full width gives a faint border in dark mode */
+  padding: 1px !important;
+
+  @apply bg-clip-content !important;
+}
+
+.vc-chrome-body {
+  @apply bg-gray-50 pb-0 dark:bg-gray-800 !important;
+}
+
+.vc-chrome-toggle-btn {
+  @apply w-auto !important;
 }
 
 .vc-chrome-toggle-icon {
-  margin-top: none !important;
+  @apply mt-0 align-middle !important;
+}
+
+.vc-chrome-toggle-icon path {
+  @apply text-gray-600 dark:text-white fill-current;
 }
 
 .vc-chrome-toggle-icon-highlight {
-  display: none;
+  @apply hidden;
 }

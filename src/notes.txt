@@ -1,0 +1,82 @@
+containers
+have size in px
+needs starting ratio/size
+
+zones
+read/compare to size of container
+has size in px
+no starting size
+
+window resize:
+update container first, then zone?
+have container css be %, so it would auto update as the window changes size
+but would still need to check the total size against the new window size... or just keep checking its own rect
+what if container size was an object and that's linked to the zones
+but zones need to update size as the container size changes, to be a ratio
+if zones had a percentage too, could just keep using that
+
+update zone size when container size changes
+update zone percentage when zone size changes
+set zone percentage when checking size --> the percentage is always the same until the zone itself changes
+
+zones use their size in css
+containers use their %
+
+new properties:
+size (for both -> size object): Size
+ratio: Size {height: size % ...}
+
+on zone mount:
+update ratio after recording current size
+
+on window resize:
+update size based on stored ratio * window size --> do we need to use container size?
+
+---
+
+need actual size of container so that can compare it to how big a zone is
+how to tell if the size of the zone warrants resizing the container too
+if the size of the zone is bigger than the container
+  WAIT
+  didn't we decide not to do this
+-- zone's NEVER resize container, instead there is a different lever for that
+zones only resize other zones in the same container
+-- different problem
+
+resizing container
+need to have detection for mouse controls somewhere -- assume it's in the middle/in between
+overall container watches the event, tracks the mouse movement
+  if mouse.x is increasing, first container in list gets more size, else first container shrinks
+  need watcher on every outside index, except the last
+  do it on the left edge, doesn't go for index=0, talks to container on the right
+
+watcher component passes the index it was rendered on to the function
+function indexes the container list at that point to get the (left, right) containers, at 
+  (index - 1, index)
+  and index is always > 0
+
+then it's just normal tracking, go to left, size increase for containerPair[1], etc
+try and copy out the function from widget.vue to the mixin, use same for container but ignore/don't calculate y
+would make more sense to store the size so that this can be incremented easily
+no point of the percentage at all really, just size with size!!!
+
+
+container component watches and updates both of the container objects
+zones need to watch the container size to know when to update
+
+
+container sizes self with px, tracks mouse
+HAS INITIAL WIDTH % ONLY -- or just define in class, size in style -- do this, closer to zones, functions same way
+wait, still need to calculate size for window size change then
+solution: style with %, store both % and size. update size -> % when container size is changing only, window size has no effect
+zones watch parent container size
+update to new size by multiplying their ratio * new container size
+
+steps:
+- add size & ratio to container
+  * starting ratio can be in class for now - style will override
+  remove overall size/height
+  setting function for ratio + set on mount
+- add ratio property to zone
+  update whenever setting size, compare to parent container size
+  

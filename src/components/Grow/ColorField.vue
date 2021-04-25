@@ -1,6 +1,6 @@
 <template>
-  <div class="w-full relative">
-    <div class="flex">
+  <div class="w-full">
+    <div class="flex" ref="picker-base">
       <div class="align-top">
         <input
           class="control-input w-full dark:bg-gray-300 font-semibold"
@@ -55,14 +55,14 @@
     <div
       v-if="showColorPicker"
       ref="color-picker"
-      class="absolute bg-white z-50 transition-all"
+      class="absolute rounded-sm p-1 bg-gray-50 dark:bg-gray-800 z-50 transition-all"
       :style="colorPickerPos"
     >
       <chrome :value="colorPickerStart" @input="pickerInput" />
       <div class="flex gap-1">
         <button
           @click="launchColorPicker(false)"
-          class="bg-gray-100 dark:bg-gray-500 font-semibold hover:text-green-500 hover:bg-gray-50 dark:hover:bg-gray-400 dark:hover:text-green-800"
+          class="bg-gray-200 dark:bg-gray-500 font-semibold hover:text-green-500 hover:bg-gray-100 dark:hover:bg-gray-400 dark:hover:text-green-800 rounded-sm"
         >
           Cancel
         </button>
@@ -192,7 +192,7 @@ export default class ColorField extends Vue {
     if (show) {
       this.firstClick = true
       this.updateColorPickerPos()
-      document.addEventListener("click", this.closePicker)
+      document.addEventListener("mousedown", this.closePicker)
       if (this.controlContainer) {
         this.controlContainer.addEventListener(
           "scroll",
@@ -209,23 +209,17 @@ export default class ColorField extends Vue {
     if (this.$el instanceof HTMLElement && this.showColorPicker) {
       // the picker is styled to be ~110% of 225px high
       const pickerHeight = 247.5
-      const scrollTop = this.controlContainer
-        ? this.controlContainer.scrollTop
-        : 0
-      const scrollBottom =
-        scrollTop +
-        (this.controlContainer
-          ? this.controlContainer.getBoundingClientRect().height
-          : 0)
-      let topDist = 0
-      // TODO: why 30/60 px??? :'(
-      if (scrollBottom - scrollTop > pickerHeight + 60) {
-        if (this.$el.offsetTop + 60 < scrollBottom) {
-          const toTop = this.$el.offsetTop - scrollTop
-          const margin = (scrollBottom - this.$el.offsetTop) / 2
-          topDist = toTop > margin ? margin - pickerHeight + 30 : -toTop + 60
+
+      let topDist = this.$el.getBoundingClientRect().y
+      if (this.controlContainer instanceof HTMLElement) {
+        const { height, y } = this.controlContainer.getBoundingClientRect()
+        const maxTop = y + height
+        if (topDist > maxTop) {
+          this.launchColorPicker(false)
+        } else if (topDist + pickerHeight > maxTop) {
+          topDist = maxTop - pickerHeight
         } else {
-          topDist = scrollBottom - this.$el.offsetTop - pickerHeight
+          topDist = Math.max(y - pickerHeight, topDist)
         }
       }
       this.colorPickerPos.top = topDist + "px"
@@ -233,6 +227,7 @@ export default class ColorField extends Vue {
   }
 
   public closePicker(e: MouseEvent) {
+    console.log("click")
     if (
       !this.firstClick &&
       e.target instanceof Element &&
@@ -251,7 +246,7 @@ export default class ColorField extends Vue {
         this.updateColorPickerPos
       )
     }
-    document.removeEventListener("click", this.closePicker)
+    document.removeEventListener("mousedown", this.closePicker)
   }
 
   // Getters
