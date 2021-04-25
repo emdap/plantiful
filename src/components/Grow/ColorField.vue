@@ -227,7 +227,6 @@ export default class ColorField extends Vue {
   }
 
   public closePicker(e: MouseEvent) {
-    console.log("click")
     if (
       !this.firstClick &&
       e.target instanceof Element &&

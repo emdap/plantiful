@@ -13,11 +13,13 @@
 }
 
 .vc-chrome input {
-  @apply dark:bg-gray-300 font-semibold !important;
+  height: 24px !important; /* same height as the arrows */
+
+  @apply dark:bg-gray-300 align-top font-semibold !important;
 }
 
 .vc-editable-input span {
-  @apply leading-normal mt-0 mb-2 !important;
+  @apply leading-normal mt-1 mb-2 !important;
 }
 
 .vc-checkerboard {
