@@ -41,8 +41,8 @@
           class="ml-4 fill-current"
           :class="
             plantLoading || plantListLoading
-              ? 'cursor-wait'
-              : 'cursor-pointer icon dark:text-gray-400'
+              ? 'cursor-wait text-gray-300 dark:text-gray-400'
+              : 'cursor-pointer icon'
           "
           @click="optionClicked(plant.id, option.action)"
         >
@@ -68,13 +68,13 @@ export default class PlantList extends GardenMixin {
     {
       icon: PlantLineIcon,
       text: "Grow this plant",
-      action: "grow-plant"
+      action: "grow-plant",
     },
     {
       icon: PopOutIcon,
       text: "Show more info",
-      action: "show-active"
-    }
+      action: "show-active",
+    },
   ]
 
   public async optionClicked(id: number, option: string) {
