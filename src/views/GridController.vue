@@ -8,30 +8,15 @@
           class="divider h-full z-10 cursor-pointer"
           @mousedown="resizeContainers($event, index)"
         />
-        <!-- <div
-          class="container"
-          :style="containerStyle(container.id)"
-          :key="index"
-          :id="container.name"
-        > -->
         <container
           class="container"
           :id="container.name"
           :containerData="container"
           :containerIndex="index"
           :key="index"
-        >
-          <template v-for="zone in containerZones(container.id)">
-            <zone
-              v-if="zone.open"
-              :key="'zone-' + zone.id"
-              :zoneData="zone"
-              :containerId="container.id"
-            >
-            </zone>
-          </template>
-        </container>
-        <!-- </div> -->
+          @close-container="closeContainer"
+          @restore-container="restoreContainer"
+        />
       </template>
     </div>
     <!-- zone used for undocked widgets -->
@@ -50,16 +35,9 @@ import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import Container from "@/components/Grid/Container.vue"
 import Zone from "@/components/Grid/Zone.vue"
 import util from "@/utilities/containerUtil"
-import {
-  GridContainer,
-  GridWidget,
-  GridZone,
-  GrowPlant,
-  Position,
-  Size,
-} from "@/store/interfaces"
+import { GrowPlant, Position, Size } from "@/store/interfaces"
 import { TEST_PLANT } from "@/fixtures/Grow/TestPlant"
-import Vue from "*.vue"
+import { NO_SIZE } from "@/fixtures/Defaults"
 
 @Component({
   components: {
@@ -137,6 +115,72 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
         id: container.id,
         newSize: { height, width },
         newRatio,
+      })
+    }
+  }
+
+  public closeContainer(containerIndex: number) {
+    // prioritize 'next' container for getting remaining width, else previous container
+    const nextIndex =
+      containerIndex < this.containers.length - 1
+        ? containerIndex + 1
+        : containerIndex - 1
+    // if there was only one container, do nothing
+    if (nextIndex >= 0) {
+      const closeContainer = this.containers[containerIndex]
+      const nextContainer = this.containers[nextIndex]
+
+      // add the closing container's width/width ratio to the next container, and reset the closing container
+      grid.setContainerSize({
+        id: nextContainer.id,
+        newSize: {
+          height: nextContainer.size.height,
+          width: closeContainer.size.width + nextContainer.size.width,
+        },
+        newRatio: {
+          height: nextContainer.sizeRatio.height,
+          width: closeContainer.sizeRatio.width + nextContainer.sizeRatio.width,
+        },
+      })
+
+      grid.setContainerSize({
+        id: closeContainer.id,
+        newSize: NO_SIZE(),
+        newRatio: NO_SIZE(),
+      })
+    }
+  }
+
+  public restoreContainer(
+    containerIndex: number,
+    restoreSize: Size,
+    restoreRatio: Size
+  ) {
+    // taking back width from the container that got it in 'closeContainer'
+    const nextIndex =
+      containerIndex < this.containers.length - 1
+        ? containerIndex + 1
+        : containerIndex - 1
+    if (nextIndex >= 0) {
+      const restoreContainer = this.containers[containerIndex]
+      const nextContainer = this.containers[nextIndex]
+
+      grid.setContainerSize({
+        id: nextContainer.id,
+        newSize: {
+          height: nextContainer.size.height,
+          width: nextContainer.size.width - restoreSize.width,
+        },
+        newRatio: {
+          height: nextContainer.sizeRatio.height,
+          width: nextContainer.sizeRatio.width - restoreRatio.width,
+        },
+      })
+
+      grid.setContainerSize({
+        id: restoreContainer.id,
+        newSize: restoreSize,
+        newRatio: restoreRatio,
       })
     }
   }
@@ -244,18 +288,6 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
       // only update target zone when mouse leaves
       if (distance.x != 0 || distance.y != 0) {
         grid.setTargetZone(mousePos)
-      }
-    }
-  }
-
-  public get containerStyle() {
-    return (id: number) => {
-      const container = this.getContainer(id)
-      if (container.sizeRatio.height && container.sizeRatio.width) {
-        return {
-          height: container.sizeRatio.height * 100 + "%",
-          width: container.sizeRatio.width * 100 + "%",
-        }
       }
     }
   }

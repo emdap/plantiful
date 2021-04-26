@@ -363,7 +363,7 @@ export type Position = {
 }
 
 // TODO: convert all height/width instances to this D:
-export type Size = {
+export interface Size {
   height: number
   width: number
 }
