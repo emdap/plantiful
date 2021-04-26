@@ -158,7 +158,7 @@ export default class Widget extends GridMixin {
     })
   }
 
-  public moveZone() {
+  public moveToZone() {
     // posStart is recording where the mouse currently is as mouse moves
     const mousePos = this.posStart ? this.posStart : this.widgetData.position
     grid.widgetToClosestZone({ widget: this.widgetData, mousePos })
@@ -197,7 +197,7 @@ export default class Widget extends GridMixin {
     } else {
       document.removeEventListener("mousemove", this.updatePosition)
       if (this.widgetData.docked) {
-        this.moveZone()
+        this.moveToZone()
         grid.zonesTrackMouse(false)
       }
       this.posStart = null
@@ -231,8 +231,9 @@ export default class Widget extends GridMixin {
       "rounded-md": !this.widgetData.docked,
       "shadow-sm": this.widgetData.docked,
       "bg-opacity-95": !this.widgetData.docked && !this.active,
-      "bg-pink-400 dark:bg-yellow-400": !this.widgetData.docked && this.active,
-      "bg-opacity-10 dark:bg-opacity-10": this.active,
+      // "bg-pink-400 dark:bg-yellow-400": !this.widgetData.docked && this.active,
+      "bg-opacity-10 dark:bg-opacity-10 bg-pink-400 dark:bg-green-400": this
+        .active,
       "border-1 border-pink-300 dark:border-yellow-800":
         !this.widgetData.docked && !this.trackPosition && !this.trackSize,
       "border-2 border-green-300 dark:border-yellow-400":
