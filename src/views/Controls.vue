@@ -251,7 +251,6 @@ export default class Controls extends GrowMixin {
 
   @Watch("activeGrowPlant")
   public activePlantChanged() {
-    this.resetScroll()
     this.initVisibleControls()
   }
 
