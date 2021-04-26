@@ -28,7 +28,9 @@ export default class GrowMixin extends Vue {
   }
 
   public toggleControlsWidget(forceShow?: boolean) {
-    grid.toggleWidgetName({ name: "controls", forceShow })
+    if (grid.getWidget("controls")?.open != forceShow) {
+      grid.toggleWidgetName({ name: "controls", forceShow })
+    }
   }
 
   public toggleGrow(forceShow?: boolean) {

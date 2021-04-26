@@ -103,8 +103,8 @@ export default class GridModule extends VuexModule implements GridState {
     this.CONTAINER_SIZE({ id, newSize })
     if (newRatio) {
       const roundedRatio: Size = {
-        height: parseFloat(newRatio.height.toFixed(2)),
-        width: parseFloat(newRatio.width.toFixed(2)),
+        height: parseFloat(newRatio.height.toFixed(4)),
+        width: parseFloat(newRatio.width.toFixed(4)),
       }
       this.CONTAINER_RATIO({ id, newRatio: roundedRatio })
     }
@@ -184,8 +184,8 @@ export default class GridModule extends VuexModule implements GridState {
     this.ZONE_SIZE({ id: zone.id, newSize })
     if (newRatio) {
       const roundedRatio: Size = {
-        height: parseFloat(newRatio.height.toFixed(2)),
-        width: parseFloat(newRatio.width.toFixed(2)),
+        height: parseFloat(newRatio.height.toFixed(4)),
+        width: parseFloat(newRatio.width.toFixed(4)),
       }
       this.ZONE_RATIO({ id: zone.id, newRatio: roundedRatio })
     }

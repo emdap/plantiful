@@ -8,7 +8,7 @@
   >
     <div
       v-if="sized"
-      class="h-full w-full transition-opacity"
+      class="h-full w-full transition-opacity overflow-hidden"
       :class="widgetWrapperClass"
     >
       <widget
@@ -41,7 +41,6 @@ export default class Zone extends GridMixin {
 
   public zoneSelected = false
   public sized = false
-  public itWasMe = false
 
   public mounted() {
     // want zone sizes to be flexible based on widget content,
@@ -106,14 +105,15 @@ export default class Zone extends GridMixin {
     if (this.zoneData.id) {
       const targetBg = "bg-opacity-100 dark:bg-opacity-100"
       const normalBg = "bg-opacity-50 dark:bg-opacity-50"
+      // issue with 1px of bg being visible behind widget, despite bg clip content box :/
+      const noBg = "bg-opacity-0 dark:bg-opacity-0"
       return [
         "zone",
-        "scrollbar-light dark:scrollbar-dark",
-        "justify-self-stretch",
-        "align-self-stretch",
-        "justify-items-stretch",
+        // "justify-self-stretch",
+        // "align-self-stretch",
+        // "justify-items-stretch",
         `bg-${this.zoneData.color}-200 dark:bg-${this.zoneData.color}-900`,
-        this.isTargetZone ? targetBg : normalBg,
+        this.movingZones ? (this.isTargetZone ? targetBg : normalBg) : noBg,
       ]
     }
     return "z-50"
@@ -133,18 +133,10 @@ export default class Zone extends GridMixin {
   }
 
   @Watch("myContainer.size")
-  public gridSizeChange(gridSize: Size) {
-    // CSS rounds to 2 decimals
-    // const heightRatio = parseFloat(
-    //   (this.zoneData.size.height / this/.height).toFixed(2)
-    // )
-    // const widthRatio = parseFloat(
-    //   (this.zoneData.size.width / oldSize.width).toFixed(2)
-    // )
-
+  public gridSizeChange(containerSize: Size) {
     const newSize = {
-      height: this.myContainer.size.height * this.zoneData.sizeRatio.height,
-      width: this.myContainer.size.width * this.zoneData.sizeRatio.width,
+      height: containerSize.height * this.zoneData.sizeRatio.height,
+      width: containerSize.width * this.zoneData.sizeRatio.width,
     }
 
     grid.setZoneSize({ zone: this.zoneData, newSize })
