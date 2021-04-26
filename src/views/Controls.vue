@@ -251,11 +251,17 @@ export default class Controls extends GrowMixin {
 
   @Watch("activeGrowPlant")
   public activePlantChanged() {
+    this.resetScroll()
     this.initVisibleControls()
   }
 
+  @Watch("activeEntity")
+  public activeEntityChanged() {
+    this.resetScroll()
+  }
+
   @Watch("activeEntityType")
-  public updatecontrolListsList(current: GrowDataKey, previous: GrowDataKey) {
+  public updateControlListsList(current: GrowDataKey, previous: GrowDataKey) {
     if (current != previous) {
       if (!previous && !current) {
         this.controls = this.allControlsDisabled()
@@ -263,6 +269,12 @@ export default class Controls extends GrowMixin {
       }
       if (previous) this.controls[previous].show = false
       if (current) this.controls[current].show = true
+    }
+  }
+
+  public resetScroll() {
+    if (this.$el instanceof HTMLElement) {
+      this.$el.scrollTop = 0
     }
   }
 
