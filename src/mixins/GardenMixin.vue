@@ -10,13 +10,16 @@ export const garden = getModule(GardenModule)
 
 @Component({})
 export default class GardenMixin extends Vue {
+  // TODO: revisit these fetching functions
   public toggleActivePlant(forceShow?: boolean) {
-    grid.toggleWidgetName({ name: "active-plant", forceShow })
+    if (grid.getWidget("active-plant").open != forceShow) {
+      grid.toggleWidgetName({ name: "active-plant", forceShow })
+    }
   }
 
-  public toggleGrow(forceShow?: boolean) {
-    grid.toggleWidgetName({ name: "grow", forceShow })
-  }
+  // public toggleGrow(forceShow?: boolean) {
+  //   grid.toggleWidgetName({ name: "grow", forceShow })
+  // }
 
   public get gardenMessages() {
     return gardenMessages

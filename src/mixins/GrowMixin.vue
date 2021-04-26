@@ -12,7 +12,7 @@ import {
   Plant,
   GrowData,
   GrowType,
-  GrowDataKey
+  GrowDataKey,
 } from "@/store/interfaces"
 
 export const grow = getModule(GrowModule)
@@ -32,7 +32,9 @@ export default class GrowMixin extends Vue {
   }
 
   public toggleGrow(forceShow?: boolean) {
-    grid.toggleWidgetName({ name: "grow", forceShow })
+    if (grid.getWidget("grow").open != forceShow) {
+      grid.toggleWidgetName({ name: "grow", forceShow })
+    }
   }
 
   public get growPlants(): GrowData<GrowPlant> {
@@ -77,7 +79,7 @@ export default class GrowMixin extends Vue {
     this.toggleGrow(true)
 
     const plant = await grow.growPlant({
-      basePlant
+      basePlant,
     })
 
     grow.addPlant(plant)
@@ -107,12 +109,12 @@ export default class GrowMixin extends Vue {
 
       const position = {
         x: growData.position ? growData.position.x + "px" : "50%",
-        y: growData.position ? growData.position.y + "px" : "50%"
+        y: growData.position ? growData.position.y + "px" : "50%",
       }
 
       const yPos = {
         top: "",
-        bottom: ""
+        bottom: "",
       }
       if (posBottom) {
         yPos.bottom = position.y
@@ -131,7 +133,7 @@ export default class GrowMixin extends Vue {
         tabindex: growData.tabIndex,
         perspective: "600px", // may make this modifiable in future -- 600px good value for now
         opacity,
-        ...borders
+        ...borders,
       }
     }
   }
