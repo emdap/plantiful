@@ -3,7 +3,7 @@
     <div v-if="ready" :id="mainId" class="w-full h-full flex overflow-auto">
       <template v-for="(container, index) in containers">
         <div
-          v-if="index != 0"
+          v-if="index != 0 && container.size.width"
           :key="'divider-' + index"
           class="divider h-full z-10 cursor-pointer"
           @mousedown="resizeContainers($event, index)"
@@ -127,8 +127,13 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
         : containerIndex - 1
     // if there was only one container, do nothing
     if (nextIndex >= 0) {
-      const closeContainer = this.containers[containerIndex]
       const nextContainer = this.containers[nextIndex]
+
+      if (!nextContainer.size.width) {
+        // next container already closed
+        return
+      }
+      const closeContainer = this.containers[containerIndex]
 
       // add the closing container's width/width ratio to the next container, and reset the closing container
       grid.setContainerSize({
@@ -142,7 +147,6 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
           width: closeContainer.sizeRatio.width + nextContainer.sizeRatio.width,
         },
       })
-
       grid.setContainerSize({
         id: closeContainer.id,
         newSize: NO_SIZE(),
@@ -162,8 +166,8 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
         ? containerIndex + 1
         : containerIndex - 1
     if (nextIndex >= 0) {
-      const restoreContainer = this.containers[containerIndex]
       const nextContainer = this.containers[nextIndex]
+      const restoreContainer = this.containers[containerIndex]
 
       grid.setContainerSize({
         id: nextContainer.id,
@@ -333,6 +337,23 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
     if (this.welcomeWidget.open) {
       grid.toggleWidget(this.welcomeWidget)
     }
+  }
+
+  @Watch("showControls")
+  public openControls(show: boolean) {
+    grid.toggleWidgetName({ name: "controls", forceShow: show })
+    grid.toggleWidgetName({ name: "select", forceShow: show })
+  }
+
+  @Watch("hasGrowPlants")
+  public openGrow(show: boolean) {
+    if (this.growWidget?.open != show) {
+      grid.toggleWidget(this.growWidget)
+    }
+  }
+
+  public get growWidget() {
+    return this.getWidget("grow")
   }
 
   public get activePlantWidget() {

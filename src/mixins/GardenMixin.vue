@@ -17,10 +17,6 @@ export default class GardenMixin extends Vue {
     }
   }
 
-  // public toggleGrow(forceShow?: boolean) {
-  //   grid.toggleWidgetName({ name: "grow", forceShow })
-  // }
-
   public get gardenMessages() {
     return gardenMessages
   }

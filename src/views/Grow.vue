@@ -33,8 +33,8 @@ import { Position, Rotation } from "@/store/interfaces"
 @Component({
   components: {
     Plant,
-    Controls
-  }
+    Controls,
+  },
 })
 export default class Grow extends GrowMixin {
   public ctrlDown = false
@@ -131,7 +131,7 @@ export default class Grow extends GrowMixin {
     if (this.startPos == null) {
       this.startPos = {
         x: e.pageX,
-        y: e.pageY
+        y: e.pageY,
       }
     }
 
@@ -141,7 +141,7 @@ export default class Grow extends GrowMixin {
         x: entity.rotation.x,
         y: entity.rotation.y,
         z: entity.rotation.z,
-        translate: entity.rotation.translate
+        translate: entity.rotation.translate,
       }
 
       if (this.ctrlDown && this.shiftDown) {
@@ -156,7 +156,7 @@ export default class Grow extends GrowMixin {
       grow.setRotation({
         id: entity.id,
         dataKey: "plants",
-        newRotations
+        newRotations,
       })
     } else {
       // update position
@@ -164,20 +164,15 @@ export default class Grow extends GrowMixin {
       const currentLeft = (entity.position as Position).x
       const newPositions: Position = {
         y: currentTop + e.pageY - this.startPos.y,
-        x: currentLeft + e.pageX - this.startPos.x
+        x: currentLeft + e.pageX - this.startPos.x,
       }
 
       grow.setPosition({ id: entity.id, dataKey: "plants", newPositions })
     }
     this.startPos = {
       x: e.pageX,
-      y: e.pageY
+      y: e.pageY,
     }
-  }
-
-  @Watch("showControls")
-  public openControls(show: boolean) {
-    this.toggleControlsWidget(show)
   }
 }
 </script>

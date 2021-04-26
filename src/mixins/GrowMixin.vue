@@ -27,18 +27,6 @@ export default class GrowMixin extends Vue {
     grid.toggleWidgetName({ name: "search", forceShow })
   }
 
-  public toggleControlsWidget(forceShow?: boolean) {
-    if (grid.getWidget("controls")?.open != forceShow) {
-      grid.toggleWidgetName({ name: "controls", forceShow })
-    }
-  }
-
-  public toggleGrow(forceShow?: boolean) {
-    if (grid.getWidget("grow").open != forceShow) {
-      grid.toggleWidgetName({ name: "grow", forceShow })
-    }
-  }
-
   public get growPlants(): GrowData<GrowPlant> {
     return grow.plants
   }
@@ -78,8 +66,6 @@ export default class GrowMixin extends Vue {
   }
 
   public async growPlant(basePlant: Plant) {
-    this.toggleGrow(true)
-
     const plant = await grow.growPlant({
       basePlant,
     })
