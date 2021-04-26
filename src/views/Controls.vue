@@ -1,5 +1,8 @@
 <template>
-  <div id="controls" class="overflow-auto scrollbar-light dark:scrollbar-dark">
+  <div
+    id="controls"
+    class="overflow-auto relative scrollbar-light dark:scrollbar-dark"
+  >
     <div v-for="controlTuple in visibleControls" :key="controlTuple[0]">
       <h3 class="mb-2 text-black dark:text-gray-100">
         {{ getControlSectionTitle(controlTuple[0]) }}
@@ -94,7 +97,7 @@ import {
   GrowControlKeys,
   GrowOptionsControlKeys,
   GrowPetal,
-  PetalOptions
+  PetalOptions,
 } from "@/store/interfaces"
 import { Watch } from "vue-property-decorator"
 import { Position } from "node_modules/vue-router/types/router"
@@ -119,8 +122,8 @@ type PropertyData<P, O = {}, C = {}> = {
 
 @Component({
   components: {
-    ControlField
-  }
+    ControlField,
+  },
 })
 export default class Controls extends GrowMixin {
   public controls: PropertyControls = this.allControlsDisabled()
@@ -131,31 +134,31 @@ export default class Controls extends GrowMixin {
         show: false,
         onEntity: controlLists.plantControls,
         onOptions: controlLists.plantOptionsControls,
-        special: controlLists.specialPlantControls
+        special: controlLists.specialPlantControls,
       },
       branches: {
         show: false,
         onEntity: controlLists.branchControls,
-        onOptions: controlLists.branchOptionsControls
+        onOptions: controlLists.branchOptionsControls,
       },
       leafClusters: {
         show: false,
         onEntity: controlLists.leafClusterControls,
-        onOptions: controlLists.leafClusterOptionsControls
+        onOptions: controlLists.leafClusterOptionsControls,
       },
       leaves: {
         show: false,
-        onOptions: controlLists.leafOptionsControls
+        onOptions: controlLists.leafOptionsControls,
       },
       flowers: {
         show: false,
         onEntity: controlLists.flowerControls,
-        onOptions: controlLists.flowerOptionsControls
+        onOptions: controlLists.flowerOptionsControls,
       },
       petals: {
         show: false,
-        onOptions: controlLists.petalOptionsControls
-      }
+        onOptions: controlLists.petalOptionsControls,
+      },
     }
   }
 
@@ -215,7 +218,7 @@ export default class Controls extends GrowMixin {
     }
     const entityPayload = {
       id: grow.activeEntity.id,
-      dataKey
+      dataKey,
     }
     if (propertyList == "onEntity") {
       let mergeData!: { [key in GrowControlKeys]?: GrowType[keyof GrowType] }
@@ -225,8 +228,8 @@ export default class Controls extends GrowMixin {
           // merge with other parentcontrolLists, as updating only 1 child property at a time (rotation.x, position.y, etc)
           [parentProperty]: {
             ...grow.activeEntity[parentProperty],
-            [property]: newValue
-          }
+            [property]: newValue,
+          },
         }
       } else {
         mergeData = { [property]: newValue }
@@ -235,12 +238,12 @@ export default class Controls extends GrowMixin {
     } else if (propertyList == "onOptions") {
       const optionsDup = {
         ...grow.activeEntity.optionsReference,
-        [property]: newValue
+        [property]: newValue,
       }
       grow.setEntityOptions({
         ...entityPayload,
         propertyRef: property as GrowOptionsControlKeys,
-        newOptions: optionsDup
+        newOptions: optionsDup,
       })
     }
     this.$forceUpdate()

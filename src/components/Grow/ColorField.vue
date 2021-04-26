@@ -53,8 +53,8 @@
       </div>
     </div>
     <div
-      v-if="showColorPicker"
       ref="color-picker"
+      v-if="showColorPicker"
       class="absolute rounded-sm p-1 bg-gray-50 dark:bg-gray-800 z-50 transition-all"
       :style="colorPickerPos"
     >
@@ -105,8 +105,8 @@ type RGBObj = {
   components: {
     Chrome,
     CloseIcon,
-    PopOutIcon
-  }
+    PopOutIcon,
+  },
 })
 export default class ColorField extends Vue {
   @Prop({ required: true }) colorList!: string[]
@@ -124,9 +124,8 @@ export default class ColorField extends Vue {
   public colorPickerPick = this.defaultColor
   public showColorPicker = false
 
-  public colorPickerPos = { top: "", right: 0 }
+  public colorPickerPos = { top: "", right: "1rem" }
   public controlContainer = document.getElementById("controls")
-  public firstClick = true
 
   public beforeDestroy() {
     this.removePickerListeners()
@@ -190,8 +189,6 @@ export default class ColorField extends Vue {
   public launchColorPicker(show: boolean) {
     this.showColorPicker = show
     if (show) {
-      this.firstClick = true
-      this.updateColorPickerPos()
       document.addEventListener("mousedown", this.closePicker)
       if (this.controlContainer) {
         this.controlContainer.addEventListener(
@@ -199,43 +196,24 @@ export default class ColorField extends Vue {
           this.updateColorPickerPos
         )
       }
+      // wait for the picker to mount before positioning
+      this.$nextTick(() => {
+        this.updateColorPickerPos()
+      })
     } else {
       this.removePickerListeners()
       this.adjustIndex = -1
     }
   }
 
-  public updateColorPickerPos() {
-    if (this.$el instanceof HTMLElement && this.showColorPicker) {
-      // the picker is styled to be ~110% of 225px high
-      const pickerHeight = 247.5
-
-      let topDist = this.$el.getBoundingClientRect().y
-      if (this.controlContainer instanceof HTMLElement) {
-        const { height, y } = this.controlContainer.getBoundingClientRect()
-        const maxTop = y + height
-        if (topDist > maxTop) {
-          this.launchColorPicker(false)
-        } else if (topDist + pickerHeight > maxTop) {
-          topDist = maxTop - pickerHeight
-        } else {
-          topDist = Math.max(y - pickerHeight, topDist)
-        }
-      }
-      this.colorPickerPos.top = topDist + "px"
-    }
-  }
-
   public closePicker(e: MouseEvent) {
     if (
-      !this.firstClick &&
       e.target instanceof Element &&
       e.target != this.colorPicker &&
       !this.colorPicker.contains(e.target)
     ) {
       this.launchColorPicker(false)
     }
-    this.firstClick = false
   }
 
   public removePickerListeners() {
@@ -246,6 +224,38 @@ export default class ColorField extends Vue {
       )
     }
     document.removeEventListener("mousedown", this.closePicker)
+  }
+
+  public updateColorPickerPos() {
+    if (
+      this.$el instanceof HTMLElement &&
+      this.showColorPicker &&
+      this.controlContainer instanceof HTMLElement
+    ) {
+      // controlContainer is Controls.vue's $el
+      const { height } = this.controlContainer.getBoundingClientRect()
+      const scrollTop = this.controlContainer.scrollTop
+      const maxTop = scrollTop + height
+      const buffer = 50 // how far you can scroll up past this.$el before picker disappears
+
+      let topDist = this.$el.offsetTop
+      let pickerHeight!: number
+
+      if (this.colorPicker instanceof HTMLElement) {
+        pickerHeight = this.colorPicker.getBoundingClientRect().height
+      } else {
+        pickerHeight = 250 // approximation -- only used if error in colorpicker mount
+      }
+
+      if (topDist > maxTop + buffer) {
+        this.launchColorPicker(false)
+      } else if (topDist + pickerHeight > maxTop) {
+        topDist = maxTop - pickerHeight
+      } else {
+        topDist = Math.max(scrollTop - pickerHeight, topDist)
+      }
+      this.colorPickerPos.top = topDist + "px"
+    }
   }
 
   // Getters
@@ -281,7 +291,7 @@ export default class ColorField extends Vue {
       r: parseInt(splitColor[0]),
       g: parseInt(splitColor[1]),
       b: parseInt(splitColor[2]),
-      a: 1
+      a: 1,
     }
     if (splitColor.length == 4) {
       colorObj.a = parseInt(splitColor[3])
