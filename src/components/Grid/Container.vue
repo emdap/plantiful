@@ -57,17 +57,20 @@ export default class Container extends GridMixin {
   }
 
   public get containerStyle() {
-    let height = ""
+    // really only care about width for containers, height is always 100%
+    // let height = "100%"
     let width = ""
     if (
-      this.containerData.sizeRatio.height &&
+      // this.containerData.sizeRatio.height &&
+      this.myOpenZones.length &&
       this.containerData.sizeRatio.width
     ) {
-      height = this.containerData.sizeRatio.height * 100 + "%"
+      // height = this.containerData.sizeRatio.height * 100 + "%"
       width = this.containerData.sizeRatio.width * 100 + "%"
     }
+    // console.log(this.containerData.id, "style getter:", width)
     // need to use min-width as container's parent has display: flex
-    return { height, "min-width": width }
+    return { height: "100%", "min-width": width }
   }
 }
 </script>

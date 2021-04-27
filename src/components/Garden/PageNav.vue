@@ -1,16 +1,24 @@
 <template>
   <div id="page-nav">
-    <button
-      v-for="(page, index) in pageButtons"
-      :key="`page-button-${index}`"
-      :disabled="disablePageButton(page.nav)"
-      @click="iteratePage(page.nav)"
+    <div
       :class="
         plantListLoading
           ? 'text-gray-300 dark:text-gray-600'
           : 'text-green-800 dark:text-yellow-600'
       "
-      class="transition-text text-sm font-medium focus:outline-none  tracking-normal hover:tracking-wide hover:text-purple-700 dark:hover:text-yellow-500 dark:btn-dark-transparent"
+    >
+      Page {{ currentPage }} of {{ lastPage }}
+    </div>
+    <button
+      v-for="(page, index) in pageButtons"
+      :key="`page-button-${index}`"
+      @click="iteratePage(page.nav)"
+      :class="
+        plantListLoading || disablePageButton(page.nav)
+          ? 'text-gray-300 dark:text-gray-600 cursor-wait'
+          : 'text-green-800 dark:text-yellow-600 hover:tracking-wide hover:text-purple-700 dark:hover:text-yellow-500'
+      "
+      class="transition-text text-sm font-medium focus:outline-none tracking-normal dark:btn-dark-transparent"
     >
       {{ page.text }}
     </button>

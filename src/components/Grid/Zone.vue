@@ -6,17 +6,20 @@
     @mousedown="zoneSelected = true"
     @mouseup="zoneSelected = false"
   >
+    <!-- class="h-full w-full transition-opacity overflow-hidden" -->
+    <!-- v-if="isMounted" -->
     <div
-      v-if="sized"
       class="h-full w-full transition-opacity overflow-hidden"
-      :class="widgetWrapperClass"
+      :class="isMounted ? widgetWrapperClass : 'hidden'"
     >
+      <!-- :class="widgetWrapperClass" -->
       <widget
         v-for="widget in zoneOpenWidgets(zoneData)"
         :widgetData="widget"
         :key="'widget-' + widget.name"
       >
-        <x :is="widget.component" />
+        <!-- optional zoneSize prop for components that may need to position children -->
+        <x :is="widget.component" :zoneReady="zoneData.mounted" />
       </widget>
     </div>
   </div>
@@ -40,11 +43,11 @@ export default class Zone extends GridMixin {
   @Prop({ default: null }) containerId!: number
 
   public zoneSelected = false
-  public sized = false
 
   public mounted() {
     // want zone sizes to be flexible based on widget content,
     // but start size as if grid cols/rows were set to 1fr instead of auto
+    // console.log("mount zone", this.zoneData.mounted)
     this.setCurrentSize()
     document.addEventListener("mouseup", this.notSelected)
   }
@@ -82,7 +85,6 @@ export default class Zone extends GridMixin {
         })
         grid.setZonePoints({ zone: this.zoneData, newStart: { x, y } })
       }
-      this.sized = true
       grid.mountZone({ id: this.zoneData.id, mounted: true })
     })
   }
@@ -106,6 +108,7 @@ export default class Zone extends GridMixin {
       const targetBg = "bg-opacity-100 dark:bg-opacity-100"
       const normalBg = "bg-opacity-50 dark:bg-opacity-50"
       // issue with 1px of bg being visible behind widget, despite bg clip content box :/
+      // const noBg = normalBg
       const noBg = "bg-opacity-0 dark:bg-opacity-0"
       return [
         "zone",
@@ -157,15 +160,16 @@ export default class Zone extends GridMixin {
     }
   }
 
-  public get mountedChanged() {
+  public get isMounted() {
     return this.zoneData.mounted
   }
 
-  @Watch("mountedChanged")
-  public refreshSize() {
-    this.sized = false
-    this.resetSize()
-    this.setCurrentSize()
+  @Watch("isMounted")
+  public mountedChanged(mounted: boolean) {
+    if (!mounted) {
+      this.resetSize()
+      this.setCurrentSize()
+    }
   }
 
   public resetSize() {

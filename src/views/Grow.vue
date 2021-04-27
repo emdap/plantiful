@@ -17,7 +17,12 @@
       @dblclick.self="removeActive()"
       @mouseleave="trackMouse = false"
     >
-      <plant v-for="plant in growPlants" :key="plant.id" :plantData="plant" />
+      <plant
+        v-for="plant in growPlants"
+        :key="plant.id"
+        :plantData="plant"
+        :setSize="zoneReady"
+      />
     </div>
   </div>
 </template>
@@ -27,8 +32,9 @@ import Component from "vue-class-component"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import Plant from "@/components/Grow/Plant.vue"
 import Controls from "@/views/Controls.vue"
-import { Watch } from "vue-property-decorator"
-import { Position, Rotation } from "@/store/interfaces"
+import { Prop, Watch } from "vue-property-decorator"
+import { Position, Rotation, Size } from "@/store/interfaces"
+import { NO_SIZE } from "@/fixtures/Defaults"
 
 @Component({
   components: {
@@ -37,6 +43,8 @@ import { Position, Rotation } from "@/store/interfaces"
   },
 })
 export default class Grow extends GrowMixin {
+  @Prop({ default: false }) zoneReady!: boolean
+
   public ctrlDown = false
   public shiftDown = false
   public trackMouse = false

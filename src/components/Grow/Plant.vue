@@ -9,7 +9,7 @@
       v-if="plantData.showName"
       :class="textClass"
       :style="`margin-left: -${plantData.width}px; width: ${plantData.width}px`"
-      class="whitespace-nowrap text-center transition-all duration-75 font-semibold cursor-pointer dark:text-white"
+      class="whitespace-nowrap text-center transition-all duration-75 font-semibold cursor-pointer dark:text-white select-none"
       @dblclick.self="setActiveEntity"
     >
       {{ plantData.name }}
@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { GrowPlant } from "@/store/interfaces"
+import { GrowPlant, Position } from "@/store/interfaces"
 import Component from "vue-class-component"
 import { Prop, Watch } from "vue-property-decorator"
 import Shape from "@/components/Grow/Shape.vue"
@@ -56,6 +56,7 @@ import { NO_POSITION, NO_ROTATION } from "@/fixtures/Defaults"
 })
 export default class Plant extends GrowMixin {
   @Prop({ required: true }) plantData!: GrowPlant
+  @Prop({ required: true }) setSize!: boolean
 
   public defaultColor = "text-black"
   public textClass = this.defaultColor
@@ -68,22 +69,30 @@ export default class Plant extends GrowMixin {
       this.textClass = this.subHighlightText
     }
 
-    if (!this.plantData.position) {
-      // init position once mounted
-      const plantElem = this.$el as HTMLElement
-      if (!plantElem) {
-        this.$toasted.error(this.messages.generalError)
-        return
-      }
-      grow.setPosition({
-        id: this.plantData.id,
-        dataKey: "plants",
-        newPositions: {
-          x: plantElem.offsetLeft,
-          y: plantElem.offsetTop + this.plantData.height / 2,
-        },
-      })
+    if (this.setSize) {
+      this.setPlantPosition()
     }
+  }
+
+  @Watch("setSize")
+  public sizeAvailable(ready: boolean) {
+    if (!this.plantData.position && ready) {
+      this.setPlantPosition()
+    }
+  }
+
+  public setPlantPosition() {
+    if (!(this.$el instanceof HTMLElement)) {
+      return this.$toasted.error(this.messages.generalError)
+    }
+    grow.setPosition({
+      id: this.plantData.id,
+      dataKey: "plants",
+      newPositions: {
+        x: this.$el.offsetLeft,
+        y: this.$el.offsetTop + this.plantData.height / 2,
+      },
+    })
   }
 
   public get clusterLists() {

@@ -108,9 +108,9 @@ export default class Widget extends GridMixin {
     this.initMouseUpListeners()
     // un/re-docking, moving zones actually re-mounts Widget
     // zone it belongs to is dynamically rendering it
-    if (this.widgetData.currentZone != 0) {
-      this.syncWithZone()
-    }
+    // if (this.widgetData.currentZone != 0) {
+    //   this.syncWithZone()
+    // }
   }
 
   public beforeDestroy() {
@@ -134,12 +134,12 @@ export default class Widget extends GridMixin {
   }
 
   // Utilities
-  public syncWithZone() {
-    // need to wait for next tick so that widget has in fact updated in DOM
-    this.$nextTick(() => {
-      this.setToCurrent()
-    })
-  }
+  // public syncWithZone() {
+  // need to wait for next tick so that widget has in fact updated in DOM
+  // this.$nextTick(() => {
+  // this.setToCurrent()
+  // })
+  // }
 
   public setToCurrent() {
     const { height, width, x, y } = this.getCurrentRect()
@@ -162,7 +162,6 @@ export default class Widget extends GridMixin {
     // posStart is recording where the mouse currently is as mouse moves
     const mousePos = this.posStart ? this.posStart : this.widgetData.position
     grid.widgetToClosestZone({ widget: this.widgetData, mousePos })
-    this.syncWithZone()
   }
 
   public flashActive() {
@@ -192,12 +191,14 @@ export default class Widget extends GridMixin {
     if (track) {
       document.addEventListener("mousemove", this.updatePosition)
       if (this.widgetData.docked) {
+        this.setToCurrent()
         grid.zonesTrackMouse(true)
       }
     } else {
       document.removeEventListener("mousemove", this.updatePosition)
       if (this.widgetData.docked) {
         this.moveToZone()
+        this.setToCurrent()
         grid.zonesTrackMouse(false)
       }
       this.posStart = null
@@ -325,7 +326,10 @@ export default class Widget extends GridMixin {
     }
     // offset not including parent padding for x?
     const remainingX =
-      this.gridSize.width - this.widgetData.width + this.moveIcon.offsetLeft + 8
+      this.gridSize.width -
+      this.widgetData.width +
+      this.moveIcon.offsetLeft +
+      20
 
     const remainingY = this.gridSize.height - this.widgetData.height
     const rawX = startX + e.pageX - this.posStart.x

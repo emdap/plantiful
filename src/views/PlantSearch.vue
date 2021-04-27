@@ -14,15 +14,6 @@
         @grow-plant="growPlant(activePlant)"
         class="p-4"
       />
-      <h4
-        :class="
-          plantListLoading
-            ? 'text-gray-300 dark:text-gray-800'
-            : 'text-green-800 dark:text-yellow-600'
-        "
-      >
-        Page {{ currentPage }} of {{ lastPage }}
-      </h4>
       <page-nav
         :class="
           plantListLoading
@@ -48,8 +39,8 @@ import GrowMixin from "@/mixins/GrowMixin.vue"
     Loading,
     SearchBar,
     PlantList,
-    PageNav
-  }
+    PageNav,
+  },
 })
 export default class PlantSearch extends mixins(GardenMixin, GrowMixin) {}
 </script>

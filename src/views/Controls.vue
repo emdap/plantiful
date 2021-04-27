@@ -203,7 +203,10 @@ export default class Controls extends GrowMixin {
     // controls with children is only possible on the entity, not the entity options
     const parentControl = sourceEntity[typesafeProp.property]
     const typesafeChild = child as Control<typeof parentControl>
-    return parentControl && parentControl[typesafeChild.property]
+    if (parentControl && parentControl[typesafeChild.property] != undefined) {
+      return parentControl[typesafeChild.property]
+    }
+    return "Value updating..."
   }
 
   public updateProperty(

@@ -5,6 +5,7 @@
       <input
         class="control-input dark:bg-gray-300 dark:text-black font-semibold"
         v-model="updatedValue"
+        :placeholder="messages.placeholder"
         type="number"
         @focus="allowUpdate = controlList == 'onEntity' || dataKey != 'plants'"
         @blur="allowUpdate = true"
@@ -47,13 +48,13 @@ import {
   DropdownControl,
   GrowDataKey,
   GrowOptionsType,
-  GrowType
+  GrowType,
 } from "@/store/interfaces"
 
 @Component({
   components: {
-    ColorField
-  }
+    ColorField,
+  },
 })
 export default class ControlField extends Vue {
   @Prop({ required: true }) control!:
@@ -105,18 +106,22 @@ export default class ControlField extends Vue {
     ) {
       if (this.updatedValue > this.control.verify.upperBound) {
         this.$toasted.error(
-          controlMessages.upperBoundError + this.control.verify.upperBound
+          this.messages.upperBoundError + this.control.verify.upperBound
         )
         this.updatedValue = this.control.verify.upperBound
       } else {
         this.$toasted.error(
-          controlMessages.lowerBoundError + this.control.verify.lowerBound
+          this.messages.lowerBoundError + this.control.verify.lowerBound
         )
         this.updatedValue = this.control.verify.lowerBound
       }
       return false
     }
     return true
+  }
+
+  public get messages() {
+    return controlMessages
   }
 
   @Watch("updatedValue")

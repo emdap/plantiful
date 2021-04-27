@@ -48,7 +48,6 @@ import { NO_SIZE } from "@/fixtures/Defaults"
 export default class GridController extends mixins(GridMixin, GrowMixin) {
   public ready = false
   public mainId = "grid-controller"
-
   // TODO: add this to GridMixin and use same code in Widget.vue -- parts tagged with // M
   public trackSize = false
   public sizeStart = null as Position | null
@@ -87,7 +86,6 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
   }
 
   public setContainerSizes(updateRatio = false) {
-    // #container is defined in App.vue, is 100vh and 100vw - menu size
     const parentContainer = document.getElementById(this.mainId)
     if (!parentContainer) {
       this.$toasted.error(this.messages.generalError)
@@ -128,13 +126,11 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
     // if there was only one container, do nothing
     if (nextIndex >= 0) {
       const nextContainer = this.containers[nextIndex]
-
       if (!nextContainer.size.width) {
         // next container already closed
         return
       }
       const closeContainer = this.containers[containerIndex]
-
       // add the closing container's width/width ratio to the next container, and reset the closing container
       grid.setContainerSize({
         id: nextContainer.id,
@@ -168,7 +164,6 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
     if (nextIndex >= 0) {
       const nextContainer = this.containers[nextIndex]
       const restoreContainer = this.containers[containerIndex]
-
       grid.setContainerSize({
         id: nextContainer.id,
         newSize: {
@@ -180,7 +175,6 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
           width: nextContainer.sizeRatio.width - restoreRatio.width,
         },
       })
-
       grid.setContainerSize({
         id: restoreContainer.id,
         newSize: restoreSize,
@@ -303,7 +297,7 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
   public toggleWelcome(open: boolean) {
     if (open) {
       this.growTestPlant()
-      this.closeSearchers()
+      this.toggleSearchers(false)
     } else {
       grow.removeActivePlant()
       grow.deleteEntity({ dataKey: "plants", id: this.testPlant.id })
@@ -324,11 +318,11 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
     }
   }
 
-  public closeSearchers() {
-    if (this.searchWidget?.open) {
+  public toggleSearchers(open: boolean) {
+    if (this.searchWidget.open != open) {
       grid.toggleWidget(this.searchWidget)
     }
-    if (this.activePlantWidget?.open) {
+    if (this.activePlantWidget.open != open) {
       grid.toggleWidget(this.activePlantWidget)
     }
   }
@@ -347,7 +341,7 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
 
   @Watch("hasGrowPlants")
   public openGrow(show: boolean) {
-    if (this.growWidget?.open != show) {
+    if (this.growWidget.open != show) {
       grid.toggleWidget(this.growWidget)
     }
   }
@@ -376,7 +370,7 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
   grid-auto-rows: auto;
   grid-auto-columns: auto;
 
-  @apply h-full overflow-hidden;
+  @apply h-full flex-grow overflow-hidden;
 }
 
 #plant-lookup {
