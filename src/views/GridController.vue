@@ -1,6 +1,7 @@
 <template>
-  <div class="w-full h-full">
-    <div v-if="ready" :id="mainId" class="w-full h-full flex overflow-auto">
+  <div :id="mainId" class="h-screen w-full flex overflow-auto">
+    <!-- using templates to make life easier when inspecting element // TODO: change back eventually? -->
+    <template v-if="ready">
       <template v-for="(container, index) in containers">
         <div
           v-if="index != 0 && container.size.width"
@@ -8,19 +9,19 @@
           class="divider h-full z-10 cursor-pointer"
           @mousedown="resizeContainers($event, index)"
         />
+        <!-- class="container" -->
         <container
-          class="container"
-          :id="container.name"
           :containerData="container"
           :containerIndex="index"
+          :resizing="isResizing(container.id)"
           :key="index"
           @close-container="closeContainer"
           @restore-container="restoreContainer"
         />
       </template>
-    </div>
-    <!-- zone used for undocked widgets -->
-    <zone v-if="ready" :zoneData="getZone(0)" />
+      <!-- zone used for undocked widgets -->
+      <zone v-if="ready" :zoneData="getZone(0)" />
+    </template>
   </div>
 </template>
 
@@ -53,6 +54,9 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
   public sizeStart = null as Position | null
 
   public containerIndex = 0
+  public windowResizing = false
+  public containersResizing = [] as number[]
+  public resizeTimer!: number
 
   public mounted() {
     this.addFixtures()
@@ -82,7 +86,26 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
   }
 
   public windowResize() {
+    clearTimeout(this.resizeTimer)
+
+    this.windowResizing = true
     this.setContainerSizes()
+
+    this.resizeTimer = setTimeout(() => {
+      this.windowResizing = false
+    }, 250)
+  }
+
+  public get isResizing() {
+    return (id: number) => {
+      if (!this.trackSize && !this.windowResizing) {
+        return false
+      } else if (this.windowResizing) {
+        return true
+      } else {
+        return this.containersResizing.indexOf(id) != -1
+      }
+    }
   }
 
   public setContainerSizes(updateRatio = false) {
@@ -164,6 +187,7 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
     if (nextIndex >= 0) {
       const nextContainer = this.containers[nextIndex]
       const restoreContainer = this.containers[containerIndex]
+
       grid.setContainerSize({
         id: nextContainer.id,
         newSize: {
@@ -184,6 +208,7 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
   }
 
   public resizeContainers(e: MouseEvent, containerIndex?: number) {
+    // container resizer only appears for indexes > 0
     if (containerIndex) {
       e.preventDefault()
       this.containerIndex = containerIndex
@@ -201,6 +226,7 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
       document.addEventListener("mousemove", this.updateContainerSizes)
     } else {
       this.sizeStart = null
+      this.containersResizing = []
       document.removeEventListener("mousemove", this.updateContainerSizes)
     }
   }
@@ -219,6 +245,10 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
     }
     const leftContainer = this.containers[this.containerIndex - 1]
     const rightContainer = this.containers[this.containerIndex]
+
+    if (!this.containersResizing.length) {
+      this.containersResizing = [leftContainer.id, rightContainer.id]
+    }
 
     // TODO: need to incorporate minimum widths
     const leftWidth = Math.min(
@@ -318,6 +348,31 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
     }
   }
 
+  @Watch("controlsWidget.open")
+  public controlsOpen(open: boolean) {
+    if (this.growWidget.currentZone == this.growWidget.defaultZone) {
+      // want growWidget to take up all columns if controls closed, and it's in zone 3 (default zone)
+      if (open) {
+        grid.updateZoneColumns({
+          zone: this.growWidget.currentZone,
+          newColumns: { start: 1, end: 2 },
+        })
+      } else {
+        grid.updateZoneColumns({
+          zone: this.growWidget.currentZone,
+          newColumns: { start: 1, end: 3 },
+        })
+      }
+    }
+  }
+
+  @Watch("growWidget.open")
+  public growOpen(open: boolean) {
+    if (!open) {
+      this.toggleGrowHelpers(false)
+    }
+  }
+
   public toggleSearchers(open: boolean) {
     if (this.searchWidget.open != open) {
       grid.toggleWidget(this.searchWidget)
@@ -333,10 +388,14 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
     }
   }
 
-  @Watch("showControls")
-  public openControls(show: boolean) {
+  public toggleGrowHelpers(show: boolean) {
     grid.toggleWidgetName({ name: "controls", forceShow: show })
     grid.toggleWidgetName({ name: "select", forceShow: show })
+  }
+
+  @Watch("showControls")
+  public openControls(show: boolean) {
+    this.toggleGrowHelpers(show)
   }
 
   @Watch("hasGrowPlants")
@@ -348,6 +407,10 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
 
   public get growWidget() {
     return this.getWidget("grow")
+  }
+
+  public get controlsWidget() {
+    return this.getWidget("controls")
   }
 
   public get activePlantWidget() {
@@ -365,13 +428,19 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
 </script>
 
 <style>
-#grid-controller .container {
-  display: grid;
+#grid-controller {
+  grid-area: main-grid;
+
+  /* @apply overflow-auto h-screen; */
+}
+
+/* #grid-controller .container {
+  display: inline-grid;
   grid-auto-rows: auto;
   grid-auto-columns: auto;
 
-  @apply h-full flex-grow overflow-hidden;
-}
+  @apply grid h-full flex-grow overflow-hidden;
+} */
 
 #plant-lookup {
   width: 33%;
@@ -383,35 +452,11 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
 
 .divider {
   /* need this to exact match zone padding */
-  margin: 0 -4px;
-  min-width: 8px;
+  @apply -mx-1 min-w-2;
 }
 
 .zone {
-  /* need to do padding instead of grid gap so that can calculate
-  ratio of zone size -> grid size accurately */
-  padding: 4px;
-
+  /* using padding instead of grid gap so that empty grid cols/rows have no width */
   @apply p-1 bg-clip-content;
-}
-
-#z-1 {
-  grid-area: 1 / 1 / 2 / 2;
-}
-
-#z-2 {
-  /* grid-area: 2 / 1 / 2 / 2; */
-}
-
-#z-3 {
-  grid-area: 1 / 1 / 3 / 3;
-}
-
-#z-4 {
-  grid-area: 1 / 3 / 3 / 4;
-}
-
-#z-5 {
-  grid-column: 1 / 4;
 }
 </style>

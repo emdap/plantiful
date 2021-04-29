@@ -1,6 +1,9 @@
 import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
 import {
+  GridAxes,
+  GridAxesKeys,
   GridContainer,
+  GridPosition,
   GridState,
   GridWidget,
   GridZone,
@@ -29,9 +32,6 @@ export default class GridModule extends VuexModule implements GridState {
   // these are still useful for widgets
   overallHeight = 0
   overallWidth = 0
-
-  // D
-  activeZone: GridZone | null = null
 
   get getWidget() {
     return (name: string): GridWidget => {
@@ -81,8 +81,9 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
-  mountZone(payload: { id: number; mounted: boolean }) {
-    this.ZONE_MOUNTED(payload)
+  mountZone(payload: { zone: GridZone; mounted: boolean }) {
+    const { zone, mounted } = payload
+    this.ZONE_MOUNTED({ id: zone.id, mounted })
   }
 
   @Action
@@ -113,6 +114,21 @@ export default class GridModule extends VuexModule implements GridState {
   @Action
   addZone(zone: GridZone) {
     this.ADD_ZONE(zone)
+    if (zone.containerId) {
+      this.POPULATE_CONTAINER(zone)
+    }
+  }
+
+  @Action
+  updateZoneColumns(payload: {
+    zone: GridZone | number
+    newColumns: GridPosition
+  }) {
+    const { zone, newColumns } = payload
+    this.UPDATE_ZONE_COLUMNS({
+      id: typeof zone == "number" ? zone : zone.id,
+      newColumns,
+    })
   }
 
   @Action
@@ -135,9 +151,10 @@ export default class GridModule extends VuexModule implements GridState {
   widgetToZone(payload: { widget: GridWidget; zoneId: number }) {
     const { widget, zoneId } = payload
     // open or close the zone
-    if (zoneId) this.TOGGLE_ZONES({ openZone: zoneId, open: widget.docked })
+    console.log("widget toggling zone")
+    if (zoneId) this.toggleZone({ zone: zoneId, open: widget.docked })
     if (zoneId == widget.currentZone) {
-      // happens if container re-renders TODO: investigate more
+      // happens if dropping widget into same zone
       return
     }
 
@@ -214,12 +231,12 @@ export default class GridModule extends VuexModule implements GridState {
     newSize: Size
   }) {
     // TODO: need to revisit this once widgets can resize zone -- when to update ratio
-    // const { widget, setZone, newSize } = payload
+    const { widget, setZone, newSize } = payload
     // idea: keep widget size synced with zone
-    // if (setZone && widget.currentZone) {
-    //   this.ZONE_SIZE({ id: widget.currentZone, newSize })
-    // }
-    const { widget, newSize } = payload
+    if (setZone && widget.currentZone) {
+      this.ZONE_SIZE({ id: widget.currentZone, newSize })
+    }
+    // const { widget, newSize } = payload
     this.WIDGET_SIZE({ name: widget.name, newSize })
   }
 
@@ -243,22 +260,8 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
-  setActive(payload: { which: "widget" | "zone"; id: string | number }) {
-    const { which, id } = payload
-    if (which == "widget" && typeof id == "string") {
-      this.ACTIVE_WIDGET(id)
-    } else if (which == "zone" && typeof id == "number") {
-      this.ACTIVE_ZONE(id)
-    }
-  }
-
-  @Action
-  removeActive(which: "widget" | "zone") {
-    if (which == "widget") {
-      this.ACTIVE_WIDGET(null)
-    } else {
-      this.ACTIVE_ZONE(null)
-    }
+  setActiveZone(payload: { containerId: number; zoneId: number | null }) {
+    this.ACTIVE_ZONE(payload)
   }
 
   @Action
@@ -293,8 +296,19 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
-  toggleZone(zone: GridZone) {
-    this.TOGGLE_ZONES({ openZone: zone.id })
+  toggleZone(payload: { zone: GridZone | number; open?: boolean }) {
+    const zone =
+      typeof payload.zone == "number"
+        ? this.getZone(payload.zone)
+        : payload.zone
+    const open = payload.open
+    if (open == undefined || zone.open != open) {
+      this.TOGGLE_ZONE({ openZone: zone.id, open })
+      console.log("toggle zone")
+      if (zone.containerId) {
+        this.CONTAINER_ZONE_OPENED({ containerId: zone.containerId, zone })
+      }
+    }
   }
 
   @Action
@@ -333,28 +347,60 @@ export default class GridModule extends VuexModule implements GridState {
     const closestZone = this.findClosestZone(mousePos)
     if (!closestZone && widget.docked) {
       this.toggleDocked(widget)
-    } else {
+    } else if (closestZone.id != widget.currentZone) {
       this.widgetToZone({ widget, zoneId: closestZone.id })
     }
   }
 
   @Mutation
-  TOGGLE_ZONES(payload: { openZone: number; open?: boolean }) {
+  TOGGLE_ZONE(payload: { openZone: number; open?: boolean }) {
     const { openZone, open } = payload
     if (!openZone) {
       return
     }
     const zone = this.zones[openZone]
-    Vue.set(zone, "open", open ? true : !zone.open)
-    for (const id of this.containers[zone.containerId].zones) {
-      Vue.set(this.zones[id], "mounted", false)
-    }
+    zone.open = open ? true : !zone.open
+    // Vue.set(zone, "open", open ? true : !zone.open)
+
+    // for (const id of this.containers[zone.containerId].zones) {
+    //   Vue.set(this.zones[id], "mounted", false)
+    // }
   }
 
   @Mutation
   ZONE_MOUNTED(payload: { id: number; mounted: boolean }) {
     const { id, mounted } = payload
     Vue.set(this.zones[id], "mounted", mounted)
+  }
+
+  @Mutation
+  CONTAINER_ZONE_OPENED(payload: { containerId: number; zone: GridZone }) {
+    const { containerId, zone } = payload
+    console.log("")
+    console.log("opening zone", zone.id)
+    console.log("")
+    const container = this.containers[containerId]
+    for (const axis of GridAxes) {
+      if (zone.open) {
+        console.log("*", zone.id, "to", axis, zone[axis].start)
+        container[axis][zone[axis].start].zones.push(zone.id)
+        if (zone[axis].start != zone[axis].end) {
+          console.log("*", zone.id, "to", axis, zone[axis].end)
+          container[axis][zone[axis].end].zones.push(zone.id)
+        }
+      } else {
+        container[axis][zone[axis].start].zones = container[axis][
+          zone[axis].start
+        ].zones.filter(zId => {
+          return zId != zone.id
+        })
+        container[axis][zone[axis].end].zones = container[axis][
+          zone[axis].end
+        ].zones.filter(zId => {
+          return zId != zone.id
+        })
+      }
+    }
   }
 
   @Mutation
@@ -466,12 +512,9 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  ACTIVE_ZONE(id: number | null) {
-    if (id) {
-      this.activeZone = this.zones[id]
-    } else {
-      this.activeZone = null
-    }
+  ACTIVE_ZONE(payload: { containerId: number; zoneId: number | null }) {
+    const { containerId, zoneId } = payload
+    this.containers[containerId].activeZone = zoneId
   }
 
   @Mutation
@@ -482,9 +525,32 @@ export default class GridModule extends VuexModule implements GridState {
   @Mutation
   ADD_ZONE(zone: GridZone) {
     Vue.set(this.zones, zone.id, zone)
-    if (zone.containerId) {
-      this.containers[zone.containerId].zones.push(zone.id)
+  }
+
+  @Mutation
+  UPDATE_ZONE_COLUMNS(payload: { id: number; newColumns: GridPosition }) {
+    const { id, newColumns } = payload
+    this.zones[id].columns = newColumns
+  }
+
+  @Mutation
+  POPULATE_CONTAINER(zone: GridZone) {
+    const container = this.containers[zone.containerId]
+    container.zones.push(zone.id)
+    for (const axis of GridAxes) {
+      for (const axisKey of GridAxesKeys) {
+        // checking if container's reference to zone's start/end row/column exists yet
+        if (!container[axis][zone[axis][axisKey]]) {
+          // in english example: set container.columns[zone.columns.start] = initial values
+          // zones only get pushed in once they're mounted/open
+          Vue.set(container[axis], zone[axis][axisKey], {
+            sizeRatio: 0,
+            zones: [],
+          })
+        }
+      }
     }
+    console.log(container)
   }
 
   @Mutation

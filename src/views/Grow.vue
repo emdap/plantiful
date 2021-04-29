@@ -17,12 +17,8 @@
       @dblclick.self="removeActive()"
       @mouseleave="trackMouse = false"
     >
-      <plant
-        v-for="plant in growPlants"
-        :key="plant.id"
-        :plantData="plant"
-        :setSize="zoneReady"
-      />
+      <plant v-for="plant in growPlants" :key="plant.id" :plantData="plant" />
+      <!-- :setSize="zoneReady" -->
     </div>
   </div>
 </template>

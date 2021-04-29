@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="side-menu" class="h-screen z-50">
     <div
       @click="expanded = false"
       class="absolute top-0 left-0 bg-green-900 dark:bg-gray-900 transition-opacity duration-500"
@@ -10,7 +10,6 @@
       "
     />
     <div
-      id="side-menu"
       class="transition-all duration-300 bg-white dark:bg-gray-900 h-screen pt-2 pb-4 px-3 flex flex-col shadow-md text-sm fixed"
       :class="expanded ? 'w-52' : 'w-12'"
     >
@@ -101,8 +100,8 @@ import { Watch } from "vue-property-decorator"
   components: {
     ArrowIcon,
     LightIcon,
-    DarkIcon
-  }
+    DarkIcon,
+  },
 })
 export default class SideMenu extends Vue {
   public expanded = false
@@ -165,3 +164,9 @@ export default class SideMenu extends Vue {
   }
 }
 </script>
+
+<style>
+#side-menu {
+  grid-area: side-menu;
+}
+</style>

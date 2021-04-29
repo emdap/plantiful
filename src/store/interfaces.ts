@@ -38,13 +38,11 @@ export interface GridState {
   zones: {
     [key: number]: GridZone
   }
-  movingZones: boolean
-  targetZone: GridZone | null
   overallHeight: number
   overallWidth: number
-
   activeWidget: GridWidget | null
-  activeZone: GridZone | null
+  targetZone: GridZone | null
+  movingZones: boolean
 }
 
 export type GrowType =
@@ -512,6 +510,9 @@ export interface GridContainer {
   zones: number[]
   size: Size
   sizeRatio: Size
+  activeZone: number | null
+  columns: GridAreaDict
+  rows: GridAreaDict
 }
 
 export interface GridZone {
@@ -524,10 +525,22 @@ export interface GridZone {
   color: string
   startPoint: Position
   endPoint: Position
-  open?: boolean
+  rows: GridPosition
+  columns: GridPosition
+  open: boolean
   mounted?: boolean
 }
 
-// Constants & types
+export const GridAxes = ["rows", "columns"] as const
+export const GridAxesKeys = ["start", "end"] as const
 
-export type Dimensions = "height" | "width"
+export type GridPosition = {
+  [key in typeof GridAxesKeys[number]]: number
+}
+
+export interface GridAreaDict {
+  [key: number]: {
+    sizeRatio: number
+    zones: number[]
+  }
+}

@@ -1,7 +1,7 @@
 <template>
   <div
     :id="`${widgetData.name}-widget`"
-    class="widget flex transition-colors py-2 px-1 bg-white dark:bg-gray-700 outline-none text-gray-600 dark:text-gray-300  overflow-auto"
+    class="widget flex transition-colors pt-2 px-1 bg-white dark:bg-gray-700 outline-none text-gray-600 dark:text-gray-300 overflow-hidden"
     :style="widgetStyle"
     :class="widgetClass"
     tabindex="1"
@@ -53,15 +53,18 @@
           <close-icon class="icon close" @click="closeWidget()" />
         </nav>
       </nav>
-      <section class="flex flex-grow overflow-auto px-1">
+      <section
+        class="flex flex-grow scrollbar-light dark:scrollbar-dark overflow-auto px-1"
+      >
         <slot></slot>
       </section>
       <footer
-        v-if="!widgetData.docked"
-        class="mt-auto sticky left-0 text-gray-500"
+        class="mt-auto pb-2 sticky left-0 text-gray-500 h-6 scrollbar-none"
       >
         <span :title="messages.iconTitles.resize">
           <resize-icon
+            height="100%"
+            viewBox="-5 0 25 25"
             class="icon resize-widget mt-1 ml-auto"
             @mousedown="trackSize = true"
           />
@@ -178,6 +181,7 @@ export default class Widget extends GridMixin {
   // Watchers
   @Watch("trackSize")
   mouseUpdatesSize(track: boolean) {
+    this.$emit("resizing", track)
     if (track) {
       document.addEventListener("mousemove", this.updateSize)
     } else {
@@ -284,11 +288,12 @@ export default class Widget extends GridMixin {
 
     const height = Math.min(
       this.gridSize.height - 8,
-      startHeight + e.pageY - this.sizeStart.y
+      // if gonna add min height/width, do it here
+      Math.max(100, startHeight + e.pageY - this.sizeStart.y)
     )
     const width = Math.min(
       this.gridSize.width - el.offsetLeft + 40,
-      startWidth + e.pageX - this.sizeStart.x
+      Math.max(250, startWidth + e.pageX - this.sizeStart.x)
     )
     grid.setWidgetSize({
       widget: this.widgetData,

@@ -1,4 +1,9 @@
-import { Plant, LeafTexture, PlantOptions } from "@/store/interfaces"
+import {
+  Plant,
+  LeafTexture,
+  PlantOptions,
+  GridAreaDict,
+} from "@/store/interfaces"
 
 const DEFAULT_TOP_H = 30
 const DEFAULT_BOTTOM_H = 45
@@ -86,6 +91,7 @@ export const NO_SIZE = () => {
 
 export const INIT_ZONE = () => {
   return {
+    open: false,
     size: NO_SIZE(),
     sizeRatio: NO_SIZE(),
     startPoint: NO_POSITION(),
@@ -99,5 +105,8 @@ export const INIT_CONTAINER = () => {
     zones: [],
     size: NO_SIZE(),
     sizeRatio: NO_SIZE(),
+    activeZone: null,
+    columns: {} as GridAreaDict,
+    rows: {} as GridAreaDict,
   }
 }

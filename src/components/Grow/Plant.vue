@@ -56,7 +56,7 @@ import { NO_POSITION, NO_ROTATION } from "@/fixtures/Defaults"
 })
 export default class Plant extends GrowMixin {
   @Prop({ required: true }) plantData!: GrowPlant
-  @Prop({ required: true }) setSize!: boolean
+  // @Prop({ required: true }) setSize!: boolean
 
   public defaultColor = "text-black"
   public textClass = this.defaultColor
@@ -69,17 +69,18 @@ export default class Plant extends GrowMixin {
       this.textClass = this.subHighlightText
     }
 
-    if (this.setSize) {
+    // if (!this.plantData.position && this.setSize) {
+    if (!this.plantData.position) {
       this.setPlantPosition()
     }
   }
 
-  @Watch("setSize")
-  public sizeAvailable(ready: boolean) {
-    if (!this.plantData.position && ready) {
-      this.setPlantPosition()
-    }
-  }
+  // @Watch("setSize")
+  // public sizeAvailable(ready: boolean) {
+  //   if (!this.plantData.position && ready) {
+  //     this.setPlantPosition()
+  //   }
+  // }
 
   public setPlantPosition() {
     if (!(this.$el instanceof HTMLElement)) {
