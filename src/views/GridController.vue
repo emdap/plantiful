@@ -55,8 +55,8 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
 
   public containerIndex = 0
   public windowResizing = false
-  public containersResizing = [] as number[]
   public resizeTimer!: number
+  public containersResizing = [] as number[]
 
   public mounted() {
     this.addFixtures()
@@ -231,16 +231,14 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
     }
   }
 
-  // M -- hmm actually this is a unique case with two entities & taking into account divider width
   public updateContainerSizes(e: MouseEvent) {
     e.preventDefault()
-    // let startWidth!: number
 
     // initialize values
     if (this.sizeStart == null) {
       this.sizeStart = {
         x: e.pageX,
-        y: e.pageY, // only need x in this case
+        y: 0, // only really need x in this case
       }
     }
     const leftContainer = this.containers[this.containerIndex - 1]
@@ -250,7 +248,6 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
       this.containersResizing = [leftContainer.id, rightContainer.id]
     }
 
-    // TODO: need to incorporate minimum widths
     const leftWidth = Math.min(
       this.gridSize.width,
       leftContainer.size.width + e.pageX - this.sizeStart.x
@@ -286,10 +283,7 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
         },
       })
 
-      this.sizeStart = {
-        x: e.pageX,
-        y: e.pageY,
-      }
+      this.sizeStart.x = e.pageX
     }
   }
 
@@ -430,17 +424,7 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
 <style>
 #grid-controller {
   grid-area: main-grid;
-
-  /* @apply overflow-auto h-screen; */
 }
-
-/* #grid-controller .container {
-  display: inline-grid;
-  grid-auto-rows: auto;
-  grid-auto-columns: auto;
-
-  @apply grid h-full flex-grow overflow-hidden;
-} */
 
 #plant-lookup {
   width: 33%;

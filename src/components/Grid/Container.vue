@@ -63,21 +63,19 @@ export default class Container extends GridMixin {
   }
 
   public get containerStyle() {
-    // really only care about width for containers, height is always 100%
-    let width = ""
-
-    if (this.myOpenZones.length && this.containerData.sizeRatio.width) {
-      width = this.containerData.sizeRatio.width * 100 + "%"
-    }
-
-    const { rows, columns } = this.gridTemplate
     // need to use min-width as container's parent has display: flex
     return {
       height: "100%",
-      "min-width": width,
-      "grid-template-rows": rows,
-      "grid-template-columns": columns,
+      "min-width": this.containerWidth,
+      "grid-template-rows": this.gridTemplate.rows,
+      "grid-template-columns": this.gridTemplate.columns,
     }
+  }
+
+  public get containerWidth() {
+    return this.myOpenZones.length && this.containerData.sizeRatio.width
+      ? this.containerData.sizeRatio.width * 100 + "%"
+      : ""
   }
 
   public get gridTemplate() {
@@ -102,28 +100,5 @@ export default class Container extends GridMixin {
     console.log("template:", template.rows, ", ", template.columns)
     return template
   }
-
-  // public gridTemplateConstructor() {
-  //   console.log("constructing template for ", this.containerData.name)
-  //   console.log(this.containerData.columns)
-  //   const gridTemplate = {rows: "", columns: ""}
-  //   let hasZones = 0
-  //   for (const axis of GridAxes) {
-  //     for (const key of Object.keys(this.containerData[axis])) {
-  //       // iterate the rows/columns that the container has
-  //       const gridArea = this.containerData[axis][parseInt(key)]
-  //       console.log(axis, key, gridArea.zones.length, gridArea.zones)
-  //       if (gridArea.zones.length) {
-  //         gridTemplate[axis] += `${gridArea.sizeRatio ? gridArea.sizeRatio + "px" : "1fr"} `
-  //         hasZones++
-  //       }
-  //     }
-  //     if (hasZones == 1) {
-  //       gridTemplate[axis] = "auto"
-  //     }
-  //   }
-  //   console.log("template:", gridTemplate.rows, ", ", gridTemplate.columns)
-  //   return gridTemplate
-  // }
 }
 </script>

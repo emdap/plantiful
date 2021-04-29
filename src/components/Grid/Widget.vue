@@ -109,11 +109,6 @@ export default class Widget extends GridMixin {
 
   public mounted() {
     this.initMouseUpListeners()
-    // un/re-docking, moving zones actually re-mounts Widget
-    // zone it belongs to is dynamically rendering it
-    // if (this.widgetData.currentZone != 0) {
-    //   this.syncWithZone()
-    // }
   }
 
   public beforeDestroy() {
@@ -135,14 +130,6 @@ export default class Widget extends GridMixin {
       this.trackSize = false
     }
   }
-
-  // Utilities
-  // public syncWithZone() {
-  // need to wait for next tick so that widget has in fact updated in DOM
-  // this.$nextTick(() => {
-  // this.setToCurrent()
-  // })
-  // }
 
   public setToCurrent() {
     const { height, width, x, y } = this.getCurrentRect()
