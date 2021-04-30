@@ -64,12 +64,12 @@ export default class Zone extends GridMixin {
     this.zoneSelected = false
   }
 
-  public resetSize() {
-    grid.setZoneSize({
-      zone: this.zoneData,
-      newSize: NO_SIZE(),
-    })
-  }
+  // public resetSize() {
+  //   grid.setZoneSize({
+  //     zone: this.zoneData,
+  //     newSize: NO_SIZE(),
+  //   })
+  // }
 
   public setCurrentSize() {
     if (this.zoneData.id) {
@@ -92,14 +92,14 @@ export default class Zone extends GridMixin {
   //#endregion
 
   //#region Watchers
-  @Watch("myContainer.activeZone")
-  public zoneActivated(curActive: number | null, priorActive: number | null) {
-    if (curActive && curActive != this.zoneData.id) {
-      this.siblingResizing = true
-    } else if (!curActive && priorActive != this.zoneData.containerId) {
-      console.log(this.zoneData.id, "reset")
-    }
-  }
+  // @Watch("myContainer.activeZone")
+  // public zoneActivated(curActive: number | null, priorActive: number | null) {
+  //   if (curActive && curActive != this.zoneData.id) {
+  //     this.siblingResizing = true
+  //   } else if (!curActive && priorActive != this.zoneData.containerId) {
+  //     console.log(this.zoneData.id, "reset")
+  //   }
+  // }
 
   @Watch("containerResizing")
   public gridSizeChange(resizing: boolean) {
@@ -136,9 +136,9 @@ export default class Zone extends GridMixin {
     return this.getContainer(this.zoneData.containerId)
   }
 
-  public get isResizingZone() {
-    return this.myContainer?.activeZone == this.zoneData.id
-  }
+  // public get isResizingZone() {
+  //   return this.myContainer?.activeZone == this.zoneData.id
+  // }
 
   public get openSiblings() {
     return this.containerOpenZones(this.zoneData.containerId)

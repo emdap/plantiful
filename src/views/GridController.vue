@@ -6,9 +6,15 @@
         <div
           v-if="index != 0 && container.size.width"
           :key="'divider-' + index"
+          :title="messages.dividerTitle"
           class="divider h-full z-10 cursor-pointer"
           @mousedown="resizeContainers($event, index)"
-        />
+        >
+          <div
+            class="divider-line h-full transition-all border-l-0 border-pink-400 dark:border-yellow-400 border-dashed hover:border-l-2"
+            :class="{ 'border-l-2': showDivider }"
+          />
+        </div>
         <!-- class="container" -->
         <container
           :containerData="container"
@@ -35,6 +41,7 @@ import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import Container from "@/components/Grid/Container.vue"
 import Zone from "@/components/Grid/Zone.vue"
+import ThreeDotsIcon from "@/assets/icons/three-dots.svg"
 import util from "@/utilities/containerUtil"
 import { GrowPlant, Position, Size } from "@/store/interfaces"
 import { TEST_PLANT } from "@/fixtures/Grow/TestPlant"
@@ -44,6 +51,7 @@ import { NO_SIZE } from "@/fixtures/Defaults"
   components: {
     Container,
     Zone,
+    ThreeDotsIcon,
   },
 })
 export default class GridController extends mixins(GridMixin, GrowMixin) {
@@ -57,6 +65,7 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
   public windowResizing = false
   public resizeTimer!: number
   public containersResizing = [] as number[]
+  public showDivider = true
 
   public mounted() {
     this.addFixtures()
@@ -67,6 +76,10 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
       // containers won't be fully mounted until tick after ready = true
       this.setContainerSizes(true)
     })
+    // want users to notice the divider so they know it's draggable
+    setTimeout(() => {
+      this.showDivider = false
+    }, 2000)
   }
 
   public addFixtures() {
@@ -437,6 +450,11 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
 .divider {
   /* need this to exact match zone padding */
   @apply -mx-1 min-w-2;
+}
+
+.divider-line {
+  /* custom class to center border line, aligned with above class */
+  @apply ml-border-1;
 }
 
 .zone {

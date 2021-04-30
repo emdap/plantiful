@@ -30,6 +30,7 @@ export const gridMessages = {
     close: "Close widget",
     resize: "Adjust size",
   },
+  dividerTitle: "Drag to adjust overall width",
 }
 
 export const growMessages = {

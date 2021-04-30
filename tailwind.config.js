@@ -1,5 +1,6 @@
 const plugin = require("tailwindcss/plugin")
-const colors = require("tailwindcss/colors")
+// const colors = require("tailwindcss/colors")
+// const spacing = require("tailwindcss/spacing")
 
 module.exports = {
   purge: [],
@@ -22,15 +23,16 @@ module.exports = {
       borderWidth: {
         "1": "1px",
       },
-      outline: {
-        green: "2px solid " + colors.green["300"],
-        yellow: "2px solid " + colors.yellow["600"],
+      outline: theme => ({
+        green: `2px solid ${theme("colors.green.300")}`,
+        yellow: `2px solid ${theme("colors.yellow.600")}`,
         "black-solid": "2px solid black",
-      },
-      margin: {
+      }),
+      margin: theme => ({
         "-1/2": "-50%",
         "-full": "-100%",
-      },
+        "border-1": `calc(${theme("spacing.1")} - 1px)`,
+      }),
     },
   },
   variants: {
@@ -38,6 +40,7 @@ module.exports = {
       letterSpacing: ["hover"],
       outline: ["dark"],
       opacity: ["dark"],
+      borderWidth: ["hover"],
     },
   },
   plugins: [
@@ -77,6 +80,9 @@ module.exports = {
       })
       addUtilities(
         {
+          // ".margin-border-1": {
+          //   marginLeft: `calc(${theme("spacing.1")} - 1)`
+          // },
           ".btn-light": {
             background: theme("colors.green.600"),
             color: "white",
