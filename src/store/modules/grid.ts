@@ -1,9 +1,7 @@
 import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
 import {
   GridAxes,
-  GridAxesKeys,
   GridContainer,
-  GridPosition,
   GridState,
   GridWidget,
   GridZone,
@@ -77,18 +75,90 @@ export default class GridModule extends VuexModule implements GridState {
 
   get zoneNextRowCol() {
     // return the row/column after, the row/column before, or null if neither exist
-    return (
-      container: GridContainer,
-      zone: GridZone,
-      which: typeof GridAxes[number]
-    ): number | null => {
-      if (container[which][zone[which].end + 1]) {
-        return zone[which].end + 1
-      } else if (container[which][zone[which].start - 1]) {
-        return zone[which].start - 1
+    return (zone: GridZone, axis: typeof GridAxes[number]): number | null => {
+      const container = this.getContainer(zone.containerId)
+      const lastDim = this.zoneLastDim(zone, axis)
+      if (container[axis][lastDim + 1]) {
+        return lastDim + 1
+      } else if (container[axis][zone[axis][0] - 1]) {
+        return zone[axis][0] - 1
       }
       return null
+      // let distance = 1
+      // while (distance + zone[axis].length <= Object.keys(container[axis]).length) {
+      //   const lastDim = this.zoneLastDim(zone, axis)
+      //   if (container[axis][lastDim + distance] && container[axis][lastDim + 1].sizeRatio > 0.02) {
+      //     return lastDim + distance
+      //   } else if (container[axis][zone[axis][0] - distance] && container[axis][zone[axis][0] - distance].sizeRatio > 0.02) {
+      //     return zone[axis][0] - distance
+      //   }
+      //   distance++
+      // }
     }
+  }
+
+  get zoneAtIntersection() {
+    // return the zone that exists at the intersection of row/col in container
+    return (
+      containerId: number,
+      row: number,
+      column: number
+    ): GridZone | undefined => {
+      return Object.values(this.zones).find(z => {
+        return (
+          z.containerId == containerId &&
+          z.rows.indexOf(row) != -1 &&
+          z.columns.indexOf(column) != -1
+        )
+      })
+    }
+  }
+
+  get zoneLastDim() {
+    return (zone: GridZone, which: typeof GridAxes[number]) => {
+      return zone[which][zone[which].length - 1]
+    }
+  }
+
+  @Action
+  zoneDistributeRatio(payload: {
+    containerId: number
+    ratio: { columns?: number; rows?: number }
+    rows?: number[]
+    columns?: number[]
+  }) {
+    // evenly distribute ratio across all rows/columns
+    const { containerId, ratio } = payload
+    for (const axis of GridAxes) {
+      if (payload[axis] && ratio[axis]) {
+        const rowCols = payload[axis] as number[]
+        const increment = (ratio[axis] as number) / rowCols.length
+
+        for (const i in rowCols) {
+          this.SET_CONTAINER_DIM_RATIO({
+            id: containerId,
+            axis,
+            dim: rowCols[i],
+            ratio: increment,
+          })
+        }
+      }
+    }
+  }
+
+  @Action
+  incContainerDim(payload: {
+    containerId: number
+    incRatio: number
+    axis: typeof GridAxes[number]
+    dim: number
+  }) {
+    const { containerId, incRatio, axis, dim } = payload
+    const updateDim = this.getContainer(containerId)[axis][dim]
+    const ratio =
+      updateDim.sizeRatio != -1 ? updateDim.sizeRatio + incRatio : incRatio
+
+    this.SET_CONTAINER_DIM_RATIO({ id: containerId, axis, dim, ratio })
   }
 
   @Action
@@ -152,21 +222,33 @@ export default class GridModule extends VuexModule implements GridState {
   @Action
   updateZoneColumns(payload: {
     zone: GridZone | number
-    newColumns: GridPosition
+    newColumns: number[]
   }) {
     const { newColumns } = payload
     const zone =
       typeof payload.zone == "number"
         ? this.getZone(payload.zone)
         : payload.zone
-
-    // TODO: this is not dynamic, assumes i'm updating the end col
-    this.SET_CONTAINER_COL_RATIO({
-      id: zone.containerId,
-      column: zone.columns.end,
-      ratio: -1,
+    const removeColumns = zone.columns.filter(c => {
+      return newColumns.indexOf(c) == -1
+    })
+    const addColumns = newColumns.filter(c => {
+      return zone.columns.indexOf(c) == -1
+    })
+    this.CONTAINER_ZONE_CHANGED({
+      id: zone.id,
+      containerId: zone.containerId,
+      open: false,
+      columns: removeColumns,
+    })
+    this.CONTAINER_ZONE_CHANGED({
+      id: zone.id,
+      containerId: zone.containerId,
+      open: true,
+      columns: addColumns,
     })
 
+    // TODO: add ratio spread function here too
     this.UPDATE_ZONE_COLUMNS({
       id: typeof zone == "number" ? zone : zone.id,
       newColumns,
@@ -241,8 +323,9 @@ export default class GridModule extends VuexModule implements GridState {
     zone: GridZone | number
     newSize: Size
     newRatio?: Size
+    distribute?: boolean
   }) {
-    const { newSize, newRatio } = payload
+    const { newSize, newRatio, distribute } = payload
     const zone =
       typeof payload.zone == "number"
         ? this.getZone(payload.zone)
@@ -253,8 +336,24 @@ export default class GridModule extends VuexModule implements GridState {
         height: parseFloat(newRatio.height.toFixed(4)),
         width: parseFloat(newRatio.width.toFixed(4)),
       }
+      if (distribute) {
+        this.zoneDistributeRatio({
+          ...zone,
+          ratio: {
+            // rows: roundedRatio.height,
+            columns: roundedRatio.width,
+          },
+        })
+        // console.log(zone.id, "dist height", roundedRatio.height)
+        this.zoneDistributeRatio({
+          ...zone,
+          ratio: {
+            rows: roundedRatio.height,
+            // columns: roundedRatio.width
+          },
+        })
+      }
       this.ZONE_RATIO({ id: zone.id, newRatio: roundedRatio })
-      // update the row/column the zone resides in as well
     }
   }
 
@@ -289,57 +388,45 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
-  updateContainerGridSizes(payload: {
-    container: GridContainer
-    zone: GridZone
-    nextRow: number | null
-    nextCol: number | null
-  }) {
-    const { container, zone, nextRow, nextCol } = payload
-
-    // if no next row/col, resize does nothing
-    if (nextRow) {
-      this.SET_CONTAINER_ROW_RATIO({
-        id: container.id,
-        row: zone.rows.end,
-        ratio: zone.sizeRatio.height,
-      })
-      // zone's sizeRatio has already had the difference added
-      this.SET_CONTAINER_ROW_RATIO({
-        id: container.id,
-        row: nextRow,
-        ratio: 1 - zone.sizeRatio.height,
-      })
-    }
-    if (nextCol) {
-      this.SET_CONTAINER_COL_RATIO({
-        id: container.id,
-        column: zone.columns.end,
-        ratio: zone.sizeRatio.width,
-      })
-      this.SET_CONTAINER_COL_RATIO({
-        id: container.id,
-        column: nextCol,
-        ratio: 1 - zone.sizeRatio.width,
-      })
+  resetZoneDimRatios(zone: GridZone) {
+    for (const axis of GridAxes) {
+      for (const dim of zone[axis]) {
+        this.SET_CONTAINER_DIM_RATIO({
+          id: zone.containerId,
+          axis,
+          dim,
+          ratio: -1,
+        })
+      }
     }
   }
 
   @Mutation
-  SET_CONTAINER_ROW_RATIO(payload: { id: number; row: number; ratio: number }) {
-    const { id, row, ratio } = payload
-    this.containers[id].rows[row].sizeRatio = ratio
-  }
-
-  @Mutation
-  SET_CONTAINER_COL_RATIO(payload: {
+  SET_CONTAINER_DIM_RATIO(payload: {
     id: number
-    column: number
+    axis: typeof GridAxes[number]
+    dim: number
     ratio: number
   }) {
-    const { id, column, ratio } = payload
-    this.containers[id].columns[column].sizeRatio = ratio
+    const { id, axis, dim, ratio } = payload
+    this.containers[id][axis][dim].sizeRatio = ratio
   }
+
+  // @Mutation
+  // SET_CONTAINER_ROW_RATIO(payload: { id: number; row: number; ratio: number }) {
+  //   const { id, row, ratio } = payload
+  //   this.containers[id].rows[row].sizeRatio = ratio
+  // }
+
+  // @Mutation
+  // SET_CONTAINER_COL_RATIO(payload: {
+  //   id: number
+  //   column: number
+  //   ratio: number
+  // }) {
+  //   const { id, column, ratio } = payload
+  //   this.containers[id].columns[column].sizeRatio = ratio
+  // }
 
   @Action
   toggleWidget(widget: GridWidget) {
@@ -382,7 +469,7 @@ export default class GridModule extends VuexModule implements GridState {
     if (open == undefined || zone.open != open) {
       this.TOGGLE_ZONE({ openZone: zone.id, open })
       if (zone.containerId) {
-        this.CONTAINER_ZONE_OPENED({ containerId: zone.containerId, zone })
+        this.CONTAINER_ZONE_CHANGED({ ...zone })
       }
     }
   }
@@ -450,29 +537,33 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  CONTAINER_ZONE_OPENED(payload: { containerId: number; zone: GridZone }) {
-    const { containerId, zone } = payload
+  CONTAINER_ZONE_CHANGED(payload: {
+    id: number
+    containerId: number
+    open: boolean
+    rows?: number[]
+    columns?: number[]
+  }) {
+    const { containerId, id, open } = payload
     const container = this.containers[containerId]
     for (const axis of GridAxes) {
-      const startAxis = container[axis][zone[axis].start]
-      const endAxis = container[axis][zone[axis].end]
-      if (zone.open) {
-        startAxis.zones.push(zone.id)
-        if (zone[axis].start != zone[axis].end) {
-          endAxis.zones.push(zone.id)
-        }
-      } else {
-        startAxis.zones = startAxis.zones.filter(zId => {
-          return zId != zone.id
-        })
-        endAxis.zones = endAxis.zones.filter(zId => {
-          return zId != zone.id
-        })
-        if (!startAxis.zones.length) {
-          startAxis.sizeRatio = -1
-        }
-        if (!endAxis.zones.length) {
-          endAxis.sizeRatio = -1
+      if (payload[axis]) {
+        // typescript still clocking payload[axis] as possibly undefined
+        const rowCols = payload[axis] as number[]
+        for (const dim of rowCols) {
+          if (open) {
+            container[axis][dim].zones.push(id)
+          } else {
+            container[axis][dim].zones = container[axis][dim].zones.filter(
+              z => {
+                return z != id
+              }
+            )
+            // all zones removed, reset sizeRatio
+            if (container[axis][dim].zones.length == 0) {
+              container[axis][dim].sizeRatio = -1
+            }
+          }
         }
       }
     }
@@ -595,7 +686,7 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  UPDATE_ZONE_COLUMNS(payload: { id: number; newColumns: GridPosition }) {
+  UPDATE_ZONE_COLUMNS(payload: { id: number; newColumns: number[] }) {
     const { id, newColumns } = payload
     this.zones[id].columns = newColumns
   }
@@ -605,12 +696,12 @@ export default class GridModule extends VuexModule implements GridState {
     const container = this.containers[zone.containerId]
     container.zones.push(zone.id)
     for (const axis of GridAxes) {
-      for (const axisKey of GridAxesKeys) {
+      for (const dim of zone[axis]) {
         // checking if container's reference to zone's start/end row/column exists yet
-        if (!container[axis][zone[axis][axisKey]]) {
-          // in english example: set container.columns[zone.columns.start] = initial values
-          // zones only get pushed in once they're mounted/open
-          Vue.set(container[axis], zone[axis][axisKey], {
+        if (!container[axis][dim]) {
+          // in english example: set container.columns[1] = initial values
+          // zones will get pushed in once they're opened
+          Vue.set(container[axis], dim, {
             sizeRatio: -1,
             zones: [],
           })
@@ -638,15 +729,5 @@ export default class GridModule extends VuexModule implements GridState {
   SET_GRID_SIZE(payload: { height: number; width: number }) {
     this.overallHeight = payload.height
     this.overallWidth = payload.width
-  }
-
-  // D
-  @Mutation
-  REFRESH_CONTAINERS() {
-    const containers = Object.values(this.containers)
-    for (const container of containers) {
-      Vue.delete(this.containers, container.id)
-      Vue.set(this.containers, container.id, container)
-    }
   }
 }

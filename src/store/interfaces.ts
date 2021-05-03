@@ -523,18 +523,13 @@ export interface GridZone {
   color: string
   startPoint: Position
   endPoint: Position
-  rows: GridPosition
-  columns: GridPosition
+  rows: number[]
+  columns: number[]
   open: boolean
   mounted?: boolean
 }
 
 export const GridAxes = ["rows", "columns"] as const
-export const GridAxesKeys = ["start", "end"] as const
-
-export type GridPosition = {
-  [key in typeof GridAxesKeys[number]]: number
-}
 
 export interface GridAreaDict {
   [key: number]: {

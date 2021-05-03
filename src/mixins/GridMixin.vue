@@ -43,6 +43,10 @@ export default class GridMixin extends Vue {
     return grid.getContainer
   }
 
+  public get zoneLastDim() {
+    return grid.zoneLastDim
+  }
+
   public get gridSize() {
     return {
       height: grid.overallHeight,

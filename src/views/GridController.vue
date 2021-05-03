@@ -11,7 +11,7 @@
           @mousedown="resizeContainers($event, index)"
         >
           <div
-            class="divider-line h-full transition-all border-l-0 border-pink-400 dark:border-yellow-400 border-dashed hover:border-l-2"
+            class="divider-line h-full opacity-10 transition-all border-l-0 border-pink-400 dark:border-yellow-400 border-dashed hover:border-l-2"
             :class="{ 'border-l-2': showDivider }"
           />
         </div>
@@ -357,23 +357,23 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
       if (open) {
         grid.updateZoneColumns({
           zone: this.growWidget.currentZone,
-          newColumns: { start: 1, end: 2 },
+          newColumns: [1, 2],
         })
       } else {
         grid.updateZoneColumns({
           zone: this.growWidget.currentZone,
-          newColumns: { start: 1, end: 3 },
+          newColumns: [1, 2, 3],
         })
       }
     }
   }
 
-  @Watch("growWidget.open")
-  public growOpen(open: boolean) {
-    if (!open) {
-      this.toggleGrowHelpers(false)
-    }
-  }
+  // @Watch("growWidget.open")
+  // public growOpen(open: boolean) {
+  //   if (!open) {
+  //     this.toggleGrowHelpers(false)
+  //   }
+  // }
 
   public toggleSearchers(open: boolean) {
     if (this.searchWidget.open != open) {
@@ -395,10 +395,10 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
     grid.toggleWidgetName({ name: "select", forceShow: show })
   }
 
-  @Watch("showControls")
-  public openControls(show: boolean) {
-    this.toggleGrowHelpers(show)
-  }
+  // @Watch("showControls")
+  // public openControls(show: boolean) {
+  //   this.toggleGrowHelpers(show)
+  // }
 
   @Watch("hasGrowPlants")
   public openGrow(show: boolean) {

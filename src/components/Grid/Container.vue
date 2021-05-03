@@ -67,8 +67,8 @@ export default class Container extends GridMixin {
     return {
       height: "100%",
       "min-width": this.containerWidth,
-      "grid-template-rows": this.gridTemplate.rows,
-      "grid-template-columns": this.gridTemplate.columns,
+      "grid-template-rows": this.gridTemplate.rows.join(" "),
+      "grid-template-columns": this.gridTemplate.columns.join(" "),
     }
   }
 
@@ -79,23 +79,24 @@ export default class Container extends GridMixin {
   }
 
   public get gridTemplate() {
-    const template = { rows: "", columns: "" }
-    let hasZones = 0
+    const template = { rows: [], columns: [] } as {
+      [key in typeof GridAxes[number]]: string[]
+    }
     for (const axis of GridAxes) {
-      for (const key of Object.keys(this.containerData[axis])) {
+      for (const dim of Object.keys(this.containerData[axis])) {
         // iterate the rows/columns that the container has
-        const gridArea = this.containerData[axis][parseInt(key)]
+        const gridArea = this.containerData[axis][parseInt(dim)]
         if (gridArea.zones.length) {
-          template[axis] += `${
-            gridArea.sizeRatio > -1
-              ? gridArea.sizeRatio * 100 + "%"
-              : "minmax(0, 1fr)"
-          } `
-          hasZones++
+          template[axis].push(
+            `${
+              gridArea.sizeRatio > -1
+                ? gridArea.sizeRatio * 100 + "%"
+                : "minmax(0, 1fr)"
+            }`
+          )
+        } else {
+          template[axis].push("0")
         }
-      }
-      if (hasZones == 1) {
-        template[axis] = "auto"
       }
     }
     return template
