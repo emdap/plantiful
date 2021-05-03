@@ -5,6 +5,7 @@ import {
   GridAreaDict,
 } from "@/store/interfaces"
 
+// TODO: move to Grow subfolder
 const DEFAULT_TOP_H = 30
 const DEFAULT_BOTTOM_H = 45
 
@@ -66,6 +67,7 @@ export const DEFAULT_PLANT_OPTIONS: PlantOptions = {
   leafDensity: 5,
 }
 
+// keep these
 export const NO_ROTATION = () => {
   return {
     x: 0,
@@ -89,6 +91,16 @@ export const NO_SIZE = () => {
   }
 }
 
+// TODO: move to grid subfolder -> make class?
+
+export const INIT_WIDGET = () => {
+  return {
+    docked: true,
+    size: NO_SIZE(),
+    position: NO_POSITION(),
+  }
+}
+
 export const INIT_ZONE = () => {
   return {
     open: false,
@@ -105,7 +117,6 @@ export const INIT_CONTAINER = () => {
     zones: [],
     size: NO_SIZE(),
     sizeRatio: NO_SIZE(),
-    activeZone: null,
     columns: {} as GridAreaDict,
     rows: {} as GridAreaDict,
   }

@@ -7,6 +7,7 @@
     <div
       v-for="(plant, index) in plantList"
       :key="plant.id"
+      @click="optionClicked(plant.id, 'show-active')"
       class="py-2 px-4 text-left h-22 grid grid-cols-3 items-center"
       :class="
         plantListLoading
@@ -14,10 +15,7 @@
           : 'hover:bg-green-200 dark:hover:bg-gray-600 hover:tracking-wide transition-text'
       "
     >
-      <div
-        class="col-span-2 cursor-pointer flex items-center"
-        @click="optionClicked(plant.id, 'show-active')"
-      >
+      <div class="col-span-2 cursor-pointer flex items-center">
         <div class="w-20 h-20 mr-2">
           <div
             v-if="images[index] == 'N/A'"
@@ -51,10 +49,7 @@
           </h5>
         </span>
       </div>
-      <div
-        class="inline-block col-span-1 text-right cursor-pointer"
-        @click.self="optionClicked(plant.id, 'show-active')"
-      >
+      <div class="inline-block col-span-1 text-right cursor-pointer">
         <span
           v-for="option of plantListOptions"
           :key="option.action"

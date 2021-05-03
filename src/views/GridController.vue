@@ -57,9 +57,6 @@ import { NO_SIZE } from "@/fixtures/Defaults"
 export default class GridController extends mixins(GridMixin, GrowMixin) {
   public ready = false
   public mainId = "grid-controller"
-  // TODO: add this to GridMixin and use same code in Widget.vue -- parts tagged with // M
-  public trackSize = false
-  public sizeStart = null as Position | null
 
   public containerIndex = 0
   public windowResizing = false
@@ -232,7 +229,6 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
     }
   }
 
-  // M
   @Watch("trackSize")
   mouseUpdatesSize(track: boolean) {
     if (track) {
@@ -272,7 +268,6 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
 
     if (leftWidthRatio >= 0.1 && leftWidthRatio <= 0.9) {
       // should have 1 action for all of these, take dataKey, pass the key into updateSize
-      // also need to align widget properties TODO
       grid.setContainerSize({
         id: leftContainer.id,
         newSize: {

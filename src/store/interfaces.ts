@@ -30,7 +30,7 @@ export interface GardenState {
 
 export interface GridState {
   containers: {
-    [key: string]: GridContainer
+    [key: number]: GridContainer
   }
   widgets: {
     [key: string]: GridWidget
@@ -464,8 +464,7 @@ export interface GridWidget {
   text: string
   open: boolean
   docked: boolean
-  height: number
-  width: number
+  size: Size
   position: Position
   defaultZone: number
   currentZone?: number
@@ -510,7 +509,6 @@ export interface GridContainer {
   zones: number[]
   size: Size
   sizeRatio: Size
-  activeZone: number | null
   columns: GridAreaDict
   rows: GridAreaDict
 }

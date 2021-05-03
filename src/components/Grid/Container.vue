@@ -85,10 +85,11 @@ export default class Container extends GridMixin {
       for (const key of Object.keys(this.containerData[axis])) {
         // iterate the rows/columns that the container has
         const gridArea = this.containerData[axis][parseInt(key)]
-        console.log(axis, key, gridArea.zones.length, gridArea.zones)
         if (gridArea.zones.length) {
           template[axis] += `${
-            gridArea.sizeRatio ? gridArea.sizeRatio + "%" : "minmax(0, 1fr)"
+            gridArea.sizeRatio > -1
+              ? gridArea.sizeRatio * 100 + "%"
+              : "minmax(0, 1fr)"
           } `
           hasZones++
         }
@@ -97,7 +98,6 @@ export default class Container extends GridMixin {
         template[axis] = "auto"
       }
     }
-    console.log("template:", template.rows, ", ", template.columns)
     return template
   }
 }

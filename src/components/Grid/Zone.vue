@@ -14,7 +14,7 @@
         v-for="widget in zoneOpenWidgets(zoneData)"
         :widgetData="widget"
         :key="'widget-' + widget.name"
-        @resizing="activateZone"
+        @track-size="trackSize = !trackSize"
       >
         <x :is="widget.component" />
       </widget>
@@ -26,7 +26,7 @@
 import Component from "vue-class-component"
 import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import { Prop, Watch } from "vue-property-decorator"
-import { GridZone, Size } from "@/store/interfaces"
+import { GridZone, Position, Size } from "@/store/interfaces"
 import Widget from "@/components/Grid/Widget.vue"
 import { NO_SIZE } from "@/fixtures/Defaults"
 
@@ -41,10 +41,9 @@ export default class Zone extends GridMixin {
   @Prop({ default: null }) containerId!: number
 
   public zoneSelected = false
-  public siblingResizing = false
 
   public mounted() {
-    this.setCurrentSize()
+    this.setDims()
     document.addEventListener("mouseup", this.notSelected)
   }
 
@@ -53,12 +52,12 @@ export default class Zone extends GridMixin {
   }
 
   //#region Utilities
-  public activateZone(resizing: boolean) {
-    grid.setActiveZone({
-      containerId: this.zoneData.containerId,
-      zoneId: resizing ? this.zoneData.id : null,
-    })
-  }
+  // public activateZone(resizing: boolean) {
+  //   grid.setActiveZone({
+  //     containerId: this.zoneData.containerId,
+  //     zoneId: resizing ? this.zoneData.id : null,
+  //   })
+  // }
 
   public notSelected() {
     this.zoneSelected = false
@@ -71,10 +70,13 @@ export default class Zone extends GridMixin {
   //   })
   // }
 
-  public setCurrentSize() {
+  public setDims(current = true, newDims?: Size & Position) {
     if (this.zoneData.id) {
-      const { width, height, x, y } = this.getCurrentRect()
-      const containerSize = this.myContainer.size
+      if (current || !newDims) {
+        newDims = this.getCurrentRect()
+      }
+      const { width, height, x, y } = newDims
+
       grid.setZoneSize({
         zone: this.zoneData,
         newSize: {
@@ -82,31 +84,78 @@ export default class Zone extends GridMixin {
           width,
         },
         newRatio: {
-          height: height / containerSize.height,
-          width: width / containerSize.width,
+          height: height / this.myContainer.size.height,
+          width: width / this.myContainer.size.width,
         },
       })
-      grid.setZonePoints({ zone: this.zoneData, newStart: { x, y } })
+      grid.setZonePoints({ zone: this.zoneData, startPoint: { x, y } })
     }
+  }
+
+  public updateDims(e: MouseEvent) {
+    const newSize = this.updateSize(e, {
+      minimum: {
+        width: 50,
+        height: 50,
+      },
+      maximum: {
+        width: this.myContainer.size.width,
+        height: this.myContainer.size.height,
+      },
+      entity: this.zoneData,
+    })
+
+    if (
+      newSize.height == this.zoneData.size.height &&
+      newSize.width == this.zoneData.size.width
+    ) {
+      return
+    }
+
+    // if next row/column is before this one instead of after, subtract the difference rather than add it
+    if (this.nextRow && this.nextRow < this.zoneData.rows.start) {
+      newSize.height = this.zoneData.size.height * 2 - newSize.height
+    }
+    if (this.nextCol && this.nextCol < this.zoneData.columns.start) {
+      newSize.width = this.zoneData.size.width * 2 - newSize.width
+    }
+
+    this.setDims(false, { ...newSize, ...this.zoneData.startPoint })
+
+    grid.updateContainerGridSizes({
+      container: this.myContainer,
+      zone: this.zoneData,
+      nextRow: this.nextRow,
+      nextCol: this.nextCol,
+    })
+  }
+
+  public get nextCol() {
+    return grid.zoneNextRowCol(this.myContainer, this.zoneData, "columns")
+  }
+
+  public get nextRow() {
+    return grid.zoneNextRowCol(this.myContainer, this.zoneData, "rows")
   }
   //#endregion
 
-  //#region Watchers
-  // @Watch("myContainer.activeZone")
-  // public zoneActivated(curActive: number | null, priorActive: number | null) {
-  //   if (curActive && curActive != this.zoneData.id) {
-  //     this.siblingResizing = true
-  //   } else if (!curActive && priorActive != this.zoneData.containerId) {
-  //     console.log(this.zoneData.id, "reset")
-  //   }
-  // }
+  @Watch("trackSize")
+  mouseUpdatesSize(track: boolean) {
+    if (track) {
+      // set to current size - useful if another zone resized the row/col
+      this.setDims()
+      document.addEventListener("mousemove", this.updateDims)
+    } else {
+      this.sizeStart = null
+      document.removeEventListener("mousemove", this.updateDims)
+    }
+  }
 
   @Watch("containerResizing")
   public gridSizeChange(resizing: boolean) {
     // don't want to update until resize finished
-    console.log(this.zoneData.id, resizing)
     if (!resizing) {
-      this.setCurrentSize()
+      this.setDims()
     }
   }
 
@@ -121,7 +170,7 @@ export default class Zone extends GridMixin {
   public checkSize() {
     this.$nextTick(() => {
       // waiting for next tick ensures opened/closed zone has been added/removed from DOM
-      this.setCurrentSize()
+      this.setDims()
     })
   }
 
@@ -135,10 +184,6 @@ export default class Zone extends GridMixin {
   public get myContainer() {
     return this.getContainer(this.zoneData.containerId)
   }
-
-  // public get isResizingZone() {
-  //   return this.myContainer?.activeZone == this.zoneData.id
-  // }
 
   public get openSiblings() {
     return this.containerOpenZones(this.zoneData.containerId)
@@ -173,11 +218,7 @@ export default class Zone extends GridMixin {
         "zone",
         "overflow-hidden",
         `bg-${this.zoneData.color}-200 dark:bg-${this.zoneData.color}-900`,
-        this.movingZones || this.siblingResizing
-          ? this.isTargetZone
-            ? targetBg
-            : normalBg
-          : noBg,
+        this.movingZones ? (this.isTargetZone ? targetBg : normalBg) : noBg,
       ]
     }
     return "z-50"

@@ -23,7 +23,7 @@ import util from "@/utilities/containerUtil"
   store,
 })
 export default class GridModule extends VuexModule implements GridState {
-  containers: { [key: string]: GridContainer } = {}
+  containers: { [key: number]: GridContainer } = {}
   widgets: { [key: string]: GridWidget } = {}
   zones: { [key: number]: GridZone } = {}
   movingZones = false
@@ -75,6 +75,22 @@ export default class GridModule extends VuexModule implements GridState {
     }
   }
 
+  get zoneNextRowCol() {
+    // return the row/column after, the row/column before, or null if neither exist
+    return (
+      container: GridContainer,
+      zone: GridZone,
+      which: typeof GridAxes[number]
+    ): number | null => {
+      if (container[which][zone[which].end + 1]) {
+        return zone[which].end + 1
+      } else if (container[which][zone[which].start - 1]) {
+        return zone[which].start - 1
+      }
+      return null
+    }
+  }
+
   @Action
   zonesTrackMouse(track: boolean) {
     this.SET_MOVING_ZONES(track)
@@ -111,6 +127,20 @@ export default class GridModule extends VuexModule implements GridState {
     }
   }
 
+  // @Action
+  // setSize(payload: {which: "containers" | "zones", entity: number | GridZone, newSize: Size, newRatio?: Size}) {
+  //   const {entity, which, newSize, newRatio} = payload
+  //   let sizeMutation!: Function
+  //   let ratioMutation!: Function
+  //   if (which == "containers") {
+  //     sizeMutation = this.CONTAINER_SIZE
+  //     ratioMutation = this.CONTAINER_RATIO
+  //   } else {
+  //     sizeMutation = this.CONTAINER_SIZE
+  //     ratioMutation = this.CONTAINER_RATIO
+  //   }
+  // }
+
   @Action
   addZone(zone: GridZone) {
     this.ADD_ZONE(zone)
@@ -124,7 +154,19 @@ export default class GridModule extends VuexModule implements GridState {
     zone: GridZone | number
     newColumns: GridPosition
   }) {
-    const { zone, newColumns } = payload
+    const { newColumns } = payload
+    const zone =
+      typeof payload.zone == "number"
+        ? this.getZone(payload.zone)
+        : payload.zone
+
+    // TODO: this is not dynamic, assumes i'm updating the end col
+    this.SET_CONTAINER_COL_RATIO({
+      id: zone.containerId,
+      column: zone.columns.end,
+      ratio: -1,
+    })
+
     this.UPDATE_ZONE_COLUMNS({
       id: typeof zone == "number" ? zone : zone.id,
       newColumns,
@@ -151,7 +193,6 @@ export default class GridModule extends VuexModule implements GridState {
   widgetToZone(payload: { widget: GridWidget; zoneId: number }) {
     const { widget, zoneId } = payload
     // open or close the zone
-    console.log("widget toggling zone")
     if (zoneId) this.toggleZone({ zone: zoneId, open: widget.docked })
     if (zoneId == widget.currentZone) {
       // happens if dropping widget into same zone
@@ -196,8 +237,16 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
-  setZoneSize(payload: { zone: GridZone; newSize: Size; newRatio?: Size }) {
-    const { zone, newSize, newRatio } = payload
+  setZoneSize(payload: {
+    zone: GridZone | number
+    newSize: Size
+    newRatio?: Size
+  }) {
+    const { newSize, newRatio } = payload
+    const zone =
+      typeof payload.zone == "number"
+        ? this.getZone(payload.zone)
+        : payload.zone
     this.ZONE_SIZE({ id: zone.id, newSize })
     if (newRatio) {
       const roundedRatio: Size = {
@@ -205,38 +254,17 @@ export default class GridModule extends VuexModule implements GridState {
         width: parseFloat(newRatio.width.toFixed(4)),
       }
       this.ZONE_RATIO({ id: zone.id, newRatio: roundedRatio })
+      // update the row/column the zone resides in as well
     }
   }
 
-  // D
-  // @Action
-  // propogateZoneSize(zone: GridZone) {
-  //   for (const widgetName in zone.widgets) {
-  //     const widget = this.widgets[widgetName]
-  //     if (widget.open) {
-  //       this.setWidgetSize({
-  //         widget,
-  //         setZone: false,
-  //         newHeight: zone.height,
-  //         newWidth: zone.width
-  //       })
-  //     }
-  //   }
-  // }
-
   @Action
-  setWidgetSize(payload: {
-    widget: GridWidget
-    setZone: boolean
-    newSize: Size
-  }) {
-    // TODO: need to revisit this once widgets can resize zone -- when to update ratio
-    const { widget, setZone, newSize } = payload
+  setWidgetSize(payload: { widget: GridWidget; newSize: Size }) {
+    const { widget, newSize } = payload
     // idea: keep widget size synced with zone
-    if (setZone && widget.currentZone) {
-      this.ZONE_SIZE({ id: widget.currentZone, newSize })
-    }
-    // const { widget, newSize } = payload
+    // if (setZone && widget.currentZone) {
+    //   this.setZoneSize({ zone: widget.currentZone, newSize })
+    // }
     this.WIDGET_SIZE({ name: widget.name, newSize })
   }
 
@@ -246,22 +274,71 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
-  setZonePoints(payload: { zone: GridZone; newStart: Position }) {
-    const { zone, newStart } = payload
+  setZonePoints(payload: { zone: GridZone; startPoint: Position }) {
+    const { zone, startPoint } = payload
+
     const newEnd = {
-      x: newStart.x + zone.size.width,
-      y: newStart.y + zone.size.height,
+      x: startPoint.x + zone.size.width,
+      y: startPoint.y + zone.size.height,
     }
     this.ZONE_POSITION({
       id: zone.id,
-      newStart,
+      newStart: startPoint,
       newEnd,
     })
   }
 
   @Action
-  setActiveZone(payload: { containerId: number; zoneId: number | null }) {
-    this.ACTIVE_ZONE(payload)
+  updateContainerGridSizes(payload: {
+    container: GridContainer
+    zone: GridZone
+    nextRow: number | null
+    nextCol: number | null
+  }) {
+    const { container, zone, nextRow, nextCol } = payload
+
+    // if no next row/col, resize does nothing
+    if (nextRow) {
+      this.SET_CONTAINER_ROW_RATIO({
+        id: container.id,
+        row: zone.rows.end,
+        ratio: zone.sizeRatio.height,
+      })
+      // zone's sizeRatio has already had the difference added
+      this.SET_CONTAINER_ROW_RATIO({
+        id: container.id,
+        row: nextRow,
+        ratio: 1 - zone.sizeRatio.height,
+      })
+    }
+    if (nextCol) {
+      this.SET_CONTAINER_COL_RATIO({
+        id: container.id,
+        column: zone.columns.end,
+        ratio: zone.sizeRatio.width,
+      })
+      this.SET_CONTAINER_COL_RATIO({
+        id: container.id,
+        column: nextCol,
+        ratio: 1 - zone.sizeRatio.width,
+      })
+    }
+  }
+
+  @Mutation
+  SET_CONTAINER_ROW_RATIO(payload: { id: number; row: number; ratio: number }) {
+    const { id, row, ratio } = payload
+    this.containers[id].rows[row].sizeRatio = ratio
+  }
+
+  @Mutation
+  SET_CONTAINER_COL_RATIO(payload: {
+    id: number
+    column: number
+    ratio: number
+  }) {
+    const { id, column, ratio } = payload
+    this.containers[id].columns[column].sizeRatio = ratio
   }
 
   @Action
@@ -304,7 +381,6 @@ export default class GridModule extends VuexModule implements GridState {
     const open = payload.open
     if (open == undefined || zone.open != open) {
       this.TOGGLE_ZONE({ openZone: zone.id, open })
-      console.log("toggle zone")
       if (zone.containerId) {
         this.CONTAINER_ZONE_OPENED({ containerId: zone.containerId, zone })
       }
@@ -376,29 +452,28 @@ export default class GridModule extends VuexModule implements GridState {
   @Mutation
   CONTAINER_ZONE_OPENED(payload: { containerId: number; zone: GridZone }) {
     const { containerId, zone } = payload
-    console.log("")
-    console.log("opening zone", zone.id)
-    console.log("")
     const container = this.containers[containerId]
     for (const axis of GridAxes) {
+      const startAxis = container[axis][zone[axis].start]
+      const endAxis = container[axis][zone[axis].end]
       if (zone.open) {
-        console.log("*", zone.id, "to", axis, zone[axis].start)
-        container[axis][zone[axis].start].zones.push(zone.id)
+        startAxis.zones.push(zone.id)
         if (zone[axis].start != zone[axis].end) {
-          console.log("*", zone.id, "to", axis, zone[axis].end)
-          container[axis][zone[axis].end].zones.push(zone.id)
+          endAxis.zones.push(zone.id)
         }
       } else {
-        container[axis][zone[axis].start].zones = container[axis][
-          zone[axis].start
-        ].zones.filter(zId => {
+        startAxis.zones = startAxis.zones.filter(zId => {
           return zId != zone.id
         })
-        container[axis][zone[axis].end].zones = container[axis][
-          zone[axis].end
-        ].zones.filter(zId => {
+        endAxis.zones = endAxis.zones.filter(zId => {
           return zId != zone.id
         })
+        if (!startAxis.zones.length) {
+          startAxis.sizeRatio = -1
+        }
+        if (!endAxis.zones.length) {
+          endAxis.sizeRatio = -1
+        }
       }
     }
   }
@@ -453,9 +528,7 @@ export default class GridModule extends VuexModule implements GridState {
   WIDGET_SIZE(payload: { name: string; newSize: Size }) {
     const { name, newSize } = payload
     const widget = this.widgets[name]
-    // TODO: need to convert widget dims to Size
-    widget.height = newSize.height
-    widget.width = newSize.width
+    widget.size = newSize
   }
 
   @Mutation
@@ -512,12 +585,6 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Mutation
-  ACTIVE_ZONE(payload: { containerId: number; zoneId: number | null }) {
-    const { containerId, zoneId } = payload
-    this.containers[containerId].activeZone = zoneId
-  }
-
-  @Mutation
   ADD_WIDGET(widget: GridWidget) {
     Vue.set(this.widgets, widget.name, widget)
   }
@@ -544,13 +611,12 @@ export default class GridModule extends VuexModule implements GridState {
           // in english example: set container.columns[zone.columns.start] = initial values
           // zones only get pushed in once they're mounted/open
           Vue.set(container[axis], zone[axis][axisKey], {
-            sizeRatio: 0,
+            sizeRatio: -1,
             zones: [],
           })
         }
       }
     }
-    console.log(container)
   }
 
   @Mutation

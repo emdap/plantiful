@@ -36,7 +36,7 @@ const zones: GridZone[] = [
     name: "z-2",
     containerId: 1,
     color: "purple",
-    ...gridPosition(0, 1, 0, 1),
+    ...gridPosition(2, 1, 2, 1),
     ...INIT_ZONE(),
   },
   {

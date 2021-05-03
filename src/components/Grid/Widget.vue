@@ -101,8 +101,6 @@ export default class Widget extends GridMixin {
   @Ref("move-icon") moveIcon!: HTMLElement
 
   public trackPosition = false
-  public trackSize = false
-  public sizeStart: Position | null = null
   public posStart: Position | null = null
   public inFocus = false
   public active = false
@@ -132,6 +130,7 @@ export default class Widget extends GridMixin {
   }
 
   public setToCurrent() {
+    // TODO: consider changing this to reference zone instead
     const { height, width, x, y } = this.getCurrentRect()
     const newSize = {
       height,
@@ -139,7 +138,6 @@ export default class Widget extends GridMixin {
     }
     grid.setWidgetSize({
       widget: this.widgetData,
-      setZone: false,
       newSize,
     })
     grid.setWidgetPosition({
@@ -168,12 +166,19 @@ export default class Widget extends GridMixin {
   // Watchers
   @Watch("trackSize")
   mouseUpdatesSize(track: boolean) {
-    this.$emit("resizing", track)
     if (track) {
-      document.addEventListener("mousemove", this.updateSize)
+      if (this.widgetData.docked) {
+        this.$emit("track-size")
+      } else {
+        document.addEventListener("mousemove", this.updateWidgetSize)
+      }
     } else {
-      this.sizeStart = null
-      document.removeEventListener("mousemove", this.updateSize)
+      if (this.widgetData.docked) {
+        this.$emit("track-size")
+      } else {
+        this.sizeStart = null
+        document.removeEventListener("mousemove", this.updateWidgetSize)
+      }
     }
   }
 
@@ -210,8 +215,8 @@ export default class Widget extends GridMixin {
     return {
       top: inPlace ? 0 : this.widgetData.position.y + "px",
       left: inPlace ? 0 : this.widgetData.position.x + "px",
-      height: inPlace ? "100%" : this.widgetData.height + "px",
-      width: inPlace ? "100%" : this.widgetData.width + "px",
+      height: inPlace ? "100%" : this.widgetData.size.height + "px",
+      width: inPlace ? "100%" : this.widgetData.size.width + "px",
       position: inPlace ? "static" : "absolute",
       "z-index": this.inFocus ? 100 : 50,
     }
@@ -249,52 +254,25 @@ export default class Widget extends GridMixin {
   }
 
   // Functions to modify display
-  public updateSize(e: MouseEvent) {
-    e.preventDefault()
-    let startWidth!: number, startHeight!: number
-
-    // initialize values
-    if (this.sizeStart == null) {
-      this.sizeStart = {
-        x: e.pageX,
-        y: e.pageY,
-      }
-    }
-
-    // initialize size if it is still 0
-    if (!this.widgetData.height || !this.widgetData.width) {
-      const { height, width } = this.getCurrentRect()
-      startHeight = height
-      startWidth = width
-    } else {
-      startHeight = this.widgetData.height
-      startWidth = this.widgetData.width
-    }
-
+  public updateWidgetSize(e: MouseEvent) {
     const el = this.$el as HTMLElement
 
-    const height = Math.min(
-      this.gridSize.height - 8,
-      // if gonna add min height/width, do it here
-      Math.max(100, startHeight + e.pageY - this.sizeStart.y)
-    )
-    const width = Math.min(
-      this.gridSize.width - el.offsetLeft + 40,
-      Math.max(250, startWidth + e.pageX - this.sizeStart.x)
-    )
-    grid.setWidgetSize({
-      widget: this.widgetData,
-      setZone: this.widgetData.docked,
-      newSize: {
-        height,
-        width,
+    const newSize = this.updateSize(e, {
+      minimum: {
+        height: 100,
+        width: 250,
       },
+      maximum: {
+        height: this.gridSize.height - 8,
+        width: this.gridSize.width - el.offsetLeft + 40,
+      },
+      entity: this.widgetData,
     })
 
-    this.sizeStart = {
-      x: e.pageX,
-      y: e.pageY,
-    }
+    grid.setWidgetSize({
+      widget: this.widgetData,
+      newSize,
+    })
   }
 
   public updatePosition(e: MouseEvent) {
@@ -319,11 +297,11 @@ export default class Widget extends GridMixin {
     // offset not including parent padding for x?
     const remainingX =
       this.gridSize.width -
-      this.widgetData.width +
+      this.widgetData.size.width +
       this.moveIcon.offsetLeft +
       20
 
-    const remainingY = this.gridSize.height - this.widgetData.height
+    const remainingY = this.gridSize.height - this.widgetData.size.height
     const rawX = startX + e.pageX - this.posStart.x
     const rawY = startY + e.pageY - this.posStart.y
 

@@ -9,7 +9,7 @@
       v-if="plantData.showName"
       :class="textClass"
       :style="`margin-left: -${plantData.width}px; width: ${plantData.width}px`"
-      class="whitespace-nowrap text-center transition-all duration-75 font-semibold cursor-pointer dark:text-white select-none"
+      class="whitespace-nowrap text-center transition-color duration-75 font-semibold cursor-pointer dark:text-white select-none"
       @dblclick.self="setActiveEntity"
     >
       {{ plantData.name }}

@@ -29,8 +29,8 @@ import Component from "vue-class-component"
 
 @Component({
   components: {
-    PetalLeaf
-  }
+    PetalLeaf,
+  },
 })
 export default class LeafCluster extends GrowMixin {
   @Prop({ required: true }) flowerOrLeafCluster!: "leafClusters" | "flowers"
@@ -70,12 +70,12 @@ export default class LeafCluster extends GrowMixin {
     // when one leaf/petal changes size, need to adjust container size for proper alignment
     const newProps = {
       width: newHeight,
-      height: newHeight
+      height: newHeight,
     }
     grow.mergeEntity({
       dataKey: this.flowerOrLeafCluster,
       id: this.clusterData.id,
-      mergeData: newProps
+      mergeData: newProps,
     })
     // also need to update other leaves/petals in cluster to align with new cluster size
     for (const childId of this.childList) {
@@ -83,13 +83,13 @@ export default class LeafCluster extends GrowMixin {
       const position = {
         position: {
           x: newHeight / 2 - child.width / 2,
-          y: newHeight - child.height
-        }
+          y: newHeight - child.height,
+        },
       }
       grow.mergeEntity({
         dataKey: this.childGrowDataKey,
         id: childId,
-        mergeData: position
+        mergeData: position,
       })
     }
   }
@@ -99,7 +99,7 @@ export default class LeafCluster extends GrowMixin {
     if (this.flowerOrLeafCluster == "leafClusters") {
       position = {
         x: this.clusterData.position.x - this.clusterData.width / 2,
-        y: this.clusterData.position.y + this.clusterData.offSet.top
+        y: this.clusterData.position.y + this.clusterData.offSet.top,
       }
     } else {
       position = {
@@ -108,7 +108,7 @@ export default class LeafCluster extends GrowMixin {
           this.clusterData.position.y -
           this.clusterData.height / 2 +
           this.clusterData.offSet.top +
-          5
+          5,
       }
     }
 
@@ -117,7 +117,8 @@ export default class LeafCluster extends GrowMixin {
       position,
       height: this.clusterData.height,
       width: this.clusterData.width,
-      zIndex: this.clusterData.zIndex
+      zIndex: this.clusterData.zIndex,
+      transistionSpeed: this.clusterData.transitionSpeed,
     }
     return this.entityStyle(styleData, true)
   }
@@ -133,7 +134,7 @@ export default class LeafCluster extends GrowMixin {
       left: `calc(${this.clusterData.width - 10}px/2 - 3px)`,
       opacity: this.showFlowerCenter ? 1 : 0,
       transition: "all 1s",
-      zIndex: 20
+      zIndex: 20,
     }
   }
 

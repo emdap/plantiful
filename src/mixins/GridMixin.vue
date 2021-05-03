@@ -4,7 +4,13 @@ import Component from "vue-class-component"
 import { getModule } from "vuex-module-decorators"
 import GridModule from "@/store/modules/grid"
 import { gridMessages } from "@/fixtures/Messages"
-import { GridWidget, GridZone, GridContainer } from "@/store/interfaces"
+import {
+  GridWidget,
+  GridZone,
+  GridContainer,
+  Size,
+  Position,
+} from "@/store/interfaces"
 
 export const grid = getModule(GridModule)
 
@@ -12,8 +18,36 @@ export const grid = getModule(GridModule)
 export default class GridMixin extends Vue {
   public messages = gridMessages
 
+  // State getters
   public get movingZones() {
     return grid.movingZones
+  }
+
+  public get containerZones() {
+    return grid.containerZones
+  }
+
+  public get activeWidget(): GridWidget | null {
+    return grid.activeWidget
+  }
+
+  public get getWidget() {
+    return grid.getWidget
+  }
+
+  public get getZone() {
+    return grid.getZone
+  }
+
+  public get getContainer() {
+    return grid.getContainer
+  }
+
+  public get gridSize() {
+    return {
+      height: grid.overallHeight,
+      width: grid.overallWidth,
+    }
   }
 
   public get countOpenWidgets() {
@@ -26,12 +60,6 @@ export default class GridMixin extends Vue {
     return Object.values(grid.containers)
   }
 
-  public get containerZones() {
-    return (containerId: number) => {
-      return grid.containerZones(containerId)
-    }
-  }
-
   public get containerOpenZones() {
     return (containerId: number) => {
       return this.containerZones(containerId).filter(zone => {
@@ -40,13 +68,13 @@ export default class GridMixin extends Vue {
     }
   }
 
-  public get containerMountedZones() {
-    return (containerId: number) => {
-      return this.containerZones(containerId).filter(zone => {
-        return zone.mounted
-      })
-    }
-  }
+  // public get containerMountedZones() {
+  //   return (containerId: number) => {
+  //     return this.containerZones(containerId).filter(zone => {
+  //       return zone.mounted
+  //     })
+  //   }
+  // }
 
   public get zoneWidgets() {
     return (zoneId: number) => {
@@ -71,34 +99,9 @@ export default class GridMixin extends Vue {
     }
   }
 
-  public get activeWidget(): GridWidget | null {
-    return grid.activeWidget
-  }
-
-  public get getWidget() {
-    return (name: string): GridWidget => {
-      return grid.getWidget(name)
-    }
-  }
-
-  public get getZone() {
-    return (id: number): GridZone => {
-      return grid.getZone(id)
-    }
-  }
-
-  public get getContainer() {
-    return (id: number): GridContainer => {
-      return grid.getContainer(id)
-    }
-  }
-
-  public get gridSize() {
-    return {
-      height: grid.overallHeight,
-      width: grid.overallWidth
-    }
-  }
+  // Mixin
+  public sizeStart: Position | null = null
+  public trackSize = false
 
   public getCurrentRect() {
     const el = this.$el as HTMLElement
@@ -112,7 +115,56 @@ export default class GridMixin extends Vue {
       x,
       y,
       offsetX,
-      offsetY
+      offsetY,
+    }
+  }
+
+  public updateSize(
+    e: MouseEvent,
+    payload: {
+      minimum: Size
+      maximum: Size
+      entity: GridWidget | GridZone | GridContainer
+    }
+  ) {
+    e.preventDefault()
+    let startWidth!: number, startHeight!: number
+    const { minimum, maximum, entity } = payload
+
+    if (this.sizeStart == null) {
+      this.sizeStart = {
+        x: e.pageX,
+        y: e.pageY,
+      }
+    }
+    // initialize size if it is still 0
+    if (!entity.size.height || !entity.size.width) {
+      const { height, width } = this.getCurrentRect()
+      startHeight = height
+      startWidth = width
+    } else {
+      startHeight = entity.size.height
+      startWidth = entity.size.width
+    }
+
+    const height = Math.min(
+      maximum.height,
+      Math.max(minimum.height, startHeight + e.pageY - this.sizeStart.y)
+    )
+
+    const width = Math.min(
+      maximum.width,
+      Math.max(minimum.width, startWidth + e.pageX - this.sizeStart.x)
+    )
+
+    this.sizeStart = {
+      x: e.pageX,
+      y: e.pageY,
+    }
+
+    return {
+      height,
+      width,
     }
   }
 }
