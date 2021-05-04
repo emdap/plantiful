@@ -511,6 +511,7 @@ export interface GridContainer {
   sizeRatio: Size
   columns: GridAreaDict
   rows: GridAreaDict
+  zonesGrowing: boolean
 }
 
 export interface GridZone {

@@ -46,7 +46,9 @@ export default class Zone extends GridMixin {
 
   public mounted() {
     this.$nextTick(() => {
-      this.setDims({ distribute: true })
+      if (this.zoneData.id) {
+        this.setDimsCurrent()
+      }
     })
     document.addEventListener("mouseup", this.notSelected)
   }
@@ -60,38 +62,45 @@ export default class Zone extends GridMixin {
     this.zoneSelected = false
   }
 
-  public setDims(payload: {
-    current?: boolean
-    newDims?: Size & Position
-    distribute: boolean
-  }) {
-    if (this.zoneData.id) {
-      const { width, height, x, y } =
-        !payload || payload.current || !payload.newDims
-          ? this.getCurrentRect()
-          : payload.newDims
-
-      grid.setZoneSize({
-        zone: this.zoneData,
-        newSize: {
-          height,
-          width,
-        },
-        // container waits a tick before recording its size
-        newRatio:
-          this.myContainer.size.width && this.myContainer.size.height
-            ? {
-                height: height / this.myContainer.size.height,
-                width: width / this.myContainer.size.width,
-              }
-            : undefined,
-        distribute: payload?.distribute,
-      })
-      grid.setZonePoints({ zone: this.zoneData, startPoint: { x, y } })
+  public setDimsCurrent(distribute = true) {
+    const { width, height, x, y } = this.getCurrentRect()
+    let newRatio!: Size
+    if (this.myContainer.size.width && this.myContainer.size.height) {
+      newRatio = {
+        height: height / this.myContainer.size.height,
+        width: width / this.myContainer.size.width,
+      }
     }
+
+    grid.setZoneSize({
+      zone: this.zoneData,
+      newSize: {
+        height,
+        width,
+      },
+      newRatio,
+      distribute,
+    })
+
+    grid.setZonePoints({ zone: this.zoneData, startPoint: { x, y } })
   }
 
-  public updateDims(e: MouseEvent) {
+  public getOutsideDims(payload: { rows: boolean; columns: boolean }) {
+    const outside = {} as { rows: number[]; columns: number[] }
+    for (const axis of GridAxes) {
+      if (payload[axis]) {
+        outside[axis] = Object.keys(this.myContainer[axis])
+          .map(Number)
+          .filter(dim => {
+            return this.zoneData[axis].indexOf(dim) == -1
+          })
+      }
+    }
+    return outside
+  }
+
+  public newZoneSize(e: MouseEvent): Size {
+    // applying mins/max to size after determining if size tracks mouse movement inverted or not
     const minSize = {
       width: 50,
       height: 50,
@@ -101,156 +110,109 @@ export default class Zone extends GridMixin {
       height: this.myContainer.size.height,
     }
 
-    // applying mins/max to size after determining if size tracks mouse movement inverted or not
     const newSize: Size = this.updateSize(e, {
       minimum: NO_SIZE(),
       maximum: { height: Infinity, width: Infinity },
       entity: this.zoneData,
     })
 
-    const sizeDiff = {
-      height: newSize.height - this.zoneData.size.height,
-      width: newSize.width - this.zoneData.size.width,
-    }
-
-    // if next row/column is before this one instead of after, invert mouse movement -> size
+    // invert how mouse movement affects size if is last row/col
+    // if no nextrow/column, don't update the associated dimension
     if (!this.nextRow || this.nextRow < this.zoneData.rows[0]) {
-      sizeDiff.height = this.nextRow ? -sizeDiff.height : 0
-      newSize.height = this.zoneData.size.height + sizeDiff.height
+      newSize.height = this.nextRow
+        ? this.zoneData.size.height * 2 - newSize.height
+        : this.zoneData.size.height
     }
 
     if (!this.nextCol || this.nextCol < this.zoneData.columns[0]) {
-      sizeDiff.width = this.nextCol ? -sizeDiff.width : 0
-      newSize.width = this.zoneData.size.width + sizeDiff.width
+      newSize.width = this.nextCol
+        ? this.zoneData.size.width * 2 - newSize.width
+        : this.zoneData.size.width
     }
 
-    // convert to min/max after newSize has been flipped  & recalc diff
-    newSize.height = Math.max(
-      minSize.height,
-      Math.min(maxSize.height, newSize.height)
-    )
-    sizeDiff.height = newSize.height - this.zoneData.size.height
-    newSize.width = Math.max(
-      minSize.width,
-      Math.min(maxSize.width, newSize.width)
-    )
-    sizeDiff.width = newSize.width - this.zoneData.size.width
-
-    // apply new sizes/ratios to self + neighboring cols/rows, if size has changed
-    if (newSize.height != this.zoneData.size.height && this.nextRow) {
-      // add/subtract ratio from row/col with largest size
-      const ratio = sizeDiff.height / this.myContainer.size.height
-      const updateRow = this.checkAndGetUpdateDim("rows", this.nextRow, ratio)
-      if (updateRow) {
-        grid.incContainerDim({
-          containerId: this.zoneData.containerId,
-          incRatio: ratio,
-          axis: "rows",
-          dim: updateRow,
-        })
-        grid.incContainerDim({
-          containerId: this.zoneData.containerId,
-          incRatio: -ratio,
-          axis: "rows",
-          dim: this.nextRow,
-        })
-      }
+    return {
+      height: Math.max(
+        minSize.height,
+        Math.min(maxSize.height, newSize.height)
+      ),
+      width: Math.max(minSize.width, Math.min(maxSize.width, newSize.width)),
     }
-    if (newSize.width != this.zoneData.size.width && this.nextCol) {
-      const ratio = sizeDiff.width / this.myContainer.size.width
-      const updateCol = this.checkAndGetUpdateDim(
-        "columns",
-        this.nextCol,
-        ratio
-      )
-      if (updateCol) {
-        grid.incContainerDim({
-          containerId: this.zoneData.containerId,
-          incRatio: ratio,
-          axis: "columns",
-          dim: updateCol,
-        })
-        grid.incContainerDim({
-          containerId: this.zoneData.containerId,
-          incRatio: -ratio,
-          axis: "columns",
-          dim: this.nextCol,
-        })
-      }
+  }
+
+  // Size updater
+  public updateDims(e: MouseEvent) {
+    const newSize = this.newZoneSize(e)
+
+    const newRatio = {
+      height: newSize.height / this.myContainer.size.height,
+      width: newSize.width / this.myContainer.size.width,
     }
 
-    if (
-      newSize.height == this.zoneData.size.height &&
-      newSize.width == this.zoneData.size.width
-    ) {
-      // neither dimension changed
-      return
+    // only distribute ratios to rows/cols if the related size changed
+    const insideDims = {
+      rows:
+        newSize.height != this.zoneData.size.height
+          ? this.zoneData.rows
+          : undefined,
+      columns:
+        newSize.width != this.zoneData.size.width
+          ? this.zoneData.columns
+          : undefined,
     }
+    const outsideDims = this.getOutsideDims({
+      rows: newSize.height != this.zoneData.size.height,
+      columns: newSize.width != this.zoneData.size.width,
+    })
 
-    // update zoneData's knowledge of itself
-    this.setDims({
-      newDims: { ...newSize, ...this.zoneData.startPoint },
+    grid.zoneDistributeRatio({
+      containerId: this.zoneData.containerId,
+      ratio: {
+        rows: newRatio.height,
+        columns: newRatio.width,
+      },
+      ...insideDims,
+      proportional: true,
+    })
+
+    grid.zoneDistributeRatio({
+      containerId: this.zoneData.containerId,
+      ratio: {
+        rows: 1 - newRatio.height,
+        columns: 1 - newRatio.width,
+      },
+      ...outsideDims,
+      proportional: true,
+    })
+
+    // update zoneData's actual size for next time this function called
+    grid.setZoneSize({
+      zone: this.zoneData,
+      newSize,
+      newRatio,
       distribute: false,
-    })
-  }
-
-  public checkAndGetUpdateDim(
-    axis: typeof GridAxes[number],
-    nextDim: number,
-    ratio: number
-  ) {
-    let sortList!: number[][]
-    if (axis == "rows") {
-      sortList = this.myRows
-    } else {
-      sortList = this.myCols
-    }
-
-    const updateDim = sortList.sort((a, b) => {
-      return b[1] - a[1]
-    })
-
-    if (
-      updateDim[0][1] + ratio > 0.01 &&
-      this.myContainer[axis][nextDim].sizeRatio - ratio > 0.01
-    ) {
-      return updateDim[0][0]
-    }
-    return false
-  }
-
-  public get nextCol() {
-    return grid.zoneNextRowCol(this.zoneData, "columns")
-  }
-
-  public get nextRow() {
-    return grid.zoneNextRowCol(this.zoneData, "rows")
-  }
-
-  public get myCols() {
-    // list of: col#: ratio
-    return this.zoneData.columns.map(c => {
-      return [c, this.myContainer.columns[c].sizeRatio]
-    })
-  }
-
-  public get myRows() {
-    // list of: row#: ratio
-    return this.zoneData.rows.map(r => {
-      return [r, this.myContainer.rows[r].sizeRatio]
     })
   }
   //#endregion
 
+  // #region Watchers
   @Watch("trackSize")
   mouseUpdatesSize(track: boolean) {
     if (track) {
       // set to current size - useful if another zone resized the row/col
-      this.setDims({ distribute: false })
+      grid.toggleZonesGrowing(this.zoneData.containerId)
       document.addEventListener("mousemove", this.updateDims)
     } else {
       this.sizeStart = null
+      grid.toggleZonesGrowing(this.zoneData.containerId)
       document.removeEventListener("mousemove", this.updateDims)
+    }
+  }
+
+  @Watch("myContainer.zonesGrowing")
+  public zonesGrowing(growing: boolean) {
+    // update to current after growing done -- updates start/end points as well
+    if (!growing) {
+      this.setDimsCurrent(false)
     }
   }
 
@@ -258,7 +220,7 @@ export default class Zone extends GridMixin {
   public gridSizeChange(resizing: boolean) {
     // don't want to update until resize finished
     if (!resizing) {
-      this.setDims({ distribute: false })
+      this.setDimsCurrent(false)
     }
   }
 
@@ -274,7 +236,7 @@ export default class Zone extends GridMixin {
     grid.resetZoneDimRatios(this.zoneData)
     this.$nextTick(() => {
       // waiting for next tick ensures opened/closed zone has been added/removed from DOM
-      this.setDims({ distribute: true })
+      this.setDimsCurrent()
     })
   }
 
@@ -296,12 +258,20 @@ export default class Zone extends GridMixin {
   public get openChildren() {
     return this.zoneOpenWidgets(this.zoneData).length
   }
+
+  public get nextCol() {
+    return grid.zoneNextRowCol(this.zoneData, "columns")
+  }
+
+  public get nextRow() {
+    return grid.zoneNextRowCol(this.zoneData, "rows")
+  }
+
   //#endregion
 
   //#region Styling getters
   public get zoneStyle() {
     // +1 to ends as CSS has the end being the start of the /next/ row/column
-    // but my objects end in the row/column that the zone actually occupies
     return {
       "grid-row": `${this.zoneData.rows[0]} / ${this.zoneLastDim(
         this.zoneData,

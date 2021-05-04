@@ -233,7 +233,7 @@ export default class Widget extends GridMixin {
         .active,
       "border-1 border-pink-300 dark:border-yellow-800":
         !this.widgetData.docked && !this.trackPosition && !this.trackSize,
-      "border-2 border-green-300 dark:border-yellow-400":
+      "border-1 border-green-300 dark:border-yellow-400":
         this.trackPosition || this.trackSize,
     }
   }

@@ -36,7 +36,7 @@ const widgets: GridWidget[] = [
     component: Grow,
     name: "grow",
     text: "Plant Window",
-    open: false,
+    open: true,
     defaultZone: 3,
     ...INIT_WIDGET(),
   },

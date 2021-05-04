@@ -368,12 +368,12 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
     }
   }
 
-  // @Watch("growWidget.open")
-  // public growOpen(open: boolean) {
-  //   if (!open) {
-  //     this.toggleGrowHelpers(false)
-  //   }
-  // }
+  @Watch("growWidget.open")
+  public growOpen(open: boolean) {
+    if (!open) {
+      this.toggleGrowHelpers(false)
+    }
+  }
 
   public toggleSearchers(open: boolean) {
     if (this.searchWidget.open != open) {

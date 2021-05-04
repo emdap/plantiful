@@ -119,5 +119,6 @@ export const INIT_CONTAINER = () => {
     sizeRatio: NO_SIZE(),
     columns: {} as GridAreaDict,
     rows: {} as GridAreaDict,
+    zonesGrowing: false,
   }
 }

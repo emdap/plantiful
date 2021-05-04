@@ -79,21 +79,13 @@ export default class GridModule extends VuexModule implements GridState {
       const container = this.getContainer(zone.containerId)
       const lastDim = this.zoneLastDim(zone, axis)
       if (container[axis][lastDim + 1]) {
-        return lastDim + 1
+        return container[axis][lastDim + 1].zones.length && lastDim + 1
       } else if (container[axis][zone[axis][0] - 1]) {
-        return zone[axis][0] - 1
+        return (
+          container[axis][zone[axis][0] - 1].zones.length && zone[axis][0] - 1
+        )
       }
       return null
-      // let distance = 1
-      // while (distance + zone[axis].length <= Object.keys(container[axis]).length) {
-      //   const lastDim = this.zoneLastDim(zone, axis)
-      //   if (container[axis][lastDim + distance] && container[axis][lastDim + 1].sizeRatio > 0.02) {
-      //     return lastDim + distance
-      //   } else if (container[axis][zone[axis][0] - distance] && container[axis][zone[axis][0] - distance].sizeRatio > 0.02) {
-      //     return zone[axis][0] - distance
-      //   }
-      //   distance++
-      // }
     }
   }
 
@@ -126,20 +118,39 @@ export default class GridModule extends VuexModule implements GridState {
     ratio: { columns?: number; rows?: number }
     rows?: number[]
     columns?: number[]
+    proportional?: boolean
   }) {
     // evenly distribute ratio across all rows/columns
-    const { containerId, ratio } = payload
+    const { containerId, ratio, proportional } = payload
     for (const axis of GridAxes) {
       if (payload[axis] && ratio[axis]) {
         const rowCols = payload[axis] as number[]
-        const increment = (ratio[axis] as number) / rowCols.length
+        let denom = rowCols.length
+        let amount!: number, container!: GridContainer
 
+        if (!proportional) {
+          // every dim gets same ratio
+          amount = (ratio[axis] as number) / denom
+        } else {
+          // dim will get ratio proportional to its current ratio
+          container = this.getContainer(containerId)
+          denom = rowCols.reduce((prev: number, current) => {
+            return container[axis][current].zones.length
+              ? prev + container[axis][current].sizeRatio
+              : 0
+          }, 0)
+        }
         for (const i in rowCols) {
+          if (proportional) {
+            amount =
+              (container[axis][rowCols[i]].sizeRatio / denom) *
+              (ratio[axis] as number)
+          }
           this.SET_CONTAINER_DIM_RATIO({
             id: containerId,
             axis,
             dim: rowCols[i],
-            ratio: increment,
+            ratio: amount,
           })
         }
       }
@@ -316,6 +327,11 @@ export default class GridModule extends VuexModule implements GridState {
         zoneId: newZone,
       })
     }
+  }
+
+  @Action
+  toggleZonesGrowing(containerId: number) {
+    this.ZONES_GROWING(containerId)
   }
 
   @Action
@@ -729,5 +745,11 @@ export default class GridModule extends VuexModule implements GridState {
   SET_GRID_SIZE(payload: { height: number; width: number }) {
     this.overallHeight = payload.height
     this.overallWidth = payload.width
+  }
+
+  @Mutation
+  ZONES_GROWING(containerId: number) {
+    this.containers[containerId].zonesGrowing = !this.containers[containerId]
+      .zonesGrowing
   }
 }
