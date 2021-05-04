@@ -1,5 +1,8 @@
 <template>
-  <div id="plant-search" class="flex overflow-auto flex-grow flex-col gap-1">
+  <div
+    id="plant-search"
+    class="flex overflow-auto scrollbar-light dark:scrollbar-dark flex-grow flex-col gap-1"
+  >
     <search-bar class="p-4" />
     <div class="relative">
       <loading
@@ -8,6 +11,7 @@
         :loadingText="gardenMessages.searchBar.loading"
       />
     </div>
+    <trefle-warning widget="search" />
     <template v-if="plantList.length">
       <plant-list
         @show-active="toggleActivePlant(true)"
@@ -33,6 +37,7 @@ import PlantList from "@/components/Garden/PlantList.vue"
 import PageNav from "@/components/Garden/PageNav.vue"
 import GardenMixin from "@/mixins/GardenMixin.vue"
 import GrowMixin from "@/mixins/GrowMixin.vue"
+import TrefleWarning from "@/components/Garden/TrefleWarning.vue"
 
 @Component({
   components: {
@@ -40,6 +45,7 @@ import GrowMixin from "@/mixins/GrowMixin.vue"
     SearchBar,
     PlantList,
     PageNav,
+    TrefleWarning,
   },
 })
 export default class PlantSearch extends mixins(GardenMixin, GrowMixin) {}
