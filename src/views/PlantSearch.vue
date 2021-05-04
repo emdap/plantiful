@@ -8,6 +8,7 @@
         :loadingText="gardenMessages.searchBar.loading"
       />
     </div>
+    <trefle-warning widget="search" />
     <template v-if="plantList.length">
       <plant-list
         @show-active="toggleActivePlant(true)"
@@ -33,6 +34,7 @@ import PlantList from "@/components/Garden/PlantList.vue"
 import PageNav from "@/components/Garden/PageNav.vue"
 import GardenMixin from "@/mixins/GardenMixin.vue"
 import GrowMixin from "@/mixins/GrowMixin.vue"
+import TrefleWarning from "@/components/Garden/TrefleWarning.vue"
 
 @Component({
   components: {
@@ -40,6 +42,7 @@ import GrowMixin from "@/mixins/GrowMixin.vue"
     SearchBar,
     PlantList,
     PageNav,
+    TrefleWarning,
   },
 })
 export default class PlantSearch extends mixins(GardenMixin, GrowMixin) {}

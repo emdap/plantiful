@@ -8,15 +8,16 @@ import {
   PageLinks,
   PlantListPayload,
   GardenState,
-  PageLinkPayload
+  PageLinkPayload,
 } from "@/store/interfaces"
 import { listPlants, getPlant, getLink, searchPlants } from "@/services/plants"
+import { listSample, plantSample } from "@/fixtures/SampleResponses"
 
 @Module({
   dynamic: true,
   namespaced: true,
   name: "garden",
-  store
+  store,
 })
 export default class GardenModule extends VuexModule implements GardenState {
   plantList: PlantSnippet[] = []
@@ -28,19 +29,21 @@ export default class GardenModule extends VuexModule implements GardenState {
   plantCache: Record<number, Plant> = {}
   loading = {
     plantList: false,
-    plant: false
+    plant: false,
   }
   readonly resultsPerPage: number = 20
 
   @Action
   async getPlantList(payload: PlantListPayload) {
-    let apiFunc: (payload: PlantListPayload) => Promise<PlantListResponse>
+    // let apiFunc: (payload: PlantListPayload) => Promise<PlantListResponse>
     // different API endpoint if user has a search query (?q="onion")
-    if (payload.query.length) {
-      apiFunc = searchPlants
-    } else {
-      apiFunc = listPlants
-    }
+
+    // API no longer exists :(
+    // if (payload.query.length) {
+    //   apiFunc = searchPlants
+    // } else {
+    //   apiFunc = listPlants
+    // }
 
     if (payload.newSearch) {
       this.CLEAR_PAGE_CACHE()
@@ -52,7 +55,9 @@ export default class GardenModule extends VuexModule implements GardenState {
     } else {
       this.SET_LOADING({ which: "plantList", loading: true })
       try {
-        pageData = await apiFunc(payload)
+        // API no longer exists
+        // pageData = await apiFunc(payload)
+        pageData = listSample
         this.CACHE_PAGE({ page: payload.page, pageData })
       } catch (error) {
         this.API_ERROR(error)
@@ -72,8 +77,8 @@ export default class GardenModule extends VuexModule implements GardenState {
     } else {
       this.SET_LOADING({ which: "plant", loading: true })
       try {
-        const plantResponse = await getPlant(id)
-        plant = plantResponse.data
+        // const plantResponse = await getPlant(id)
+        plant = plantSample
         this.CACHE_PLANT(plant)
       } catch (error) {
         this.API_ERROR(error)

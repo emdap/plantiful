@@ -3,6 +3,7 @@
     id="active-plant"
     class="p-4 flex-grow overflow-auto scrollbar-light dark:scrollbar-dark flex-col"
   >
+    <trefle-warning widget="active-plant" />
     <loading
       v-if="plantLoading"
       class="mt-12"
@@ -41,11 +42,13 @@ import GardenMixin from "@/mixins/GardenMixin.vue"
 import GrowMixin from "@/mixins/GrowMixin.vue"
 import { ActivePlantInfo } from "@/store/interfaces"
 import Loading from "@/components/Loading.vue"
+import TrefleWarning from "@/components/Garden/TrefleWarning.vue"
 
 @Component({
   components: {
-    Loading
-  }
+    Loading,
+    TrefleWarning,
+  },
 })
 export default class ActivePlant extends mixins(GardenMixin, GrowMixin) {
   // have ability to display additional images in future
@@ -55,29 +58,29 @@ export default class ActivePlant extends mixins(GardenMixin, GrowMixin) {
     return [
       {
         text: "Flower colors",
-        value: this.activePlant?.main_species.flower.color?.join()
+        value: this.activePlant?.main_species.flower.color?.join(", "),
       },
       {
         text: "Foliage colors",
-        value: this.activePlant?.main_species.foliage.color?.join()
+        value: this.activePlant?.main_species.foliage.color?.join(", "),
       },
       {
         text: "Foliage texture",
-        value: this.activePlant?.main_species.foliage.texture
+        value: this.activePlant?.main_species.foliage.texture,
       },
       {
         text: "Average height",
-        value: this.activePlant?.main_species.specifications.average_height.cm
+        value: this.activePlant?.main_species.specifications.average_height.cm,
       },
       {
         text: "Shape and orientation",
         value: this.activePlant?.main_species.specifications
-          .shape_and_orientation
+          .shape_and_orientation,
       },
       {
         text: "Growth spread",
-        value: this.activePlant?.main_species.growth.spread.cm
-      }
+        value: this.activePlant?.main_species.growth.spread.cm,
+      },
     ]
   }
   public get noActivePlant() {

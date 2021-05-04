@@ -13,16 +13,16 @@
       v-for="(page, index) in pageButtons"
       :key="`page-button-${index}`"
       @click="iteratePage(page.nav)"
-      :class="
+      :class="[
         plantListLoading || disablePageButton(page.nav)
           ? 'text-gray-300 dark:text-gray-600 cursor-wait'
-          : 'text-green-800 dark:text-yellow-600 hover:tracking-wide hover:text-purple-700 dark:hover:text-yellow-500'
-      "
+          : 'text-green-800 dark:text-yellow-600 hover:tracking-wide hover:text-purple-700 dark:hover:text-yellow-500',
+        disablePageButton(page.nav) ? 'cursor-not-allowed' : '',
+      ]"
       class="transition-text text-sm font-medium focus:outline-none tracking-normal dark:btn-dark-transparent"
     >
       {{ page.text }}
     </button>
-    <!-- TODO: display page numbers inbetween text nav, like 'prev page' 1 2 3 4 'next page' etc -->
   </div>
 </template>
 
