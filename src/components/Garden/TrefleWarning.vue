@@ -1,7 +1,9 @@
 <template>
-  <div v-if="showWarning" class="w-1/2 mx-auto border-1 p-3">
+  <div v-if="showWarning" class="w-3/4 mx-auto border-1 p-3">
     <h1>Important</h1>
-    <p>{{ mainMessage }}</p>
+    <p>
+      <strong>{{ strong }}</strong> {{ mainMessage }}
+    </p>
     <p class="mt-1">
       {{ widget == "active-plant" ? activePlantMessage : searchMessage }}
     </p>
@@ -24,8 +26,10 @@ export default class TrefleWarning extends Vue {
   @Prop({ required: true }) widget!: "active-plant" | "search"
   public showWarning = true
 
+  public strong =
+    "Unfortunately, the Trefle API has been discontinued as of May 3, 2021."
   public mainMessage =
-    "Unfortunately, the Trefle API has been discontinued as of May 3, 2021. The only data returned here is from sample data grabbed from the Trefle docs. If/when it comes back or is re-hosted, this will be updated."
+    "The only data returned here is from sample data grabbed from the Trefle docs. If/when it comes back or is re-hosted, this will be updated."
 
   public activePlantMessage =
     "The data in this box will remain the same no matter what plant is selected. In the past, this window updated by querying Trefle with the selected plant's id."

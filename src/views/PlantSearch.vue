@@ -1,5 +1,8 @@
 <template>
-  <div id="plant-search" class="flex overflow-auto flex-grow flex-col gap-1">
+  <div
+    id="plant-search"
+    class="flex overflow-auto scrollbar-light dark:scrollbar-dark flex-grow flex-col gap-1"
+  >
     <search-bar class="p-4" />
     <div class="relative">
       <loading
