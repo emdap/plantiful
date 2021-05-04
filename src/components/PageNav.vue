@@ -3,13 +3,12 @@
     id="page-nav"
     :class="plantListLoading ? 'text-gray-300' : 'text-green-800'"
   >
-    <h3>Page {{ currentPage }} of {{ lastPage }}</h3>
     <button
       v-for="(page, index) in pageButtons"
       :key="`page-button-${index}`"
       :disabled="disablePageButton(page.nav)"
       @click="iteratePage(page.nav)"
-      class="text-sm"
+      class="transition-text text-sm font-medium focus:outline-none tracking-normal hover:tracking-wide hover:text-purple-700"
     >
       {{ page.text }}
     </button>

@@ -1,8 +1,16 @@
 <template>
   <div id="active-plant" class="p-4 flex-grow overflow-auto flex-col">
-    <span v-if="noActivePlant">
-      {{ noActivePlant }}
-    </span>
+    <loading
+      v-if="plantLoading"
+      class="mt-12"
+      :loadingText="gardenMessages.activePlant.loading"
+    />
+    <div
+      v-else-if="noActivePlant"
+      class="font-semibold flex items-center h-full"
+    >
+      <span>{{ noActivePlant }}</span>
+    </div>
     <template v-else>
       <!-- use properties under main_species when possible, has more consistent capitalization, especially for common_name -->
       <h1>{{ activePlant.main_species.common_name }}</h1>
@@ -11,19 +19,17 @@
       <img
         @load="mainImgLoaded = true"
         :src="activePlant.image_url"
-        class=" max-h-96 inline"
+        class="h-1/2 max-h-96 inline object-cover"
         :class="{ hidden: !mainImgLoaded }"
       />
-      <ul>
+      <ul class="mb-4">
         <li v-for="(info, index) in showFields" :key="`active-info-${index}`">
           <template v-if="info.value">
             <strong> {{ info.text }}: </strong> {{ info.value }}
           </template>
         </li>
       </ul>
-      <button class="btn-primary" @click="$emit('grow-plant', $event)">
-        Grow
-      </button>
+      <slot> </slot>
     </template>
   </div>
 </template>
@@ -33,7 +39,6 @@ import Component, { mixins } from "vue-class-component"
 import { Watch } from "vue-property-decorator"
 import GardenMixin from "@/mixins/GardenMixin.vue"
 import { ActivePlantInfo } from "@/store/interfaces"
-import messages from "@/fixtures/Messages"
 import Loading from "@/components/Loading.vue"
 
 @Component({
@@ -76,9 +81,9 @@ export default class ActivePlant extends GardenMixin {
   }
   public get noActivePlant() {
     if (!this.activePlant) {
-      return messages.activePlant.info
+      return this.gardenMessages.activePlant.info
     } else if (!this.activePlant?.main_species) {
-      return messages.activePlant.error
+      return this.gardenMessages.activePlant.error
     }
     return false
   }
@@ -89,5 +94,3 @@ export default class ActivePlant extends GardenMixin {
   }
 }
 </script>
-
-<style scoped></style>

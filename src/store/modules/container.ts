@@ -1,12 +1,8 @@
 import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
-import {
-  ContainerState,
-  WidgetEntity,
-  DefaultWidget,
-  WidgetStateOptionals
-} from "@/store/interfaces"
-import messages from "@/fixtures/Messages"
+import { ContainerState, WidgetEntity } from "@/store/interfaces"
+import { widgetMessages } from "@/fixtures/Messages"
 import store from "@/store"
+import Vue from "vue"
 
 @Module({
   dynamic: true,
@@ -16,13 +12,17 @@ import store from "@/store"
 })
 export default class ContainerModule extends VuexModule
   implements ContainerState {
-  widgets: WidgetEntity[] = []
+  widgets: { [key: string]: WidgetEntity } = {}
   activeWidget: WidgetEntity | null = null
+
+  public get widgetMessages() {
+    return widgetMessages
+  }
 
   @Action
   public registerWidget(widget: WidgetEntity) {
     if (!widget.name) {
-      throw console.error(messages.widget.registerError)
+      throw console.error(this.widgetMessages.registerError)
     }
     if (!this.getWidget(widget.name)) {
       this.REGISTER_WIDGET(widget)
@@ -41,9 +41,12 @@ export default class ContainerModule extends VuexModule
   public toggleWidget(widget: WidgetEntity) {
     if (widget) {
       this.TOGGLE_WIDGET(widget)
+      // reset to original docking for when next opened
+      if (!widget.open && widget.isDocked != widget.launchDocked) {
+        this.TOGGLE_DOCKED(widget)
+      }
       // this.SORT_WIDGETS()
     }
-    console.log("toggle widget", widget.name, widget.open)
   }
 
   @Action
@@ -65,14 +68,10 @@ export default class ContainerModule extends VuexModule
 
   @Mutation
   public REGISTER_WIDGET(widget: WidgetEntity) {
-    // assign defaults to empty properties
-    // move this to a function, or just do it from the components themselves
-    // for (const key of WidgetStateOptionals) {
-    //   if (widget[key] == undefined) {
-    //     widget[key] = DefaultWidget[key]
-    //   }
-    // }
-    this.widgets.push(widget as WidgetEntity)
+    Vue.set(this.widgets, widget.name, widget)
+    if (widget.isDocked == undefined) {
+      Vue.set(widget, "isDocked", widget.launchDocked)
+    }
   }
 
   @Mutation
@@ -82,7 +81,7 @@ export default class ContainerModule extends VuexModule
 
   @Mutation
   public TOGGLE_DOCKED(widget: WidgetEntity) {
-    widget.docked = !widget.docked
+    widget.isDocked = !widget.isDocked
   }
 
   // TODO: modify widget positioning based on order, draggable to change order
@@ -105,10 +104,8 @@ export default class ContainerModule extends VuexModule
   // }
 
   public get getWidget() {
-    return (name: string): WidgetEntity | undefined => {
-      return this.widgets.find(w => {
-        return w.name == name
-      })
+    return (name: string): WidgetEntity => {
+      return this.widgets[name]
     }
   }
 }

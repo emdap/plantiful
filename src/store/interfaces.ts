@@ -1,4 +1,4 @@
-import Vue from "vue"
+// TODO: separate into diff files, understand more about typescript interfaces/types best practices and standardize
 
 // States/stores
 export interface RootState {
@@ -21,15 +21,44 @@ export interface GardenState {
   }
 }
 
-export interface GrowState {
-  entities: GrowEntity[]
-  activeEntity: GrowEntity | null
-  showControls: boolean
-  hasKeyListeners: boolean
+export interface ContainerState {
+  widgets: {
+    [key: string]: WidgetEntity
+  }
 }
 
-export interface ContainerState {
-  widgets: WidgetEntity[]
+export type GrowType =
+  | GrowPlant
+  | GrowBranch
+  | GrowLeafCluster
+  | GrowLeaf
+  | GrowFlower
+  | GrowPetal
+export type GrowDataKey =
+  | "plants"
+  | "branches"
+  | "leafClusters"
+  | "leaves"
+  | "flowers"
+  | "petals"
+
+export type GrowData<Type> = {
+  [key: number]: Type
+}
+
+export interface GrowState {
+  plants: GrowData<GrowPlant>
+  branches: GrowData<GrowBranch>
+  leafClusters: GrowData<GrowLeafCluster>
+  leaves: GrowData<GrowLeaf>
+  flowers: GrowData<GrowFlower>
+  petals: GrowData<GrowPetal>
+  activeGrowPlant: GrowPlant | null
+  activeEntity: GrowEntity | null
+  activeEntityType: GrowDataKey | null
+  growWindowActive: boolean
+  showControls: boolean
+  hasKeyListeners: boolean
 }
 
 // Plants
@@ -74,7 +103,14 @@ export interface ActivePlantInfo {
 }
 
 // Types
-export type LeafTexture = "fine" | "medium" | "coarse"
+export const LeafTextureValues = ["fine", "medium", "coarse"] as const
+export type LeafTexture = typeof LeafTextureValues[number]
+export const PlantOrientationValues = [
+  "erect",
+  "semi-erect",
+  "decumbent"
+] as const
+export type PlantOrientation = typeof PlantOrientationValues[number]
 
 // API responses
 export interface PlantListResponse {
@@ -134,7 +170,7 @@ export interface InteractableBasis {
   tabIndex?: number
 }
 
-export interface Rotation {
+export type Rotation = {
   x: number
   y: number
   z: number
@@ -152,19 +188,64 @@ export type Positions = RequiredPositions | "right" | "bottom"
 // Grow
 export interface GrowBasis extends InteractableBasis {
   rotation: Rotation
-  position: GrowPosition
+  position: Position
   height: number
   width: number
+  zIndex: number
 }
 
-export interface GrowEntity extends GrowBasis {
+export interface GrowEntity<OptionsType = {}> extends GrowBasis {
+  id: number
+  optionsReference: OptionsType
+}
+
+export interface GrowPlant extends GrowEntity<PlantOptions> {
   name: string
-  id: string // plant id - instance of plant id
   plantId: number
+  showName: boolean
+  leafClusters: number[]
+  flowers: number[]
+  branches: number[]
+}
+
+export interface GrowCluster<T> extends GrowEntity<T> {
+  offSet: GrowOffSet
+  order: number
+}
+
+export interface GrowLeafCluster extends GrowCluster<LeafClusterOptions> {
+  leaves: number[]
+}
+
+export interface GrowFlower extends GrowCluster<FlowerOptions> {
+  color: string
+  petals: number[]
+}
+
+export interface GrowLeaf extends GrowEntity<LeafOptions> {
   shapes: GrowShape[]
-  // startX: number | null
-  // startY: number | null
-  // trackRotation: boolean
+  order: number
+}
+
+export interface GrowPetal extends GrowEntity<PetalOptions> {
+  shapes: GrowShape[]
+  order: number
+}
+
+export interface GrowBranch extends GrowEntity<BranchOptions> {
+  id: number
+  offSet: GrowOffSet
+  startPoint: Position
+  endPoint: Position
+  hasLeaf: boolean
+  hasFlower: boolean
+  // the height/width of the rotated branch
+  // normal height/width properties are the actual size of the containing rectangle
+  branchHeight: number
+  branchWidth: number
+  branchPosition: Position
+  order: number
+  optionsReference: BranchOptions
 }
 
 export interface GrowShape extends GrowBasis {
@@ -173,8 +254,94 @@ export interface GrowShape extends GrowBasis {
   opacity?: number
 }
 
-export type GrowPosition = {
-  [key in Positions]?: number
+export type BranchOutGlobals = {
+  branches: GrowBranch[]
+  clustersWithLeaves: { leafCluster: GrowLeafCluster; leaves: GrowLeaf[] }[]
+  flowersWithPetals: { flower: GrowFlower; petals: GrowPetal[] }[]
+  plantOptions: PlantOptions
+  // leafClusterOptions: LeafClusterOptions
+}
+
+export type BranchOutOptions = {
+  order: number
+  zIndex: number
+  heightLeft: number
+  widthLeft: number
+}
+
+export type GrowEntitySnippet = {
+  [key in GrowControlKeys]?: GrowType[keyof GrowType] | GrowShape[] | number[]
+}
+
+export type GrowOptionsSnippet = {
+  [key in GrowOptionsControlKeys]?:
+    | string
+    | number
+    | number[]
+    | string[]
+    | Position
+}
+
+export interface PetalOptions {
+  color: string
+  width: number
+  height: number
+  rotation: Rotation
+}
+
+export interface LeafOptions {
+  color: string
+  topHeight: number
+  bottomHeight: number
+  width: number
+  rotation: Rotation
+}
+
+export interface ClusterOptions {
+  colors: string[]
+  spacing: number
+  sides: number
+  area: number
+}
+
+export interface LeafClusterOptions extends ClusterOptions {
+  texture: LeafTexture
+  // custom?: LeafOptions
+}
+
+export interface FlowerOptions extends ClusterOptions {
+  centerColor: string
+}
+
+export interface BranchOptions {
+  startPoint: Position
+  branchHeight: number
+  branchWidth: number
+  angle: number
+  growthHeight: number
+  // hasLeaf: boolean
+  // hasFlower: boolean
+  // zIndex: number
+}
+
+export interface PlantOptions {
+  height: number
+  spread: number
+  flowerColors: string[]
+  leafColors: string[]
+  orientation: string
+  leafTexture: LeafTexture
+  leafDensity: number // not in API that i know of
+}
+
+export interface GrowOffSet {
+  top: number
+  left: number
+}
+
+export type Position = {
+  x: number
+  y: number
 }
 
 export interface BorderAttribute {
@@ -184,19 +351,106 @@ export interface BorderAttribute {
 
 export interface GrowBorder {
   top?: BorderAttribute
-  right?: BorderAttribute
+  right: BorderAttribute
   bottom?: BorderAttribute
-  left?: BorderAttribute
+  left: BorderAttribute
 }
+
+export interface TopGrowBorder extends GrowBorder {
+  bottom: BorderAttribute
+}
+
+export interface GrowPlantReturn {
+  branches: GrowBranch[]
+  clustersWithLeaves: {
+    leafCluster: GrowLeafCluster
+    leaves: GrowLeaf[]
+  }[]
+  flowersWithPetals: {
+    flower: GrowFlower
+    petals: GrowPetal[]
+  }[]
+  plant:
+    | GrowPlant
+    | { height: number; width: number; optionsReference: PlantOptions }
+}
+
+// Controls
+export const ControlInputTypes = ["number", "color-list", "color"] as const
+
+export type GrowControlKeys =
+  | keyof GrowPlant
+  | keyof GrowBranch
+  | keyof GrowLeafCluster
+  | keyof GrowFlower
+export type GrowOptionsControlKeys =
+  | keyof PlantOptions
+  | keyof BranchOptions
+  | keyof LeafClusterOptions
+  | keyof LeafOptions
+  | keyof FlowerOptions
+  | keyof PetalOptions
+
+export type GrowOptionsType =
+  | PlantOptions
+  | LeafOptions
+  | LeafClusterOptions
+  | BranchOptions
+export type PossibleNestedControl =
+  | Rotation
+  | Position
+  | (Rotation & Position)
+  | {}
+
+type ControlBase<Type> = {
+  property: keyof Type
+  text: string
+  verify?: VerifyBounds
+}
+
+export type VerifyBounds = {
+  lowerBound: number
+  upperBound: number
+}
+
+export interface Control<Type> extends ControlBase<Type> {
+  dataType: typeof ControlInputTypes[number]
+}
+
+export interface DropdownControl<Type> extends ControlBase<Type> {
+  dataType: "dropdown"
+  options: readonly string[] | readonly number[]
+}
+
+const plant = {} as GrowPlant
+type test = keyof typeof plant.rotation
+
+export type NestedControl<Parent, Child> = {
+  property: keyof Parent
+  text: string
+  children: Control<Child>[]
+}
+
+// type ControlTypes = GrowPlant | GrowBranch | GrowLeafCluster | PlantOptions | LeafOptions
+
+export type AnyControl<Parent, Child> =
+  | Control<Parent>
+  | DropdownControl<Parent>
+  | NestedControl<Parent, Child>
+
+export type ControlList<Parent, Child = {}> = AnyControl<Parent, Child>[]
 
 // Widgets
 export interface WidgetEntity {
   name: string
+  text: string
+  order: number // higher order = higher z index
   icon?: string
-  order?: number
   open: boolean
-  docked: boolean
+  isDocked?: boolean
+  launchDocked: boolean
   inMenu: boolean
+  display: WidgetDisplay
 }
 
 // these are used to style the widget. Leave blank = that attribute is not styled
@@ -211,19 +465,21 @@ export interface WidgetDisplay {
   minWidth?: number
 }
 
-export interface WidgetInit {
-  entity: WidgetEntity
-  display: WidgetDisplay
-}
+// export interface WidgetInit {
+//   entity: WidgetEntity
+//   display: WidgetDisplay
+// }
 
 export type WidgetPosition = {
   [key in RequiredPositions]: number | string
 }
 
+// widget info that is NOT stored in state, modified directly from Widget.vue
 export interface WidgetBasis extends InteractableBasis {
   position: WidgetPosition
   height: number | string | undefined
   width: number | string | undefined
+  zIndex: number
 }
 
 // Constants & types

@@ -7,19 +7,16 @@ import GrowModule from "@/store/modules/grow"
 import { container } from "@/mixins/ContainerMixin.vue"
 import {
   GrowBasis,
-  GrowEntity,
-  GrowPosition,
+  GrowPlant,
+  Position,
   GrowShape,
   Plant,
-  RequiredPositions,
-  Rotation
+  Rotation,
+  GrowData,
+  GrowType,
+  GrowDataKey
 } from "@/store/interfaces"
-// temp
-import {
-  triangleBasis,
-  triangleBorder,
-  entityInit
-} from "@/fixtures/Grow/Defaults"
+import { createPlant } from "@/services/growPlants"
 
 export const grow = getModule(GrowModule)
 
@@ -31,6 +28,9 @@ export default class GrowMixin extends Vue {
   private startX: number | null = null
   public trackMouse = false
 
+  public highlightBg = "pink-700"
+  public highlightDuration = 1000
+
   public mounted() {
     if (!grow.hasKeyListeners) {
       window.addEventListener("keydown", this.keyDown)
@@ -41,15 +41,45 @@ export default class GrowMixin extends Vue {
     }
   }
 
-  public get entities(): GrowEntity[] {
-    return grow.entities
+  public get growPlants(): GrowData<GrowPlant> {
+    return grow.plants
   }
 
-  public get activeEntity(): GrowEntity | null {
+  public get activeGrowPlant(): GrowPlant | null {
+    return grow.activeGrowPlant
+  }
+
+  public get activeEntity(): GrowType | null {
     return grow.activeEntity
   }
 
-  public growPlant(basePlant: Plant) {
+  public get activeEntityType(): string | null {
+    return grow.activeEntityType
+  }
+
+  public get getEntity() {
+    return grow.getEntity
+  }
+
+  public get showControls() {
+    return grow.showControls
+  }
+
+  public get hasGrowPlants() {
+    return Object.entries(grow.plants).length != 0
+  }
+
+  public activateEntity(
+    plantActive: boolean,
+    dataKey: GrowDataKey,
+    id: number
+  ) {
+    if (plantActive) {
+      grow.setActiveEntity({ id, dataKey })
+    }
+  }
+
+  public async growPlant(basePlant: Plant) {
     const growWidget = container.getWidget("grow")
     if (!growWidget) {
       // TODO: proper error
@@ -59,36 +89,36 @@ export default class GrowMixin extends Vue {
       container.toggleWidget(growWidget)
     }
 
-    // TEMP to demo
-    // future - get leaf fixture, branch fixture, growTree function to get final entity
-    // TODO: add fixture for leaf shapes depending on plant properties
-    const colorList = basePlant.main_species.foliage.color
-    const color = colorList ? colorList[0] : "green"
-    const shapes: GrowShape[] = [
-      {
-        color,
-        border: triangleBorder,
-        ...triangleBasis
-      }
-    ]
-    const plantEntityCount = grow.countPlantEntities(basePlant.id)
-    const entity: GrowEntity = {
-      name: basePlant.main_species.common_name,
-      plantId: basePlant.id,
-      id: `${basePlant.id}-${plantEntityCount}`,
-      // trackMouse: false,
-      // startX: null,
-      // startY: null,
-      shapes,
-      ...entityInit // default rotation/position/size,
+    // widget element might not be positioned/styled yet, use defaults if so
+    const growWidgetEl = document.getElementById("grow-widget") as HTMLElement
+    const growWidgetElWidth =
+      growWidgetEl.getBoundingClientRect().width == 0
+        ? (growWidget.display.minWidth as number)
+        : growWidgetEl.getBoundingClientRect().width
+    const growWidgetElHeight =
+      growWidgetEl.getBoundingClientRect().height == 0
+        ? (growWidget.display.minHeight as number)
+        : growWidgetEl.getBoundingClientRect().height
+
+    const position: Position = {
+      x: growWidgetElWidth / 2,
+      y: growWidgetElHeight / 2
     }
-    grow.addEntity(entity)
-    grow.setActiveEntity(entity)
+
+    const plant = await grow.growPlant({
+      basePlant,
+      position
+    })
+
+    grow.addPlant(plant)
+    grow.setActivePlant(plant.id)
+
+    return plant
   }
 
   public get styleObj() {
     // convert entity attributes to CSS style properties
-    return (growData: GrowShape | GrowBasis) => {
+    return (growData: GrowBasis | GrowShape, posBottom = false) => {
       const transitionSpeed = growData.transitionSpeed
         ? growData.transitionSpeed
         : 0
@@ -104,12 +134,20 @@ export default class GrowMixin extends Vue {
           borders[`border-${key}`] = `${currentBorder.size}px solid ${color}`
         }
       }
+
+      const yPos = {
+        top: "",
+        bottom: ""
+      }
+      if (posBottom) {
+        yPos.bottom = growData.position.y + "px"
+      } else {
+        yPos.top = growData.position.y + "px"
+      }
       return {
         transform: `rotateX(${growData.rotation.x}deg) rotateY(${growData.rotation.y}deg) rotateZ(${growData.rotation.z}deg) translateZ(${growData.rotation.translate}px)`,
-        top: growData.position?.top + "px",
-        right: growData.position?.right + "px",
-        bottom: growData.position?.bottom + "px",
-        left: growData.position?.left + "px",
+        ...yPos,
+        left: growData.position.x + "px",
         height: growData.height + "px",
         width: growData.width + "px",
         transition: `all ${transitionSpeed}s`,
@@ -119,6 +157,12 @@ export default class GrowMixin extends Vue {
         opacity,
         ...borders
       }
+    }
+  }
+
+  public get backgroundClass() {
+    return (defaultBg: string, highlight: boolean) => {
+      return "bg-" + (highlight ? this.highlightBg : defaultBg)
     }
   }
 
@@ -134,23 +178,25 @@ export default class GrowMixin extends Vue {
 
   public updateEntity(e: MouseEvent) {
     e.preventDefault()
-    if (!grow.activeEntity) {
+    if (!grow.activeEntity || grow.activeEntityType != "plants") {
+      console.log("mouse controls for plants only (TODO)")
       return
     }
+
+    const entity = grow.activeEntity
 
     if (this.startX == null || this.startY == null) {
       this.startX = e.pageX
       this.startY = e.pageY
-      return
     }
 
     // update rotation
     if (this.ctrlDown || this.shiftDown) {
       const newRotations: Rotation = {
-        x: grow.activeEntity.rotation.x,
-        y: grow.activeEntity.rotation.y,
-        z: grow.activeEntity.rotation.z,
-        translate: grow.activeEntity.rotation.translate
+        x: entity.rotation.x,
+        y: entity.rotation.y,
+        z: entity.rotation.z,
+        translate: entity.rotation.translate
       }
 
       if (this.ctrlDown && this.shiftDown) {
@@ -162,36 +208,28 @@ export default class GrowMixin extends Vue {
         newRotations.x += e.pageY - this.startY
         newRotations.y += e.pageX - this.startX
       }
-      grow.setRotation(newRotations)
+      grow.setRotation({
+        id: entity.id,
+        dataKey: "plants",
+        newRotations
+      })
     } else {
       // update position
-      const newPosition: GrowPosition = {
-        top: 0,
-        left: 0
+      const currentTop = entity.position.y
+      const currentLeft = entity.position.x
+      const newPositions: Position = {
+        y: currentTop + e.pageY - this.startY,
+        x: currentLeft + e.pageX - this.startX
       }
-      let currentTop = 0,
-        currentLeft = 0
-      const activeElem = document.getElementById(grow.activeEntity.id)
-      if (grow.activeEntity.position.top) {
-        currentTop = grow.activeEntity.position.top
-      } else {
-        currentTop = activeElem ? activeElem.offsetTop : 0
-      }
-      if (grow.activeEntity.position.left) {
-        currentLeft = grow.activeEntity.position.left
-      } else {
-        currentLeft = activeElem ? activeElem.offsetLeft : 0
-      }
-      newPosition.top = currentTop + e.pageY - this.startY
-      newPosition.left = currentLeft + e.pageX - this.startX
-      grow.setPosition(newPosition)
+
+      grow.setPosition({ id: entity.id, dataKey: "plants", newPositions })
     }
     this.startY = e.pageY
     this.startX = e.pageX
   }
 
   public mouseDown(e: MouseEvent) {
-    if (grow.activeEntity) {
+    if (grow.activeEntity && grow.growWindowActive) {
       e.preventDefault()
       this.trackMouse = true
     }
@@ -208,7 +246,7 @@ export default class GrowMixin extends Vue {
     if (!this.activeEntity) {
       return
     } else if (e.key == "Escape") {
-      grow.removeActiveEntity()
+      grow.removeActivePlant()
       return
     }
     if (!this.ctrlDown && e.ctrlKey) {

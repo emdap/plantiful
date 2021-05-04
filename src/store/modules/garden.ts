@@ -29,7 +29,6 @@ export default class GardenModule extends VuexModule implements GardenState {
     plantList: false,
     plant: false
   }
-  // TODO: submitted issue - Trefle docs say 30 results per page, but really there's only 20..?
   readonly resultsPerPage: number = 20
 
   @Action

@@ -2,11 +2,11 @@
   <div id="search-bar" class="shadow-sm flex  mb-2">
     <input
       id="search-input"
-      class="p-2 flex-grow text-center"
+      class="p-2 flex-grow text-left"
       type="text"
       v-model="searchQuery"
-      :placeholder="messages.searchBar.placeholder"
-      :title="messages.searchBar.placeholder"
+      :placeholder="gardenMessages.searchBar.placeholder"
+      :title="gardenMessages.searchBar.placeholder"
       @keyup.enter="plantSearch()"
     />
     <button
@@ -29,7 +29,6 @@ import {
   PlantListPayload
 } from "@/store/interfaces"
 import GardenMixin, { garden } from "@/mixins/GardenMixin.vue"
-import messages from "@/fixtures/Messages"
 
 @Component({})
 export default class SearchBar extends GardenMixin {
@@ -61,9 +60,6 @@ export default class SearchBar extends GardenMixin {
     this.searchUpdated = true
   }
 
-  public get messages() {
-    return messages
-  }
   // filters
   public addFilterParam(apiKey: string, value: string, include: boolean) {
     const filterType = include ? "filter" : "filter_not"
@@ -91,5 +87,3 @@ export default class SearchBar extends GardenMixin {
   }
 }
 </script>
-
-<style scoped></style>

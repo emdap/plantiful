@@ -1,51 +1,60 @@
 <template>
-  <div id="grow-container" class="flex flex-grow h-full overflow-hidden">
-    <widget
-      :initWidgetState="growWidget.entity"
-      :initDisplay="growWidget.display"
-    >
-      <entity
-        v-for="entity in entities"
-        :key="`entity-${entity.id}`"
-        :entityData="entity"
-      />
+  <div
+    id="grow-container"
+    class="px-2 flex flex-grow gap-1 h-full overflow-y-hidden flex-col md:flex-row"
+  >
+    <widget :widgetData="growWidget">
+      <span v-if="!hasGrowPlants" class="text-gray-500 font-semibold mt-10">
+        Open up the search to find & grow plants!
+        <button
+          class="btn-primary my-4 mx-auto block"
+          @click="$emit('search-plants')"
+        >
+          Start Searching
+        </button>
+      </span>
+      <div
+        id="plant-wrapper"
+        class="h-full w-full"
+        @mousedown="activateWindow(true)"
+        @mouseup="activateWindow(false)"
+        @dblclick.self="removeActive()"
+      >
+        <plant v-for="plant in growPlants" :key="plant.id" :plantData="plant" />
+      </div>
+    </widget>
+    <widget :widgetData="controlsWidget">
+      <controls />
     </widget>
   </div>
 </template>
 
 <script lang="ts">
 import Component from "vue-class-component"
-import GrowMixin from "@/mixins/GrowMixin.vue"
-import Entity from "@/components/Grow/Entity.vue"
+import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
+import Plant from "@/components/Grow/Plant.vue"
+import Controls from "@/views/Controls.vue"
 import Widget from "@/components/Widget.vue"
-import { WidgetInit } from "@/store/interfaces"
-import PlantIcon from "@/assets/icons/plant.svg"
-// temp
-import { testPlant } from "@/fixtures/Grow/Defaults"
+import { WidgetEntity } from "@/store/interfaces"
+import { Prop } from "vue-property-decorator"
 
 @Component({
   components: {
     Widget,
-    Entity
+    Plant,
+    Controls
   }
 })
 export default class Grow extends GrowMixin {
-  public growWidget: WidgetInit = {
-    entity: {
-      name: "grow",
-      icon: PlantIcon,
-      open: false,
-      docked: true,
-      inMenu: true
-    },
-    display: {
-      flexGrow: true
-    }
+  @Prop({ required: true }) growWidget!: WidgetEntity
+  @Prop({ required: true }) controlsWidget!: WidgetEntity
+
+  public removeActive() {
+    grow.removeActivePlant()
   }
 
-  public mounted() {
-    // temp
-    this.growPlant(testPlant)
+  public activateWindow(activate: boolean) {
+    grow.setGrowWindowActive(activate)
   }
 }
 </script>

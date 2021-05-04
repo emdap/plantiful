@@ -1,43 +1,56 @@
 <template>
   <div
-    :id="`${widgetState.name}-widget`"
-    class="widget flex p-2 bg-white outline-green"
+    :id="`${widgetData.name}-widget`"
+    class="widget flex p-2 bg-white outline-none"
     :style="styleObj"
     :class="classObj"
     tabindex="1"
     @focus="inFocus = true"
     @blur="inFocus = false"
   >
-    <div v-if="!error" class="flex flex-grow flex-col overflow-auto">
-      <div class="flex flex-row mb-1 sticky left-0">
-        <docked-icon
-          class="cursor-pointer mr-3"
-          v-if="widgetState.docked"
-          @click="dockWidget()"
-          style="fill: purple"
-        />
-        <not-docked-icon
-          class="cursor-pointer mr-3"
-          v-else
-          @click="dockWidget()"
-          style="fill: gray"
-        />
-        <move-icon
-          class="cursor-pointer"
-          @mousedown="trackPosition = true"
-          :style="{ fill: trackPosition ? 'green' : 'gray' }"
-        />
-        <close-icon class="ml-auto cursor-pointer" @click="closeWidget()" />
-      </div>
+    <main class="flex flex-grow flex-col overflow-auto">
+      <nav
+        class="flex flex-row h-8 items-center whitespace-nowrap mb-1 sticky left-0 w-full text-gray-500"
+      >
+        <nav class="flex w-1/2 gap-3">
+          <docked-icon
+            class="cursor-pointer fill-current text-pink-800 hover:text-green-600"
+            v-if="widgetData.isDocked"
+            @click="dockWidget()"
+          />
+          <not-docked-icon
+            class="cursor-pointer fill-current hover:text-green-600"
+            v-else
+            @click="dockWidget()"
+          />
+          <move-icon
+            class="cursor-pointer fill-current hover:text-green-600"
+            :class="{ 'text-green-600': trackPosition }"
+            @mousedown="trackPosition = true"
+          />
+        </nav>
+        <header
+          class="flex flex-grow font-semibold items-center justify-center px-3"
+        >
+          {{ widgetData.text }}
+          <h2></h2>
+        </header>
+        <nav class="flex w-1/2 justify-end">
+          <close-icon
+            class="cursor-pointer fill-current hover:text-pink-800"
+            @click="closeWidget()"
+          />
+        </nav>
+      </nav>
       <slot></slot>
-      <div class="mt-auto sticky left-0">
+      <footer class="mt-auto sticky left-0 text-gray-500">
         <resize-icon
-          class="resize-widget mt-1 cursor-pointer ml-auto"
-          :style="{ fill: trackSize ? 'green' : 'gray' }"
+          class="resize-widget mt-1 cursor-pointer ml-auto fill-current hover:text-green-600"
+          :class="{ 'text-green-600': trackSize }"
           @mousedown="trackSize = true"
         />
-      </div>
-    </div>
+      </footer>
+    </main>
   </div>
 </template>
 
@@ -46,20 +59,16 @@ import {
   WidgetBasis,
   WidgetEntity,
   Positions,
-  Dimensions,
-  WidgetDisplay,
-  DefaultWidget
+  Dimensions
 } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 import ContainerMixin, { container } from "@/mixins/ContainerMixin.vue"
 import Component from "vue-class-component"
-import messages from "@/fixtures/Messages"
 import CloseIcon from "@/assets/icons/close.svg"
 import DockedIcon from "@/assets/icons/docked.svg"
 import NotDockedIcon from "@/assets/icons/not-docked.svg"
 import MoveIcon from "@/assets/icons/move.svg"
 import ResizeIcon from "@/assets/icons/resize.svg"
-import { grow } from "@/mixins/GrowMixin.vue"
 
 @Component({
   components: {
@@ -70,15 +79,8 @@ import { grow } from "@/mixins/GrowMixin.vue"
     ResizeIcon
   }
 })
-// TODO: add some info/instructions for all these props and their effects
 export default class Widget extends ContainerMixin {
-  @Prop() initWidgetState!: WidgetEntity // required
-  @Prop({
-    default() {
-      return {} as WidgetDisplay
-    }
-  })
-  initDisplay!: WidgetDisplay
+  @Prop({ required: true }) widgetData!: WidgetEntity
 
   public minHeight = 0
   public minWidth = 0
@@ -90,14 +92,10 @@ export default class Widget extends ContainerMixin {
   public sizeStartX: null | number = null
   public posStartY: null | number = null
   public posStartX: null | number = null
-  public initDocked: null | boolean = null
-  public error = false
-  // TODO: align this with entity
   public inFocus = false
 
   // initialize so that user-modifiable properties are reactive
   public styleAttributes: WidgetBasis = this.initStyle
-  public widgetState: WidgetEntity = this.initState
 
   public mounted() {
     this.initializeWidget()
@@ -106,52 +104,30 @@ export default class Widget extends ContainerMixin {
 
   // Initializers
   public initializeWidget() {
-    // register if not already
-    if (!this.getWidget(this.initWidgetState?.name)) {
-      if (this.initWidgetState) {
-        container.registerWidget(this.initWidgetState)
-      } else {
-        this.error = true
-        throw console.error(messages.widget.registerError)
-      }
-    }
-
-    // update widgetState to be what's in the container store
-    this.widgetState = this.getWidget(this.initWidgetState.name) as WidgetEntity
-
     // assign default values where needed from initDisplay/entity props
-    if (this.initDisplay.minHeight) {
-      this.minHeight = this.initDisplay.minHeight
+    if (this.widgetData.display.minHeight) {
+      this.minHeight = this.widgetData.display.minHeight
     }
-    if (this.initDisplay.minWidth) {
-      this.minWidth = this.initDisplay.minWidth
+    if (this.widgetData.display.minWidth) {
+      this.minWidth = this.widgetData.display.minWidth
     }
-    if (this.initDisplay.flexGrow) {
-      this.flexGrow = this.initDisplay.flexGrow
+    if (this.widgetData.display.flexGrow) {
+      this.flexGrow = this.widgetData.display.flexGrow
     }
-    if (this.initDisplay.showOverflow) {
-      this.showOverflow = this.initDisplay.showOverflow
+    if (this.widgetData.display.showOverflow) {
+      this.showOverflow = this.widgetData.display.showOverflow
     }
-
-    // track if it should launch docked, for when user closes/opens
-    this.initDocked = this.widgetState.docked
   }
 
   public get initStyle(): WidgetBasis {
     return {
       position: {
-        top: this.convertSize(this.initDisplay.top),
-        left: this.convertSize(this.initDisplay.left)
+        top: this.convertSize(this.widgetData.display.top),
+        left: this.convertSize(this.widgetData.display.left)
       },
-      height: this.convertSize(this.initDisplay.height, "height"),
-      width: this.convertSize(this.initDisplay.width, "width")
-    }
-  }
-
-  public get initState(): WidgetEntity {
-    return {
-      name: "",
-      ...DefaultWidget
+      height: this.convertSize(this.widgetData.display.height, "height"),
+      width: this.convertSize(this.widgetData.display.width, "width"),
+      zIndex: this.widgetData.order * 10
     }
   }
 
@@ -170,6 +146,7 @@ export default class Widget extends ContainerMixin {
   }
 
   // Utilities
+
   public convertSize(
     convertValue: string | number | undefined,
     dimension: Dimensions | undefined = undefined
@@ -191,6 +168,10 @@ export default class Widget extends ContainerMixin {
 
   public setToCurrent(which: "size" | "position") {
     // set properties to the current actual values of the element in the DOM
+    if (!this.inDOM()) {
+      // all properties are 0, likely isn't rendered in DOM fully yet
+      return
+    }
     if (which == "size") {
       this.styleAttributes.width = this.getCurrent("width")
       this.styleAttributes.height = this.getCurrent("height")
@@ -198,8 +179,28 @@ export default class Widget extends ContainerMixin {
     if (which == "position") {
       this.styleAttributes.position.top = this.getCurrent("top")
       this.styleAttributes.position.left = this.getCurrent("left")
-      console.log(this.styleAttributes.position.left)
     }
+  }
+
+  public inDOM() {
+    // getBoundingClientRect doesn't return a proper object
+    const {
+      top,
+      right,
+      bottom,
+      left,
+      width,
+      height,
+      x,
+      y
+    } = this.$el.getBoundingClientRect()
+    const rec = { top, right, bottom, left, width, height, x, y }
+    for (const value of Object.values(rec)) {
+      if (value != 0) {
+        return true
+      }
+    }
+    return false
   }
 
   public getCurrent(which: Positions | Dimensions): number {
@@ -225,7 +226,7 @@ export default class Widget extends ContainerMixin {
   }
 
   // Watchers
-  @Watch("widgetState.docked")
+  @Watch("widgetData.isDocked")
   dockChanged(docked: boolean) {
     if (!docked) {
       // update size/position so that won't snap when undocking
@@ -234,11 +235,17 @@ export default class Widget extends ContainerMixin {
     }
   }
 
+  @Watch("widgetData.open")
+  openChanged(open: boolean) {
+    // reset to defaults so that reverts when next opened
+    if (!open) {
+      this.styleAttributes = this.initStyle
+    }
+  }
+
   @Watch("trackSize")
   mouseUpdatesSize(track: boolean) {
     if (track) {
-      // don't want active grow window to move with any widgets
-      grow.removeActiveEntity()
       document.addEventListener("mousemove", this.updateSize)
     } else {
       this.sizeStartY = this.sizeStartX = null
@@ -249,11 +256,9 @@ export default class Widget extends ContainerMixin {
   @Watch("trackPosition")
   mouseUpdatesPosition(track: boolean) {
     if (track) {
-      if (this.widgetState.docked) {
-        container.toggleDocked(this.widgetState)
+      if (this.widgetData.isDocked) {
+        container.toggleDocked(this.widgetData)
       }
-      // don't want active grow window to move with any widgets
-      grow.removeActiveEntity()
       document.addEventListener("mousemove", this.updatePosition)
     } else {
       this.posStartY = this.posStartX = null
@@ -264,46 +269,44 @@ export default class Widget extends ContainerMixin {
   // Styling getters
   public get styleObj(): Record<string, string | number> {
     return {
-      top: this.widgetState.docked
+      top: this.widgetData.isDocked
         ? 0
         : this.convertSize(this.styleAttributes.position.top),
-      left: this.widgetState.docked
+      left: this.widgetData.isDocked
         ? 0
         : this.convertSize(this.styleAttributes.position.left),
       height: this.convertSize(this.styleAttributes.height, "height"),
       width: this.convertSize(this.styleAttributes.width, "width"),
-      position: this.widgetState.docked ? "relative" : "absolute"
+      position: this.widgetData.isDocked ? "relative" : "absolute",
+      "z-index":
+        this.inFocus && !this.widgetData.isDocked
+          ? 100
+          : this.styleAttributes.zIndex
     }
   }
 
   public get classObj(): Record<string, boolean> {
+    const isDocked =
+      this.widgetData.isDocked != undefined ? this.widgetData.isDocked : false
     return {
-      "flex-grow": this.flexGrow && this.widgetState.docked,
+      "flex-grow": this.flexGrow && isDocked,
       "overflow-hidden": !this.showOverflow,
       "overflow-auto": this.showOverflow,
-      "shadow-md": !this.widgetState.docked,
-      "shadow-sm": this.widgetState.docked,
-      "bg-opacity-95": !this.widgetState.docked,
-      "z-0": this.widgetState.docked && !this.inFocus,
-      "z-10": !this.widgetState.docked || this.inFocus,
-      hidden: !this.widgetState.open
+      "shadow-md": !isDocked,
+      "shadow-sm": isDocked,
+      "bg-opacity-95": !isDocked,
+      "outline-green": this.trackPosition || this.trackSize,
+      hidden: !this.widgetData.open
     }
   }
 
   // Toggles
   public closeWidget() {
-    if (this.widgetState.open) {
-      // reset to defaults for when it's next open
-      this.styleAttributes = this.initStyle
-      if (this.initDocked != this.widgetState.docked) {
-        container.toggleDocked(this.widgetState)
-      }
-    }
-    container.toggleWidget(this.widgetState)
+    container.toggleWidget(this.widgetData)
   }
 
   public dockWidget() {
-    container.toggleDocked(this.widgetState)
+    container.toggleDocked(this.widgetData)
   }
 
   // Functions to modify display
@@ -373,8 +376,9 @@ export default class Widget extends ContainerMixin {
       startingTop = this.styleAttributes.position.top
     }
 
+    // want to avoid going under side menu completely
     this.styleAttributes.position.left = Math.max(
-      0,
+      48,
       startingLeft + e.pageX - this.posStartX
     )
     this.styleAttributes.position.top = Math.max(

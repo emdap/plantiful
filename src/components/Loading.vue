@@ -1,7 +1,20 @@
 <template>
-  <div>
-    <!-- TODO: Add a pretty loader and get rid of ... -->
-    {{ loadingText }} ...
+  <div class="text-sm font-semibold text-green-700 bg-opacity-70 p-5">
+    <div class="lds-spinner">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <span class="bg-white ml-2">{{ loadingText }}</span>
   </div>
 </template>
 
@@ -16,4 +29,4 @@ export default class App extends Vue {
 }
 </script>
 
-<style scoped></style>
+<style src="../assets/styles/loadingSpinner.css"></style>

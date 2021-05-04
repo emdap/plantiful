@@ -3,11 +3,16 @@ import Vue from "vue"
 import Component from "vue-class-component"
 import { getModule } from "vuex-module-decorators"
 import GardenModule from "@/store/modules/garden"
+import { gardenMessages } from "@/fixtures/Messages"
 
 export const garden = getModule(GardenModule)
 
 @Component({})
 export default class GardenMixin extends Vue {
+  public get gardenMessages() {
+    return gardenMessages
+  }
+
   public get plantList() {
     return garden.plantList
   }
