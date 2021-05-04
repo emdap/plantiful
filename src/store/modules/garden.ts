@@ -8,9 +8,9 @@ import {
   PageLinks,
   PlantListPayload,
   GardenState,
-  PageLinkPayload,
+  // PageLinkPayload,
 } from "@/store/interfaces"
-import { listPlants, getPlant, getLink, searchPlants } from "@/services/plants"
+// import { listPlants, getPlant, getLink, searchPlants } from "@/services/plants"
 import { listSample, plantSample } from "@/fixtures/SampleResponses"
 
 @Module({
@@ -90,27 +90,28 @@ export default class GardenModule extends VuexModule implements GardenState {
     if (plant) this.SET_ACTIVE_PLANT(plant)
   }
 
-  @Action
-  async getPageByLink(payload: PageLinkPayload) {
-    const { page, apiLink } = payload
-    let pageData!: PlantListResponse
-    this.SET_LOADING({ which: "plantList", loading: true })
+  // no API :(
+  // @Action
+  // async getPageByLink(payload: PageLinkPayload) {
+  //   const { page, apiLink } = payload
+  //   let pageData!: PlantListResponse
+  //   this.SET_LOADING({ which: "plantList", loading: true })
 
-    if (this.pageCache[page]) {
-      pageData = this.pageCache[page]
-    } else {
-      try {
-        pageData = await getLink(apiLink)
-        this.CACHE_PAGE({ page, pageData })
-      } catch (error) {
-        this.API_ERROR(error)
-      }
-    }
-    if (pageData) {
-      this.PLANT_LIST_SUCCESS({ page, pageData })
-    }
-    this.SET_LOADING({ which: "plantList", loading: false })
-  }
+  //   if (this.pageCache[page]) {
+  //     pageData = this.pageCache[page]
+  //   } else {
+  //     try {
+  //       pageData = await getLink(apiLink)
+  //       this.CACHE_PAGE({ page, pageData })
+  //     } catch (error) {
+  //       this.API_ERROR(error)
+  //     }
+  //   }
+  //   if (pageData) {
+  //     this.PLANT_LIST_SUCCESS({ page, pageData })
+  //   }
+  //   this.SET_LOADING({ which: "plantList", loading: false })
+  // }
 
   @Mutation
   CACHE_PAGE(payload: { page: number; pageData: PlantListResponse }) {
