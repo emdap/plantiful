@@ -75,7 +75,7 @@
 </template>
 
 <script lang="ts">
-import { GridWidget, Position } from "@/store/interfaces"
+import { GridWidget, Position, Size } from "@/store/interfaces"
 import { Prop, Ref, Watch } from "vue-property-decorator"
 import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import Component from "vue-class-component"
@@ -130,11 +130,16 @@ export default class Widget extends GridMixin {
   }
 
   public setToCurrent() {
-    // TODO: consider changing this to reference zone instead
-    const { height, width, x, y } = this.getCurrentRect()
-    const newSize = {
-      height,
-      width,
+    let newSize!: Size
+    let newPosition!: Position
+    if (this.widgetData.docked && this.widgetData.currentZone) {
+      const zone = this.getZone(this.widgetData.currentZone)
+      newSize = zone.size
+      newPosition = zone.startPoint
+    } else {
+      const { height, width, x, y } = this.getCurrentRect()
+      newSize = { height, width }
+      newPosition = { x, y }
     }
     grid.setWidgetSize({
       widget: this.widgetData,
@@ -142,7 +147,7 @@ export default class Widget extends GridMixin {
     })
     grid.setWidgetPosition({
       name: this.widgetData.name,
-      newPosition: { x, y },
+      newPosition,
     })
   }
 
@@ -256,15 +261,16 @@ export default class Widget extends GridMixin {
   // Functions to modify display
   public updateWidgetSize(e: MouseEvent) {
     const el = this.$el as HTMLElement
-
     const newSize = this.updateSize(e, {
       minimum: {
         height: 100,
         width: 250,
       },
       maximum: {
-        height: this.gridSize.height - 8,
-        width: this.gridSize.width - el.offsetLeft + 40,
+        // -8 for padding
+        height: this.gridSize.height,
+        // +48 for sidemenu width, + 8 for padding
+        width: this.gridSize.width - el.offsetLeft + 56,
       },
       entity: this.widgetData,
     })

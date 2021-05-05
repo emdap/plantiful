@@ -51,11 +51,7 @@
 
 <script lang="ts">
 import Component from "vue-class-component"
-// import Vue from "vue"
-// import Plant from "@/components/Grow/Plant.vue"
 import GrowMixin from "@/mixins/GrowMixin.vue"
-// import { TEST_PLANT } from "@/fixtures/Grow/Defaults"
-// import { GrowPlant } from "@/store/interfaces"
 
 @Component({})
 export default class Welcome extends GrowMixin {}

@@ -1,5 +1,5 @@
 import { GridContainer } from "@/store/interfaces"
-import { INIT_CONTAINER } from "../Defaults"
+import { INIT_CONTAINER } from "@/fixtures/Grid/GridDefaults"
 
 const containers: GridContainer[] = [
   {

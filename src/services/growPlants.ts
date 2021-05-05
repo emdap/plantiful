@@ -3,9 +3,8 @@ import {
   DEFAULT_FLOWER_HEIGHT,
   DEFAULT_LEAF_CLUSTER_SPREAD,
   DEFAULT_LEAF_SIZE,
-  NO_POSITION,
-  NO_ROTATION,
-} from "@/fixtures/Defaults"
+} from "@/fixtures/Grow/GrowDefaults"
+import { NO_POSITION, NO_ROTATION } from "@/fixtures/Defaults"
 import {
   LeafTexture,
   LeafOptions,

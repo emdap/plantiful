@@ -12,8 +12,6 @@ import Vue from "vue"
 import { Position } from "vue-router/types/router"
 import util from "@/utilities/containerUtil"
 
-// TODO: possibly defunct functions marked with // D
-
 @Module({
   dynamic: true,
   namespaced: true,

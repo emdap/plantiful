@@ -108,7 +108,6 @@ export default class SideMenu extends Vue {
   public menuGroups = MenuGroups
   public darkMode = false
 
-  // TODO: this should be someone elses responsibility
   public mounted() {
     if (
       ("theme" in localStorage && localStorage.theme == "dark") ||

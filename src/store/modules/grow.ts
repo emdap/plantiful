@@ -26,7 +26,8 @@ import {
   GrowOptionsSnippet,
 } from "@/store/interfaces"
 import Vue from "vue"
-import { DEFAULT_LEAF_CLUSTER_SPREAD, NO_ROTATION } from "@/fixtures/Defaults"
+import { NO_ROTATION } from "@/fixtures/Defaults"
+import { DEFAULT_LEAF_CLUSTER_SPREAD } from "@/fixtures/Grow/GrowDefaults"
 import {
   createLeaf,
   createPlant,

@@ -1,6 +1,5 @@
 <template>
   <div :id="mainId" class="h-screen w-full flex overflow-auto">
-    <!-- using templates to make life easier when inspecting element // TODO: change back eventually? -->
     <template v-if="ready">
       <template v-for="(container, index) in containers">
         <div
@@ -42,7 +41,7 @@ import Container from "@/components/Grid/Container.vue"
 import Zone from "@/components/Grid/Zone.vue"
 import ThreeDotsIcon from "@/assets/icons/three-dots.svg"
 import util from "@/utilities/containerUtil"
-import { GrowPlant, Position, Size } from "@/store/interfaces"
+import { GrowPlant, Size } from "@/store/interfaces"
 import { TEST_PLANT } from "@/fixtures/Grow/TestPlant"
 import { NO_SIZE } from "@/fixtures/Defaults"
 

@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import GridMixin, { grid } from "@/mixins/GridMixin.vue"
+import GridMixin from "@/mixins/GridMixin.vue"
 import { GridAxes, GridContainer, GridZone } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 import Component from "vue-class-component"

@@ -29,7 +29,7 @@ import {
   Filter,
   FilterParams,
   FilterType,
-  PlantListPayload
+  PlantListPayload,
 } from "@/store/interfaces"
 import GardenMixin, { garden } from "@/mixins/GardenMixin.vue"
 
@@ -40,7 +40,7 @@ export default class SearchBar extends GardenMixin {
   public searchUpdated = true
 
   public mounted() {
-    // TODO: add an actual filter UI and make these optional
+    // [redacted: no API] TODO: add an actual filter UI and make these optional
     this.addFilterParam("flower_color", "null", false)
     this.addFilterParam("foliage_color", "null", false)
   }
@@ -52,7 +52,7 @@ export default class SearchBar extends GardenMixin {
         page: 1,
         filter: this.formatFilterParams(),
         query: this.searchQuery,
-        newSearch: true
+        newSearch: true,
       }
       garden.getPlantList(payload)
     }

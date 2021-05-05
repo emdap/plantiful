@@ -28,7 +28,7 @@
 import Component from "vue-class-component"
 import GridMixin, { grid } from "@/mixins/GridMixin.vue"
 import { Prop, Watch } from "vue-property-decorator"
-import { GridAxes, GridZone, Position, Size } from "@/store/interfaces"
+import { GridAxes, GridZone, Size } from "@/store/interfaces"
 import Widget from "@/components/Grid/Widget.vue"
 import { NO_SIZE } from "@/fixtures/Defaults"
 

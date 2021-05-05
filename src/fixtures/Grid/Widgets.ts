@@ -5,7 +5,7 @@ import ActivePlant from "@/components/Garden/ActivePlant.vue"
 import Grow from "@/views/Grow.vue"
 import Controls from "@/views/Controls.vue"
 import EntitySelect from "@/components/Grow/EntitySelect.vue"
-import { INIT_WIDGET, NO_POSITION } from "../Defaults"
+import { INIT_WIDGET } from "@/fixtures/Grid/GridDefaults"
 
 const widgets: GridWidget[] = [
   {

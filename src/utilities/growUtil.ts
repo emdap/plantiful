@@ -10,8 +10,8 @@ import {
 import {
   DEFAULT_PLANT_OPTIONS,
   DEFAULT_LEAF_SIZE,
-  NO_ROTATION,
-} from "@/fixtures/Defaults"
+} from "@/fixtures/Grow/GrowDefaults"
+import { NO_ROTATION } from "@/fixtures/Defaults"
 import colorConverter from "css-color-converter"
 
 function radians(angle: number): number {

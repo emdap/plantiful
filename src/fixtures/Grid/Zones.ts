@@ -1,5 +1,5 @@
 import { GridZone } from "@/store/interfaces"
-import { INIT_ZONE } from "../Defaults"
+import { INIT_ZONE } from "@/fixtures/Grid/GridDefaults"
 
 const zones: GridZone[] = [
   {

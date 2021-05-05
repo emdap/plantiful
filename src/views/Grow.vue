@@ -1,7 +1,6 @@
 <template>
   <div id="grow" class="h-full w-full overflow-hidden">
     <div v-if="!hasGrowPlants" class="font-semibold mt-10">
-      <!-- TODO: move to messages and maybe remove btton or make it focus -->
       {{ messages.openSearch }}
       <button
         class="btn-light dark:btn-dark my-4 mx-auto block"
@@ -29,8 +28,7 @@ import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import Plant from "@/components/Grow/Plant.vue"
 import Controls from "@/views/Controls.vue"
 import { Prop, Watch } from "vue-property-decorator"
-import { Position, Rotation, Size } from "@/store/interfaces"
-import { NO_SIZE } from "@/fixtures/Defaults"
+import { Position, Rotation } from "@/store/interfaces"
 
 @Component({
   components: {

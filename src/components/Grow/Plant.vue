@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { GrowPlant, Position } from "@/store/interfaces"
+import { GrowPlant } from "@/store/interfaces"
 import Component from "vue-class-component"
 import { Prop, Watch } from "vue-property-decorator"
 import Shape from "@/components/Grow/Shape.vue"
