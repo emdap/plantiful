@@ -11,11 +11,10 @@
           @mousedown="resizeContainers($event, index)"
         >
           <div
-            class="divider-line h-full opacity-10 transition-all border-l-0 border-pink-400 dark:border-yellow-400 border-dashed hover:border-l-2"
+            class="divider-line h-full opacity-30 transition-all border-l-0 border-pink-400 dark:border-yellow-400 border-dashed hover:border-l-2"
             :class="{ 'border-l-2': showDivider }"
           />
         </div>
-        <!-- class="container" -->
         <container
           :containerData="container"
           :containerIndex="index"

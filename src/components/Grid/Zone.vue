@@ -43,10 +43,21 @@ export default class Zone extends GridMixin {
   @Prop({ default: null }) containerId!: number
 
   public zoneSelected = false
+  public minSize = {
+    width: 50,
+    height: 50,
+  }
+  public maxSize = {
+    width: 0,
+    height: 0,
+  }
 
   public mounted() {
+    // on application launch, container takes 1 tick to record its own size
     this.$nextTick(() => {
       if (this.zoneData.id) {
+        this.maxSize.height = this.myContainer.size.height
+        this.maxSize.width = this.myContainer.size.width
         this.setDimsCurrent()
       }
     })
@@ -62,15 +73,16 @@ export default class Zone extends GridMixin {
     this.zoneSelected = false
   }
 
+  public calcRatio(size: Size) {
+    return {
+      height: size.height / this.maxSize.height,
+      width: size.width / this.maxSize.width,
+    }
+  }
+
   public setDimsCurrent(distribute = true) {
     const { width, height, x, y } = this.getCurrentRect()
-    let newRatio!: Size
-    if (this.myContainer.size.width && this.myContainer.size.height) {
-      newRatio = {
-        height: height / this.myContainer.size.height,
-        width: width / this.myContainer.size.width,
-      }
-    }
+    const newRatio = this.calcRatio({ height, width })
 
     grid.setZoneSize({
       zone: this.zoneData,
@@ -86,30 +98,21 @@ export default class Zone extends GridMixin {
   }
 
   public getOutsideDims(payload: { rows: boolean; columns: boolean }) {
-    const outside = {} as { rows: number[]; columns: number[] }
+    const outsideDims = {} as { rows: number[]; columns: number[] }
     for (const axis of GridAxes) {
       if (payload[axis]) {
-        outside[axis] = Object.keys(this.myContainer[axis])
+        outsideDims[axis] = Object.keys(this.myContainer[axis])
           .map(Number)
           .filter(dim => {
             return this.zoneData[axis].indexOf(dim) == -1
           })
       }
     }
-    return outside
+    return outsideDims
   }
 
   public newZoneSize(e: MouseEvent): Size {
     // applying mins/max to size after determining if size tracks mouse movement inverted or not
-    const minSize = {
-      width: 50,
-      height: 50,
-    }
-    const maxSize = {
-      width: this.myContainer.size.width,
-      height: this.myContainer.size.height,
-    }
-
     const newSize: Size = this.updateSize(e, {
       minimum: NO_SIZE(),
       maximum: { height: Infinity, width: Infinity },
@@ -132,10 +135,13 @@ export default class Zone extends GridMixin {
 
     return {
       height: Math.max(
-        minSize.height,
-        Math.min(maxSize.height, newSize.height)
+        this.minSize.height,
+        Math.min(this.maxSize.height, newSize.height)
       ),
-      width: Math.max(minSize.width, Math.min(maxSize.width, newSize.width)),
+      width: Math.max(
+        this.minSize.width,
+        Math.min(this.maxSize.width, newSize.width)
+      ),
     }
   }
 
@@ -143,12 +149,9 @@ export default class Zone extends GridMixin {
   public updateDims(e: MouseEvent) {
     const newSize = this.newZoneSize(e)
 
-    const newRatio = {
-      height: newSize.height / this.myContainer.size.height,
-      width: newSize.width / this.myContainer.size.width,
-    }
+    const newRatio = this.calcRatio(newSize)
 
-    // only distribute ratios to rows/cols if the related size changed
+    // only want to bother distributing ratios to rows/cols where the size has changed
     const insideDims = {
       rows:
         newSize.height != this.zoneData.size.height
@@ -164,11 +167,19 @@ export default class Zone extends GridMixin {
       columns: newSize.width != this.zoneData.size.width,
     })
 
+    // update size & ratio, don't distribute yet; this will also round the ratio
+    grid.setZoneSize({
+      zone: this.zoneData,
+      newSize,
+      newRatio,
+    })
+
+    // distribute the rounded ratio, and only to the dimensions that updated
     grid.zoneDistributeRatio({
       containerId: this.zoneData.containerId,
       ratio: {
-        rows: newRatio.height,
-        columns: newRatio.width,
+        rows: this.zoneData.sizeRatio.height,
+        columns: this.zoneData.sizeRatio.width,
       },
       ...insideDims,
       proportional: true,
@@ -177,19 +188,11 @@ export default class Zone extends GridMixin {
     grid.zoneDistributeRatio({
       containerId: this.zoneData.containerId,
       ratio: {
-        rows: 1 - newRatio.height,
-        columns: 1 - newRatio.width,
+        rows: 1 - this.zoneData.sizeRatio.height,
+        columns: 1 - this.zoneData.sizeRatio.width,
       },
       ...outsideDims,
       proportional: true,
-    })
-
-    // update zoneData's actual size for next time this function called
-    grid.setZoneSize({
-      zone: this.zoneData,
-      newSize,
-      newRatio,
-      distribute: false,
     })
   }
   //#endregion
@@ -213,6 +216,12 @@ export default class Zone extends GridMixin {
     // update to current after growing done -- updates start/end points as well
     if (!growing) {
       this.setDimsCurrent(false)
+      if (
+        this.zoneData.size.height < this.minSize.height ||
+        this.zoneData.size.width < this.minSize.width
+      ) {
+        grid.forceCloseZone(this.zoneData)
+      }
     }
   }
 
@@ -232,10 +241,30 @@ export default class Zone extends GridMixin {
   }
 
   @Watch("openSiblings")
-  public checkSize() {
-    grid.resetZoneDimRatios(this.zoneData)
+  public checkSize(nowOpen: GridZone[], wasOpen: GridZone[]) {
+    const { bigList, smallList } =
+      nowOpen.length > wasOpen.length
+        ? { bigList: nowOpen, smallList: wasOpen }
+        : { smallList: nowOpen, bigList: wasOpen }
+    const changedZone = bigList.find(z => {
+      return smallList.indexOf(z) == -1
+    })
+    if (!changedZone) {
+      return
+    }
+    // need to reset dimensions where the new zone is *not*, in order to shrink them and make room
+    // or in opposite case, in order to grow them to take up the now available space
+    const resetDims = {
+      rows: this.zoneData.rows.filter(r => {
+        return changedZone.rows.indexOf(r) == -1
+      }),
+      columns: this.zoneData.columns.filter(r => {
+        return changedZone.columns.indexOf(r) == -1
+      }),
+    }
+    grid.resetDims({ containerId: this.zoneData.containerId, resetDims })
     this.$nextTick(() => {
-      // waiting for next tick ensures opened/closed zone has been added/removed from DOM
+      // update size/ratio to current, now with the new zone opened/closed
       this.setDimsCurrent()
     })
   }

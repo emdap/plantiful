@@ -64,6 +64,12 @@ export default class GridMixin extends Vue {
     return Object.values(grid.containers)
   }
 
+  public get openContainers() {
+    return this.containers.filter(c => {
+      return this.containerOpenZones(c.id).length != 0
+    }).length
+  }
+
   public get containerOpenZones() {
     return (containerId: number) => {
       return this.containerZones(containerId).filter(zone => {

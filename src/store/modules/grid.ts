@@ -123,7 +123,7 @@ export default class GridModule extends VuexModule implements GridState {
     // evenly distribute ratio across all rows/columns
     const { containerId, ratio, proportional } = payload
     for (const axis of GridAxes) {
-      if (payload[axis] && ratio[axis]) {
+      if (payload[axis] && ratio[axis] != undefined) {
         const rowCols = payload[axis] as number[]
         let denom = rowCols.length
         let amount!: number, container!: GridContainer
@@ -340,6 +340,7 @@ export default class GridModule extends VuexModule implements GridState {
     newSize: Size
     newRatio?: Size
     distribute?: boolean
+    proportional?: boolean
   }) {
     const { newSize, newRatio, distribute } = payload
     const zone =
@@ -356,16 +357,8 @@ export default class GridModule extends VuexModule implements GridState {
         this.zoneDistributeRatio({
           ...zone,
           ratio: {
-            // rows: roundedRatio.height,
-            columns: roundedRatio.width,
-          },
-        })
-        // console.log(zone.id, "dist height", roundedRatio.height)
-        this.zoneDistributeRatio({
-          ...zone,
-          ratio: {
             rows: roundedRatio.height,
-            // columns: roundedRatio.width
+            columns: roundedRatio.width,
           },
         })
       }
@@ -404,15 +397,29 @@ export default class GridModule extends VuexModule implements GridState {
   }
 
   @Action
-  resetZoneDimRatios(zone: GridZone) {
+  resetDims(payload: {
+    containerId: number
+    resetDims: { rows: number[]; columns: number[] }
+  }) {
+    const { containerId, resetDims } = payload
     for (const axis of GridAxes) {
-      for (const dim of zone[axis]) {
+      for (const dim of resetDims[axis]) {
         this.SET_CONTAINER_DIM_RATIO({
-          id: zone.containerId,
+          id: containerId,
           axis,
           dim,
           ratio: -1,
         })
+      }
+    }
+  }
+
+  @Action
+  forceCloseZone(zone: GridZone) {
+    for (const name of zone.widgets) {
+      const widget = this.getWidget(name)
+      if (widget.open) {
+        this.TOGGLE_WIDGET(name)
       }
     }
   }

@@ -7,7 +7,7 @@
     <div
       v-for="(plant, index) in plantList"
       :key="plant.id"
-      @click.self="optionClicked(plant.id, 'show-active')"
+      @click="optionClicked(plant.id, 'show-active')"
       class="py-2 px-4 text-left h-22 grid grid-cols-3 items-center"
       :class="
         plantListLoading
@@ -60,7 +60,7 @@
               ? 'cursor-wait fill-current text-gray-300 dark:text-gray-400'
               : 'cursor-pointer icon'
           "
-          @click="optionClicked(plant.id, option.action)"
+          @click.stop="optionClicked(plant.id, option.action)"
         >
           <x :is="option.icon" class="inline" />
         </span>
