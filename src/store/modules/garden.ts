@@ -1,3 +1,4 @@
+import Vue from "vue"
 import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
 import store from "@/store"
 import {
@@ -7,15 +8,16 @@ import {
   PageLinks,
   PlantListPayload,
   GardenState,
-  PageLinkPayload
+  // PageLinkPayload,
 } from "@/store/interfaces"
-import { listPlants, getPlant, getLink, searchPlants } from "@/services/plants"
+// import { listPlants, getPlant, getLink, searchPlants } from "@/services/plants"
+import { listSample, plantSample } from "@/fixtures/SampleResponses"
 
 @Module({
   dynamic: true,
   namespaced: true,
   name: "garden",
-  store
+  store,
 })
 export default class GardenModule extends VuexModule implements GardenState {
   plantList: PlantSnippet[] = []
@@ -27,19 +29,21 @@ export default class GardenModule extends VuexModule implements GardenState {
   plantCache: Record<number, Plant> = {}
   loading = {
     plantList: false,
-    plant: false
+    plant: false,
   }
   readonly resultsPerPage: number = 20
 
   @Action
-  public async getPlantList(payload: PlantListPayload) {
-    let apiFunc: (payload: PlantListPayload) => Promise<PlantListResponse>
+  async getPlantList(payload: PlantListPayload) {
+    // let apiFunc: (payload: PlantListPayload) => Promise<PlantListResponse>
     // different API endpoint if user has a search query (?q="onion")
-    if (payload.query.length) {
-      apiFunc = searchPlants
-    } else {
-      apiFunc = listPlants
-    }
+
+    // API no longer exists :(
+    // if (payload.query.length) {
+    //   apiFunc = searchPlants
+    // } else {
+    //   apiFunc = listPlants
+    // }
 
     if (payload.newSearch) {
       this.CLEAR_PAGE_CACHE()
@@ -51,7 +55,9 @@ export default class GardenModule extends VuexModule implements GardenState {
     } else {
       this.SET_LOADING({ which: "plantList", loading: true })
       try {
-        pageData = await apiFunc(payload)
+        // API no longer exists
+        // pageData = await apiFunc(payload)
+        pageData = listSample
         this.CACHE_PAGE({ page: payload.page, pageData })
       } catch (error) {
         this.API_ERROR(error)
@@ -63,7 +69,7 @@ export default class GardenModule extends VuexModule implements GardenState {
   }
 
   @Action
-  public async getOnePlant(id: number) {
+  async getOnePlant(id: number) {
     let plant!: Plant
 
     if (this.plantCache[id]) {
@@ -71,8 +77,8 @@ export default class GardenModule extends VuexModule implements GardenState {
     } else {
       this.SET_LOADING({ which: "plant", loading: true })
       try {
-        const plantResponse = await getPlant(id)
-        plant = plantResponse.data
+        // const plantResponse = await getPlant(id)
+        plant = plantSample
         this.CACHE_PLANT(plant)
       } catch (error) {
         this.API_ERROR(error)
@@ -84,40 +90,41 @@ export default class GardenModule extends VuexModule implements GardenState {
     if (plant) this.SET_ACTIVE_PLANT(plant)
   }
 
-  @Action
-  public async getPageByLink(payload: PageLinkPayload) {
-    const { page, apiLink } = payload
-    let pageData!: PlantListResponse
-    this.SET_LOADING({ which: "plantList", loading: true })
+  // no API :(
+  // @Action
+  // async getPageByLink(payload: PageLinkPayload) {
+  //   const { page, apiLink } = payload
+  //   let pageData!: PlantListResponse
+  //   this.SET_LOADING({ which: "plantList", loading: true })
 
-    if (this.pageCache[page]) {
-      pageData = this.pageCache[page]
-    } else {
-      try {
-        pageData = await getLink(apiLink)
-        this.CACHE_PAGE({ page, pageData })
-      } catch (error) {
-        this.API_ERROR(error)
-      }
-    }
-    if (pageData) {
-      this.PLANT_LIST_SUCCESS({ page, pageData })
-    }
-    this.SET_LOADING({ which: "plantList", loading: false })
-  }
+  //   if (this.pageCache[page]) {
+  //     pageData = this.pageCache[page]
+  //   } else {
+  //     try {
+  //       pageData = await getLink(apiLink)
+  //       this.CACHE_PAGE({ page, pageData })
+  //     } catch (error) {
+  //       this.API_ERROR(error)
+  //     }
+  //   }
+  //   if (pageData) {
+  //     this.PLANT_LIST_SUCCESS({ page, pageData })
+  //   }
+  //   this.SET_LOADING({ which: "plantList", loading: false })
+  // }
 
   @Mutation
-  public CACHE_PAGE(payload: { page: number; pageData: PlantListResponse }) {
+  CACHE_PAGE(payload: { page: number; pageData: PlantListResponse }) {
     this.pageCache[payload.page] = payload.pageData
   }
 
   @Mutation
-  public CLEAR_PAGE_CACHE() {
+  CLEAR_PAGE_CACHE() {
     this.pageCache = {}
   }
 
   @Mutation
-  public CACHE_PLANT(plant: Plant) {
+  CACHE_PLANT(plant: Plant) {
     // confusing in API: when searching list of plants, plants returned have id property (id1)
     // when searching ONE plant, plant returned has id property (id2), and main_species_id property (id3)
     // id1 != id2, but id1 == id3
@@ -126,18 +133,12 @@ export default class GardenModule extends VuexModule implements GardenState {
   }
 
   @Mutation
-  public SET_LOADING(payload: {
-    which: "plantList" | "plant"
-    loading: boolean
-  }) {
+  SET_LOADING(payload: { which: "plantList" | "plant"; loading: boolean }) {
     this.loading[payload.which] = payload.loading
   }
 
   @Mutation
-  public PLANT_LIST_SUCCESS(payload: {
-    page: number
-    pageData: PlantListResponse
-  }) {
+  PLANT_LIST_SUCCESS(payload: { page: number; pageData: PlantListResponse }) {
     const { page, pageData } = payload
     this.currentPage = page
     this.plantList = pageData.data
@@ -147,18 +148,17 @@ export default class GardenModule extends VuexModule implements GardenState {
   }
 
   @Mutation
-  public SET_ACTIVE_PLANT(plant: Plant) {
+  SET_ACTIVE_PLANT(plant: Plant) {
     this.activePlant = plant
   }
 
   @Mutation
-  public RESET_ACTIVE_PLANT() {
+  RESET_ACTIVE_PLANT() {
     this.activePlant = null
   }
 
-  @Mutation
-  private API_ERROR(error: Error) {
-    // TODO: do something with the error, a pop up or something, + add to entity
-    console.error(error)
+  @Action
+  private API_ERROR(error: string) {
+    Vue.toasted.error(error)
   }
 }

@@ -1,9 +1,9 @@
 <template>
-  <div class="w-full relative">
-    <div class="flex">
+  <div class="w-full">
+    <div class="flex" ref="picker-base">
       <div class="align-top">
         <input
-          class="control-input w-full"
+          class="control-input w-full dark:bg-gray-300 font-semibold"
           v-model="userEnteredColor"
           @keyup.enter="addColor()"
           type="string"
@@ -15,7 +15,7 @@
         </button>
         <div
           @click="launchColorPicker(true)"
-          class="cursor-pointer h-6 w-6 text-green-600 hover:text-pink-400 fill-current"
+          class="icon h-6 w-6"
           title="Open color picker"
         >
           <x :is="popOutIcon" height="100%" width="100%" viewBox="0 0 30 30" />
@@ -53,26 +53,29 @@
       </div>
     </div>
     <div
-      v-if="showColorPicker"
       ref="color-picker"
-      class="absolute bg-white shadow-md z-50 transition-all"
+      v-if="showColorPicker"
+      class="absolute rounded-sm p-1 bg-gray-50 dark:bg-gray-800 z-50 transition-all"
       :style="colorPickerPos"
     >
       <chrome :value="colorPickerStart" @input="pickerInput" />
       <div class="flex gap-1">
         <button
           @click="launchColorPicker(false)"
-          class="bg-gray-100 font-semibold hover:text-green-500 hover:bg-gray-50"
+          class="bg-gray-200 dark:bg-gray-500 font-semibold hover:text-green-500 hover:bg-gray-100 dark:hover:bg-gray-400 dark:hover:text-green-800 rounded-sm"
         >
           Cancel
         </button>
-        <button @click="addFromPicker()" class="btn-primary flex-grow">
+        <button
+          @click="addFromPicker()"
+          class="btn-light dark:btn-dark flex-grow"
+        >
           {{ adjustIndex > -1 || singular ? "Update" : "Add" }}
         </button>
         <button
           @click="addFromPicker(true)"
           v-if="adjustIndex > -1 && !singular"
-          class="btn-primary flex-grow"
+          class="btn-light dark:btn-dark flex-grow"
         >
           Duplicate
         </button>
@@ -84,7 +87,8 @@
 <script lang="ts">
 import Vue from "vue"
 import Component from "vue-class-component"
-import { Prop, Ref, Watch } from "vue-property-decorator"
+import { Prop, Ref } from "vue-property-decorator"
+import { controlMessages } from "@/fixtures/Messages"
 import { Chrome } from "vue-color"
 import colorConverter from "css-color-converter"
 import CloseIcon from "@/assets/icons/close.svg"
@@ -101,8 +105,8 @@ type RGBObj = {
   components: {
     Chrome,
     CloseIcon,
-    PopOutIcon
-  }
+    PopOutIcon,
+  },
 })
 export default class ColorField extends Vue {
   @Prop({ required: true }) colorList!: string[]
@@ -120,9 +124,8 @@ export default class ColorField extends Vue {
   public colorPickerPick = this.defaultColor
   public showColorPicker = false
 
-  public colorPickerPos = { top: "", right: 0 }
+  public colorPickerPos = { top: "", right: "1rem" }
   public controlContainer = document.getElementById("controls")
-  public firstClick = true
 
   public beforeDestroy() {
     this.removePickerListeners()
@@ -134,10 +137,7 @@ export default class ColorField extends Vue {
       .fromString(this.userEnteredColor)
       ?.toRgbaArray()
     if (!newColor) {
-      // TODO: error toast
-      console.error(
-        "Not a valid color name! Please try again, or use the color picker"
-      )
+      this.$toasted.error(controlMessages.colorError)
       return
     }
     const strColor = `rgba(${newColor[0]}, ${newColor[1]}, ${newColor[2]}, 1)`
@@ -189,58 +189,31 @@ export default class ColorField extends Vue {
   public launchColorPicker(show: boolean) {
     this.showColorPicker = show
     if (show) {
-      this.firstClick = true
-      this.updateColorPickerPos()
-      document.addEventListener("click", this.closePicker)
+      document.addEventListener("mousedown", this.closePicker)
       if (this.controlContainer) {
         this.controlContainer.addEventListener(
           "scroll",
           this.updateColorPickerPos
         )
       }
+      // wait for the picker to mount before positioning
+      this.$nextTick(() => {
+        this.updateColorPickerPos()
+      })
     } else {
       this.removePickerListeners()
       this.adjustIndex = -1
     }
   }
 
-  public updateColorPickerPos() {
-    if (this.$el instanceof HTMLElement && this.showColorPicker) {
-      // the picker is styled to be ~110% of 225px high
-      const pickerHeight = 247.5
-      const scrollTop = this.controlContainer
-        ? this.controlContainer.scrollTop
-        : 0
-      const scrollBottom =
-        scrollTop +
-        (this.controlContainer
-          ? this.controlContainer.getBoundingClientRect().height
-          : 0)
-      let topDist = 0
-      // TODO: why 30/60 px??? :'(
-      if (scrollBottom - scrollTop > pickerHeight + 60) {
-        if (this.$el.offsetTop + 60 < scrollBottom) {
-          const toTop = this.$el.offsetTop - scrollTop
-          const margin = (scrollBottom - this.$el.offsetTop) / 2
-          topDist = toTop > margin ? margin - pickerHeight + 30 : -toTop + 60
-        } else {
-          topDist = scrollBottom - this.$el.offsetTop - pickerHeight
-        }
-      }
-      this.colorPickerPos.top = topDist + "px"
-    }
-  }
-
   public closePicker(e: MouseEvent) {
     if (
-      !this.firstClick &&
       e.target instanceof Element &&
       e.target != this.colorPicker &&
       !this.colorPicker.contains(e.target)
     ) {
       this.launchColorPicker(false)
     }
-    this.firstClick = false
   }
 
   public removePickerListeners() {
@@ -250,7 +223,39 @@ export default class ColorField extends Vue {
         this.updateColorPickerPos
       )
     }
-    document.removeEventListener("click", this.closePicker)
+    document.removeEventListener("mousedown", this.closePicker)
+  }
+
+  public updateColorPickerPos() {
+    if (
+      this.$el instanceof HTMLElement &&
+      this.showColorPicker &&
+      this.controlContainer instanceof HTMLElement
+    ) {
+      // controlContainer is Controls.vue's $el
+      const { height } = this.controlContainer.getBoundingClientRect()
+      const scrollTop = this.controlContainer.scrollTop
+      const maxTop = scrollTop + height
+      const buffer = 50 // how far you can scroll up past this.$el before picker disappears
+
+      let topDist = this.$el.offsetTop
+      let pickerHeight!: number
+
+      if (this.colorPicker instanceof HTMLElement) {
+        pickerHeight = this.colorPicker.getBoundingClientRect().height
+      } else {
+        pickerHeight = 250 // approximation -- only used if error in colorpicker mount
+      }
+
+      if (topDist > maxTop + buffer) {
+        this.launchColorPicker(false)
+      } else if (topDist + pickerHeight > maxTop) {
+        topDist = maxTop - pickerHeight
+      } else {
+        topDist = Math.max(scrollTop - pickerHeight, topDist)
+      }
+      this.colorPickerPos.top = topDist + "px"
+    }
   }
 
   // Getters
@@ -286,7 +291,7 @@ export default class ColorField extends Vue {
       r: parseInt(splitColor[0]),
       g: parseInt(splitColor[1]),
       b: parseInt(splitColor[2]),
-      a: 1
+      a: 1,
     }
     if (splitColor.length == 4) {
       colorObj.a = parseInt(splitColor[3])

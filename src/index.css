@@ -2,19 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "assets/styles/overrides.css";
+
 .control-input {
   @apply shadow-md pl-2 h-8 leading-8 border-1 border-solid rounded-md;
 }
 
-/* overriding color picker component */
-.vc-chrome {
-  box-shadow: none !important;
+.icon {
+  @apply transition-all cursor-pointer fill-current;
 }
 
-.vc-chrome-toggle-icon {
-  margin-top: none !important;
+.widget .icon {
+  @apply text-green-800 hover:text-pink-400 dark:hover:text-yellow-600 dark:text-gray-900;
 }
 
-.vc-chrome-toggle-icon-highlight {
-  display: none;
+#plant-search .icon,
+#controls .icon {
+  @apply text-green-600 hover:text-pink-800 dark:text-yellow-700 dark:hover:text-yellow-400;
+}
+
+.icon.close {
+  @apply hover:text-pink-800 dark:hover:text-yellow-700;
+}
+
+/* p-1 to avoid scrollbar from overlaying content */
+.scrollbar-light {
+  @apply scrollbar-thin scrollbar-thumb-green-300 scrollbar-track-green-50 pr-2;
+}
+
+@variants dark {
+  .scrollbar-dark {
+    @apply scrollbar-thin scrollbar-thumb-yellow-700 scrollbar-track-gray-600 pr-2;
+  }
 }

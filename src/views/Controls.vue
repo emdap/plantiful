@@ -1,7 +1,12 @@
 <template>
-  <div id="controls" class="overflow-auto h-full">
+  <div
+    id="controls"
+    class="overflow-auto relative w-full scrollbar-light dark:scrollbar-dark"
+  >
     <div v-for="controlTuple in visibleControls" :key="controlTuple[0]">
-      <h3 class="mb-2">{{ getControlSectionTitle(controlTuple[0]) }}</h3>
+      <h3 class="mb-2 text-black dark:text-gray-100">
+        {{ getControlSectionTitle(controlTuple[0]) }}
+      </h3>
       <div
         v-for="controlList in ['onEntity', 'onOptions']"
         :key="controlList"
@@ -11,7 +16,7 @@
           v-for="control in controls[controlTuple[0]][controlList]"
           :key="control.text"
           :id="`${controlTuple[0]}-${control.text}`"
-          class="pb-2 mb-2 border-b-1 border-gray-200 border-solid"
+          class="pb-2 mb-2 border-b-1 border-gray-200 dark:border-gray-800 border-solid"
         >
           <template v-if="control.children">
             <h4 class="font-semibold mb-1">{{ control.text }}</h4>
@@ -42,7 +47,7 @@
           </template>
         </div>
       </div>
-      <div v-if="controls[controlTuple[0]].special">
+      <!-- <div v-if="controls[controlTuple[0]].special">
         <h3 class="mb-2">
           Special {{ getControlSectionTitle(controlTuple[0]) }}
         </h3>
@@ -60,7 +65,7 @@
             @change="specialControl($event, control.code)"
           />
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -92,7 +97,7 @@ import {
   GrowControlKeys,
   GrowOptionsControlKeys,
   GrowPetal,
-  PetalOptions
+  PetalOptions,
 } from "@/store/interfaces"
 import { Watch } from "vue-property-decorator"
 import { Position } from "node_modules/vue-router/types/router"
@@ -117,8 +122,8 @@ type PropertyData<P, O = {}, C = {}> = {
 
 @Component({
   components: {
-    ControlField
-  }
+    ControlField,
+  },
 })
 export default class Controls extends GrowMixin {
   public controls: PropertyControls = this.allControlsDisabled()
@@ -129,33 +134,31 @@ export default class Controls extends GrowMixin {
         show: false,
         onEntity: controlLists.plantControls,
         onOptions: controlLists.plantOptionsControls,
-        special: controlLists.specialPlantControls
+        special: controlLists.specialPlantControls,
       },
       branches: {
         show: false,
         onEntity: controlLists.branchControls,
-        onOptions: controlLists.branchOptionsControls
+        onOptions: controlLists.branchOptionsControls,
       },
       leafClusters: {
         show: false,
         onEntity: controlLists.leafClusterControls,
-        onOptions: controlLists.leafClusterOptionsControls
+        onOptions: controlLists.leafClusterOptionsControls,
       },
       leaves: {
         show: false,
-        // onEntity: [] as ControlList<never, never>,
-        onOptions: controlLists.leafOptionsControls
+        onOptions: controlLists.leafOptionsControls,
       },
       flowers: {
         show: false,
         onEntity: controlLists.flowerControls,
-        onOptions: controlLists.flowerOptionsControls
+        onOptions: controlLists.flowerOptionsControls,
       },
       petals: {
         show: false,
-        // onEntity: [] as ControlList<never, never>,
-        onOptions: controlLists.petalOptionsControls
-      }
+        onOptions: controlLists.petalOptionsControls,
+      },
     }
   }
 
@@ -182,7 +185,7 @@ export default class Controls extends GrowMixin {
       sourceEntity = grow.activeEntity
     } else {
       // somehow accessed controls without there being an active plant/entity
-      console.error("no active plant or active entity!")
+      this.$toasted.error(this.messages.noActiveEntity)
       return
     }
     if (!child) {
@@ -200,7 +203,10 @@ export default class Controls extends GrowMixin {
     // controls with children is only possible on the entity, not the entity options
     const parentControl = sourceEntity[typesafeProp.property]
     const typesafeChild = child as Control<typeof parentControl>
-    return parentControl && parentControl[typesafeChild.property]
+    if (parentControl && parentControl[typesafeChild.property] != undefined) {
+      return parentControl[typesafeChild.property]
+    }
+    return "Value updating..."
   }
 
   public updateProperty(
@@ -215,7 +221,7 @@ export default class Controls extends GrowMixin {
     }
     const entityPayload = {
       id: grow.activeEntity.id,
-      dataKey
+      dataKey,
     }
     if (propertyList == "onEntity") {
       let mergeData!: { [key in GrowControlKeys]?: GrowType[keyof GrowType] }
@@ -225,8 +231,8 @@ export default class Controls extends GrowMixin {
           // merge with other parentcontrolLists, as updating only 1 child property at a time (rotation.x, position.y, etc)
           [parentProperty]: {
             ...grow.activeEntity[parentProperty],
-            [property]: newValue
-          }
+            [property]: newValue,
+          },
         }
       } else {
         mergeData = { [property]: newValue }
@@ -235,12 +241,12 @@ export default class Controls extends GrowMixin {
     } else if (propertyList == "onOptions") {
       const optionsDup = {
         ...grow.activeEntity.optionsReference,
-        [property]: newValue
+        [property]: newValue,
       }
       grow.setEntityOptions({
         ...entityPayload,
         propertyRef: property as GrowOptionsControlKeys,
-        newOptions: optionsDup
+        newOptions: optionsDup,
       })
     }
     this.$forceUpdate()
@@ -251,8 +257,13 @@ export default class Controls extends GrowMixin {
     this.initVisibleControls()
   }
 
+  @Watch("activeEntity")
+  public activeEntityChanged() {
+    this.resetScroll()
+  }
+
   @Watch("activeEntityType")
-  public updatecontrolListsList(current: GrowDataKey, previous: GrowDataKey) {
+  public updateControlListsList(current: GrowDataKey, previous: GrowDataKey) {
     if (current != previous) {
       if (!previous && !current) {
         this.controls = this.allControlsDisabled()
@@ -260,6 +271,12 @@ export default class Controls extends GrowMixin {
       }
       if (previous) this.controls[previous].show = false
       if (current) this.controls[current].show = true
+    }
+  }
+
+  public resetScroll() {
+    if (this.$el instanceof HTMLElement) {
+      this.$el.scrollTop = 0
     }
   }
 
@@ -284,13 +301,6 @@ export default class Controls extends GrowMixin {
           break
       }
       return singular + " Controls"
-      // if (section == "leafClusters") {
-      //   return "Leaf Cluster Controls"
-      // }
-      // return `${section[0].toUpperCase()}${section.substring(
-      //   1,
-      //   section.length - 1
-      // )} Controls`
     }
   }
 

@@ -3,8 +3,9 @@
     <strong class="text-right">{{ control.text }}:</strong>
     <template v-if="control.dataType == 'number'">
       <input
-        class="control-input"
+        class="control-input dark:bg-gray-300 dark:text-black font-semibold"
         v-model="updatedValue"
+        :placeholder="messages.placeholder"
         type="number"
         @focus="allowUpdate = controlList == 'onEntity' || dataKey != 'plants'"
         @blur="allowUpdate = true"
@@ -24,7 +25,10 @@
       />
     </template>
     <template v-else-if="control.dataType == 'dropdown'">
-      <select v-model="updatedValue" class="control-input">
+      <select
+        v-model="updatedValue"
+        class="control-input dark:bg-gray-300 dark:text-black font-semibold"
+      >
         <option v-for="option in control.options" :key="option" :value="option">
           {{ option[0].toUpperCase() + option.substring(1) }}
         </option>
@@ -37,19 +41,20 @@
 import Vue from "vue"
 import Component from "vue-class-component"
 import ColorField from "@/components/Grow/ColorField.vue"
+import { controlMessages } from "@/fixtures/Messages"
 import { Prop, Watch } from "vue-property-decorator"
 import {
   Control,
   DropdownControl,
   GrowDataKey,
   GrowOptionsType,
-  GrowType
+  GrowType,
 } from "@/store/interfaces"
 
 @Component({
   components: {
-    ColorField
-  }
+    ColorField,
+  },
 })
 export default class ControlField extends Vue {
   @Prop({ required: true }) control!:
@@ -99,23 +104,24 @@ export default class ControlField extends Vue {
       this.updatedValue > this.control.verify.upperBound ||
       this.updatedValue < this.control.verify.lowerBound
     ) {
-      // TODO: proper error
       if (this.updatedValue > this.control.verify.upperBound) {
-        console.error(
-          "New value exceeds upper bound of ",
-          this.control.verify.upperBound
+        this.$toasted.error(
+          this.messages.upperBoundError + this.control.verify.upperBound
         )
         this.updatedValue = this.control.verify.upperBound
       } else {
-        console.error(
-          "New value does not meet lower bound of",
-          this.control.verify.lowerBound
+        this.$toasted.error(
+          this.messages.lowerBoundError + this.control.verify.lowerBound
         )
         this.updatedValue = this.control.verify.lowerBound
       }
       return false
     }
     return true
+  }
+
+  public get messages() {
+    return controlMessages
   }
 
   @Watch("updatedValue")

@@ -18,7 +18,7 @@ import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import { GrowBranch, Position } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 import Component from "vue-class-component"
-import { NO_ROTATION } from "@/fixtures/Grow/Defaults"
+import { NO_ROTATION } from "@/fixtures/Defaults"
 
 @Component({})
 export default class Branch extends GrowMixin {
@@ -52,10 +52,10 @@ export default class Branch extends GrowMixin {
       height: this.branchData.height,
       width: this.branchData.width,
       zIndex: this.branchData.zIndex,
-      transitionSpeed: this.branchActive ? 0 : this.branchData.transitionSpeed
+      transitionSpeed: this.branchActive ? 0 : this.branchData.transitionSpeed,
     }
 
-    return this.styleObj(styleData, true)
+    return this.entityStyle(styleData, true)
   }
 
   public get branchStyle() {
@@ -64,9 +64,9 @@ export default class Branch extends GrowMixin {
       height: this.branchData.branchHeight,
       width: this.branchData.branchWidth,
       position: this.branchData.branchPosition,
-      zIndex: 10
+      zIndex: 10,
     }
-    return this.styleObj(styleData)
+    return this.entityStyle(styleData)
   }
 
   public get branchActive() {

@@ -1,77 +1,52 @@
 <template>
   <div
     id="plant-search"
-    class="flex flex-row gap-1 h-full transition-all ease-in-out duration-1000 relative"
-    :class="plantSearchSize"
+    class="flex overflow-auto scrollbar-light dark:scrollbar-dark flex-grow flex-col gap-1"
   >
-    <widget :widgetData="searchWidget">
-      <search-bar class="p-4" />
-      <div class="relative">
-        <loading
-          class="absolute text-center mt-8 h-full w-full"
-          v-if="plantListLoading"
-          :loadingText="gardenMessages.searchBar.loading"
-        />
-      </div>
-      <template v-if="plantList.length">
-        <h3 :class="plantListLoading ? 'text-gray-300' : 'text-green-800'">
-          Page {{ currentPage }} of {{ lastPage }}
-        </h3>
-        <plant-list
-          @show-active="showActivePlant"
-          @grow-plant="$emit('grow-plant', $event)"
-          class="p-4"
-        />
-        <page-nav
-          :class="plantListLoading ? 'text-gray-300' : 'text-green-800'"
-        />
-      </template>
-    </widget>
-    <widget
-      v-if="plantList.length || plantLoading"
-      :widgetData="activePlantWidget"
-    >
-      <active-plant>
-        <button class="btn-primary" @click="$emit('grow-plant', $event)">
-          Grow
-        </button>
-      </active-plant>
-    </widget>
+    <search-bar class="p-4" />
+    <div class="relative">
+      <loading
+        class="absolute text-center mt-8 h-full w-full"
+        v-if="plantListLoading"
+        :loadingText="gardenMessages.searchBar.loading"
+      />
+    </div>
+    <trefle-warning widget="search" />
+    <template v-if="plantList.length">
+      <plant-list
+        @show-active="toggleActivePlant(true)"
+        @grow-plant="growPlant(activePlant)"
+        class="p-4"
+      />
+      <page-nav
+        :class="
+          plantListLoading
+            ? 'text-gray-300 dark:text-gray-800'
+            : 'text-green-800 dark:text-green-600'
+        "
+      />
+    </template>
   </div>
 </template>
 
 <script lang="ts">
 import Component, { mixins } from "vue-class-component"
-import Widget from "@/components/Widget.vue"
 import Loading from "@/components/Loading.vue"
-import SearchBar from "@/components/SearchBar.vue"
-import PlantList from "@/components/PlantList.vue"
-import PageNav from "@/components/PageNav.vue"
-import ActivePlant from "@/components/ActivePlant.vue"
+import SearchBar from "@/components/Garden/SearchBar.vue"
+import PlantList from "@/components/Garden/PlantList.vue"
+import PageNav from "@/components/Garden/PageNav.vue"
 import GardenMixin from "@/mixins/GardenMixin.vue"
-import ContainerMixin, { container } from "@/mixins/ContainerMixin.vue"
-import { WidgetEntity } from "@/store/interfaces"
-import { Prop } from "vue-property-decorator"
+import GrowMixin from "@/mixins/GrowMixin.vue"
+import TrefleWarning from "@/components/Garden/TrefleWarning.vue"
 
 @Component({
   components: {
-    Widget,
     Loading,
     SearchBar,
     PlantList,
     PageNav,
-    ActivePlant
-  }
+    TrefleWarning,
+  },
 })
-export default class PlantSearch extends mixins(GardenMixin, ContainerMixin) {
-  @Prop({ default: 0 }) plantSearchSize!: number
-  @Prop({ required: true }) searchWidget!: WidgetEntity
-  @Prop({ required: true }) activePlantWidget!: WidgetEntity
-
-  public showActivePlant() {
-    if (!this.activePlantWidget.open) {
-      container.toggleWidget(this.activePlantWidget)
-    }
-  }
-}
+export default class PlantSearch extends mixins(GardenMixin, GrowMixin) {}
 </script>

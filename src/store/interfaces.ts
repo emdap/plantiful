@@ -1,5 +1,12 @@
 // TODO: separate into diff files, understand more about typescript interfaces/types best practices and standardize
 
+import { VueConstructor } from "vue/types/umd"
+
+export interface JWTResponse {
+  token: string
+  expiration: string
+}
+
 // States/stores
 export interface RootState {
   garden: {}
@@ -21,10 +28,21 @@ export interface GardenState {
   }
 }
 
-export interface ContainerState {
-  widgets: {
-    [key: string]: WidgetEntity
+export interface GridState {
+  containers: {
+    [key: number]: GridContainer
   }
+  widgets: {
+    [key: string]: GridWidget
+  }
+  zones: {
+    [key: number]: GridZone
+  }
+  overallHeight: number
+  overallWidth: number
+  activeWidget: GridWidget | null
+  targetZone: GridZone | null
+  movingZones: boolean
 }
 
 export type GrowType =
@@ -56,9 +74,7 @@ export interface GrowState {
   activeGrowPlant: GrowPlant | null
   activeEntity: GrowEntity | null
   activeEntityType: GrowDataKey | null
-  growWindowActive: boolean
   showControls: boolean
-  hasKeyListeners: boolean
 }
 
 // Plants
@@ -108,7 +124,7 @@ export type LeafTexture = typeof LeafTextureValues[number]
 export const PlantOrientationValues = [
   "erect",
   "semi-erect",
-  "decumbent"
+  "decumbent",
 ] as const
 export type PlantOrientation = typeof PlantOrientationValues[number]
 
@@ -188,7 +204,7 @@ export type Positions = RequiredPositions | "right" | "bottom"
 // Grow
 export interface GrowBasis extends InteractableBasis {
   rotation: Rotation
-  position: Position
+  position?: Position
   height: number
   width: number
   zIndex: number
@@ -210,6 +226,7 @@ export interface GrowPlant extends GrowEntity<PlantOptions> {
 
 export interface GrowCluster<T> extends GrowEntity<T> {
   offSet: GrowOffSet
+  position: Position
   order: number
 }
 
@@ -223,17 +240,20 @@ export interface GrowFlower extends GrowCluster<FlowerOptions> {
 }
 
 export interface GrowLeaf extends GrowEntity<LeafOptions> {
+  position: Position
   shapes: GrowShape[]
   order: number
 }
 
 export interface GrowPetal extends GrowEntity<PetalOptions> {
+  position: Position
   shapes: GrowShape[]
   order: number
 }
 
 export interface GrowBranch extends GrowEntity<BranchOptions> {
   id: number
+  position: Position
   offSet: GrowOffSet
   startPoint: Position
   endPoint: Position
@@ -249,6 +269,7 @@ export interface GrowBranch extends GrowEntity<BranchOptions> {
 }
 
 export interface GrowShape extends GrowBasis {
+  position: Position
   border: GrowBorder
   color: string
   opacity?: number
@@ -259,7 +280,6 @@ export type BranchOutGlobals = {
   clustersWithLeaves: { leafCluster: GrowLeafCluster; leaves: GrowLeaf[] }[]
   flowersWithPetals: { flower: GrowFlower; petals: GrowPetal[] }[]
   plantOptions: PlantOptions
-  // leafClusterOptions: LeafClusterOptions
 }
 
 export type BranchOutOptions = {
@@ -306,7 +326,6 @@ export interface ClusterOptions {
 
 export interface LeafClusterOptions extends ClusterOptions {
   texture: LeafTexture
-  // custom?: LeafOptions
 }
 
 export interface FlowerOptions extends ClusterOptions {
@@ -319,9 +338,6 @@ export interface BranchOptions {
   branchWidth: number
   angle: number
   growthHeight: number
-  // hasLeaf: boolean
-  // hasFlower: boolean
-  // zIndex: number
 }
 
 export interface PlantOptions {
@@ -342,6 +358,12 @@ export interface GrowOffSet {
 export type Position = {
   x: number
   y: number
+}
+
+// TODO: convert all height/width instances to this D:
+export interface Size {
+  height: number
+  width: number
 }
 
 export interface BorderAttribute {
@@ -422,16 +444,11 @@ export interface DropdownControl<Type> extends ControlBase<Type> {
   options: readonly string[] | readonly number[]
 }
 
-const plant = {} as GrowPlant
-type test = keyof typeof plant.rotation
-
 export type NestedControl<Parent, Child> = {
   property: keyof Parent
   text: string
   children: Control<Child>[]
 }
-
-// type ControlTypes = GrowPlant | GrowBranch | GrowLeafCluster | PlantOptions | LeafOptions
 
 export type AnyControl<Parent, Child> =
   | Control<Parent>
@@ -440,17 +457,29 @@ export type AnyControl<Parent, Child> =
 
 export type ControlList<Parent, Child = {}> = AnyControl<Parent, Child>[]
 
-// Widgets
-export interface WidgetEntity {
+// Grid
+export interface GridWidget {
   name: string
+  component: VueConstructor<Vue>
   text: string
-  order: number // higher order = higher z index
-  icon?: string
   open: boolean
-  isDocked?: boolean
-  launchDocked: boolean
-  inMenu: boolean
-  display: WidgetDisplay
+  docked: boolean
+  size: Size
+  position: Position
+  defaultZone: number
+  currentZone?: number
+}
+
+export const MenuGroups = [
+  "Find Plants",
+  "Create Plants",
+  "Information",
+] as const
+
+export interface MenuWidget {
+  widgetName: string
+  icon: string
+  group: typeof MenuGroups[number]
 }
 
 // these are used to style the widget. Leave blank = that attribute is not styled
@@ -465,30 +494,47 @@ export interface WidgetDisplay {
   minWidth?: number
 }
 
-// export interface WidgetInit {
-//   entity: WidgetEntity
-//   display: WidgetDisplay
-// }
+export const GridContainerAreas = [
+  "z-0",
+  "z-1",
+  "z-2",
+  "z-3",
+  "z-4",
+  "z-5",
+] as const
 
-export type WidgetPosition = {
-  [key in RequiredPositions]: number | string
+export interface GridContainer {
+  id: number
+  name: string // for DOM element ID
+  zones: number[]
+  size: Size
+  sizeRatio: Size
+  columns: GridAreaDict
+  rows: GridAreaDict
+  zonesGrowing: boolean
 }
 
-// widget info that is NOT stored in state, modified directly from Widget.vue
-export interface WidgetBasis extends InteractableBasis {
-  position: WidgetPosition
-  height: number | string | undefined
-  width: number | string | undefined
-  zIndex: number
+export interface GridZone {
+  id: number
+  name: typeof GridContainerAreas[number] // for DOM element ID
+  containerId: number
+  size: Size
+  sizeRatio: Size
+  widgets: string[]
+  color: string
+  startPoint: Position
+  endPoint: Position
+  rows: number[]
+  columns: number[]
+  open: boolean
+  mounted?: boolean
 }
 
-// Constants & types
-export const WidgetStateOptionals = ["open", "docked", "inMenu"] as const
+export const GridAxes = ["rows", "columns"] as const
 
-export const DefaultWidget = {
-  open: false,
-  docked: false,
-  inMenu: false
+export interface GridAreaDict {
+  [key: number]: {
+    sizeRatio: number
+    zones: number[]
+  }
 }
-
-export type Dimensions = "height" | "width"

@@ -24,14 +24,10 @@ import {
   PetalOptions,
   GrowEntitySnippet,
   GrowOptionsSnippet,
-  GrowOptionsType
 } from "@/store/interfaces"
 import Vue from "vue"
-import {
-  DEFAULT_LEAF_CLUSTER_SPREAD,
-  NO_POSITION,
-  NO_ROTATION
-} from "@/fixtures/Grow/Defaults"
+import { NO_ROTATION } from "@/fixtures/Defaults"
+import { DEFAULT_LEAF_CLUSTER_SPREAD } from "@/fixtures/Grow/GrowDefaults"
 import {
   createLeaf,
   createPlant,
@@ -41,14 +37,14 @@ import {
   processBranchOptions,
   processFlowerOptions,
   processPetalOptions,
-  createPetal
+  createPetal,
 } from "@/services/growPlants"
 
 @Module({
   dynamic: true,
   namespaced: true,
   name: "grow",
-  store
+  store,
 })
 export default class GrowModule extends VuexModule implements GrowState {
   plants = {} as GrowData<GrowPlant>
@@ -60,9 +56,8 @@ export default class GrowModule extends VuexModule implements GrowState {
   activeGrowPlant: GrowPlant | null = null
   activeEntity: GrowType | null = null
   activeEntityType: GrowDataKey | null = null
-  growWindowActive = false
+
   showControls = false
-  hasKeyListeners = false
 
   public get getEntity() {
     return (dataKey: GrowDataKey, id: number) => {
@@ -71,18 +66,20 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Action
-  setGrowWindowActive(active: boolean) {
-    this.GROW_WINDOW_ACTIVE(active)
-  }
-
-  @Action
   setActivePlant(id: number) {
     if (this["plants"][id]) {
       this.ACTIVE_PLANT(id)
-      this.context.dispatch("garden/getOnePlant", this["plants"][id].plantId, {
-        root: true
-      })
       this.TOGGLE_CONTROLS(true)
+      // TEST_PLANT has id 0
+      if (this["plants"][id].plantId) {
+        this.context.dispatch(
+          "garden/getOnePlant",
+          this["plants"][id].plantId,
+          {
+            root: true,
+          }
+        )
+      }
     }
   }
 
@@ -117,7 +114,7 @@ export default class GrowModule extends VuexModule implements GrowState {
     const tempBranch: GrowBranch = {
       ...branch,
       branchHeight: 0,
-      height: 0
+      height: 0,
     }
     tempBranch.rotation.z = 0
     this.ADD_ENTITY({ dataKey: "branches", entity: tempBranch })
@@ -127,7 +124,7 @@ export default class GrowModule extends VuexModule implements GrowState {
       this.UPDATE_ENTITY({
         dataKey: "branches",
         id: tempBranch.id,
-        newEntity: branch
+        newEntity: branch,
       })
     }, branch.order * 250)
   }
@@ -136,12 +133,12 @@ export default class GrowModule extends VuexModule implements GrowState {
   updateBranchEndPoint(branch: GrowBranch) {
     const updatedBranch = {
       ...branch,
-      ...processBranchOptions(branch.optionsReference)
+      ...processBranchOptions(branch.optionsReference),
     }
     this.UPDATE_ENTITY({
       dataKey: "branches",
       id: branch.id,
-      newEntity: updatedBranch
+      newEntity: updatedBranch,
     })
   }
 
@@ -154,10 +151,10 @@ export default class GrowModule extends VuexModule implements GrowState {
     const { growPlant, propertyRef, newOptions } = payload
     const leafClusterProperties = {
       leafColors: "colors",
-      leafTexture: "texture"
+      leafTexture: "texture",
     }
     const flowerProperties = {
-      flowerColors: "colors"
+      flowerColors: "colors",
     }
 
     let dataKey!: "leafClusters" | "flowers"
@@ -175,7 +172,7 @@ export default class GrowModule extends VuexModule implements GrowState {
     }
 
     const newClusterOptions = {
-      [clusterProperty]: newOptions[propertyRef as keyof typeof newOptions]
+      [clusterProperty]: newOptions[propertyRef as keyof typeof newOptions],
     }
     const clusterList =
       dataKey == "leafClusters" ? growPlant.leafClusters : growPlant.flowers
@@ -185,14 +182,14 @@ export default class GrowModule extends VuexModule implements GrowState {
         id: clusterId,
         dataKey,
         newOptions: newClusterOptions,
-        propertyRef: clusterProperty
+        propertyRef: clusterProperty,
       })
     }
 
     this.mergeEntity({
       dataKey: "plants",
       id: growPlant.id,
-      mergeData: { optionsReference: newOptions as PlantOptions }
+      mergeData: { optionsReference: newOptions as PlantOptions },
     })
   }
 
@@ -243,27 +240,27 @@ export default class GrowModule extends VuexModule implements GrowState {
         ...processedOptions,
         optionsReference: {
           ...curEntity.optionsReference,
-          ...newOptions
-        }
+          ...newOptions,
+        },
       } as GrowType
 
       // clusters are special case no matter what, as need to update all the leaves/petals
     } else if (dataKey == "leafClusters" || dataKey == "flowers") {
       let fullOptions = {
         ...curEntity.optionsReference,
-        ...newOptions
+        ...newOptions,
       } as LeafClusterOptions | FlowerOptions
       // texture is special case, needs to be processed to update spacing/sides/area
       if (propertyRef == "texture") {
         fullOptions = {
           ...fullOptions,
-          ...DEFAULT_LEAF_CLUSTER_SPREAD[newOptions.texture as LeafTexture]
+          ...DEFAULT_LEAF_CLUSTER_SPREAD[newOptions.texture as LeafTexture],
         }
       }
       return this.updateClusterOptions({
         dataKey,
         cluster: curEntity as GrowLeafCluster,
-        newOptions: fullOptions
+        newOptions: fullOptions,
       })
 
       // plant option update affects all nested entities
@@ -275,7 +272,7 @@ export default class GrowModule extends VuexModule implements GrowState {
         return this.updateClusterFromPlant({
           growPlant: curEntity as GrowPlant,
           propertyRef: propertyRef as keyof GrowPlant,
-          newOptions
+          newOptions,
         })
       } else {
         // re-grow the plant with the new options
@@ -283,8 +280,8 @@ export default class GrowModule extends VuexModule implements GrowState {
         updatedEntity = await this.growPlant({
           fromOptions: {
             curId: id,
-            options: fullOptions as PlantOptions
-          }
+            options: fullOptions as PlantOptions,
+          },
         })
       }
     }
@@ -292,7 +289,7 @@ export default class GrowModule extends VuexModule implements GrowState {
     this.UPDATE_ENTITY({
       dataKey,
       id,
-      newEntity: updatedEntity
+      newEntity: updatedEntity,
     })
   }
 
@@ -343,17 +340,17 @@ export default class GrowModule extends VuexModule implements GrowState {
           dataKey == "leafClusters"
             ? {
                 ...processLeafOptions(options as LeafOptions),
-                optionsReference: options as LeafOptions
+                optionsReference: options as LeafOptions,
               }
             : {
                 ...processPetalOptions(options as PetalOptions),
-                optionsReference: options as PetalOptions
+                optionsReference: options as PetalOptions,
               }
 
         this.mergeEntity({
           dataKey: childDataKey,
           id: newEntity.id,
-          mergeData: mergeChildData
+          mergeData: mergeChildData,
         })
       } else {
         // create new leaf/petal
@@ -365,7 +362,7 @@ export default class GrowModule extends VuexModule implements GrowState {
         this.addFlowerLeaf({
           dataKey: childDataKey,
           entity: newEntity,
-          preventDelay: true
+          preventDelay: true,
         })
       }
       children.push(newEntity.id)
@@ -386,7 +383,7 @@ export default class GrowModule extends VuexModule implements GrowState {
         dataKey == "leafClusters"
           ? processedOptions.clusterHeight
           : processedOptions.flowerHeight,
-      optionsReference: newOptions
+      optionsReference: newOptions,
     } as GrowEntitySnippet
 
     this.mergeEntity({ dataKey, id: cluster.id, mergeData })
@@ -396,15 +393,15 @@ export default class GrowModule extends VuexModule implements GrowState {
   growPlant(payload: {
     basePlant?: Plant
     fromOptions?: { curId: number; options: PlantOptions }
-    position?: Position
+    // position?: Position
   }): Promise<GrowPlant> {
-    const { basePlant, fromOptions, position } = payload
+    const { basePlant, fromOptions } = payload
     let plantReturn!: GrowPlantReturn
 
     if (basePlant) {
       // create whole plant from Plant API data
-      const usePosition = position ? position : NO_POSITION()
-      plantReturn = createPlant(basePlant, usePosition, true)
+      // const usePosition = position ? position : NO_POSITION()
+      plantReturn = createPlant(basePlant, true)
     } else if (fromOptions) {
       // use the custom options to update existing GrowPlant
       const curPlant = this.getEntity("plants", fromOptions.curId)
@@ -422,7 +419,7 @@ export default class GrowModule extends VuexModule implements GrowState {
       branches,
       clustersWithLeaves,
       flowersWithPetals,
-      plant
+      plant,
     } = plantReturn
     const newPlant = plant as GrowPlant
 
@@ -490,7 +487,7 @@ export default class GrowModule extends VuexModule implements GrowState {
       const tempEntity: GrowPetal | GrowLeaf = {
         ...entity,
         rotation: NO_ROTATION(),
-        shapes: []
+        shapes: [],
       }
       this.ADD_ENTITY({ dataKey, entity: tempEntity })
       entity.id = tempEntity.id
@@ -498,7 +495,7 @@ export default class GrowModule extends VuexModule implements GrowState {
         this.UPDATE_ENTITY({
           dataKey,
           id: tempEntity.id,
-          newEntity: entity
+          newEntity: entity,
         })
       }, entity.order * 300)
       // TODO: better system for applying animations like this, this is temp for fun
@@ -508,15 +505,15 @@ export default class GrowModule extends VuexModule implements GrowState {
           id: tempEntity.id,
           newEntity: {
             ...entity,
-            rotation: NO_ROTATION()
-          }
+            rotation: NO_ROTATION(),
+          },
         })
       }, entity.order * 300 + 250)
       setTimeout(() => {
         this.UPDATE_ENTITY({
           dataKey,
           id: tempEntity.id,
-          newEntity: entity
+          newEntity: entity,
         })
       }, entity.order * 300 + 550)
     }
@@ -525,11 +522,6 @@ export default class GrowModule extends VuexModule implements GrowState {
   @Action
   toggleControls(show: boolean) {
     this.TOGGLE_CONTROLS(show)
-  }
-
-  @Action
-  addedListeners(added: boolean) {
-    this.ADDED_LISTENERS(added)
   }
 
   @Action
@@ -573,11 +565,6 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Mutation
-  GROW_WINDOW_ACTIVE(active: boolean) {
-    this.growWindowActive = active
-  }
-
-  @Mutation
   UPDATE_ROTATION(payload: {
     id: number
     dataKey: GrowDataKey
@@ -594,13 +581,9 @@ export default class GrowModule extends VuexModule implements GrowState {
     newPositions: Position
   }) {
     const { id, dataKey, newPositions } = payload
-    this[dataKey][id].position = newPositions
-    // Vue.set(this[dataKey][id], "position", newPositions)
-  }
-
-  @Mutation
-  ADDED_LISTENERS(added: boolean) {
-    this.hasKeyListeners = added
+    // this[dataKey][id].position = newPositions
+    // plants start off with no position
+    Vue.set(this[dataKey][id], "position", newPositions)
   }
 
   @Mutation

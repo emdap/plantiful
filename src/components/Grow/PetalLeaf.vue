@@ -3,7 +3,7 @@
     :id="petalsOrLeaves + '-' + growData.id"
     class="absolute rounded-full"
     :class="[transformOrigin, backgroundClass(defaultBg, highlight)]"
-    :style="styleObj(growData)"
+    :style="entityStyle(growData)"
     @dblclick="activateSelf"
   >
     <shape
@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
-import { GrowFlower, GrowLeaf, GrowPetal } from "@/store/interfaces"
+import { GrowLeaf, GrowPetal } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 import Shape from "@/components/Grow/Shape.vue"
 import Component from "vue-class-component"
@@ -42,7 +42,6 @@ export default class PetalLeaf extends GrowMixin {
       e.stopPropagation()
       this.activateEntity(true, this.petalsOrLeaves, this.growData.id)
     }
-    // if !clusterActive, e propogates to parent (leafCluster), which then activates itself from the dbl click
   }
 
   @Watch("growData.height")

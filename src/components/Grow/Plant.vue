@@ -9,10 +9,9 @@
       v-if="plantData.showName"
       :class="textClass"
       :style="`margin-left: -${plantData.width}px; width: ${plantData.width}px`"
-      class="whitespace-nowrap text-center transition-all duration-75 font-semibold cursor-pointer"
+      class="whitespace-nowrap text-center transition-color duration-75 font-semibold cursor-pointer dark:text-white select-none"
       @dblclick.self="setActiveEntity"
     >
-      <!-- @mousedown.prevent="" -->
       {{ plantData.name }}
     </span>
     <div :style="styleRotation" class="absolute">
@@ -44,20 +43,20 @@ import Component from "vue-class-component"
 import { Prop, Watch } from "vue-property-decorator"
 import Shape from "@/components/Grow/Shape.vue"
 import Branch from "@/components/Grow/Branch.vue"
-// import LeafCluster from "@/components/Grow/LeafCluster.vue"
 import Cluster from "@/components/Grow/Cluster.vue"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
-import { NO_POSITION, NO_ROTATION } from "@/fixtures/Grow/Defaults"
+import { NO_POSITION, NO_ROTATION } from "@/fixtures/Defaults"
 
 @Component({
   components: {
     Shape,
     Branch,
-    Cluster
-  }
+    Cluster,
+  },
 })
 export default class Plant extends GrowMixin {
   @Prop({ required: true }) plantData!: GrowPlant
+  // @Prop({ required: true }) setSize!: boolean
 
   public defaultColor = "text-black"
   public textClass = this.defaultColor
@@ -69,12 +68,38 @@ export default class Plant extends GrowMixin {
     } else if (this.plantActive) {
       this.textClass = this.subHighlightText
     }
+
+    // if (!this.plantData.position && this.setSize) {
+    if (!this.plantData.position) {
+      this.setPlantPosition()
+    }
+  }
+
+  // @Watch("setSize")
+  // public sizeAvailable(ready: boolean) {
+  //   if (!this.plantData.position && ready) {
+  //     this.setPlantPosition()
+  //   }
+  // }
+
+  public setPlantPosition() {
+    if (!(this.$el instanceof HTMLElement)) {
+      return this.$toasted.error(this.messages.generalError)
+    }
+    grow.setPosition({
+      id: this.plantData.id,
+      dataKey: "plants",
+      newPositions: {
+        x: this.$el.offsetLeft,
+        y: this.$el.offsetTop + this.plantData.height / 2,
+      },
+    })
   }
 
   public get clusterLists() {
     return {
       leafClusters: this.plantData.leafClusters,
-      flowers: this.plantData.flowers
+      flowers: this.plantData.flowers,
     }
   }
 
@@ -90,7 +115,6 @@ export default class Plant extends GrowMixin {
   }
 
   public get plantActive(): boolean {
-    // return grow.activeEntityType == "plants" &&
     return grow.activeGrowPlant?.id == this.plantData.id
   }
 
@@ -111,12 +135,12 @@ export default class Plant extends GrowMixin {
   }
 
   public get highlightText() {
-    return "text-" + this.highlightBg + " font-semibold"
+    return `text-${this.highlightBg}-700 dark:text-${this.highlightBg}-400 font-semibold`
   }
 
   // for when plant is active, but one of its children is selected
   public get subHighlightText() {
-    return "text-" + this.subHighlightBg + " font-semibold"
+    return `text-${this.subHighlightBg} dark:text-${this.subHighlightBg} font-semibold`
   }
 
   @Watch("plantIsActiveEntity")
@@ -134,9 +158,9 @@ export default class Plant extends GrowMixin {
     const styleData = {
       ...this.plantData,
       height: 0, // branches grow out of top of plant barrier, don't want it selectable below name
-      rotation: NO_ROTATION()
+      rotation: NO_ROTATION(),
     }
-    return this.styleObj(styleData)
+    return this.entityStyle(styleData)
   }
 
   public get styleRotation() {
@@ -145,10 +169,10 @@ export default class Plant extends GrowMixin {
       rotation: this.plantData.rotation,
       height: 0,
       width: 0,
-      zIndex: 10
+      zIndex: 10,
     }
 
-    return this.styleObj(styleData)
+    return this.entityStyle(styleData)
   }
 }
 </script>
