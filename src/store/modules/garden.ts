@@ -90,6 +90,12 @@ export default class GardenModule extends VuexModule implements GardenState {
     if (plant) this.SET_ACTIVE_PLANT(plant)
   }
 
+  @Action
+  clearPlantList() {
+    this.CLEAR_PLANT_LIST()
+    this.CLEAR_PAGE_CACHE()
+  }
+
   // no API :(
   // @Action
   // async getPageByLink(payload: PageLinkPayload) {
@@ -145,6 +151,14 @@ export default class GardenModule extends VuexModule implements GardenState {
     this.pageLinks = pageData.links
     // technically only need to send this if its a new search
     this.lastPage = Math.ceil(pageData.meta.total / this.resultsPerPage)
+  }
+
+  @Mutation
+  CLEAR_PLANT_LIST() {
+    this.currentPage = -1
+    this.plantList = []
+    this.pageLinks = {}
+    this.lastPage = -1
   }
 
   @Mutation

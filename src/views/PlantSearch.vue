@@ -35,7 +35,7 @@ import Loading from "@/components/Loading.vue"
 import SearchBar from "@/components/Garden/SearchBar.vue"
 import PlantList from "@/components/Garden/PlantList.vue"
 import PageNav from "@/components/Garden/PageNav.vue"
-import GardenMixin from "@/mixins/GardenMixin.vue"
+import GardenMixin, { garden } from "@/mixins/GardenMixin.vue"
 import GrowMixin from "@/mixins/GrowMixin.vue"
 import TrefleWarning from "@/components/Garden/TrefleWarning.vue"
 
@@ -48,5 +48,9 @@ import TrefleWarning from "@/components/Garden/TrefleWarning.vue"
     TrefleWarning,
   },
 })
-export default class PlantSearch extends mixins(GardenMixin, GrowMixin) {}
+export default class PlantSearch extends mixins(GardenMixin, GrowMixin) {
+  public destroyed() {
+    garden.clearPlantList()
+  }
+}
 </script>

@@ -56,8 +56,6 @@ export default class Zone extends GridMixin {
     // on application launch, container takes 1 tick to record its own size
     this.$nextTick(() => {
       if (this.zoneData.id) {
-        this.maxSize.height = this.myContainer.size.height
-        this.maxSize.width = this.myContainer.size.width
         this.setDimsCurrent()
       }
     })
@@ -82,6 +80,9 @@ export default class Zone extends GridMixin {
 
   public setDimsCurrent(distribute = true) {
     const { width, height, x, y } = this.getCurrentRect()
+    this.maxSize.height = this.myContainer.size.height
+    this.maxSize.width = this.myContainer.size.width
+
     const newRatio = this.calcRatio({ height, width })
 
     grid.setZoneSize({
