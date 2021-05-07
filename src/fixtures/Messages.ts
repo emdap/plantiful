@@ -39,6 +39,15 @@ export const growMessages = {
   openSearch: "Open up Plant Search to find & grow plants",
 }
 
+export const selectMessages = {
+  noParentSelected: {
+    leaves: "Please select a Leaf Cluster first",
+    petals: "Please select a Flower first",
+  },
+  noPlantSelected: "Select a Plant to start",
+  default: "Select a ",
+}
+
 export const controlMessages = {
   colorError:
     "Not a valid color name. Please try again, or use the color picker",

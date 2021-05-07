@@ -280,27 +280,10 @@ export default class Controls extends GrowMixin {
     }
   }
 
+  // TODO: does this need to be a getter?
   public get getControlSectionTitle() {
-    return (section: GrowDataKey) => {
-      let singular = ""
-      switch (section) {
-        case "leafClusters":
-          singular = "Leaf Cluster"
-          break
-        case "leaves":
-          singular = "Leaf"
-          break
-        case "branches":
-          singular = "Branch"
-          break
-        default:
-          singular = `${section[0].toUpperCase()}${section.substring(
-            1,
-            section.length - 1
-          )}`
-          break
-      }
-      return singular + " Controls"
+    return (dataKey: GrowDataKey) => {
+      return this.growDataKeyText(dataKey) + " Controls"
     }
   }
 

@@ -74,6 +74,8 @@ export interface GrowState {
   activeGrowPlant: GrowPlant | null
   activeEntity: GrowEntity | null
   activeEntityType: GrowDataKey | null
+  highlightEntity: number | null
+  highlightEntityType: GrowDataKey | null
   showControls: boolean
 }
 

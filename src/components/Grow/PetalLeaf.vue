@@ -2,7 +2,7 @@
   <div
     :id="petalsOrLeaves + '-' + growData.id"
     class="absolute rounded-full"
-    :class="[transformOrigin, backgroundClass(defaultBg, highlight)]"
+    :class="[transformOrigin, backgroundClass]"
     :style="entityStyle(growData)"
     @dblclick="activateSelf"
   >
@@ -24,18 +24,18 @@ import Component from "vue-class-component"
 
 @Component({
   components: {
-    Shape
-  }
+    Shape,
+  },
 })
 export default class PetalLeaf extends GrowMixin {
   @Prop({ required: true }) petalsOrLeaves!: "petals" | "leaves"
   @Prop({ required: true }) growData!: GrowPetal | GrowLeaf
   // two props for leaf as want to toggle highlight when cluster (parent) is active, or whole plant (grandparent) active
-  @Prop({ default: false }) allowSelection!: boolean
   @Prop({ default: false }) clusterActive!: boolean
+  @Prop({ default: false }) clusterHighlight!: boolean
 
-  public defaultBg = "transparent"
-  public highlight = false
+  public entityType = this.petalsOrLeaves
+  public entityId = this.growData.id
 
   public activateSelf(e: MouseEvent) {
     if (this.clusterActive) {
@@ -49,13 +49,6 @@ export default class PetalLeaf extends GrowMixin {
     this.$emit("height-update", height)
   }
 
-  public get selfActive() {
-    return (
-      grow.activeEntityType == this.petalsOrLeaves &&
-      this.activeEntity?.id == this.growData.id
-    )
-  }
-
   public get transformOrigin() {
     if (this.petalsOrLeaves == "petals") {
       return "origin-bottom-right"
@@ -63,32 +56,16 @@ export default class PetalLeaf extends GrowMixin {
     return "origin-bottom"
   }
 
-  @Watch("allowSelection")
-  public plantHighlight(active: boolean) {
-    if (active) {
-      this.toggleHighlight()
-    }
-  }
-
   @Watch("clusterActive")
-  public parentHighlight(active: boolean) {
+  public parentPulse(active: boolean) {
     if (active) {
-      this.toggleHighlight()
+      this.pulse()
     }
   }
 
-  @Watch("selfActive")
-  public leafHighlight(active: boolean) {
-    if (active) {
-      this.toggleHighlight()
-    }
-  }
-
-  public toggleHighlight() {
-    this.highlight = true
-    setTimeout(() => {
-      this.highlight = false
-    }, this.highlightDuration)
+  @Watch("clusterHighlight")
+  public parentHighlight(highlight: boolean) {
+    this.highlight = highlight
   }
 }
 </script>

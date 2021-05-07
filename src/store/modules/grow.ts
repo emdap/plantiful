@@ -56,6 +56,8 @@ export default class GrowModule extends VuexModule implements GrowState {
   activeGrowPlant: GrowPlant | null = null
   activeEntity: GrowType | null = null
   activeEntityType: GrowDataKey | null = null
+  highlightEntity: number | null = null
+  highlightEntityType: GrowDataKey | null = null
 
   showControls = false
 
@@ -100,6 +102,29 @@ export default class GrowModule extends VuexModule implements GrowState {
   @Action
   removeActiveEntity(dataKey: GrowDataKey) {
     this.ACTIVE_ENTITY({ id: null, dataKey })
+  }
+
+  @Action
+  setHighlightEntity(id: number) {
+    this.HIGHLIGHT_ENTITY(id)
+  }
+
+  @Action
+  setHighlightType(dataKey: GrowDataKey | null) {
+    this.HIGHLIGHT_TYPE(dataKey)
+    if (!dataKey) {
+      this.HIGHLIGHT_ENTITY(null)
+    }
+  }
+
+  @Mutation
+  HIGHLIGHT_ENTITY(id: number | null) {
+    this.highlightEntity = id
+  }
+
+  @Mutation
+  HIGHLIGHT_TYPE(dataKey: GrowDataKey | null) {
+    this.highlightEntityType = dataKey
   }
 
   @Action

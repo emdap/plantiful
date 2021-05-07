@@ -6,7 +6,7 @@
     @dblclick="activateEntity(allowSelection, 'branches', branchData.id)"
   >
     <div
-      :class="['absolute z-10', backgroundClass(defaultBg, highlight)]"
+      :class="['absolute z-10', backgroundClass]"
       style="transform-origin: bottom center"
       :style="branchStyle"
     />
@@ -23,11 +23,11 @@ import { NO_ROTATION } from "@/fixtures/Defaults"
 @Component({})
 export default class Branch extends GrowMixin {
   @Prop({ required: true }) branchData!: GrowBranch
-  @Prop({ default: false }) allowSelection!: boolean
+
+  public entityType = "branches" as "branches"
+  public entityId = this.branchData.id
 
   public defaultBg = "black"
-  public highlight = false
-
   public startPoint = { ...this.branchData.startPoint }
 
   @Watch("startPoint")
@@ -52,7 +52,7 @@ export default class Branch extends GrowMixin {
       height: this.branchData.height,
       width: this.branchData.width,
       zIndex: this.branchData.zIndex,
-      transitionSpeed: this.branchActive ? 0 : this.branchData.transitionSpeed,
+      transitionSpeed: this.selfActive ? 0 : this.branchData.transitionSpeed,
     }
 
     return this.entityStyle(styleData, true)
@@ -67,34 +67,6 @@ export default class Branch extends GrowMixin {
       zIndex: 10,
     }
     return this.entityStyle(styleData)
-  }
-
-  public get branchActive() {
-    return (
-      grow.activeEntityType == "branches" &&
-      this.activeEntity?.id == this.branchData.id
-    )
-  }
-
-  @Watch("allowSelection")
-  public plantHighlight(active: boolean) {
-    if (active) {
-      this.toggleHighlight()
-    }
-  }
-
-  @Watch("branchActive")
-  public branchHighlightht(active: boolean) {
-    if (active) {
-      this.toggleHighlight()
-    }
-  }
-
-  public toggleHighlight() {
-    this.highlight = true
-    setTimeout(() => {
-      this.highlight = false
-    }, this.highlightDuration)
   }
 }
 </script>

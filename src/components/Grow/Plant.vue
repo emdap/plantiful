@@ -134,8 +134,12 @@ export default class Plant extends GrowMixin {
     }
   }
 
+  public get pulseText() {
+    return `text-${this.activeBg.color}-${this.activeBg.level} dark:text-${this.highlightBg} font-semibold`
+  }
+
   public get highlightText() {
-    return `text-${this.highlightBg}-700 dark:text-${this.highlightBg}-400 font-semibold`
+    return `text-${this.highlightBg.color}-${this.highlightBg.level} dark:text-${this.highlightBg.color}-${this.highlightBg.level} font-semibold`
   }
 
   // for when plant is active, but one of its children is selected
@@ -149,6 +153,8 @@ export default class Plant extends GrowMixin {
       this.textClass = this.highlightText
     } else if (this.plantActive) {
       this.textClass = this.subHighlightText
+    } else if (this.selfHighlight) {
+      this.textClass = this.highlightText
     } else {
       this.textClass = this.defaultColor
     }

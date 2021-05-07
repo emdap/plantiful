@@ -14,17 +14,33 @@ import {
   GrowType,
   GrowDataKey,
 } from "@/store/interfaces"
+import { Prop, Watch } from "vue-property-decorator"
 
 export const grow = getModule(GrowModule)
 
 @Component({})
 export default class GrowMixin extends Vue {
-  public messages = growMessages
-  public highlightBg = "pink"
-  public highlightDuration = 1000
+  @Prop({ default: false }) allowSelection!: boolean
 
+  public messages = growMessages
+
+  public entityType = "" as GrowDataKey
+  public entityId = -1
+
+  public highlight = false
+  public highlightBg = { color: "yellow", level: 200, darkLevel: 400 }
+  public active = false
+  public activeBg = { color: "pink", level: 700, darkLevel: 400 }
+  public bgDuration = 1000
+  public defaultBg = null as string | null
+
+  // TODO: reorg file a bit, added a lot to the end
   public toggleSearchPlants(forceShow?: boolean) {
     grid.toggleWidgetName({ name: "search", forceShow })
+  }
+
+  public setHighlightEntity(id: number) {
+    return grow.setHighlightEntity(id)
   }
 
   public get growPlants(): GrowData<GrowPlant> {
@@ -39,7 +55,7 @@ export default class GrowMixin extends Vue {
     return grow.activeEntity
   }
 
-  public get activeEntityType(): string | null {
+  public get activeEntityType(): GrowDataKey | null {
     return grow.activeEntityType
   }
 
@@ -62,6 +78,22 @@ export default class GrowMixin extends Vue {
   ) {
     if (plantActive) {
       grow.setActiveEntity({ id, dataKey })
+    }
+  }
+
+  public growDataKeyText(dataKey: GrowDataKey) {
+    switch (dataKey) {
+      case "leafClusters":
+        return "Leaf Cluster"
+      case "leaves":
+        return "Leaf"
+      case "branches":
+        return "Branch"
+      default:
+        return `${dataKey[0].toUpperCase()}${dataKey.substring(
+          1,
+          dataKey.length - 1
+        )}`
     }
   }
 
@@ -127,17 +159,57 @@ export default class GrowMixin extends Vue {
   }
 
   public get backgroundClass() {
-    return (defaultBg: "transparent" | "black", highlight: boolean) => {
-      // could simplify this -- only used by Branch and PetalLeaf
-      if (defaultBg != "transparent" || highlight) {
-        if (highlight) {
-          return `bg-${this.highlightBg}-700 dark:bg-${this.highlightBg}-400`
-        } else {
-          return `bg-${defaultBg} dark:bg-white`
-        }
-      }
-      return "bg-" + defaultBg
+    // could simplify this -- only used by Branch and PetalLeaf
+    let bg = ""
+    if (this.highlight || this.active) {
+      const { color, level, darkLevel } = this.highlight
+        ? this.highlightBg
+        : this.activeBg
+      bg = `bg-${color}-${level} dark:bg-${color}-${darkLevel}`
+    } else if (this.defaultBg) {
+      bg = "bg-" + this.defaultBg + " dark:bg-white"
     }
+    return bg
+  }
+
+  public pulse() {
+    this.active = true
+    setTimeout(() => {
+      this.active = false
+    }, this.bgDuration)
+  }
+
+  public get selfActive() {
+    return (
+      grow.activeEntityType == this.entityType &&
+      grow.activeEntity?.id == this.entityId
+    )
+  }
+
+  public get selfHighlight() {
+    return (
+      grow.highlightEntityType == this.entityType &&
+      grow.highlightEntity == this.entityId
+    )
+  }
+
+  @Watch("allowSelection")
+  public selectionPulse(active: boolean) {
+    if (active) {
+      this.pulse()
+    }
+  }
+
+  @Watch("selfActive")
+  public selfPulse(active: boolean) {
+    if (active) {
+      this.pulse()
+    }
+  }
+
+  @Watch("selfHighlight")
+  public showHighlight(highlight: boolean) {
+    this.highlight = highlight
   }
 }
 </script>
