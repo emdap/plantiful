@@ -45,7 +45,9 @@ export const selectMessages = {
     petals: "Please select a Flower first",
   },
   noPlantSelected: "Select a Plant to start",
+  noPlants: "Please create a plant first",
   default: "Select a ",
+  noDelete: "No plant to delete",
 }
 
 export const controlMessages = {

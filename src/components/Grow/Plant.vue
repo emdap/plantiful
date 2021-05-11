@@ -9,7 +9,7 @@
       v-if="plantData.showName"
       :class="textClass"
       :style="`margin-left: -${plantData.width}px; width: ${plantData.width}px`"
-      class="whitespace-nowrap text-center transition-color duration-75 font-semibold cursor-pointer dark:text-white select-none"
+      class="whitespace-nowrap text-center transition-colors  duration-75 font-semibold cursor-pointer select-none"
       @dblclick.self="setActiveEntity"
     >
       {{ plantData.name }}
@@ -20,6 +20,7 @@
         :key="'branch-' + branch"
         :branchData="getEntity('branches', branch)"
         :allowSelection="plantActive"
+        :plantHighlight="selfHighlight"
       />
       <template
         v-for="clusterType in ['leafClusters', 'flowers']"
@@ -31,6 +32,7 @@
           :flowerOrLeafCluster="clusterType"
           :clusterData="getEntity(clusterType, cluster)"
           :allowSelection="plantActive"
+          :plantHighlight="selfHighlight"
         />
       </template>
     </div>
@@ -38,7 +40,7 @@
 </template>
 
 <script lang="ts">
-import { GrowPlant } from "@/store/interfaces"
+import { GrowDataKey, GrowPlant } from "@/store/interfaces"
 import Component from "vue-class-component"
 import { Prop, Watch } from "vue-property-decorator"
 import Shape from "@/components/Grow/Shape.vue"
@@ -59,28 +61,18 @@ export default class Plant extends GrowMixin {
   // @Prop({ required: true }) setSize!: boolean
 
   public defaultColor = "text-black"
-  public textClass = this.defaultColor
+  // public textClass = this.defaultColor
   public subHighlightBg = "green-500"
 
-  public mounted() {
-    if (this.plantIsActiveEntity) {
-      this.textClass = this.highlightText
-    } else if (this.plantActive) {
-      this.textClass = this.subHighlightText
-    }
+  public entityType: GrowDataKey = "plants"
+  public entityId = this.plantData.id
 
-    // if (!this.plantData.position && this.setSize) {
+  public mounted() {
+    // this.setTextClass()
     if (!this.plantData.position) {
       this.setPlantPosition()
     }
   }
-
-  // @Watch("setSize")
-  // public sizeAvailable(ready: boolean) {
-  //   if (!this.plantData.position && ready) {
-  //     this.setPlantPosition()
-  //   }
-  // }
 
   public setPlantPosition() {
     if (!(this.$el instanceof HTMLElement)) {
@@ -134,7 +126,7 @@ export default class Plant extends GrowMixin {
     }
   }
 
-  public get pulseText() {
+  public get activeText() {
     return `text-${this.activeBg.color}-${this.activeBg.level} dark:text-${this.highlightBg} font-semibold`
   }
 
@@ -147,17 +139,20 @@ export default class Plant extends GrowMixin {
     return `text-${this.subHighlightBg} dark:text-${this.subHighlightBg} font-semibold`
   }
 
-  @Watch("plantIsActiveEntity")
-  public highlightPlant() {
-    if (this.plantIsActiveEntity) {
-      this.textClass = this.highlightText
+  // @Watch("plantIsActiveEntity")
+  // public highlightPlant() {
+  //   this.setTextClass()
+  // }
+
+  public get textClass() {
+    if (this.selfHighlight) {
+      return this.highlightText
+    } else if (this.plantIsActiveEntity) {
+      return this.activeText
     } else if (this.plantActive) {
-      this.textClass = this.subHighlightText
-    } else if (this.selfHighlight) {
-      this.textClass = this.highlightText
-    } else {
-      this.textClass = this.defaultColor
+      return this.subHighlightText
     }
+    return this.defaultColor
   }
 
   public get styleGeneral() {

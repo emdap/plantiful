@@ -21,6 +21,7 @@ export const grow = getModule(GrowModule)
 @Component({})
 export default class GrowMixin extends Vue {
   @Prop({ default: false }) allowSelection!: boolean
+  @Prop({ default: false }) plantHighlight!: boolean
 
   public messages = growMessages
 
@@ -205,6 +206,11 @@ export default class GrowMixin extends Vue {
     if (active) {
       this.pulse()
     }
+  }
+
+  @Watch("plantHighlight")
+  public highlightFromPlant(highlight: boolean) {
+    this.highlight = highlight
   }
 
   @Watch("selfHighlight")

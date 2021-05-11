@@ -15,7 +15,7 @@
       :growData="getEntity(childGrowDataKey, child)"
       :allowSelection="allowSelection"
       :clusterActive="clusterActive"
-      :clusterHighlight="clusterHighlight"
+      :clusterHighlight="clusterHighlight || plantHighlight"
       @height-update="recalcSize"
     />
   </div>
@@ -187,18 +187,10 @@ export default class LeafCluster extends GrowMixin {
   }
 
   @Watch("allowSelection")
-  public plantHighlight(active: boolean) {
+  public toggleFlower(active: boolean) {
     if (active) {
       this.toggleShowFlowerCenter()
-      // this.pulse()
     }
   }
-
-  // @Watch("clusterActive")
-  // public clusterHighlight(active: boolean) {
-  //   if (active) {
-  //     this.pulse()
-  //   }
-  // }
 }
 </script>
