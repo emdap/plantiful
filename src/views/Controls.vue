@@ -1,7 +1,7 @@
 <template>
   <div
     id="controls"
-    class="overflow-auto relative w-full scrollbar-light dark:scrollbar-dark"
+    class="overflow-auto w-full scrollbar-light dark:scrollbar-dark"
   >
     <div v-for="controlTuple in visibleControls" :key="controlTuple[0]">
       <h3 class="mb-2 text-black dark:text-gray-100">

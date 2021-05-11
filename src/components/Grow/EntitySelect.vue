@@ -1,31 +1,35 @@
 <template>
   <div
     id="entity-select"
-    class="text-left w-full overflow-auto scrollbar-light dark:scrollbar-dark"
+    class="w-full h-full overflow-auto scrollbar-light dark:scrollbar-dark"
     style="scroll-behavior: smooth"
   >
-    <div id="selection-wrapper" class="grid gap-2">
+    <div
+      id="entity-select-wrapper"
+      class="flex flex-wrap self-start gap-2 mb-2"
+    >
       <div
         v-for="(key, index) in iterateDataKeys"
         :key="index"
-        class="relative"
+        class="select-wrapper relative"
       >
         <ul
           role="listbox"
           :tabindex="index + 1"
-          class="cursor-pointer focus:outline-none bg-green-200 dark:bg-yellow-200"
           @mousedown="toggleDropdown($event, key)"
           @focus="showDropdown = key"
+          class="cursor-pointer focus:outline-none bg-green-200 dark:bg-yellow-200"
         >
           <div
             :id="key + '-selected'"
-            class="p-2 flex dark:text-black focus:outline-none focus:bg-green-300 dark:focus:bg-yellow-400"
+            class="p-2 flex dark:text-black focus:outline-none"
             :class="{
               'text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-300 cursor-not-allowed': disableSelect(
                 key
               ).disable,
-              'hover:bg-green-300 dark:hover:bg-yellow-400': !disableSelect(key)
-                .disable,
+              'hover:bg-green-300 dark:hover:bg-yellow-400 focus:bg-green-300 dark:focus:bg-yellow-400': !disableSelect(
+                key
+              ).disable,
               'bg-green-400 dark:bg-yellow-500':
                 selected[key] && showDropdown != key,
               'bg-green-300 dark:bg-yellow-400': showDropdown == key,
@@ -54,11 +58,10 @@
             class="transition-all scrollbar-light dark:scrollbar-dark absolute bg-green-200 dark:bg-yellow-200 z-50 w-full shadow-sm"
             :style="dropdownStyle(key)"
           >
-            {{ selected[key] }}
             <li
               v-for="(option, optIndex) in options[key]"
               :key="optIndex"
-              :id="key + '-' + optIndex"
+              :id="optionId(key, optIndex + 1)"
               :tabindex="index + 1"
               class="px-4 py-2 flex dark:text-black hover:bg-green-400 dark:hover:bg-yellow-500 focus:outline-none focus:bg-green-200 dark:focus:bg-yellow-300"
               :class="{
@@ -75,7 +78,7 @@
               {{ optionText(key, false, option.id, optIndex + 1) }}
               <div
                 v-if="key == 'plants'"
-                @click.self="deletePlant($event, option.id)"
+                @mousedown="deletePlant($event, option.id)"
                 class="py-1 px-2 text-xs ml-auto mr-4 font-semibold rounded-sm text-gray-50 bg-red-700 hover:bg-red-500"
               >
                 DELETE
@@ -85,6 +88,19 @@
         </ul>
       </div>
     </div>
+    <div :class="showHelp ? 'p-2 border-1 rounded-md mb-2 m-1' : 'hidden'">
+      Use this tool to select parts of plants more easily. Plants may also be
+      deleted from the "Plant" dropdown.
+      <br /><br /><strong>Tip:</strong> Mousing over an item in a dropdown will
+      highlight it in the "Grow" window. You can use "tab" and "enter" to select
+      items.
+    </div>
+    <button
+      @click="showHelp = !showHelp"
+      class="px-2 py-1 focus:outline-none text-xs rounded-sm hover:bg-gray-400 dark:hover:bg-gray-600 bg-gray-500 text-gray-100 dark:bg-gray-800 dark:text-gray-300"
+    >
+      {{ showHelp ? "Hide Help" : "Help" }}
+    </button>
   </div>
 </template>
 
@@ -100,7 +116,7 @@ import {
   GrowPlant,
   GrowType,
 } from "@/store/interfaces"
-import { Watch } from "vue-property-decorator"
+import { Watch, Ref } from "vue-property-decorator"
 import Component from "vue-class-component"
 import { selectMessages } from "@/fixtures/Messages"
 import DropDownIcon from "@/assets/icons/drop-down.svg"
@@ -129,7 +145,7 @@ export default class EntitySelect extends GrowMixin {
   public selected: SelectedOptions = this.defaultSelected()
   public showDropdown = null as GrowDataKey | null
   public dropdownTarget = null as HTMLElement | null
-  // public initScroll = null as number | null
+  public showHelp = false
 
   public mounted() {
     if (this.activeGrowPlant) {
@@ -182,24 +198,33 @@ export default class EntitySelect extends GrowMixin {
   }
 
   public toggleDropdown(e: MouseEvent, dataKey: GrowDataKey) {
-    const target = e.target instanceof HTMLElement ? e.target : null
-    if (dataKey == grow.highlightEntityType && this.dropdownTarget == target) {
+    e.stopPropagation()
+    const eventTarget = e.target as HTMLElement
+    if (
+      dataKey == grow.highlightEntityType &&
+      (this.dropdownTarget == eventTarget ||
+        !(eventTarget instanceof HTMLLIElement) ||
+        eventTarget.id == this.optionId(dataKey, this.selected[dataKey]))
+    ) {
       this.showDropdown = null
     } else {
-      e.stopPropagation()
       if (!this.dropdownTarget || this.showDropdown != dataKey) {
-        this.dropdownTarget = target
-        // this.initScroll = this.$el.scrollTop
+        // make sure the dropdown target is set to the div, rather than the ul
+        this.dropdownTarget = document.getElementById(dataKey + "-selected")
       }
       this.showDropdown = dataKey
     }
+  }
+
+  public optionId(key: GrowDataKey, optIndex: number | null) {
+    return key + "-" + (optIndex != null ? optIndex : 0)
   }
 
   @Watch("showDropdown")
   public setHighlight(dataKey: GrowDataKey | null) {
     if (dataKey) {
       grow.setHighlightType(dataKey)
-      document.addEventListener("mousedown", this.mouseupWatch)
+      document.addEventListener("mousedown", this.mousedownWatch)
     } else {
       this.clearHighlight()
     }
@@ -209,10 +234,10 @@ export default class EntitySelect extends GrowMixin {
     grow.setHighlightType(null)
     this.dropdownTarget = null
     this.showDropdown = null
-    document.removeEventListener("mousedown", this.mouseupWatch)
+    document.removeEventListener("mousedown", this.mousedownWatch)
   }
 
-  public mouseupWatch() {
+  public mousedownWatch() {
     this.showDropdown = null
   }
 
@@ -317,7 +342,7 @@ export default class EntitySelect extends GrowMixin {
         return this.getEntity(key, id)
       }) as GrowBranch[] & GrowLeafCluster[] & GrowFlower[]
       if (key != "branches") {
-        for (const cluster of this.options[key]) {
+        for (const cluster of optionLists.options[key]) {
           const children =
             key == "leafClusters"
               ? (cluster as GrowLeafCluster).leaves
@@ -428,10 +453,7 @@ export default class EntitySelect extends GrowMixin {
           Math.max(50, elRect.height - dropRect.height - 5) + "px"
         // scroll this dropdown parent to the top, after potential scroll increase caused by dropdown opening
         setTimeout(() => {
-          this.$el.scrollTop =
-            dropRect.y - elRect.y > 0
-              ? dropRect.y - elRect.y
-              : this.$el.scrollTop
+          this.$el.scrollTop = this.$el.scrollTop + dropRect.y - elRect.y
         }, 151)
       } else {
         style["max-height"] = "200px"
@@ -444,7 +466,8 @@ export default class EntitySelect extends GrowMixin {
 </script>
 
 <style>
-#selection-wrapper {
-  grid-template-columns: repeat(2, minmax(100px, 1fr));
+.select-wrapper {
+  min-width: 200px;
+  flex: 1 1 calc(50% - 0.25rem);
 }
 </style>

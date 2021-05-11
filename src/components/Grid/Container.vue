@@ -10,6 +10,7 @@
       :zoneData="zone"
       :containerId="containerData.id"
       :containerResizing="resizing"
+      @show-divider="$emit('show-divider')"
     />
   </div>
 </template>

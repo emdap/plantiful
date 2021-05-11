@@ -10,33 +10,33 @@ const menuWidgets: MenuWidget[] = [
   {
     widgetName: "welcome",
     icon: WelcomeIcon,
-    group: "Information"
+    group: "Information",
   },
   {
     widgetName: "search",
     icon: SearchIcon,
-    group: "Find Plants"
+    group: "Find Plants",
   },
   {
     widgetName: "active-plant",
     icon: InfoIcon,
-    group: "Find Plants"
+    group: "Find Plants",
   },
   {
     widgetName: "grow",
     icon: PlantIcon,
-    group: "Create Plants"
+    group: "Create Plants",
   },
   {
     widgetName: "controls",
     icon: ControlsIcon,
-    group: "Create Plants"
+    group: "Create Plants",
   },
   {
-    widgetName: "select",
+    widgetName: "select-create",
     icon: SelectIcon,
-    group: "Create Plants"
-  }
+    group: "Create Plants",
+  },
 ]
 
 export default menuWidgets

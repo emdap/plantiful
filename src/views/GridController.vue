@@ -21,6 +21,7 @@
           :key="index"
           @close-container="closeContainer"
           @restore-container="restoreContainer"
+          @show-divider="pulseDivider"
         />
       </template>
       <!-- zone used for undocked widgets -->
@@ -72,6 +73,11 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
       this.setContainerSizes(true)
     })
     // want users to notice the divider so they know it's draggable
+    this.pulseDivider()
+  }
+
+  public pulseDivider() {
+    this.showDivider = true
     setTimeout(() => {
       this.showDivider = false
     }, 2000)
@@ -390,7 +396,7 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
 
   public toggleGrowHelpers(show: boolean) {
     grid.toggleWidgetName({ name: "controls", forceShow: show })
-    grid.toggleWidgetName({ name: "select", forceShow: show })
+    grid.toggleWidgetName({ name: "select-create", forceShow: show })
   }
 
   // @Watch("showControls")
@@ -400,7 +406,7 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
 
   @Watch("hasGrowPlants")
   public openGrow(show: boolean) {
-    if (this.growWidget.open != show) {
+    if (show && !this.growWidget.open) {
       grid.toggleWidget(this.growWidget)
     }
   }

@@ -4,7 +4,7 @@ import PlantSearch from "@/views/PlantSearch.vue"
 import ActivePlant from "@/components/Garden/ActivePlant.vue"
 import Grow from "@/views/Grow.vue"
 import Controls from "@/views/Controls.vue"
-import EntitySelect from "@/components/Grow/EntitySelect.vue"
+import SelectCreate from "@/views/SelectCreate.vue"
 import { INIT_WIDGET } from "@/fixtures/Grid/GridDefaults"
 
 const widgets: GridWidget[] = [
@@ -49,9 +49,9 @@ const widgets: GridWidget[] = [
     ...INIT_WIDGET(),
   },
   {
-    component: EntitySelect,
-    name: "select",
-    text: "Selection Helper",
+    component: SelectCreate,
+    name: "select-create",
+    text: "Select & Create",
     open: true,
     defaultZone: 5,
     ...INIT_WIDGET(),

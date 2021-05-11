@@ -3,7 +3,7 @@
     <div class="flex" ref="picker-base">
       <div class="align-top">
         <input
-          class="control-input w-full dark:bg-gray-300 font-semibold"
+          class="control-input w-full dark:bg-gray-300 dark:text-black font-semibold"
           v-model="userEnteredColor"
           @keyup.enter="addColor()"
           type="string"
@@ -14,7 +14,7 @@
           {{ singular ? "Set" : "Add" }}
         </button>
         <div
-          @click="launchColorPicker(true)"
+          @click="launchColorPicker(true, $event)"
           class="icon h-6 w-6"
           title="Open color picker"
         >
@@ -32,7 +32,7 @@
         class="p-1 inline-block mr-2 cursor-pointer text-right shadow-sm"
         :class="singular ? 'w-full h-9' : 'w-9 h-6 my-2'"
         title="Adjust color"
-        @click.self="adjustColor(color, index)"
+        @click.self="adjustColor($event, color, index)"
         :style="{ background: color }"
       >
         <div
@@ -55,27 +55,27 @@
     <div
       ref="color-picker"
       v-if="showColorPicker"
-      class="absolute rounded-sm p-1 bg-gray-50 dark:bg-gray-800 z-50 transition-all"
+      class="absolute rounded-sm p-1 bg-gray-50 dark:bg-gray-800 z-50"
       :style="colorPickerPos"
     >
       <chrome :value="colorPickerStart" @input="pickerInput" />
       <div class="flex gap-1">
         <button
           @click="launchColorPicker(false)"
-          class="bg-gray-200 dark:bg-gray-500 font-semibold hover:text-green-500 hover:bg-gray-100 dark:hover:bg-gray-400 dark:hover:text-green-800 rounded-sm"
+          class="bg-gray-200 focus:outline-none dark:bg-gray-500 font-semibold hover:text-green-500 hover:bg-gray-100 dark:hover:bg-gray-400 dark:hover:text-green-800 rounded-sm"
         >
           Cancel
         </button>
         <button
           @click="addFromPicker()"
-          class="btn-light dark:btn-dark flex-grow"
+          class="btn-light focus:outline-none dark:btn-dark flex-grow"
         >
           {{ adjustIndex > -1 || singular ? "Update" : "Add" }}
         </button>
         <button
           @click="addFromPicker(true)"
           v-if="adjustIndex > -1 && !singular"
-          class="btn-light dark:btn-dark flex-grow"
+          class="btn-light focus:outline-none dark:btn-dark flex-grow"
         >
           Duplicate
         </button>
@@ -111,6 +111,7 @@ type RGBObj = {
 export default class ColorField extends Vue {
   @Prop({ required: true }) colorList!: string[]
   @Prop({ default: false }) singular!: boolean
+  @Prop({ required: true }) containerId!: string
   @Ref("color-picker") colorPicker!: HTMLDivElement
 
   public closeIcon = CloseIcon
@@ -125,7 +126,8 @@ export default class ColorField extends Vue {
   public showColorPicker = false
 
   public colorPickerPos = { top: "", right: "1rem" }
-  public controlContainer = document.getElementById("controls")
+  public pickerLauncherEl!: HTMLElement
+  public controlContainer = document.getElementById(this.containerId)
 
   public beforeDestroy() {
     this.removePickerListeners()
@@ -178,39 +180,41 @@ export default class ColorField extends Vue {
     this.colorPickerPick = color.rgba
   }
 
-  public adjustColor(color: string, index: number) {
+  public adjustColor(e: MouseEvent, color: string, index: number) {
     this.adjustIndex = index
     this.colorPickerStart = this.colorToObj(color)
     // pickerPick won't be updated otherwise until user changes it
     this.colorPickerPick = this.colorPickerStart
-    this.launchColorPicker(true)
+    this.launchColorPicker(true, e)
   }
 
-  public launchColorPicker(show: boolean) {
+  public launchColorPicker(show: boolean, e?: MouseEvent) {
     this.showColorPicker = show
     if (show) {
       document.addEventListener("mousedown", this.closePicker)
+      if (e?.target instanceof HTMLElement) {
+        this.pickerLauncherEl = e.target
+      } else {
+        this.pickerLauncherEl = this.$el as HTMLElement
+      }
       if (this.controlContainer) {
-        this.controlContainer.addEventListener(
-          "scroll",
-          this.updateColorPickerPos
-        )
+        this.controlContainer.addEventListener("scroll", this.closePicker)
       }
       // wait for the picker to mount before positioning
       this.$nextTick(() => {
         this.updateColorPickerPos()
       })
     } else {
-      this.removePickerListeners()
+      // this.removePickerListeners()
       this.adjustIndex = -1
     }
   }
 
-  public closePicker(e: MouseEvent) {
+  public closePicker(e: Event) {
     if (
       e.target instanceof Element &&
       e.target != this.colorPicker &&
-      !this.colorPicker.contains(e.target)
+      !this.colorPicker?.contains(e.target)
     ) {
       this.launchColorPicker(false)
     }
@@ -218,11 +222,9 @@ export default class ColorField extends Vue {
 
   public removePickerListeners() {
     if (this.controlContainer) {
-      this.controlContainer.removeEventListener(
-        "scroll",
-        this.updateColorPickerPos
-      )
+      this.controlContainer.removeEventListener("scroll", this.closePicker)
     }
+    document.removeEventListener("scroll", this.closePicker)
     document.removeEventListener("mousedown", this.closePicker)
   }
 
@@ -230,30 +232,39 @@ export default class ColorField extends Vue {
     if (
       this.$el instanceof HTMLElement &&
       this.showColorPicker &&
-      this.controlContainer instanceof HTMLElement
+      this.pickerLauncherEl instanceof HTMLElement
     ) {
       // controlContainer is Controls.vue's $el
-      const { height } = this.controlContainer.getBoundingClientRect()
-      const scrollTop = this.controlContainer.scrollTop
-      const maxTop = scrollTop + height
-      const buffer = 50 // how far you can scroll up past this.$el before picker disappears
+      // const { height } = this.controlContainer.getBoundingClientRect()
+      // const scrollTop = this.controlContainer.scrollTop
+      // const maxTop = scrollTop + height
+      // const buffer = 50 // how far you can scroll up past this.$el before picker disappears
 
-      let topDist = this.$el.offsetTop
+      // let topDist = this.$el.offsetTop
+      const elRect = this.$el.getBoundingClientRect()
+      const targetRect = this.pickerLauncherEl.getBoundingClientRect()
+
       let pickerHeight!: number
-
       if (this.colorPicker instanceof HTMLElement) {
         pickerHeight = this.colorPicker.getBoundingClientRect().height
       } else {
         pickerHeight = 250 // approximation -- only used if error in colorpicker mount
       }
 
-      if (topDist > maxTop + buffer) {
-        this.launchColorPicker(false)
-      } else if (topDist + pickerHeight > maxTop) {
-        topDist = maxTop - pickerHeight
-      } else {
-        topDist = Math.max(scrollTop - pickerHeight, topDist)
-      }
+      const maxTop = elRect.y + elRect.height - pickerHeight
+
+      // if (topDist > maxTop + buffer) {
+      //   this.launchColorPicker(false)
+      // } else if (topDist + pickerHeight > maxTop) {
+      //   topDist = maxTop - pickerHeight
+      // } else {
+      //   topDist = Math.max(scrollTop - pickerHeight, topDist)
+      // }
+
+      const topDist = Math.min(
+        maxTop,
+        Math.max(10, targetRect.y - pickerHeight / 2)
+      )
       this.colorPickerPos.top = topDist + "px"
     }
   }

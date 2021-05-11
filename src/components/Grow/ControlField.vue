@@ -19,6 +19,7 @@
       <color-field
         :colorList="control.dataType == 'color' ? [curValue] : curValue"
         :singular="control.dataType == 'color'"
+        :containerId="containerId"
         @add-color="addColor"
         @remove-color="removeColor"
         @set-color-list="setColorList"
@@ -63,7 +64,8 @@ export default class ControlField extends Vue {
   @Prop({ required: true }) curValue!: number | string | string[]
   @Prop({ required: true }) dataKey!: GrowDataKey
   // updates on entity can get fired right away, on options wait till input blur
-  @Prop({ required: true }) controlList!: "onEntity" | "onOptions"
+  @Prop({ default: "onEntity" }) controlList!: "onEntity" | "onOptions"
+  @Prop({ default: "controls" }) containerId!: string
 
   public updatedValue = this.curValue
   public showColorPicker = false
