@@ -45,8 +45,12 @@ module.exports = {
   },
   plugins: [
     require("tailwind-scrollbar"),
+    require("@tailwindcss/forms"),
     plugin(function({ addBase, addUtilities, theme }) {
       addBase({
+        "input, select": {
+          "border-color": `${theme("colors.gray.300")} !important`,
+        },
         h1: {
           fontSize: theme("fontSize.2xl"),
           fontWeight: theme("fontWeight.extrabold"),
@@ -73,9 +77,9 @@ module.exports = {
           fontWeight: theme("fontWeight.semibold"),
           borderRadius: theme("borderRadius.sm"),
         },
-        "button:focus": {
-          outline: "none",
-        },
+        // "button:focus": {
+        //   outline: "none",
+        // },
         "button:disabled": {
           color: theme("colors.gray.200"),
           cursor: theme("cursor[not-allowed]"),
@@ -87,9 +91,13 @@ module.exports = {
       })
       addUtilities(
         {
-          // ".margin-border-1": {
-          //   marginLeft: `calc(${theme("spacing.1")} - 1)`
-          // },
+          ".btn-red": {
+            color: theme("colors.gray.50"),
+            background: theme("colors.red.700"),
+          },
+          ".btn-red:hover": {
+            background: theme("colors.red.500"),
+          },
           ".btn-light": {
             background: theme("colors.green.600"),
             color: "white",
@@ -98,7 +106,6 @@ module.exports = {
             background: theme("colors.green.400"),
           },
           ".btn-light:active": {
-            outline: theme("outline.none"),
             background: theme("colors.green.800"),
           },
           ".btn-light:disabled": {

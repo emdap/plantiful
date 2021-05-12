@@ -51,8 +51,13 @@
 
 <script lang="ts">
 import Component from "vue-class-component"
-import GrowMixin from "@/mixins/GrowMixin.vue"
+import { grid } from "@/mixins/GridMixin.vue"
+import Vue from "vue"
 
 @Component({})
-export default class Welcome extends GrowMixin {}
+export default class Welcome extends Vue {
+  public toggleSearchPlants() {
+    grid.toggleWidgetName({ name: "search" })
+  }
+}
 </script>

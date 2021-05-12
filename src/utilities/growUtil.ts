@@ -250,7 +250,7 @@ function createClusterHelper(
   order: number,
   baseBranch: GrowBranch,
   size: number,
-  childList: "petals" | "leaves",
+  dataKey: "leafClusters" | "flowers",
   optionsRef: FlowerOptions | LeafClusterOptions
 ) {
   // properties based on baseBranch
@@ -261,6 +261,7 @@ function createClusterHelper(
 
   const baseCluster = {
     id: 0,
+    children: [],
     order,
     rotation,
     position,
@@ -271,18 +272,16 @@ function createClusterHelper(
     transitionSpeed: 0.5,
   }
 
-  if (childList == "petals") {
+  if (dataKey == "leafClusters") {
     return {
       ...baseCluster,
-      petals: [],
-      color: (optionsRef as FlowerOptions).centerColor,
-      optionsReference: optionsRef as FlowerOptions,
+      optionsReference: optionsRef as LeafClusterOptions,
     }
   }
   return {
     ...baseCluster,
-    leaves: [],
-    optionsReference: optionsRef as LeafClusterOptions,
+    color: (optionsRef as FlowerOptions).centerColor,
+    optionsReference: optionsRef as FlowerOptions,
   }
 }
 

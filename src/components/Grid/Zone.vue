@@ -42,7 +42,7 @@ export default class Zone extends GridMixin {
   @Prop({ default: false }) containerResizing!: boolean
   @Prop({ default: null }) containerId!: number
 
-  public widthToasted = false
+  public emittedDivider = false
 
   public zoneSelected = false
   public minSize = {
@@ -131,12 +131,9 @@ export default class Zone extends GridMixin {
     }
 
     if (!this.nextCol || this.nextCol < this.zoneData.columns[0]) {
-      if (newSize.width > this.maxSize.width && !this.widthToasted) {
-        this.$toasted.info(
-          "To expand width further, click & drag the dotted line"
-        )
+      if (newSize.width - 10 > this.maxSize.width && !this.emittedDivider) {
         this.$emit("show-divider")
-        this.widthToasted = true
+        this.emittedDivider = true
       }
       newSize.width = this.nextCol
         ? this.zoneData.size.width * 2 - newSize.width
@@ -218,7 +215,7 @@ export default class Zone extends GridMixin {
       this.sizeStart = null
       grid.toggleZonesGrowing(this.zoneData.containerId)
       document.removeEventListener("mousemove", this.updateDims)
-      this.widthToasted = false
+      this.emittedDivider = false
     }
   }
 

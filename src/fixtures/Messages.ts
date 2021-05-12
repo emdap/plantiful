@@ -31,6 +31,7 @@ export const gridMessages = {
     resize: "Adjust size",
   },
   dividerTitle: "Drag to adjust overall width",
+  generalError: "Something unexpected happened, try reloading the page",
 }
 
 export const growMessages = {

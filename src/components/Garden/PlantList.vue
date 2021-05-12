@@ -6,7 +6,7 @@
   >
     <div
       v-for="(plant, index) in plantList"
-      :key="plant.id"
+      :key="index"
       @click="optionClicked(plant.id, 'show-active')"
       class="py-2 px-4 text-left h-22 grid grid-cols-3 items-center"
       :class="

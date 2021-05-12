@@ -2,7 +2,7 @@
   <div id="select-create" class="text-left w-full h-full grid gap-2">
     <div
       id="navbar"
-      class="flex flex-col overflow-hidden pr-2 border-r-1 dark:border-gray-900"
+      class="pt-1 flex flex-col overflow-hidden pr-2 border-r-1 dark:border-gray-900"
     >
       <div
         v-for="(nav, index) in navItems"

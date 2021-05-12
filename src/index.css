@@ -5,21 +5,30 @@
 @import "assets/styles/overrides.css";
 
 .btn-help {
-  @apply px-2 py-1 focus:outline-none text-xs hover:bg-gray-400 dark:hover:bg-gray-600 bg-gray-500 text-gray-100 dark:bg-gray-800 dark:text-gray-300;
+  @apply px-2 py-1 focus:outline-none text-xs hover:bg-gray-400 focus:bg-gray-400 dark:hover:bg-gray-600 dark:focus:bg-gray-600 bg-gray-500 text-gray-100 dark:bg-gray-800 dark:text-gray-300 cursor-pointer;
 }
 
-.btn-red {
-  @apply text-gray-50 bg-red-700 hover:bg-red-500;
+.help-box {
+  @apply p-2 border-1 rounded-md mb-2 m-1;
 }
 
 .control-input {
   max-width: 200px;
 
-  @apply shadow-sm pl-2 h-8 leading-8 border-1 border-solid rounded-md;
+  @apply shadow-sm pl-2 h-8 border-1 border-solid rounded-md;
+}
+
+input:focus,
+select:focus {
+  @apply ring-2 ring-green-400 dark:ring-green-500 !important;
+}
+
+button:focus {
+  @apply ring-2 ring-green-400 dark:ring-pink-400 !important;
 }
 
 select:required:invalid {
-  @apply text-gray-400;
+  @apply text-gray-500;
 }
 
 .icon {
@@ -42,11 +51,11 @@ select:required:invalid {
 
 /* p-1 to avoid scrollbar from overlaying content */
 .scrollbar-light {
-  @apply scrollbar-thin scrollbar-thumb-green-300 scrollbar-track-green-50 pr-2;
+  @apply scrollbar-thin scrollbar-thumb-green-300 scrollbar-track-green-50 px-2;
 }
 
 @variants dark {
   .scrollbar-dark {
-    @apply scrollbar-thin scrollbar-thumb-yellow-700 scrollbar-track-gray-600 pr-2;
+    @apply scrollbar-thin scrollbar-thumb-yellow-700 scrollbar-track-gray-600 px-2;
   }
 }

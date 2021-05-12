@@ -98,14 +98,17 @@ export default class GardenModule extends VuexModule implements GardenState {
 
   @Action
   addCustomPlant(plant: Plant) {
-    plant.main_species_id =
-      "grow-" +
+    const nextKey =
       Math.max(
+        0,
         ...Object.keys(this.plantCache).map(k => {
           return parseInt(k)
         })
-      ) +
-      1
+      ) + 1
+    // is ok if this is duplicate, the id on Plants is not used -- see comment line 152
+    plant.id = nextKey
+    plant.main_species_id = "grow-" + nextKey
+
     this.CACHE_PLANT(plant)
   }
   // no API :(

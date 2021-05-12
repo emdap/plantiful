@@ -333,14 +333,12 @@ export default class GrowModule extends VuexModule implements GrowState {
       [key: string]: number | LeafOptions[] | PetalOptions[]
     }
     let iterateOptions!: LeafOptions[] | PetalOptions[]
-    let childList!: number[]
     let childDataKey!: "leaves" | "petals"
     if (dataKey == "leafClusters") {
       processedOptions = processLeafClusterOptions(
         newOptions as LeafClusterOptions
       ) as { clusterHeight: number; leafOptions: LeafOptions[] }
       iterateOptions = processedOptions.leafOptions as LeafOptions[]
-      childList = (cluster as GrowLeafCluster).leaves
       childDataKey = "leaves"
     } else {
       processedOptions = processFlowerOptions(newOptions as FlowerOptions) as {
@@ -348,7 +346,6 @@ export default class GrowModule extends VuexModule implements GrowState {
         petalOptions: PetalOptions[]
       }
       iterateOptions = processedOptions.petalOptions as PetalOptions[]
-      childList = (cluster as GrowFlower).petals
       childDataKey = "petals"
     }
 
@@ -358,9 +355,9 @@ export default class GrowModule extends VuexModule implements GrowState {
     for (const options of iterateOptions) {
       let newEntity!: GrowLeaf | GrowPetal
 
-      if (childList[index]) {
+      if (cluster.children[index]) {
         // update existing leaf/petal
-        newEntity = this.getEntity(childDataKey, childList[index]) as
+        newEntity = this.getEntity(childDataKey, cluster.children[index]) as
           | GrowLeaf
           | GrowPetal
         const mergeChildData =
@@ -397,7 +394,7 @@ export default class GrowModule extends VuexModule implements GrowState {
     }
 
     // remove unneeded leaves/petals
-    for (const oldChildId of childList) {
+    for (const oldChildId of cluster.children) {
       if (children.indexOf(oldChildId) == -1) {
         this.DELETE_ENTITY({ dataKey: childDataKey, id: oldChildId })
       }
@@ -420,7 +417,7 @@ export default class GrowModule extends VuexModule implements GrowState {
   growCustomPlant(payload: { plant: CustomGrowPlant; varyColors: boolean }) {
     const { plant, varyColors } = payload
     const blankFields = {
-      id: -1,
+      id: 0,
       main_species_id: "",
       scientific_name: "",
       family_common_name: "",
@@ -456,7 +453,7 @@ export default class GrowModule extends VuexModule implements GrowState {
       root: true,
     })
 
-    this.growPlant({
+    return this.growPlant({
       basePlant: newPlant,
       varyColors,
     })
@@ -474,9 +471,7 @@ export default class GrowModule extends VuexModule implements GrowState {
 
     if (basePlant) {
       // create whole plant from Plant API data
-      console.log("growing from base")
       plantReturn = createPlant(basePlant, varyColors)
-      console.log(plantReturn)
     } else if (fromOptions) {
       // use the custom options to update existing GrowPlant
       const curPlant = this.getEntity("plants", fromOptions.curId)
@@ -500,41 +495,79 @@ export default class GrowModule extends VuexModule implements GrowState {
 
     // branch/leafCluster/leaf Ids are 0 until entity is added to state
     const branchIds = []
-    const leafClusterIds = []
-    const flowerIds = []
+    const clusterIds = {
+      leafClusters: [] as number[],
+      flowers: [] as number[],
+    }
+    // const leafClusterIds = []
+    // const flowerIds = []
 
     for (const branch of branches) {
       this.addBranch(branch)
       branchIds.push(branch.id)
     }
 
-    for (const overallCluster of clustersWithLeaves) {
-      // leafCluster starts with empty list for leaf ids
-      const { leafCluster, leaves } = overallCluster
-      for (const leaf of leaves) {
-        this.addFlowerLeaf({ dataKey: "leaves", entity: leaf })
-        // leaf now as id assigned
-        leafCluster.leaves.push(leaf.id)
+    const clusterList = [
+      {
+        dataKey: "leafClusters" as "leafClusters",
+        childKey: "leaves" as "leaves",
+        overallCluster: clustersWithLeaves,
+      },
+      {
+        dataKey: "flowers" as "flowers",
+        childKey: "petals" as "petals",
+        overallCluster: flowersWithPetals,
+      },
+    ]
+
+    for (const clusterData of clusterList) {
+      const { dataKey, childKey, overallCluster } = clusterData
+      for (const overall of overallCluster) {
+        const cluster = overall[dataKey as keyof typeof overall] as
+          | GrowLeafCluster
+          | GrowFlower
+        const children = overall[childKey as keyof typeof overall] as
+          | GrowPetal[]
+          | GrowLeaf[]
+        for (const child of children) {
+          this.addFlowerLeaf({ dataKey: childKey, entity: child })
+          cluster.children.push(child.id)
+        }
+        this.addCluster({ dataKey, cluster })
+        clusterIds[dataKey].push(cluster.id)
       }
-      this.addCluster({ dataKey: "leafClusters", cluster: leafCluster })
-      leafClusterIds.push(leafCluster.id)
     }
 
-    for (const overallFlower of flowersWithPetals) {
-      // leafCluster starts with empty list for leaf ids
-      const { flower, petals } = overallFlower
-      for (const petal of petals) {
-        this.addFlowerLeaf({ dataKey: "petals", entity: petal })
-        // leaf now as id assigned
-        flower.petals.push(petal.id)
-      }
-      this.addCluster({ dataKey: "flowers", cluster: flower })
-      flowerIds.push(flower.id)
-    }
+    // for (const overallCluster of clustersWithLeaves) {
+    //   // leafCluster starts with empty list for leaf ids
+    //   const { leafClusters, leaves } = overallCluster
+    //   for (const leaf of leaves) {
+    //     this.addFlowerLeaf({ dataKey: "leaves", entity: leaf })
+    //     // leaf now as id assigned
+    //     leafClusters.leaves.push(leaf.id)
+    //   }
+    //   this.addCluster({ dataKey: "leafClusters", cluster: leafClusters })
+    //   leafClusterIds.push(leafClusters.id)
+    // }
+
+    // for (const overallFlower of flowersWithPetals) {
+    //   // leafCluster starts with empty list for leaf ids
+    //   const { flowers, petals } = overallFlower
+    //   for (const petal of petals) {
+    //     this.addFlowerLeaf({ dataKey: "petals", entity: petal })
+    //     // leaf now as id assigned
+    //     flowers.petals.push(petal.id)
+    //   }
+    //   this.addCluster({ dataKey: "flowers", cluster: flowers })
+    //   flowerIds.push(flowers.id)
+    // }
 
     newPlant.branches = branchIds
-    newPlant.leafClusters = leafClusterIds
-    newPlant.flowers = flowerIds
+    newPlant.leafClusters = clusterIds.leafClusters
+    newPlant.flowers = clusterIds.flowers
+
+    this.addPlant(newPlant)
+    this.setActivePlant(newPlant.id)
 
     return Promise.resolve(newPlant)
   }

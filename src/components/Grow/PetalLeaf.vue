@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
+import GrowMixin from "@/mixins/GrowMixin.vue"
 import { GrowLeaf, GrowPetal } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 import Shape from "@/components/Grow/Shape.vue"
@@ -28,6 +28,7 @@ import Component from "vue-class-component"
   },
 })
 export default class PetalLeaf extends GrowMixin {
+  @Prop({ required: true }) growData!: GrowPetal | GrowLeaf
   @Prop({ required: true }) petalsOrLeaves!: "petals" | "leaves"
   // two props for leaf as want to toggle highlight when cluster (parent) is active, or whole plant (grandparent) active
   @Prop({ default: false }) clusterActive!: boolean

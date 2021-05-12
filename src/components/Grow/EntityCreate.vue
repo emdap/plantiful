@@ -1,40 +1,65 @@
 <template>
   <div
     id="create-entity"
-    class="overflow-auto scrollbar-light dark:scrollbar-dark flex flex-wrap"
+    class="overflow-auto scrollbar-light dark:scrollbar-dark h-full"
   >
-    <div
-      class="control-wrapper p-2 border-b-1 border-gray-200 dark:border-gray-800"
-      v-for="(control, index) in plantControls"
-      :key="index"
-      :class="{
-        'pl-8':
-          control.property == 'leafColors' ||
-          control.property == 'flowerColors',
-      }"
-    >
-      <control-field
-        containerId="create-entity"
-        :control="control"
-        :placeholder="control.placeholder"
-        dataKey="plants"
-        :curValue="plantValues[control.property]"
-        @value-updated="updateProperty"
-      />
+    <div class="flex flex-wrap self-start justify-center">
       <div
-        v-if="needsUpdate(control.property)"
-        class="text-center font-semibold text-xs text-red-600 dark:text-red-500"
+        class="control-wrapper p-2 border-b-1 border-gray-200 dark:border-gray-800 flex flex-wrap items-center justify-center"
+        v-for="(control, index) in plantControls"
+        :key="index"
+        :class="{
+          'pl-8':
+            control.property == 'leafColors' ||
+            control.property == 'flowerColors',
+        }"
       >
-        * Required
+        <control-field
+          containerId="create-entity"
+          :control="control"
+          :placeholder="control.placeholder"
+          dataKey="plants"
+          :curValue="plantValues[control.property]"
+          @value-updated="updateProperty"
+        />
+        <div
+          v-if="needsUpdate(control.property)"
+          class="text-center font-semibold text-xs text-red-600 dark:text-red-500"
+        >
+          * Required
+        </div>
       </div>
-    </div>
-    <div class="w-full justify-center flex gap-2">
-      <button class="btn-light dark:btn-dark my-4" @click="checkAndGrow">
-        Grow your plant!
-      </button>
-      <button class="btn-red my-4" @click="plantValues = emptyValues()">
-        Reset
-      </button>
+      <div
+        class="flex flex-wrap w-full gap-2 justify-center p-2 mb-2 items-center"
+      >
+        <input
+          id="vary-colors"
+          type="checkbox"
+          class="rounded-sm text-green-400 dark:text-yellow-600"
+          v-model="varyColors"
+        />
+        <label for="vary-colors" class="text-sm font-semibold"
+          >Vary colors</label
+        >
+        <div class="btn-help" @click="showHelp = !showHelp">
+          {{ showHelp ? "Hide Help" : "Help" }}
+        </div>
+        <div v-if="showHelp" class="help-box w-full">
+          Selecting "Vary colors" will generate 3 colors for every color you've
+          entered: one that's lighter, one that's darker, and one that's the
+          same.
+        </div>
+      </div>
+      <div
+        class="w-full justify-center flex gap-2 pt-3 sticky bottom-0 items-center bg-white dark:bg-gray-700 shadow-sm border-t-1 border-gray-200 dark:border-gray-800"
+      >
+        <button class="btn-light dark:btn-dark" @click="checkAndGrow">
+          Grow your plant!
+        </button>
+        <button class="btn-red" @click="plantValues = emptyValues()">
+          Reset Fields
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -77,9 +102,11 @@ export default class EntityCreate extends GrowMixin {
   public plantNameControl = {
     property: "name",
     text: "Plant Name",
-    dataType: "string",
+    dataType: "text",
     placeholder: "Name your plant",
   } as Control<GrowPlant>
+  public varyColors = true
+  public showHelp = false
 
   public plantControls = [
     this.plantNameControl,
@@ -116,7 +143,6 @@ export default class EntityCreate extends GrowMixin {
     value: number | string | string[]
   ) {
     if (this.failedValidation.indexOf(property) != -1) {
-      console.log("in failed", value, this.emptyValues()[property])
       if (value != this.emptyValues()[property]) {
         this.failedValidation = this.failedValidation.filter(f => {
           return f != property
@@ -141,14 +167,14 @@ export default class EntityCreate extends GrowMixin {
       }
     }
     if (missingVal) {
-      this.$toasted.error("Please fill in all fields")
+      this.$toasted.error("Please fill in all fields.")
       return
     }
     grow.growCustomPlant({
       plant: this.plantValues as CustomGrowPlant,
-      varyColors: true,
+      varyColors: this.varyColors,
     })
-    console.log("plant grown?")
+    this.plantValues = this.emptyValues()
   }
 
   public get needsUpdate() {
@@ -162,6 +188,6 @@ export default class EntityCreate extends GrowMixin {
 <style>
 .control-wrapper {
   min-width: 200px;
-  flex: 0 1 calc(50% - 0.25rem);
+  flex: 1 1 calc(50% - 0.25rem);
 }
 </style>

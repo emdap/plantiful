@@ -37,7 +37,7 @@ import containerFixture from "@/fixtures/Grid/Containers"
 import zonesFixture from "@/fixtures/Grid/Zones"
 import widgetsFixture from "@/fixtures/Grid/Widgets"
 import GridMixin, { grid } from "@/mixins/GridMixin.vue"
-import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
+import { grow } from "@/mixins/GrowMixin.vue"
 import Container from "@/components/Grid/Container.vue"
 import Zone from "@/components/Grid/Zone.vue"
 import ThreeDotsIcon from "@/assets/icons/three-dots.svg"
@@ -53,7 +53,7 @@ import { NO_SIZE } from "@/fixtures/Defaults"
     ThreeDotsIcon,
   },
 })
-export default class GridController extends mixins(GridMixin, GrowMixin) {
+export default class GridController extends mixins(GridMixin) {
   public ready = false
   public mainId = "grid-controller"
 
@@ -77,10 +77,19 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
   }
 
   public pulseDivider() {
-    this.showDivider = true
-    setTimeout(() => {
-      this.showDivider = false
-    }, 2000)
+    if (
+      this.containers.filter(c => {
+        return c.size.width
+      }).length > 1
+    ) {
+      this.$toasted.info(
+        "To expand width further, click & drag the dotted line"
+      )
+      this.showDivider = true
+      setTimeout(() => {
+        this.showDivider = false
+      }, 2000)
+    }
   }
 
   public addFixtures() {
@@ -96,7 +105,10 @@ export default class GridController extends mixins(GridMixin, GrowMixin) {
   }
 
   public async growTestPlant() {
-    this.testPlant = await this.growPlant(TEST_PLANT)
+    this.testPlant = await grow.growPlant({
+      basePlant: TEST_PLANT,
+      varyColors: true,
+    })
   }
 
   public windowResize() {

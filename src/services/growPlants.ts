@@ -142,7 +142,7 @@ export function createLeafCluster(
   baseBranch: GrowBranch,
   colors: string[],
   texture: LeafTexture
-): { leafCluster: GrowLeafCluster; leaves: GrowLeaf[] } {
+): { leafClusters: GrowLeafCluster; leaves: GrowLeaf[] } {
   const { spacing, sides, area } = DEFAULT_LEAF_CLUSTER_SPREAD[texture]
   const clusterOptions: LeafClusterOptions = {
     colors,
@@ -159,22 +159,22 @@ export function createLeafCluster(
     return createLeaf(order, o)
   })
 
-  const leafCluster = util.createClusterHelper(
+  const leafClusters = util.createClusterHelper(
     order,
     baseBranch,
     clusterHeight,
-    "leaves",
+    "leafClusters",
     clusterOptions
   ) as GrowLeafCluster
 
-  return { leafCluster, leaves }
+  return { leafClusters, leaves }
 }
 
 export function createFlower(
   order: number,
   baseBranch: GrowBranch,
   colors: string[]
-): { flower: GrowFlower; petals: GrowPetal[] } {
+): { flowers: GrowFlower; petals: GrowPetal[] } {
   const { spacing, sides, area } = DEFAULT_FLOWER
   const centerColor = util.varyColors(colors)[0]
   const flowerOptions: FlowerOptions = {
@@ -190,21 +190,21 @@ export function createFlower(
     return createPetal(order, o)
   })
 
-  const flower = util.createClusterHelper(
+  const flowers = util.createClusterHelper(
     order,
     baseBranch,
     flowerHeight,
-    "petals",
+    "flowers",
     flowerOptions
   ) as GrowFlower
-  flower.rotation = { ...NO_ROTATION(), z: 52 } // trouble centering, 52 centers it, TODO?
-  return { flower, petals }
+  flowers.rotation = { ...NO_ROTATION(), z: 52 } // trouble centering, 52 centers it, TODO?
+  return { flowers, petals }
 }
 
 function replaceClusterWithFlower(
   replaceCluster: GrowLeafCluster,
   flowerColors: string[]
-): { flower: GrowFlower; petals: GrowPetal[] } {
+): { flowers: GrowFlower; petals: GrowPetal[] } {
   const { spacing, sides, area } = DEFAULT_FLOWER
   const centerColor = util.varyColors(flowerColors)[2] // darkest version of first color
   const flowerOptions: FlowerOptions = {
@@ -219,11 +219,11 @@ function replaceClusterWithFlower(
     return createPetal(replaceCluster.order, o)
   })
 
-  const flower: GrowFlower = {
+  const flowers: GrowFlower = {
     ...replaceCluster,
     // need to maintain cluster's references to branch position
     position: replaceCluster.position,
-    petals: [],
+    children: [],
     // replace these properties from the cluster
     rotation: { ...NO_ROTATION(), z: 52 }, // trouble perfectly centering petals, 52 rotation centers on branch
     height: flowerHeight,
@@ -232,7 +232,7 @@ function replaceClusterWithFlower(
     optionsReference: flowerOptions,
   }
 
-  return { flower, petals }
+  return { flowers, petals }
 }
 
 export function processBranchOptions(options: BranchOptions) {
@@ -471,7 +471,7 @@ export function processPlantOptions(plantOptions: PlantOptions) {
     // tired of writing out long variable
     const leafClusters = branchOutGlobals.clustersWithLeaves
     const randIndex = Math.floor(Math.random() * leafClusters.length)
-    const replaceCluster = leafClusters[randIndex].leafCluster
+    const replaceCluster = leafClusters[randIndex].leafClusters
     const flowersAndPetals = replaceClusterWithFlower(
       replaceCluster,
       plantOptions.flowerColors

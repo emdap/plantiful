@@ -16,7 +16,7 @@
       @dblclick.self="removeActive()"
       @mouseleave="trackMouse = false"
     >
-      <plant v-for="plant in growPlants" :key="plant.id" :plantData="plant" />
+      <plant v-for="plant in growPlants" :key="plant.id" :growData="plant" />
       <!-- :setSize="zoneReady" -->
     </div>
   </div>
@@ -81,9 +81,6 @@ export default class Grow extends GrowMixin {
 
   public keyDown(e: KeyboardEvent) {
     if (!this.activeEntity) {
-      return
-    } else if (e.key == "Escape") {
-      grow.removeActivePlant()
       return
     }
     if (!this.ctrlDown && e.ctrlKey) {

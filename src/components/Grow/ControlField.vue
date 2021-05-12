@@ -1,5 +1,5 @@
 <template>
-  <div class="text-left grid grid-cols-2 my-2 px-2">
+  <div class="text-left grid grid-cols-2 my-2 px-2 w-full">
     <strong
       v-if="control.dataType != 'color' && control.dataType != 'color-list'"
       class="text-right self-center mr-2 lg:mr-6"
@@ -8,9 +8,7 @@
     <strong v-else class="text-center col-span-2 mb-2">{{
       control.text
     }}</strong>
-    <template
-      v-if="control.dataType == 'number' || control.dataType == 'string'"
-    >
+    <template v-if="control.dataType == 'number' || control.dataType == 'text'">
       <input
         class="control-input dark:bg-gray-300 dark:text-black font-semibold self-center"
         v-model="updatedValue"
@@ -39,7 +37,7 @@
       <select
         required
         v-model="updatedValue"
-        class="control-input text-black dark:bg-gray-300 font-semibold self-center"
+        class="control-input p-0 text-black dark:bg-gray-300 font-semibold self-center"
       >
         <option disabled selected value="">Select value</option>
         <option

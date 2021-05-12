@@ -1,24 +1,24 @@
 <template>
   <div
     class="absolute"
-    :id="'plant-' + plantData.id"
+    :id="'plant-' + growData.id"
     @dblclick="setActive"
     :style="styleGeneral"
   >
     <span
-      v-if="plantData.showName"
+      v-if="growData.showName"
       :class="textClass"
-      :style="`margin-left: -${plantData.width}px; width: ${plantData.width}px`"
+      :style="`margin-left: -${growData.width}px; width: ${growData.width}px`"
       class="whitespace-nowrap text-center transition-colors  duration-75 font-semibold cursor-pointer select-none"
       @dblclick.self="setActiveEntity"
     >
-      {{ plantData.name }}
+      {{ growData.name }}
     </span>
     <div :style="styleRotation" class="absolute">
       <branch
-        v-for="branch in plantData.branches"
+        v-for="branch in growData.branches"
         :key="'branch-' + branch"
-        :branchData="getEntity('branches', branch)"
+        :growData="getEntity('branches', branch)"
         :allowSelection="plantActive"
         :plantHighlight="selfHighlight"
       />
@@ -27,10 +27,10 @@
         :index="clusterType"
       >
         <cluster
-          v-for="cluster in plantData[clusterType]"
+          v-for="cluster in growData[clusterType]"
           :key="clusterKey(clusterType) + cluster"
           :flowerOrLeafCluster="clusterType"
-          :clusterData="getEntity(clusterType, cluster)"
+          :growData="getEntity(clusterType, cluster)"
           :allowSelection="plantActive"
           :plantHighlight="selfHighlight"
         />
@@ -57,7 +57,7 @@ import { NO_POSITION, NO_ROTATION } from "@/fixtures/Defaults"
   },
 })
 export default class Plant extends GrowMixin {
-  @Prop({ required: true }) plantData!: GrowPlant
+  @Prop({ required: true }) growData!: GrowPlant
   // @Prop({ required: true }) setSize!: boolean
 
   public defaultColor = "text-black dark:text-white"
@@ -65,11 +65,11 @@ export default class Plant extends GrowMixin {
   public subHighlightBg = "green-500"
 
   public entityType: GrowDataKey = "plants"
-  public entityId = this.plantData.id
+  public entityId = this.growData.id
 
   public mounted() {
     // this.setTextClass()
-    if (!this.plantData.position) {
+    if (!this.growData.position) {
       this.setPlantPosition()
     }
   }
@@ -79,19 +79,19 @@ export default class Plant extends GrowMixin {
       return this.$toasted.error(this.messages.generalError)
     }
     grow.setPosition({
-      id: this.plantData.id,
+      id: this.growData.id,
       dataKey: "plants",
       newPositions: {
         x: this.$el.offsetLeft,
-        y: this.$el.offsetTop + this.plantData.height / 2,
+        y: this.$el.offsetTop + this.growData.height / 2,
       },
     })
   }
 
   public get clusterLists() {
     return {
-      leafClusters: this.plantData.leafClusters,
-      flowers: this.plantData.flowers,
+      leafClusters: this.growData.leafClusters,
+      flowers: this.growData.flowers,
     }
   }
 
@@ -102,24 +102,24 @@ export default class Plant extends GrowMixin {
   public get plantIsActiveEntity(): boolean {
     return (
       grow.activeEntityType == "plants" &&
-      grow.activeEntity?.id == this.plantData.id
+      grow.activeEntity?.id == this.growData.id
     )
   }
 
   public get plantActive(): boolean {
-    return grow.activeGrowPlant?.id == this.plantData.id
+    return grow.activeGrowPlant?.id == this.growData.id
   }
 
   public setActive(e: MouseEvent) {
     if (!this.plantActive) {
-      grow.setActivePlant(this.plantData.id)
+      grow.setActivePlant(this.growData.id)
       e.stopPropagation()
     }
   }
 
   public setActiveEntity(e: MouseEvent) {
     if (this.plantActive && grow.activeEntityType != "plants") {
-      grow.setActiveEntity({ dataKey: "plants", id: this.plantData.id })
+      grow.setActiveEntity({ dataKey: "plants", id: this.growData.id })
       e.stopPropagation()
     } else if (!this.plantActive) {
       this.setActive(e)
@@ -157,7 +157,7 @@ export default class Plant extends GrowMixin {
 
   public get styleGeneral() {
     const styleData = {
-      ...this.plantData,
+      ...this.growData,
       height: 0, // branches grow out of top of plant barrier, don't want it selectable below name
       rotation: NO_ROTATION(),
     }
@@ -167,7 +167,7 @@ export default class Plant extends GrowMixin {
   public get styleRotation() {
     const styleData = {
       position: NO_POSITION(),
-      rotation: this.plantData.rotation,
+      rotation: this.growData.rotation,
       height: 0,
       width: 0,
       zIndex: 10,

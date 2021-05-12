@@ -7,7 +7,7 @@
   >
     <div v-if="flowerOrLeafCluster == 'flowers'" :style="flowerCenterStyle" />
     <petal-leaf
-      v-for="child in childList"
+      v-for="child in growData.children"
       :key="childGrowDataKey + '-' + child"
       :petalsOrLeaves="childGrowDataKey"
       :growData="getEntity(childGrowDataKey, child)"
@@ -31,7 +31,7 @@ import Component from "vue-class-component"
     PetalLeaf,
   },
 })
-export default class LeafCluster extends GrowMixin {
+export default class Cluster extends GrowMixin {
   @Prop({ required: true }) flowerOrLeafCluster!: "leafClusters" | "flowers"
   @Prop({ required: true }) growData!: GrowLeafCluster | GrowFlower
   @Prop({ default: false }) allowSelection!: boolean
@@ -49,13 +49,6 @@ export default class LeafCluster extends GrowMixin {
       return "petals"
     }
     return "leaves"
-  }
-
-  public get childList(): number[] {
-    if (this.childGrowDataKey == "petals") {
-      return (this.growData as GrowFlower).petals
-    }
-    return (this.growData as GrowLeafCluster).leaves
   }
 
   public get elementId() {
@@ -77,7 +70,7 @@ export default class LeafCluster extends GrowMixin {
       mergeData: newProps,
     })
     // also need to update other leaves/petals in cluster to align with new cluster size
-    for (const childId of this.childList) {
+    for (const childId of this.growData.children) {
       const child = this.getEntity(this.childGrowDataKey, childId)
       const position = {
         position: {
@@ -159,21 +152,25 @@ export default class LeafCluster extends GrowMixin {
       return true
     }
     // children active
-    if (this.childGrowDataKey == "leaves") {
-      return (
-        grow.activeEntityType == "leaves" &&
-        (this.growData as GrowLeafCluster).leaves.indexOf(
-          this.activeEntity.id
-        ) != -1
-      )
-    }
-    if (this.childGrowDataKey == "petals") {
-      return (
-        grow.activeEntityType == "petals" &&
-        (this.growData as GrowFlower).petals.indexOf(this.activeEntity.id) != -1
-      )
-    }
-    return false
+    return (
+      grow.activeEntityType == this.childGrowDataKey &&
+      this.growData.children.indexOf(this.activeEntity.id) != -1
+    )
+    // if (this.childGrowDataKey == "leaves") {
+    //   return (
+    //     grow.activeEntityType == "leaves" &&
+    //     (this.growData as GrowLeafCluster).children.indexOf(
+    //       this.activeEntity.id
+    //     ) != -1
+    //   )
+    // }
+    // if (this.childGrowDataKey == "petals") {
+    //   return (
+    //     grow.activeEntityType == "petals" &&
+    //     (this.growData as GrowFlower).children.indexOf(this.activeEntity.id) != -1
+    //   )
+    // }
+    // return false
   }
 
   public get clusterHighlight() {

@@ -1,11 +1,11 @@
 <template>
   <div
     id="search-bar"
-    class="border-b-1 border-gray-100 dark:border-gray-800  flex gap-2 mb-4 w-full"
+    class="border-b-1 border-gray-100 dark:border-gray-800 flex gap-2 mb-4 w-full"
   >
     <input
       id="search-input"
-      class="font-semibold w-full bg-gray-50 dark:bg-gray-600 focus:bg-green-50 dark:focus:bg-gray-500 p-2 pl-4 flex-grow text-left"
+      class="font-semibold w-full border-0 rounded-sm bg-gray-50 dark:bg-gray-600 focus:bg-green-50 dark:focus:bg-gray-500 p-2 pl-4 flex-grow text-left"
       type="text"
       v-model="searchQuery"
       :placeholder="gardenMessages.searchBar.placeholder"

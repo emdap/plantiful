@@ -1,7 +1,7 @@
 <template>
   <div
     id="entity-select"
-    class="w-full h-full overflow-auto scrollbar-light dark:scrollbar-dark"
+    class="pt-1 w-full h-full overflow-auto scrollbar-light dark:scrollbar-dark"
     style="scroll-behavior: smooth"
   >
     <div
@@ -15,13 +15,14 @@
       >
         <ul
           role="listbox"
-          :tabindex="index + 1"
           @mousedown="toggleDropdown($event, key)"
-          @focus="showDropdown = key"
           class="cursor-pointer focus:outline-none bg-green-200 dark:bg-yellow-200"
         >
           <div
             :id="key + '-selected'"
+            :tabindex="disableSelect(key).disable ? -1 : index + 1"
+            @focus="showDropdown = key"
+            @keydown.esc="showDropdown = null"
             class="p-2 flex dark:text-black focus:outline-none"
             :class="{
               'text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-300 cursor-not-allowed': disableSelect(
@@ -45,9 +46,6 @@
               {{ disableSelect(key).message }}
             </span>
             <div v-if="!disableSelect(key).disable" class="ml-auto flex">
-              <!-- <div v-if="key == 'plants'" @click="deletePlant($event)" class="py-1 px-2 text-xs font-semibold rounded-sm text-gray-50 bg-red-800 hover:bg-red-600">
-                DELETE
-              </div> -->
               <drop-down-icon
                 class="fill-current ml-auto transition-transform transform"
                 :class="showDropdown == key ? 'rotate-180' : 'rotate-0'"
@@ -62,7 +60,7 @@
               v-for="(option, optIndex) in options[key]"
               :key="optIndex"
               :id="optionId(key, optIndex + 1)"
-              :tabindex="index + 1"
+              :tabindex="showDropdown == key ? index + 1 : -1"
               class="px-4 py-2 flex dark:text-black hover:bg-green-400 dark:hover:bg-yellow-500 focus:outline-none focus:bg-green-200 dark:focus:bg-yellow-300"
               :class="{
                 'bg-green-500 dark:bg-yellow-600':
@@ -88,7 +86,7 @@
         </ul>
       </div>
     </div>
-    <div :class="showHelp ? 'p-2 border-1 rounded-md mb-2 m-1' : 'hidden'">
+    <div v-if="showHelp" class="help-box">
       Use this tool to select plants and parts of plants. Plants may also be
       deleted from the "Plant" dropdown.
       <br /><br />
@@ -269,7 +267,7 @@ export default class EntitySelect extends GrowMixin {
             selectMessages.noParentSelected[dataKey as "leaves" | "petals"],
         }
       } else if (dataKey == "plants" && !this.activeGrowPlant) {
-        return Object.values(this.growPlants).length
+        return this.hasGrowPlants
           ? { disable: false, message: selectMessages.noPlantSelected }
           : { disable: true, message: selectMessages.noPlants }
       } else {
@@ -333,6 +331,7 @@ export default class EntitySelect extends GrowMixin {
   public selectEntity(dataKey: GrowDataKey, id: number) {
     if (dataKey == "plants") {
       grow.setActivePlant(id)
+      grow.setActiveEntity({ dataKey, id })
     } else {
       grow.setActiveEntity({ dataKey, id })
     }
@@ -350,13 +349,11 @@ export default class EntitySelect extends GrowMixin {
       }) as GrowBranch[] & GrowLeafCluster[] & GrowFlower[]
       if (key != "branches") {
         for (const cluster of optionLists.options[key]) {
-          const children =
-            key == "leafClusters"
-              ? (cluster as GrowLeafCluster).leaves
-              : (cluster as GrowFlower).petals
-          optionLists.clusterReferences[key][cluster.id] = children.map(id => {
-            return this.getEntity(clusterChildren[key], id)
-          }) as GrowLeaf[] | GrowPetal[]
+          optionLists.clusterReferences[key][cluster.id] = cluster.children.map(
+            id => {
+              return this.getEntity(clusterChildren[key], id)
+            }
+          ) as GrowLeaf[] | GrowPetal[]
         }
       }
     }
@@ -366,21 +363,22 @@ export default class EntitySelect extends GrowMixin {
 
   public setSelected(optIndex: number) {
     if (this.activeEntity && this.activeEntityType) {
-      this.selected.plants = this.activeGrowPlant ? optIndex : null
-      if (this.activeEntityType != "plants") {
-        this.selected[this.activeEntityType] = optIndex
+      if (
+        this.activeEntityType == "plants" &&
+        optIndex != this.selected["plants"]
+      ) {
         // FYI if this component is mounted when a leaf/petal is selected, selected cluster won't update; no reference from child -> parent
         this.setClusterChildrenOptions()
+      }
 
-        // reset other selections to null, unless a cluster child was just selected
-        if (
-          (childrenKeys as readonly string[]).indexOf(this.activeEntityType) ==
-          -1
-        ) {
-          for (const key of [...plantKeys, ...childrenKeys]) {
-            if (key != this.activeEntityType && this.selected[key]) {
-              this.selected[key] = null
-            }
+      this.selected[this.activeEntityType] = optIndex
+      // reset other selections to null, unless a cluster child was just selected
+      if (
+        (childrenKeys as readonly string[]).indexOf(this.activeEntityType) == -1
+      ) {
+        for (const key of [...plantKeys, ...childrenKeys]) {
+          if (key != this.activeEntityType && this.selected[key]) {
+            this.selected[key] = null
           }
         }
       }
@@ -412,7 +410,7 @@ export default class EntitySelect extends GrowMixin {
   //#region Defaults
   public defaultOptions() {
     return {
-      plants: this.growPlants ? Object.values(this.growPlants) : [],
+      plants: this.hasGrowPlants ? Object.values(this.growPlants) : [],
       branches: [] as GrowBranch[],
       leafClusters: [] as GrowLeafCluster[],
       leaves: [] as GrowLeaf[],
@@ -446,7 +444,7 @@ export default class EntitySelect extends GrowMixin {
       const style = {
         "max-height": "0px",
         overflow: "hidden",
-        "padding-right": 0,
+        padding: 0,
       }
       if (this.showDropdown != key) {
         return style

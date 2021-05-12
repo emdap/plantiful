@@ -6,29 +6,34 @@
         placeholder="Enter color"
         v-model="userEnteredColor"
         @keyup.enter="addColor()"
-        @blur="addColor()"
-        type="string"
+        type="text"
       />
       <div class="flex align-middle items-center -mr-2">
-        <button @click="addColor()" class="py-1 text-sm" :disabled="!allowAdd">
+        <button
+          @click="addColor()"
+          class="py-1 text-sm focus:text-green-600 dark:focus:text-yellow-600"
+          :disabled="!allowAdd"
+        >
           {{ singular ? "Set" : "Add" }}
         </button>
         <div
           @click="launchColorPicker(true, $event)"
           class="icon h-6 w-6"
           title="Open color picker"
-          :id="randId"
         >
           <x :is="popOutIcon" height="100%" width="100%" viewBox="0 -3 30 30" />
         </div>
       </div>
     </div>
-    <div class="col-span-2 my-2 w-100" :class="{ 'text-center': !singular }">
+    <div
+      class="col-span-2 mt-3 w-100 flex flex-wrap gap-2 justify-center"
+      :class="{ 'text-center': !singular }"
+    >
       <div
         v-for="(color, index) in colorList"
         :key="index"
-        class="p-1 inline-block mr-2 cursor-pointer text-right shadow-sm"
-        :class="singular ? 'w-full h-9' : 'w-9 h-6 my-2'"
+        class="p-1 inline-block cursor-pointer text-right shadow-sm"
+        :class="singular ? 'w-full h-9' : 'w-9 h-6'"
         title="Adjust color"
         @click.self="adjustColor($event, color, index)"
         :style="{ background: color }"
@@ -60,7 +65,7 @@
       <div class="flex gap-1">
         <button
           @click="launchColorPicker(false)"
-          class="bg-gray-200 focus:outline-none dark:bg-gray-500 font-semibold hover:text-green-500 hover:bg-gray-100 dark:hover:bg-gray-400 dark:hover:text-green-800 rounded-sm"
+          class="bg-gray-200 dark:bg-gray-500 font-semibold hover:text-green-500 hover:bg-gray-100 focus:bg-gray-100 dark:hover:bg-gray-400 dark:focus:bg-gray-400 dark:hover:text-green-800 rounded-sm"
         >
           Cancel
         </button>
@@ -127,16 +132,15 @@ export default class ColorField extends Vue {
   public pickerLauncherRect!: DOMRect
   public controlContainer = document.getElementById(this.containerId)
 
-  public get randId() {
-    return Math.round(Math.random() * 100)
-  }
-
   public beforeDestroy() {
     this.removePickerListeners()
   }
 
   // Emitters
   public addColor() {
+    if (!this.userEnteredColor.length) {
+      return
+    }
     const newColor = colorConverter
       .fromString(this.userEnteredColor)
       ?.toRgbaArray()

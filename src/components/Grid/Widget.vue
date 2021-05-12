@@ -12,7 +12,7 @@
       <nav
         class="flex flex-row flex-shrink-0 h-6 items-center whitespace-nowrap mb-1 sticky left-0 w-full scrollbar-none overflow-x-auto"
       >
-        <nav class="flex w-1/2 gap-3">
+        <nav class="flex gap-3">
           <span
             :title="
               widgetData.docked
@@ -44,12 +44,14 @@
           </span>
         </nav>
         <header
-          class="flex flex-grow font-semibold items-center justify-center px-3 dark:text-black"
+          class="flex flex-grow font-semibold text-left px-3 dark:text-black"
         >
           {{ widgetData.text }}
-          <h2></h2>
         </header>
-        <nav class="flex w-1/2 justify-end" :title="messages.iconTitles.close">
+        <nav
+          class="flex flex-grow justify-end"
+          :title="messages.iconTitles.close"
+        >
           <close-icon class="icon close" @click="closeWidget()" />
         </nav>
       </nav>

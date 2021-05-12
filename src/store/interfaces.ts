@@ -117,7 +117,7 @@ export interface MainSpecies extends PlantSnippet {
 
 export interface ActivePlantInfo {
   text: string
-  value?: number | string | null
+  value?: number | string | string[] | null
 }
 
 // Types
@@ -239,15 +239,15 @@ export interface GrowCluster<T> extends GrowEntity<T> {
   offSet: GrowOffSet
   position: Position
   order: number
+  children: number[]
 }
 
 export interface GrowLeafCluster extends GrowCluster<LeafClusterOptions> {
-  leaves: number[]
+  children: number[]
 }
 
 export interface GrowFlower extends GrowCluster<FlowerOptions> {
   color: string
-  petals: number[]
 }
 
 export interface GrowLeaf extends GrowEntity<LeafOptions> {
@@ -288,8 +288,8 @@ export interface GrowShape extends GrowBasis {
 
 export type BranchOutGlobals = {
   branches: GrowBranch[]
-  clustersWithLeaves: { leafCluster: GrowLeafCluster; leaves: GrowLeaf[] }[]
-  flowersWithPetals: { flower: GrowFlower; petals: GrowPetal[] }[]
+  clustersWithLeaves: { leafClusters: GrowLeafCluster; leaves: GrowLeaf[] }[]
+  flowersWithPetals: { flowers: GrowFlower; petals: GrowPetal[] }[]
   plantOptions: PlantOptions
 }
 
@@ -396,11 +396,11 @@ export interface TopGrowBorder extends GrowBorder {
 export interface GrowPlantReturn {
   branches: GrowBranch[]
   clustersWithLeaves: {
-    leafCluster: GrowLeafCluster
+    leafClusters: GrowLeafCluster
     leaves: GrowLeaf[]
   }[]
   flowersWithPetals: {
-    flower: GrowFlower
+    flowers: GrowFlower
     petals: GrowPetal[]
   }[]
   plant:
@@ -413,7 +413,7 @@ export const ControlInputTypes = [
   "number",
   "color-list",
   "color",
-  "string",
+  "text",
 ] as const
 
 export type GrowControlKeys =
