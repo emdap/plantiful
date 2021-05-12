@@ -68,7 +68,14 @@ module.exports = {
           fontWeight: theme("fontWeight.light"),
           fontStyle: "italic",
         },
-        button: { padding: theme("spacing[2]") },
+        button: {
+          padding: theme("spacing[2]"),
+          fontWeight: theme("fontWeight.semibold"),
+          borderRadius: theme("borderRadius.sm"),
+        },
+        "button:focus": {
+          outline: "none",
+        },
         "button:disabled": {
           color: theme("colors.gray.200"),
           cursor: theme("cursor[not-allowed]"),
@@ -86,13 +93,10 @@ module.exports = {
           ".btn-light": {
             background: theme("colors.green.600"),
             color: "white",
-            fontWeight: theme("fontWeight.semibold"),
-            borderRadius: theme("borderRadius.sm"),
           },
           ".btn-light:hover:not(:disabled)": {
             background: theme("colors.green.400"),
           },
-          ".btn-light:focus": { outlineColor: theme("colors.green.300") },
           ".btn-light:active": {
             outline: theme("outline.none"),
             background: theme("colors.green.800"),
@@ -113,7 +117,6 @@ module.exports = {
           ".btn-dark:hover:not(:disabled)": {
             background: theme("colors.green.600"),
           },
-          ".btn-dark:focus": { outlineColor: theme("colors.green.500") },
           ".btn-dark:active": {
             outline: theme("outline.none"),
             background: theme("colors.green.600"),

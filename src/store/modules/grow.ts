@@ -425,7 +425,6 @@ export default class GrowModule extends VuexModule implements GrowState {
 
     if (basePlant) {
       // create whole plant from Plant API data
-      // const usePosition = position ? position : NO_POSITION()
       plantReturn = createPlant(basePlant, true)
     } else if (fromOptions) {
       // use the custom options to update existing GrowPlant

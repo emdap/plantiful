@@ -1,12 +1,22 @@
 <template>
-  <div class="text-left grid grid-cols-2 mb-2 px-8 gap-2 lg:gap-8">
-    <strong class="text-right">{{ control.text }}:</strong>
-    <template v-if="control.dataType == 'number'">
+  <div class="text-left grid grid-cols-2 my-2 px-2">
+    <strong
+      v-if="control.dataType != 'color' && control.dataType != 'color-list'"
+      class="text-right self-center mr-2 lg:mr-6"
+      >{{ control.text }}:</strong
+    >
+    <strong v-else class="text-center col-span-2 mb-2">{{
+      control.text
+    }}</strong>
+    <template
+      v-if="control.dataType == 'number' || control.dataType == 'string'"
+    >
       <input
-        class="control-input dark:bg-gray-300 dark:text-black font-semibold"
+        class="control-input dark:bg-gray-300 dark:text-black font-semibold self-center"
         v-model="updatedValue"
-        :placeholder="messages.placeholder"
-        type="number"
+        :placeholder="placeholder"
+        :type="control.dataType"
+        @keydown.enter="$event.target.blur"
         @focus="allowUpdate = controlList == 'onEntity' || dataKey != 'plants'"
         @blur="allowUpdate = true"
       />
@@ -27,10 +37,17 @@
     </template>
     <template v-else-if="control.dataType == 'dropdown'">
       <select
+        required
         v-model="updatedValue"
-        class="control-input dark:bg-gray-300 dark:text-black font-semibold"
+        class="control-input text-black dark:bg-gray-300 font-semibold self-center"
       >
-        <option v-for="option in control.options" :key="option" :value="option">
+        <option disabled selected value="">Select value</option>
+        <option
+          class="font-semibold text-black"
+          v-for="option in control.options"
+          :key="option"
+          :value="option"
+        >
           {{ option[0].toUpperCase() + option.substring(1) }}
         </option>
       </select>
@@ -63,6 +80,7 @@ export default class ControlField extends Vue {
     | DropdownControl<GrowType | GrowOptionsType>
   @Prop({ required: true }) curValue!: number | string | string[]
   @Prop({ required: true }) dataKey!: GrowDataKey
+  @Prop({ default: controlMessages.placeholder }) placeholder!: string
   // updates on entity can get fired right away, on options wait till input blur
   @Prop({ default: "onEntity" }) controlList!: "onEntity" | "onOptions"
   @Prop({ default: "controls" }) containerId!: string

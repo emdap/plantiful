@@ -4,9 +4,13 @@
     class="overflow-auto w-full scrollbar-light dark:scrollbar-dark"
   >
     <div v-for="controlTuple in visibleControls" :key="controlTuple[0]">
-      <h3 class="mb-2 text-black dark:text-gray-100">
+      <h4
+        @mouseenter="toggleHighlight(controlTuple[0], true)"
+        @mouseleave="toggleHighlight(controlTuple[0], false)"
+        class="mt-2 pb-2 mb-1 -mr-2 font-semibold shadow-sm sticky top-0 bg-white dark:bg-gray-700 text-black dark:text-gray-100 cursor-pointer"
+      >
         {{ getControlSectionTitle(controlTuple[0]) }}
-      </h3>
+      </h4>
       <div
         v-for="controlList in ['onEntity', 'onOptions']"
         :key="controlList"
@@ -16,10 +20,10 @@
           v-for="control in controls[controlTuple[0]][controlList]"
           :key="control.text"
           :id="`${controlTuple[0]}-${control.text}`"
-          class="pb-2 mb-2 border-b-1 border-gray-200 dark:border-gray-800 border-solid"
+          class="border-b-1 border-gray-200 dark:border-gray-800 border-solid"
         >
           <template v-if="control.children">
-            <h4 class="font-semibold mb-1">{{ control.text }}</h4>
+            <h4 class="font-semibold my-2">{{ control.text }}</h4>
             <div
               v-for="child in control.children"
               :key="child.text"
@@ -258,8 +262,10 @@ export default class Controls extends GrowMixin {
   }
 
   @Watch("activeEntity")
-  public activeEntityChanged() {
-    this.resetScroll()
+  public activeEntityChanged(newEntity: GrowType, oldEntity: GrowType) {
+    if (newEntity?.id != oldEntity?.id) {
+      this.resetScroll()
+    }
   }
 
   @Watch("activeEntityType")
@@ -280,7 +286,16 @@ export default class Controls extends GrowMixin {
     }
   }
 
-  // TODO: does this need to be a getter?
+  public toggleHighlight(dataKey: GrowDataKey, highlight: boolean) {
+    if (!highlight) {
+      grow.setHighlightType(null)
+    } else if (this.activeEntity?.id) {
+      grow.setHighlightType(dataKey)
+      grow.setHighlightEntity(this.activeEntity.id)
+    }
+  }
+
+  // TODO: does this actually need to be a getter?
   public get getControlSectionTitle() {
     return (dataKey: GrowDataKey) => {
       return this.growDataKeyText(dataKey) + " Controls"

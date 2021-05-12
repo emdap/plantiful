@@ -11,7 +11,7 @@ import {
   LeafClusterOptions,
   FlowerOptions,
   PetalOptions,
-  GrowFlower
+  GrowFlower,
 } from "@/store/interfaces"
 import { Position } from "vue-router/types/router"
 
@@ -22,8 +22,8 @@ const plantOptionsControls: ControlList<PlantOptions> = [
     dataType: "number",
     verify: {
       upperBound: 800,
-      lowerBound: 1
-    }
+      lowerBound: 1,
+    },
   },
   {
     property: "spread",
@@ -31,25 +31,25 @@ const plantOptionsControls: ControlList<PlantOptions> = [
     dataType: "number",
     verify: {
       upperBound: 900,
-      lowerBound: 1
-    }
-  },
-  {
-    property: "flowerColors",
-    text: "Flower Colors",
-    dataType: "color-list"
-  },
-  {
-    property: "leafColors",
-    text: "Leaf Colors",
-    dataType: "color-list"
+      lowerBound: 1,
+    },
   },
   {
     property: "leafTexture",
     text: "Leaf Texture",
     dataType: "dropdown",
-    options: LeafTextureValues
-  }
+    options: LeafTextureValues,
+  },
+  {
+    property: "leafColors",
+    text: "Leaf Colors",
+    dataType: "color-list",
+  },
+  {
+    property: "flowerColors",
+    text: "Flower Colors",
+    dataType: "color-list",
+  },
   // comment in below once growPlant actually uses them!
   // {
   //   property: "orientation",
@@ -69,7 +69,7 @@ const plantControls: ControlList<GrowPlant, Rotation & Position> = [
   {
     property: "zIndex",
     text: "Z-Index",
-    dataType: "number"
+    dataType: "number",
   },
   {
     property: "position",
@@ -78,14 +78,14 @@ const plantControls: ControlList<GrowPlant, Rotation & Position> = [
       {
         property: "x",
         text: "Left distance",
-        dataType: "number"
+        dataType: "number",
       },
       {
         property: "y",
         text: "Top distance",
-        dataType: "number"
-      }
-    ]
+        dataType: "number",
+      },
+    ],
   },
   {
     property: "rotation",
@@ -94,25 +94,25 @@ const plantControls: ControlList<GrowPlant, Rotation & Position> = [
       {
         property: "x",
         text: "X axis",
-        dataType: "number"
+        dataType: "number",
       },
       {
         property: "y",
         text: "Y axis",
-        dataType: "number"
+        dataType: "number",
       },
       {
         property: "z",
         text: "Z axis (tilt)",
-        dataType: "number"
+        dataType: "number",
       },
       {
         property: "translate",
         text: "Z translate (depth)",
-        dataType: "number"
-      }
-    ]
-  }
+        dataType: "number",
+      },
+    ],
+  },
 ]
 
 const branchControls: ControlList<GrowBranch> = [
@@ -124,20 +124,20 @@ const branchControls: ControlList<GrowBranch> = [
   {
     property: "zIndex",
     text: "Z-Index",
-    dataType: "number"
-  }
+    dataType: "number",
+  },
 ]
 
 const branchOptionsControls: ControlList<BranchOptions> = [
   {
     property: "branchHeight",
     text: "Height",
-    dataType: "number"
+    dataType: "number",
   },
   {
     property: "branchWidth",
     text: "Width",
-    dataType: "number"
+    dataType: "number",
   },
   {
     property: "angle",
@@ -145,16 +145,16 @@ const branchOptionsControls: ControlList<BranchOptions> = [
     dataType: "number",
     verify: {
       upperBound: 90,
-      lowerBound: -90
-    }
-  }
+      lowerBound: -90,
+    },
+  },
 ]
 
 const leafClusterControls: ControlList<GrowLeafCluster, Rotation> = [
   {
     property: "zIndex",
     text: "Z-Index",
-    dataType: "number"
+    dataType: "number",
   },
   {
     property: "rotation",
@@ -163,43 +163,43 @@ const leafClusterControls: ControlList<GrowLeafCluster, Rotation> = [
       {
         property: "x",
         text: "X axis",
-        dataType: "number"
+        dataType: "number",
       },
       {
         property: "y",
         text: "Y axis",
-        dataType: "number"
+        dataType: "number",
       },
       {
         property: "z",
         text: "Z axis (tilt)",
-        dataType: "number"
-      }
-    ]
-  }
+        dataType: "number",
+      },
+    ],
+  },
 ]
 
 const leafClusterOptionsControls: ControlList<LeafClusterOptions> = [
   {
     property: "colors",
     text: "Leaf Colors",
-    dataType: "color-list"
+    dataType: "color-list",
   },
   {
     property: "texture",
     text: "Leaf Texture",
     dataType: "dropdown",
-    options: LeafTextureValues
+    options: LeafTextureValues,
   },
   {
     property: "spacing",
     text: "Gap between leaves",
-    dataType: "number"
+    dataType: "number",
   },
   {
     property: "sides",
     text: "Leaves in cluster",
-    dataType: "number"
+    dataType: "number",
   },
   {
     property: "area",
@@ -207,26 +207,26 @@ const leafClusterOptionsControls: ControlList<LeafClusterOptions> = [
     dataType: "number",
     verify: {
       upperBound: 360,
-      lowerBound: 0
-    }
-  }
+      lowerBound: 0,
+    },
+  },
 ]
 
 const flowerOptionsControls: ControlList<FlowerOptions> = [
   {
     property: "colors",
     text: "Flower Colors",
-    dataType: "color-list"
+    dataType: "color-list",
   },
   {
     property: "spacing",
     text: "Gap between petals",
-    dataType: "number"
+    dataType: "number",
   },
   {
     property: "sides",
     text: "Petals in flower",
-    dataType: "number"
+    dataType: "number",
   },
   {
     property: "area",
@@ -234,21 +234,21 @@ const flowerOptionsControls: ControlList<FlowerOptions> = [
     dataType: "number",
     verify: {
       upperBound: 360,
-      lowerBound: 0
-    }
-  }
+      lowerBound: 0,
+    },
+  },
 ]
 
 const flowerControls: ControlList<GrowFlower, Rotation> = [
   {
     property: "zIndex",
     text: "Z-Index",
-    dataType: "number"
+    dataType: "number",
   },
   {
     property: "color",
     text: "Flower center color",
-    dataType: "color"
+    dataType: "color",
   },
   {
     property: "rotation",
@@ -257,20 +257,20 @@ const flowerControls: ControlList<GrowFlower, Rotation> = [
       {
         property: "x",
         text: "X axis",
-        dataType: "number"
+        dataType: "number",
       },
       {
         property: "y",
         text: "Y axis",
-        dataType: "number"
+        dataType: "number",
       },
       {
         property: "z",
         text: "Z axis (tilt)",
-        dataType: "number"
-      }
-    ]
-  }
+        dataType: "number",
+      },
+    ],
+  },
 ]
 
 // const allLeafOptionsControls: ControlList<LeafOptions> = [
@@ -290,26 +290,26 @@ const leafOptionsControls: ControlList<LeafOptions> = [
   {
     property: "color",
     text: "Color",
-    dataType: "color"
+    dataType: "color",
   },
   {
     property: "topHeight",
     text: "Top height of leaf",
-    dataType: "number"
+    dataType: "number",
   },
   {
     property: "bottomHeight",
     text: "Bottom height of leaf",
-    dataType: "number"
-  }
+    dataType: "number",
+  },
 ]
 
 const petalOptionsControls: ControlList<PetalOptions> = [
   {
     property: "color",
     text: "Color",
-    dataType: "color"
-  }
+    dataType: "color",
+  },
   // disabled until can fix this from messing up cluster position
   // {
   //   property: "height",
@@ -321,12 +321,12 @@ const petalOptionsControls: ControlList<PetalOptions> = [
 const specialPlantControls = [
   {
     text: "Convert all leaves to flowers",
-    code: "convert-leaves"
+    code: "convert-leaves",
   },
   {
     text: "Convert all flowers to leaves",
-    code: "convert-flowers"
-  }
+    code: "convert-flowers",
+  },
 ]
 
 export default {
@@ -341,5 +341,5 @@ export default {
   flowerControls,
   flowerOptionsControls,
   petalOptionsControls,
-  specialPlantControls
+  specialPlantControls,
 }

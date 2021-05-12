@@ -127,11 +127,11 @@ export default class Plant extends GrowMixin {
   }
 
   public get activeText() {
-    return `text-${this.activeBg.color}-${this.activeBg.level} dark:text-${this.highlightBg} font-semibold`
+    return `text-${this.activeBg.color}-${this.activeBg.level} dark:text-${this.activeBg.color}-${this.activeBg.darkLevel} font-semibold`
   }
 
   public get highlightText() {
-    return `text-${this.highlightBg.color}-${this.highlightBg.level} dark:text-${this.highlightBg.color}-${this.highlightBg.level} font-semibold`
+    return `text-${this.highlightBg.color}-${this.highlightBg.level} dark:text-${this.highlightBg.color}-${this.highlightBg.darkLevel} font-semibold`
   }
 
   // for when plant is active, but one of its children is selected

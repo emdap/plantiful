@@ -76,13 +76,13 @@
               @keypress.enter="selectEntity(key, option.id)"
             >
               {{ optionText(key, false, option.id, optIndex + 1) }}
-              <div
+              <button
                 v-if="key == 'plants'"
                 @mousedown="deletePlant($event, option.id)"
-                class="py-1 px-2 text-xs ml-auto mr-4 font-semibold rounded-sm text-gray-50 bg-red-700 hover:bg-red-500"
+                class="py-1 px-2 text-xs ml-auto mr-4 btn-red"
               >
                 DELETE
-              </div>
+              </button>
             </li>
           </div>
         </ul>
@@ -95,10 +95,7 @@
       highlight it in the "Grow" window. You can use "tab" and "enter" to select
       items.
     </div>
-    <button
-      @click="showHelp = !showHelp"
-      class="px-2 py-1 focus:outline-none text-xs rounded-sm hover:bg-gray-400 dark:hover:bg-gray-600 bg-gray-500 text-gray-100 dark:bg-gray-800 dark:text-gray-300"
-    >
+    <button @click="showHelp = !showHelp" class="btn-help">
       {{ showHelp ? "Hide Help" : "Help" }}
     </button>
   </div>

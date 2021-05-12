@@ -400,7 +400,12 @@ export interface GrowPlantReturn {
 }
 
 // Controls
-export const ControlInputTypes = ["number", "color-list", "color"] as const
+export const ControlInputTypes = [
+  "number",
+  "color-list",
+  "color",
+  "string",
+] as const
 
 export type GrowControlKeys =
   | keyof GrowPlant
@@ -430,6 +435,7 @@ type ControlBase<Type> = {
   property: keyof Type
   text: string
   verify?: VerifyBounds
+  placeholder?: string
 }
 
 export type VerifyBounds = {
