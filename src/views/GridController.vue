@@ -21,7 +21,7 @@
           :key="index"
           @close-container="closeContainer"
           @restore-container="restoreContainer"
-          @show-divider="pulseDivider"
+          @show-divider="toastAndPulse"
         />
       </template>
       <!-- zone used for undocked widgets -->
@@ -77,6 +77,13 @@ export default class GridController extends mixins(GridMixin) {
   }
 
   public pulseDivider() {
+    this.showDivider = true
+    setTimeout(() => {
+      this.showDivider = false
+    }, 2000)
+  }
+
+  public toastAndPulse() {
     if (
       this.containers.filter(c => {
         return c.size.width
@@ -85,10 +92,7 @@ export default class GridController extends mixins(GridMixin) {
       this.$toasted.info(
         "To expand width further, click & drag the dotted line"
       )
-      this.showDivider = true
-      setTimeout(() => {
-        this.showDivider = false
-      }, 2000)
+      this.pulseDivider()
     }
   }
 
