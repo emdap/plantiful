@@ -42,11 +42,11 @@ export const growMessages = {
 
 export const selectMessages = {
   noParentSelected: {
-    leaves: "Please select a Leaf Cluster first",
-    petals: "Please select a Flower first",
+    leaves: "Select a Leaf Cluster first",
+    petals: "Select a Flower first",
   },
   noPlantSelected: "Select a Plant to start",
-  noPlants: "Please create a plant first",
+  noPlants: "Create a plant first",
   default: "Select a ",
   noDelete: "No plant to delete",
 }

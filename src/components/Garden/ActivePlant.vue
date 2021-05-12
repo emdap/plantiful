@@ -35,32 +35,30 @@
           }"
         />
         <ul class="mb-4">
-          <li
-            v-for="(info, index) in showFields"
-            :key="index"
-            class="flex flex-wrap gap-2 items-center py-2 border-b-1 border-gray-200 dark:border-gray-800"
-          >
-            <template v-if="info.value">
+          <li v-for="(info, index) in showFields" :key="index">
+            <div
+              class="flex flex-wrap gap-2 items-center p-2 border-b-1 border-gray-200 dark:border-gray-800"
+              v-if="info.value"
+            >
               <strong> {{ info.text }}: </strong>
               <span class="text-right flex-grow">{{ info.value }}</span>
-            </template>
+            </div>
           </li>
-          <li
-            v-for="(colors, index) in showColors"
-            :key="'colors-' + index"
-            class="flex flex-wrap gap-2 py-4 w-full items-center border-b-1 border-gray-200 dark:border-gray-800"
-          >
-            <template v-if="colors.value">
+          <li v-for="(colors, index) in showColors" :key="'colors-' + index">
+            <div
+              class="flex flex-wrap gap-3 py-4 px-2 w-full items-center border-b-1 border-gray-200 dark:border-gray-800"
+              v-if="colors.value"
+            >
               <strong class="text-right"> {{ colors.text }}: </strong>
-              <div class="flex flex-wrap justify-end flex-grow">
+              <div class="flex flex-wrap gap-2 justify-end flex-grow">
                 <div
                   v-for="(color, index) in colors.value"
                   :key="'color-' + index"
-                  class="p-1 w-9 h-6 my-1 mr-2 shadow-sm flex justify-end"
+                  class="p-1 w-9 h-6 shadow-sm flex justify-end"
                   :style="{ background: color }"
                 />
               </div>
-            </template>
+            </div>
           </li>
           <button class="btn-light px-6 mt-6" @click="growPlant(activePlant)">
             Grow this plant

@@ -142,7 +142,7 @@ export default class ColorField extends Vue {
       return
     }
     const newColor = colorConverter
-      .fromString(this.userEnteredColor)
+      .fromString(this.userEnteredColor.toLowerCase())
       ?.toRgbaArray()
     if (!newColor) {
       this.$toasted.error(controlMessages.colorError)

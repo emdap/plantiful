@@ -6,7 +6,7 @@
   >
     <div
       id="entity-select-wrapper"
-      class="flex flex-wrap self-start gap-2 mb-2"
+      class="flex flex-wrap self-start gap-2 mb-2 mr-2"
     >
       <div
         v-for="(key, index) in iterateDataKeys"
@@ -23,18 +23,8 @@
             :tabindex="disableSelect(key).disable ? -1 : index + 1"
             @focus="showDropdown = key"
             @keydown.esc="showDropdown = null"
-            class="p-2 flex dark:text-black focus:outline-none"
-            :class="{
-              'text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-300 cursor-not-allowed': disableSelect(
-                key
-              ).disable,
-              'hover:bg-green-300 dark:hover:bg-yellow-400 focus:bg-green-300 dark:focus:bg-yellow-400': !disableSelect(
-                key
-              ).disable,
-              'bg-green-400 dark:bg-yellow-500':
-                selected[key] && showDropdown != key,
-              'bg-green-300 dark:bg-yellow-400': showDropdown == key,
-            }"
+            class="p-2 flex dark:text-black focus:outline-none overflow-hidden whitespace-nowrap"
+            :class="selectClass(key)"
           >
             <div v-if="selected[key]">
               <span class="mr-2 font-semibold">
@@ -439,6 +429,20 @@ export default class EntitySelect extends GrowMixin {
   //#endregion
 
   //#region Styling
+  public get selectClass() {
+    return (key: GrowDataKey) => {
+      const disabled = this.disableSelect(key).disable
+      return {
+        "text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-300 cursor-not-allowed": disabled,
+        "hover:bg-green-300 dark:hover:bg-yellow-400 focus:bg-green-300 dark:focus:bg-yellow-400": !disabled,
+        "bg-green-400 dark:bg-yellow-500":
+          this.selected[key] && this.showDropdown != key,
+        "bg-green-300 dark:bg-yellow-400":
+          !disabled && this.showDropdown == key,
+      }
+    }
+  }
+
   public get dropdownStyle() {
     return (key: GrowDataKey) => {
       const style = {
