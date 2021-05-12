@@ -21,7 +21,7 @@ export interface GardenState {
   currentPage: number
   lastPage: number
   pageCache: Record<number, PlantListResponse>
-  plantCache: Record<number, Plant>
+  plantCache: Record<number | string, Plant>
   loading: {
     plantList: boolean
     plant: boolean
@@ -90,7 +90,7 @@ export interface PlantSnippet {
 }
 
 export interface Plant extends PlantSnippet {
-  main_species_id: number
+  main_species_id: number | string
   main_species: MainSpecies
 }
 
@@ -224,6 +224,15 @@ export interface GrowPlant extends GrowEntity<PlantOptions> {
   leafClusters: number[]
   flowers: number[]
   branches: number[]
+}
+
+export interface CustomGrowPlant {
+  name: string
+  height: number
+  spread: number
+  flowerColors: string[]
+  leafColors: string[]
+  leafTexture: LeafTexture
 }
 
 export interface GrowCluster<T> extends GrowEntity<T> {

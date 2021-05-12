@@ -89,11 +89,15 @@
       </div>
     </div>
     <div :class="showHelp ? 'p-2 border-1 rounded-md mb-2 m-1' : 'hidden'">
-      Use this tool to select parts of plants more easily. Plants may also be
+      Use this tool to select plants and parts of plants. Plants may also be
       deleted from the "Plant" dropdown.
-      <br /><br /><strong>Tip:</strong> Mousing over an item in a dropdown will
-      highlight it in the "Grow" window. You can use "tab" and "enter" to select
-      items.
+      <br /><br />
+      <strong>Tips:</strong>
+      <ul class="list-disc pl-6">
+        <li v-for="(tip, index) in tips" :key="index">
+          {{ tip }}
+        </li>
+      </ul>
     </div>
     <button @click="showHelp = !showHelp" class="btn-help">
       {{ showHelp ? "Hide Help" : "Help" }}
@@ -143,6 +147,12 @@ export default class EntitySelect extends GrowMixin {
   public showDropdown = null as GrowDataKey | null
   public dropdownTarget = null as HTMLElement | null
   public showHelp = false
+
+  public tips = [
+    "Plants and parts of plants can also be selected by double clicking on them.",
+    'Mousing over an item in a dropdown will highlight it in the "Grow" window.',
+    'The dropdowns here are responsive to "tab" and "enter".',
+  ]
 
   public mounted() {
     if (this.activeGrowPlant) {

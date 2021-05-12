@@ -6,6 +6,7 @@
         placeholder="Enter color"
         v-model="userEnteredColor"
         @keyup.enter="addColor()"
+        @blur="addColor()"
         type="string"
       />
       <div class="flex align-middle items-center -mr-2">

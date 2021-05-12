@@ -4,7 +4,7 @@
     class="absolute rounded-full"
     :class="[transformOrigin, backgroundClass]"
     :style="entityStyle(growData)"
-    @dblclick="activateSelf"
+    @dblclick="activateEntity(clusterActive, petalsOrLeaves, growData.id)"
   >
     <shape
       v-for="(shape, index) in growData.shapes"
@@ -29,20 +29,12 @@ import Component from "vue-class-component"
 })
 export default class PetalLeaf extends GrowMixin {
   @Prop({ required: true }) petalsOrLeaves!: "petals" | "leaves"
-  @Prop({ required: true }) growData!: GrowPetal | GrowLeaf
   // two props for leaf as want to toggle highlight when cluster (parent) is active, or whole plant (grandparent) active
   @Prop({ default: false }) clusterActive!: boolean
   @Prop({ default: false }) clusterHighlight!: boolean
 
   public entityType = this.petalsOrLeaves
   public entityId = this.growData.id
-
-  public activateSelf(e: MouseEvent) {
-    if (this.clusterActive) {
-      e.stopPropagation()
-      this.activateEntity(true, this.petalsOrLeaves, this.growData.id)
-    }
-  }
 
   @Watch("growData.height")
   public newHeight(height: number) {

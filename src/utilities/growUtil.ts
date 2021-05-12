@@ -71,7 +71,10 @@ function varyColors(baseColors: string[]) {
   return colors
 }
 
-function getPlantOptions(plant: Plant, convertColors: boolean): PlantOptions {
+function getPlantOptions(
+  plant: Plant,
+  convertColors: boolean | undefined
+): PlantOptions {
   const plantOrientation =
     plant.main_species.specifications.shape_and_orientation
   const plantHeight = plant.main_species.specifications.average_height.cm

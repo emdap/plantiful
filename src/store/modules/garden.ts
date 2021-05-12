@@ -26,7 +26,7 @@ export default class GardenModule extends VuexModule implements GardenState {
   currentPage = -1
   lastPage = -1
   pageCache: Record<number, PlantListResponse> = {}
-  plantCache: Record<number, Plant> = {}
+  plantCache: Record<number | string, Plant> = {}
   loading = {
     plantList: false,
     plant: false,
@@ -96,6 +96,18 @@ export default class GardenModule extends VuexModule implements GardenState {
     this.CLEAR_PAGE_CACHE()
   }
 
+  @Action
+  addCustomPlant(plant: Plant) {
+    plant.main_species_id =
+      "grow-" +
+      Math.max(
+        ...Object.keys(this.plantCache).map(k => {
+          return parseInt(k)
+        })
+      ) +
+      1
+    this.CACHE_PLANT(plant)
+  }
   // no API :(
   // @Action
   // async getPageByLink(payload: PageLinkPayload) {

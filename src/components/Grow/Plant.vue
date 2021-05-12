@@ -60,7 +60,7 @@ export default class Plant extends GrowMixin {
   @Prop({ required: true }) plantData!: GrowPlant
   // @Prop({ required: true }) setSize!: boolean
 
-  public defaultColor = "text-black"
+  public defaultColor = "text-black dark:text-white"
   // public textClass = this.defaultColor
   public subHighlightBg = "green-500"
 

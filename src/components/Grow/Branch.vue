@@ -1,9 +1,9 @@
 <template>
   <div
-    :id="'branch-' + branchData.id"
+    :id="'branch-' + growData.id"
     class="absolute cursor-pointer"
     :style="containerStyle"
-    @dblclick="activateEntity(allowSelection, 'branches', branchData.id)"
+    @dblclick="activateEntity(allowSelection, 'branches', growData.id)"
   >
     <div
       :class="['absolute z-10', backgroundClass]"
@@ -22,13 +22,13 @@ import { NO_ROTATION } from "@/fixtures/Defaults"
 
 @Component({})
 export default class Branch extends GrowMixin {
-  @Prop({ required: true }) branchData!: GrowBranch
+  @Prop({ required: true }) growData!: GrowBranch
 
   public entityType = "branches" as "branches"
-  public entityId = this.branchData.id
+  public entityId = this.growData.id
 
   public defaultBg = "black"
-  public startPoint = { ...this.branchData.startPoint }
+  public startPoint = { ...this.growData.startPoint }
 
   @Watch("startPoint")
   public updateEndpoint(newStart: Position, oldStart: Position) {
@@ -38,21 +38,21 @@ export default class Branch extends GrowMixin {
       !isNaN(newStart.y) &&
       (oldStart.y != newStart.y || oldStart.x != newStart.x)
     ) {
-      grow.updateBranchEndPoint(this.branchData)
+      grow.updateBranchEndPoint(this.growData)
     }
   }
 
   public get containerStyle() {
     // trigger watcher -- startPoint references same object as another branch's endPoint
-    this.startPoint = { ...this.branchData.startPoint }
+    this.startPoint = { ...this.growData.startPoint }
 
     const styleData = {
       rotation: NO_ROTATION(),
-      position: this.branchData.position,
-      height: this.branchData.height,
-      width: this.branchData.width,
-      zIndex: this.branchData.zIndex,
-      transitionSpeed: this.selfActive ? 0 : this.branchData.transitionSpeed,
+      position: this.growData.position,
+      height: this.growData.height,
+      width: this.growData.width,
+      zIndex: this.growData.zIndex,
+      transitionSpeed: this.selfActive ? 0 : this.growData.transitionSpeed,
     }
 
     return this.entityStyle(styleData, true)
@@ -60,10 +60,10 @@ export default class Branch extends GrowMixin {
 
   public get branchStyle() {
     const styleData = {
-      ...this.branchData,
-      height: this.branchData.branchHeight,
-      width: this.branchData.branchWidth,
-      position: this.branchData.branchPosition,
+      ...this.growData,
+      height: this.growData.branchHeight,
+      width: this.growData.branchWidth,
+      position: this.growData.branchPosition,
       zIndex: 10,
     }
     return this.entityStyle(styleData)

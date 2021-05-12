@@ -68,7 +68,7 @@ const plantOptionsControls: ControlList<PlantOptions> = [
 const plantControls: ControlList<GrowPlant, Rotation & Position> = [
   {
     property: "zIndex",
-    text: "Z-Index",
+    text: "Stack Order",
     dataType: "number",
   },
   {
@@ -123,7 +123,7 @@ const branchControls: ControlList<GrowBranch> = [
   // },
   {
     property: "zIndex",
-    text: "Z-Index",
+    text: "Stack Order",
     dataType: "number",
   },
 ]
@@ -153,7 +153,7 @@ const branchOptionsControls: ControlList<BranchOptions> = [
 const leafClusterControls: ControlList<GrowLeafCluster, Rotation> = [
   {
     property: "zIndex",
-    text: "Z-Index",
+    text: "Stack Order",
     dataType: "number",
   },
   {
@@ -242,7 +242,7 @@ const flowerOptionsControls: ControlList<FlowerOptions> = [
 const flowerControls: ControlList<GrowFlower, Rotation> = [
   {
     property: "zIndex",
-    text: "Z-Index",
+    text: "Stack Order",
     dataType: "number",
   },
   {

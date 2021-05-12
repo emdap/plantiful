@@ -20,6 +20,7 @@ export const grow = getModule(GrowModule)
 
 @Component({})
 export default class GrowMixin extends Vue {
+  @Prop({ required: true }) growData!: GrowType
   @Prop({ default: false }) allowSelection!: boolean
   @Prop({ default: false }) plantHighlight!: boolean
 
@@ -101,6 +102,7 @@ export default class GrowMixin extends Vue {
   public async growPlant(basePlant: Plant) {
     const plant = await grow.growPlant({
       basePlant,
+      varyColors: true,
     })
 
     grow.addPlant(plant)

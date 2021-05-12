@@ -3,9 +3,7 @@
     :id="elementId"
     class="leaf-cluster absolute z-20 cursor-pointer origin-bottom"
     :style="containerStyle"
-    @dblclick="
-      activateEntity(allowSelection, flowerOrLeafCluster, clusterData.id)
-    "
+    @dblclick="activateEntity(allowSelection, flowerOrLeafCluster, growData.id)"
   >
     <div v-if="flowerOrLeafCluster == 'flowers'" :style="flowerCenterStyle" />
     <petal-leaf
@@ -35,12 +33,12 @@ import Component from "vue-class-component"
 })
 export default class LeafCluster extends GrowMixin {
   @Prop({ required: true }) flowerOrLeafCluster!: "leafClusters" | "flowers"
-  @Prop({ required: true }) clusterData!: GrowLeafCluster | GrowFlower
+  @Prop({ required: true }) growData!: GrowLeafCluster | GrowFlower
   @Prop({ default: false }) allowSelection!: boolean
 
   public showFlowerCenter = false
   public entityType = this.flowerOrLeafCluster
-  public entityId = this.clusterData.id
+  public entityId = this.growData.id
 
   public mounted() {
     this.toggleShowFlowerCenter()
@@ -55,16 +53,16 @@ export default class LeafCluster extends GrowMixin {
 
   public get childList(): number[] {
     if (this.childGrowDataKey == "petals") {
-      return (this.clusterData as GrowFlower).petals
+      return (this.growData as GrowFlower).petals
     }
-    return (this.clusterData as GrowLeafCluster).leaves
+    return (this.growData as GrowLeafCluster).leaves
   }
 
   public get elementId() {
     if (this.flowerOrLeafCluster == "flowers") {
-      return "flowers-" + this.clusterData.id
+      return "flowers-" + this.growData.id
     }
-    return "leaf-cluster-" + this.clusterData.id
+    return "leaf-cluster-" + this.growData.id
   }
 
   public recalcSize(newHeight: number) {
@@ -75,7 +73,7 @@ export default class LeafCluster extends GrowMixin {
     }
     grow.mergeEntity({
       dataKey: this.flowerOrLeafCluster,
-      id: this.clusterData.id,
+      id: this.growData.id,
       mergeData: newProps,
     })
     // also need to update other leaves/petals in cluster to align with new cluster size
@@ -99,40 +97,40 @@ export default class LeafCluster extends GrowMixin {
     let position!: Position
     if (this.flowerOrLeafCluster == "leafClusters") {
       position = {
-        x: this.clusterData.position.x - this.clusterData.width / 2,
-        y: this.clusterData.position.y + this.clusterData.offSet.top,
+        x: this.growData.position.x - this.growData.width / 2,
+        y: this.growData.position.y + this.growData.offSet.top,
       }
     } else {
       position = {
-        x: this.clusterData.position.x - this.clusterData.width + 5,
+        x: this.growData.position.x - this.growData.width + 5,
         y:
-          this.clusterData.position.y -
-          this.clusterData.height / 2 +
-          this.clusterData.offSet.top +
+          this.growData.position.y -
+          this.growData.height / 2 +
+          this.growData.offSet.top +
           5,
       }
     }
 
     const styleData = {
-      rotation: this.clusterData.rotation,
+      rotation: this.growData.rotation,
       position,
-      height: this.clusterData.height,
-      width: this.clusterData.width,
-      zIndex: this.clusterData.zIndex,
-      transistionSpeed: this.clusterData.transitionSpeed,
+      height: this.growData.height,
+      width: this.growData.width,
+      zIndex: this.growData.zIndex,
+      transistionSpeed: this.growData.transitionSpeed,
     }
     return this.entityStyle(styleData, true)
   }
 
   public get flowerCenterStyle() {
     return {
-      background: (this.clusterData as GrowFlower).color,
+      background: (this.growData as GrowFlower).color,
       "border-radius": "100%",
       height: "10px",
       width: "10px",
       position: "absolute",
-      top: `calc(${this.clusterData.height - 10}px/2 - 3px)`,
-      left: `calc(${this.clusterData.width - 10}px/2 - 3px)`,
+      top: `calc(${this.growData.height - 10}px/2 - 3px)`,
+      left: `calc(${this.growData.width - 10}px/2 - 3px)`,
       opacity: this.showFlowerCenter ? 1 : 0,
       transition: "all 1s",
       zIndex: 20,
@@ -145,7 +143,7 @@ export default class LeafCluster extends GrowMixin {
     if (this.flowerOrLeafCluster == "flowers") {
       setTimeout(() => {
         this.showFlowerCenter = true
-      }, this.clusterData.order * 300)
+      }, this.growData.order * 300)
     }
   }
 
@@ -156,7 +154,7 @@ export default class LeafCluster extends GrowMixin {
     // self active
     if (
       grow.activeEntityType == this.flowerOrLeafCluster &&
-      this.activeEntity.id == this.clusterData.id
+      this.activeEntity.id == this.growData.id
     ) {
       return true
     }
@@ -164,7 +162,7 @@ export default class LeafCluster extends GrowMixin {
     if (this.childGrowDataKey == "leaves") {
       return (
         grow.activeEntityType == "leaves" &&
-        (this.clusterData as GrowLeafCluster).leaves.indexOf(
+        (this.growData as GrowLeafCluster).leaves.indexOf(
           this.activeEntity.id
         ) != -1
       )
@@ -172,8 +170,7 @@ export default class LeafCluster extends GrowMixin {
     if (this.childGrowDataKey == "petals") {
       return (
         grow.activeEntityType == "petals" &&
-        (this.clusterData as GrowFlower).petals.indexOf(this.activeEntity.id) !=
-          -1
+        (this.growData as GrowFlower).petals.indexOf(this.activeEntity.id) != -1
       )
     }
     return false

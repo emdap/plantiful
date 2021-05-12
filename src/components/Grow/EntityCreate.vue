@@ -49,6 +49,7 @@ import controlLists from "@/fixtures/Grow/ControlLists"
 import {
   Control,
   ControlList,
+  CustomGrowPlant,
   GrowDataKey,
   GrowPlant,
   Plant,
@@ -143,6 +144,11 @@ export default class EntityCreate extends GrowMixin {
       this.$toasted.error("Please fill in all fields")
       return
     }
+    grow.growCustomPlant({
+      plant: this.plantValues as CustomGrowPlant,
+      varyColors: true,
+    })
+    console.log("plant grown?")
   }
 
   public get needsUpdate() {

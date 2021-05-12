@@ -24,6 +24,8 @@ import {
   PetalOptions,
   GrowEntitySnippet,
   GrowOptionsSnippet,
+  PlantSnippet,
+  CustomGrowPlant,
 } from "@/store/interfaces"
 import Vue from "vue"
 import { NO_ROTATION } from "@/fixtures/Defaults"
@@ -415,17 +417,66 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Action
+  growCustomPlant(payload: { plant: CustomGrowPlant; varyColors: boolean }) {
+    const { plant, varyColors } = payload
+    const blankFields = {
+      id: -1,
+      main_species_id: "",
+      scientific_name: "",
+      family_common_name: "",
+      family: "",
+      image_url: "",
+    }
+    const newPlant: Plant = {
+      ...blankFields,
+      common_name: plant.name,
+      main_species: {
+        ...blankFields,
+        common_name: plant.name,
+        specifications: {
+          shape_and_orientation: "",
+          average_height: { cm: plant.height },
+        },
+        growth: {
+          spread: {
+            cm: plant.spread,
+          },
+        },
+        flower: {
+          color: plant.flowerColors,
+        },
+        foliage: {
+          color: plant.leafColors,
+          texture: plant.leafTexture,
+        },
+      },
+    }
+
+    this.context.dispatch("garden/addCustomPlant", newPlant, {
+      root: true,
+    })
+
+    this.growPlant({
+      basePlant: newPlant,
+      varyColors,
+    })
+  }
+
+  @Action
   growPlant(payload: {
     basePlant?: Plant
+    varyColors?: boolean
     fromOptions?: { curId: number; options: PlantOptions }
     // position?: Position
   }): Promise<GrowPlant> {
-    const { basePlant, fromOptions } = payload
+    const { basePlant, varyColors, fromOptions } = payload
     let plantReturn!: GrowPlantReturn
 
     if (basePlant) {
       // create whole plant from Plant API data
-      plantReturn = createPlant(basePlant, true)
+      console.log("growing from base")
+      plantReturn = createPlant(basePlant, varyColors)
+      console.log(plantReturn)
     } else if (fromOptions) {
       // use the custom options to update existing GrowPlant
       const curPlant = this.getEntity("plants", fromOptions.curId)
