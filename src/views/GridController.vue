@@ -3,7 +3,11 @@
     <template v-if="ready">
       <template v-for="(container, index) in containers">
         <div
-          v-if="index != 0 && container.size.width"
+          v-if="
+            index != 0 &&
+              container.size.width &&
+              containers[index - 1].size.width
+          "
           :key="'divider-' + index"
           :title="messages.dividerTitle"
           class="divider h-full z-10 cursor-pointer"

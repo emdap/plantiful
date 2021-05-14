@@ -15,7 +15,17 @@
 .control-input {
   max-width: 200px;
 
-  @apply shadow-sm pl-2 h-8 border-1 border-solid rounded-md;
+  @apply shadow-sm px-2 h-8 border-1 border-solid rounded-md;
+}
+
+.control-input[type="number"],
+select {
+  @apply pr-1;
+}
+
+select {
+  box-sizing: content-box;
+  min-width: 130px;
 }
 
 input:focus,
@@ -40,7 +50,7 @@ select:required:invalid {
 }
 
 #plant-search .icon,
-#create-entity .icon,
+#entity-create .icon,
 #controls .icon {
   @apply text-green-600 hover:text-pink-800 dark:text-yellow-700 dark:hover:text-yellow-400;
 }

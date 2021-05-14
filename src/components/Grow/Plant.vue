@@ -42,7 +42,7 @@
 <script lang="ts">
 import { GrowDataKey, GrowPlant } from "@/store/interfaces"
 import Component from "vue-class-component"
-import { Prop, Watch } from "vue-property-decorator"
+import { Prop } from "vue-property-decorator"
 import Shape from "@/components/Grow/Shape.vue"
 import Branch from "@/components/Grow/Branch.vue"
 import Cluster from "@/components/Grow/Cluster.vue"
@@ -138,11 +138,6 @@ export default class Plant extends GrowMixin {
   public get subHighlightText() {
     return `text-${this.subHighlightBg} dark:text-${this.subHighlightBg} font-semibold`
   }
-
-  // @Watch("plantIsActiveEntity")
-  // public highlightPlant() {
-  //   this.setTextClass()
-  // }
 
   public get textClass() {
     if (this.selfHighlight) {

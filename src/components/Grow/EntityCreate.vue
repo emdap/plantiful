@@ -1,22 +1,19 @@
 <template>
   <div
-    id="create-entity"
+    id="entity-create"
     class="overflow-auto scrollbar-light dark:scrollbar-dark h-full"
   >
-    <div class="flex flex-wrap self-start justify-center">
+    <div class="flex flex-wrap self-start justify-start">
       <div
-        class="control-wrapper p-2 border-b-1 border-gray-200 dark:border-gray-800 flex flex-wrap"
+        class="control-wrapper p-2 border-b-1 border-gray-200 dark:border-gray-800 flex flex-wrap flex-grow items-center"
         v-for="(control, index) in plantControls"
         :key="index"
-        :class="{
-          'pl-8':
-            control.property == 'leafColors' ||
-            control.property == 'flowerColors',
-        }"
       >
         <div
-          class="max-w-xs flex-grow"
-          :class="index % 2 == 0 ? 'ml-auto' : 'mr-auto'"
+          class="max-w-xs"
+          :class="{
+            'pl-8': colorControl(control.property),
+          }"
         >
           <control-field
             containerId="create-entity"
@@ -29,7 +26,8 @@
         </div>
         <div
           v-if="needsUpdate(control.property)"
-          class="text-center font-semibold text-xs text-red-600 dark:text-red-500"
+          class="text-center font-semibold text-xs text-red-600 dark:text-red-500 "
+          :class="colorControl(control.property) ? 'my-auto pt-5' : 'ml-2'"
         >
           * Required
         </div>
@@ -64,7 +62,7 @@
         <button class="btn-light dark:btn-dark" @click="checkAndGrow">
           Grow your plant!
         </button>
-        <button class="btn-red" @click="plantValues = emptyValues()">
+        <button class="btn-red" @click="resetFields">
           Reset Fields
         </button>
       </div>
@@ -157,7 +155,7 @@ export default class EntityCreate extends GrowMixin {
     this.plantValues[property] = value
   }
 
-  public checkAndGrow() {
+  public async checkAndGrow() {
     let missingVal = false
     const emptyValues = this.emptyValues()
     for (const control of this.plantControls) {
@@ -175,11 +173,19 @@ export default class EntityCreate extends GrowMixin {
       this.$toasted.error("Please fill in all fields.")
       return
     }
-    grow.growCustomPlant({
+    const newPlant = await grow.growCustomPlant({
       plant: this.plantValues as CustomGrowPlant,
       varyColors: this.varyColors,
     })
+    grow.addPlant(newPlant)
+    grow.setActivePlant(newPlant.id)
     this.plantValues = this.emptyValues()
+  }
+
+  public get colorControl() {
+    return (property: string) => {
+      return property == "leafColors" || property == "flowerColors"
+    }
   }
 
   public get needsUpdate() {
@@ -187,12 +193,10 @@ export default class EntityCreate extends GrowMixin {
       return this.failedValidation.indexOf(property) != -1
     }
   }
+
+  public resetFields() {
+    this.plantValues = this.emptyValues()
+    this.failedValidation = []
+  }
 }
 </script>
-
-<style>
-.control-wrapper {
-  min-width: 200px;
-  flex: 1 1 calc(50% - 0.25rem);
-}
-</style>
