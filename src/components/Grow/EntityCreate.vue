@@ -73,7 +73,6 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
 import Component from "vue-class-component"
 import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
 import ControlField from "@/components/Grow/ControlField.vue"
@@ -81,11 +80,9 @@ import ColorField from "@/components/Grow/ColorField.vue"
 import controlLists from "@/fixtures/Grow/ControlLists"
 import {
   Control,
-  ControlList,
   CustomGrowPlant,
   GrowDataKey,
   GrowPlant,
-  Plant,
 } from "@/store/interfaces"
 
 const CustomValues = [

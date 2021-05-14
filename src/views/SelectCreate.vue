@@ -23,11 +23,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
 import Component from "vue-class-component"
 import EntitySelect from "@/components/Grow/EntitySelect.vue"
 import EntityCreate from "@/components/Grow/EntityCreate.vue"
-import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
+import GrowMixin from "@/mixins/GrowMixin.vue"
 import InnerMenu from "@/components/InnerMenu.vue"
 import { Watch, Ref } from "vue-property-decorator"
 
@@ -64,7 +63,7 @@ export default class SelectCreate extends GrowMixin {
   public navItems = [this.selectEntity, this.createEntity]
 
   @Watch("hasGrowPlants")
-  public plantsUpdated(hasPlants: boolean, hadPlants: boolean) {
+  public plantsUpdated(hasPlants: boolean) {
     if (hasPlants) {
       this.selectEntity.show = true
       this.createEntity.show = false

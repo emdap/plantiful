@@ -108,7 +108,7 @@ import {
   GrowPlant,
   GrowType,
 } from "@/store/interfaces"
-import { Watch, Ref } from "vue-property-decorator"
+import { Watch } from "vue-property-decorator"
 import Component from "vue-class-component"
 import { selectMessages } from "@/fixtures/Messages"
 import DropDownIcon from "@/assets/icons/drop-down.svg"

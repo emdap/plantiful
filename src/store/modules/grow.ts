@@ -24,7 +24,6 @@ import {
   PetalOptions,
   GrowEntitySnippet,
   GrowOptionsSnippet,
-  PlantSnippet,
   CustomGrowPlant,
 } from "@/store/interfaces"
 import Vue from "vue"
