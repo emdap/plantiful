@@ -133,11 +133,19 @@ const branchOptionsControls: ControlList<BranchOptions> = [
     property: "branchHeight",
     text: "Height",
     dataType: "number",
+    verify: {
+      upperBound: 900,
+      lowerBound: 0,
+    },
   },
   {
     property: "branchWidth",
     text: "Width",
     dataType: "number",
+    verify: {
+      upperBound: 20,
+      lowerBound: 1,
+    },
   },
   {
     property: "angle",

@@ -1,7 +1,7 @@
 <template>
   <div
     id="entity-select"
-    class="pt-1 w-full h-full overflow-auto scrollbar-light dark:scrollbar-dark"
+    class="pt-3 w-full h-full overflow-auto scrollbar-light dark:scrollbar-dark"
     style="scroll-behavior: smooth"
   >
     <div
@@ -43,7 +43,7 @@
             </div>
           </div>
           <div
-            class="transition-all scrollbar-light dark:scrollbar-dark absolute bg-green-200 dark:bg-yellow-200 z-50 w-full shadow-sm"
+            class="transition-all scrollbar-light dark:scrollbar-dark absolute bg-green-200 dark:bg-yellow-200 z-50 w-full shadow-sm pb-6"
             :style="dropdownStyle(key)"
           >
             <li
@@ -72,6 +72,9 @@
                 DELETE
               </button>
             </li>
+            <div
+              class="h-2 w-full sticky bottom-0 bg-gradient-to-t from-green-200 dark:from-yellow-200"
+            />
           </div>
         </ul>
       </div>
@@ -354,8 +357,8 @@ export default class EntitySelect extends GrowMixin {
   public setSelected(optIndex: number) {
     if (this.activeEntity && this.activeEntityType) {
       if (
-        this.activeEntityType == "plants" &&
-        optIndex != this.selected["plants"]
+        this.activeEntityType == "flowers" ||
+        this.activeEntityType == "leafClusters"
       ) {
         // FYI if this component is mounted when a leaf/petal is selected, selected cluster won't update; no reference from child -> parent
         this.setClusterChildrenOptions()
@@ -457,9 +460,9 @@ export default class EntitySelect extends GrowMixin {
       if (this.dropdownTarget instanceof HTMLElement) {
         const elRect = this.$el.getBoundingClientRect()
         const dropRect = this.dropdownTarget.getBoundingClientRect()
-        // -5 for some padding
+        // -16 for padding
         style["max-height"] =
-          Math.max(50, elRect.height - dropRect.height - 5) + "px"
+          Math.max(50, elRect.height - dropRect.height - 16) + "px"
         // scroll this dropdown parent to the top, after potential scroll increase caused by dropdown opening
         setTimeout(() => {
           this.$el.scrollTop = this.$el.scrollTop + dropRect.y - elRect.y

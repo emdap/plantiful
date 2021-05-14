@@ -80,7 +80,7 @@ export default class ControlField extends Vue {
   @Prop({ required: true }) dataKey!: GrowDataKey
   @Prop({ default: controlMessages.placeholder }) placeholder!: string
   // updates on entity can get fired right away, on options wait till input blur
-  @Prop({ default: "onEntity" }) controlList!: "onEntity" | "onOptions"
+  @Prop({ default: "onOptions" }) controlList!: "onEntity" | "onOptions"
   @Prop({ default: "controls" }) containerId!: string
 
   public updatedValue = this.curValue

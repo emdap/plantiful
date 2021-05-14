@@ -5,7 +5,7 @@
   >
     <div class="flex flex-wrap self-start justify-center">
       <div
-        class="control-wrapper p-2 border-b-1 border-gray-200 dark:border-gray-800 flex flex-wrap items-center justify-center"
+        class="control-wrapper p-2 border-b-1 border-gray-200 dark:border-gray-800 flex flex-wrap"
         v-for="(control, index) in plantControls"
         :key="index"
         :class="{
@@ -14,14 +14,19 @@
             control.property == 'flowerColors',
         }"
       >
-        <control-field
-          containerId="create-entity"
-          :control="control"
-          :placeholder="control.placeholder"
-          dataKey="plants"
-          :curValue="plantValues[control.property]"
-          @value-updated="updateProperty"
-        />
+        <div
+          class="max-w-xs flex-grow"
+          :class="index % 2 == 0 ? 'ml-auto' : 'mr-auto'"
+        >
+          <control-field
+            containerId="create-entity"
+            :control="control"
+            :placeholder="control.placeholder"
+            dataKey="plants"
+            :curValue="plantValues[control.property]"
+            @value-updated="updateProperty"
+          />
+        </div>
         <div
           v-if="needsUpdate(control.property)"
           class="text-center font-semibold text-xs text-red-600 dark:text-red-500"
@@ -30,7 +35,7 @@
         </div>
       </div>
       <div
-        class="flex flex-wrap w-full gap-2 justify-center p-2 mb-2 items-center"
+        class="flex flex-wrap w-full gap-2 justify-center p-4 items-center border-b-1 border-gray-200 dark:border-gray-800"
       >
         <input
           id="vary-colors"
@@ -51,7 +56,10 @@
         </div>
       </div>
       <div
-        class="w-full justify-center flex gap-2 pt-3 sticky bottom-0 items-center bg-white dark:bg-gray-700 shadow-sm border-t-1 border-gray-200 dark:border-gray-800"
+        class="h-8 w-full sticky bottom-0 bg-gradient-to-t from-white dark:from-gray-700"
+      />
+      <div
+        class="w-full -mt-2 z-50 justify-center flex gap-2 items-center bg-white dark:bg-gray-700"
       >
         <button class="btn-light dark:btn-dark" @click="checkAndGrow">
           Grow your plant!
@@ -160,7 +168,7 @@ export default class EntityCreate extends GrowMixin {
       if (
         (typeof this.plantValues[typesafeProp] != "number" &&
           !(this.plantValues[typesafeProp] as string | string[]).length) ||
-        this.plantValues[typesafeProp] == emptyValues[typesafeProp]
+        this.plantValues[typesafeProp] === emptyValues[typesafeProp]
       ) {
         this.failedValidation.push(typesafeProp)
         missingVal = true

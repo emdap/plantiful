@@ -538,36 +538,9 @@ export default class GrowModule extends VuexModule implements GrowState {
       }
     }
 
-    // for (const overallCluster of clustersWithLeaves) {
-    //   // leafCluster starts with empty list for leaf ids
-    //   const { leafClusters, leaves } = overallCluster
-    //   for (const leaf of leaves) {
-    //     this.addFlowerLeaf({ dataKey: "leaves", entity: leaf })
-    //     // leaf now as id assigned
-    //     leafClusters.leaves.push(leaf.id)
-    //   }
-    //   this.addCluster({ dataKey: "leafClusters", cluster: leafClusters })
-    //   leafClusterIds.push(leafClusters.id)
-    // }
-
-    // for (const overallFlower of flowersWithPetals) {
-    //   // leafCluster starts with empty list for leaf ids
-    //   const { flowers, petals } = overallFlower
-    //   for (const petal of petals) {
-    //     this.addFlowerLeaf({ dataKey: "petals", entity: petal })
-    //     // leaf now as id assigned
-    //     flowers.petals.push(petal.id)
-    //   }
-    //   this.addCluster({ dataKey: "flowers", cluster: flowers })
-    //   flowerIds.push(flowers.id)
-    // }
-
     newPlant.branches = branchIds
     newPlant.leafClusters = clusterIds.leafClusters
     newPlant.flowers = clusterIds.flowers
-
-    this.addPlant(newPlant)
-    this.setActivePlant(newPlant.id)
 
     return Promise.resolve(newPlant)
   }

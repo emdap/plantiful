@@ -7,7 +7,7 @@
       <h4
         @mouseenter="toggleHighlight(controlTuple[0], true)"
         @mouseleave="toggleHighlight(controlTuple[0], false)"
-        class="mt-2 pb-2 mb-1 -mr-2 font-semibold shadow-sm sticky top-0 bg-white dark:bg-gray-700 text-black dark:text-gray-100 cursor-pointer"
+        class="mt-2 pb-2 mb-1 -mr-2 font-semibold sticky top-0 bg-white dark:bg-gray-700 text-black dark:text-gray-100 cursor-pointer"
       >
         {{ getControlSectionTitle(controlTuple[0]) }}
       </h4>
@@ -20,7 +20,7 @@
           v-for="control in controls[controlTuple[0]][controlList]"
           :key="control.text"
           :id="`${controlTuple[0]}-${control.text}`"
-          class="border-b-1 border-gray-200 dark:border-gray-800 border-solid"
+          class="border-t-1 border-gray-200 dark:border-gray-800 border-solid"
         >
           <template v-if="control.children">
             <h4 class="font-semibold my-2">{{ control.text }}</h4>
@@ -71,6 +71,9 @@
         </div>
       </div> -->
     </div>
+    <div
+      class="h-8 w-full sticky bottom-0 bg-gradient-to-t from-white dark:from-gray-700"
+    />
   </div>
 </template>
 

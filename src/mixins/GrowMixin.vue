@@ -103,6 +103,10 @@ export default class GrowMixin extends Vue {
       basePlant,
       varyColors: true,
     })
+
+    grow.addPlant(plant)
+    grow.setActivePlant(plant.id)
+
     return plant
   }
 

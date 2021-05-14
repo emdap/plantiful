@@ -24,7 +24,7 @@ select:focus {
 }
 
 button:focus {
-  @apply ring-2 ring-green-400 dark:ring-pink-400 !important;
+  @apply ring-2 ring-green-400 dark:ring-green-500 !important;
 }
 
 select:required:invalid {

@@ -113,6 +113,9 @@ export default class GridController extends mixins(GridMixin) {
       basePlant: TEST_PLANT,
       varyColors: true,
     })
+
+    grow.addPlant(this.testPlant)
+    grow.setActivePlant(this.testPlant.id)
   }
 
   public windowResize() {
