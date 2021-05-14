@@ -5,7 +5,7 @@
   >
     <div class="flex flex-wrap self-start justify-start">
       <div
-        class="control-wrapper p-2 border-b-1 border-gray-200 dark:border-gray-800 flex flex-wrap flex-grow items-center"
+        class="control-wrapper p-2 border-b-1 border-gray-200 dark:border-gray-800 flex flex-wrap flex-grow"
         v-for="(control, index) in plantControls"
         :key="index"
       >
@@ -13,6 +13,7 @@
           class="max-w-xs"
           :class="{
             'pl-8': colorControl(control.property),
+            'self-center': !colorControl(control.property),
           }"
         >
           <control-field
@@ -26,8 +27,10 @@
         </div>
         <div
           v-if="needsUpdate(control.property)"
-          class="text-center font-semibold text-xs text-red-600 dark:text-red-500 "
-          :class="colorControl(control.property) ? 'my-auto pt-5' : 'ml-2'"
+          class="text-center font-semibold text-xs text-red-600 dark:text-red-500"
+          :class="
+            colorControl(control.property) ? 'my-auto pt-5' : 'ml-2 self-center'
+          "
         >
           * Required
         </div>
