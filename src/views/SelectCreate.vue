@@ -1,11 +1,11 @@
 <template>
   <div id="select-create" class="text-left w-full h-full flex gap-4">
-    <inner-menu style="max-width: 100px">
+    <inner-menu style="max-width: 110px">
       <div
         v-for="(nav, index) in navItems"
         :key="index"
         @click="showChild(nav.id)"
-        class="p-2 w-20 uppercase overflow-x-hidden scrollbar-none text-xs font-semibold cursor-pointer transition-all"
+        class="p-2 w-24 uppercase overflow-x-hidden scrollbar-none text-xs font-semibold cursor-pointer transition-all"
         :class="{
           'bg-pink-400 dark:bg-gray-800 text-white dark:text-gray-300 tracking-wider':
             nav.show,
