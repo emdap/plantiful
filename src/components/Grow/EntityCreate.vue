@@ -200,3 +200,11 @@ export default class EntityCreate extends GrowMixin {
   }
 }
 </script>
+
+<style>
+/* why doesn't select size like input ??  */
+.control-wrapper select {
+  width: 130px;
+  max-width: 100%;
+}
+</style>

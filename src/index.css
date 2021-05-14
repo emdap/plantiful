@@ -25,7 +25,6 @@ select {
 
 select {
   box-sizing: content-box;
-  min-width: 130px;
 }
 
 input:focus,
