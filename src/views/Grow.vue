@@ -17,7 +17,6 @@
       @mouseleave="trackMouse = false"
     >
       <plant v-for="plant in growPlants" :key="plant.id" :growData="plant" />
-      <!-- :setSize="zoneReady" -->
     </div>
   </div>
 </template>

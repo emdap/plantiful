@@ -1,24 +1,32 @@
 <template>
   <div
     id="search-bar"
-    class="border-b-1 border-gray-100 dark:border-gray-800 flex gap-2 mb-4 w-full"
+    class="border-b-1 border-gray-100 dark:border-gray-800 mb-4 w-full"
   >
-    <input
-      id="search-input"
-      class="font-semibold w-full border-0 rounded-sm bg-gray-50 dark:bg-gray-600 focus:bg-green-50 dark:focus:bg-gray-500 p-2 pl-4 flex-grow text-left"
-      type="text"
-      v-model="searchQuery"
-      :placeholder="gardenMessages.searchBar.placeholder"
-      :title="gardenMessages.searchBar.placeholder"
-      @keyup.enter="plantSearch()"
-    />
-    <button
-      :disabled="!searchUpdated"
-      @click="plantSearch()"
-      class="btn-light dark:btn-dark"
+    <div
+      class="ring-pink-400 dark:ring-gray-300 flex rounded-sm"
+      :class="{ 'ring-2': inputFocus }"
     >
-      Search plants
-    </button>
+      <input
+        id="search-input"
+        class="font-semibold w-full border-0 rounded-sm rounded-r-none bg-gray-50 dark:bg-gray-800 focus:bg-green-50 dark:focus:bg-gray-500 p-2 pl-4 flex-grow text-left focus:ring-0 dark:focus:ring-0"
+        type="text"
+        v-model="searchQuery"
+        :placeholder="gardenMessages.searchBar.placeholder"
+        :title="gardenMessages.searchBar.placeholder"
+        @focus="inputFocus = true"
+        @blur="inputFocus = false"
+        @keyup.enter="plantSearch()"
+      />
+      <button
+        :disabled="!searchUpdated"
+        @click="plantSearch()"
+        title="Search"
+        class="btn-light dark:btn-dark fill-current rounded-sm rounded-l-none focus:ring-0"
+      >
+        <search-icon />
+      </button>
+    </div>
   </div>
 </template>
 
@@ -32,12 +40,18 @@ import {
   PlantListPayload,
 } from "@/store/interfaces"
 import GardenMixin, { garden } from "@/mixins/GardenMixin.vue"
+import SearchIcon from "@/assets/icons/search.svg"
 
-@Component({})
+@Component({
+  components: {
+    SearchIcon,
+  },
+})
 export default class SearchBar extends GardenMixin {
   public filterParams = {} as FilterParams
   public searchQuery = ""
   public searchUpdated = true
+  public inputFocus = false
 
   public mounted() {
     // [redacted: no API] TODO: add an actual filter UI and make these optional

@@ -11,21 +11,21 @@
         :loadingText="gardenMessages.searchBar.loading"
       />
     </div>
-    <trefle-warning widget="search" />
-    <template v-if="plantList.length">
-      <plant-list
-        @show-active="toggleActivePlant(true)"
-        @grow-plant="growPlant(activePlant)"
-        class="p-4"
-      />
-      <page-nav
-        :class="
-          plantListLoading
-            ? 'text-gray-300 dark:text-gray-800'
-            : 'text-green-800 dark:text-green-600'
-        "
-      />
-    </template>
+    <!-- <trefle-warning widget="search" /> -->
+    <!-- <template v-if="plantList.length"> -->
+    <plant-list
+      @show-active="toggleActivePlant(true)"
+      @grow-plant="growPlant(activePlant)"
+      class="p-4"
+    />
+    <page-nav
+      :class="
+        plantListLoading
+          ? 'text-gray-300 dark:text-gray-800'
+          : 'text-green-800 dark:text-green-600'
+      "
+    />
+    <!-- </template> -->
   </div>
 </template>
 

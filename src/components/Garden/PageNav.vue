@@ -1,5 +1,5 @@
 <template>
-  <div id="page-nav">
+  <div id="page-nav" :class="{ hidden: lastPage == -1 }">
     <div
       :class="
         plantListLoading

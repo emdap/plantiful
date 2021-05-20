@@ -27,13 +27,16 @@ select {
   box-sizing: content-box;
 }
 
-input:focus,
-select:focus {
-  @apply ring-2 ring-green-400 dark:ring-green-500 !important;
+.control-input:focus {
+  @apply ring-2 ring-green-400 dark:ring-green-500 border-transparent !important;
 }
 
 button:focus {
-  @apply ring-2 ring-green-400 dark:ring-green-500 !important;
+  @apply ring-2 ring-green-400 dark:ring-green-500;
+}
+
+.btn-red:focus {
+  @apply ring-red-500 dark:ring-red-400 !important;
 }
 
 select:required:invalid {
@@ -58,13 +61,31 @@ select:required:invalid {
   @apply hover:text-pink-800 dark:hover:text-yellow-700;
 }
 
-/* p-1 to avoid scrollbar from overlaying content */
+/* px-2 to avoid scrollbar from overlaying content */
 .scrollbar-light {
-  @apply scrollbar-thin scrollbar-thumb-green-300 scrollbar-track-green-50 px-2;
+  @apply scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-md scrollbar-thumb-green-300 scrollbar-track-green-50 px-2;
 }
 
 @variants dark {
   .scrollbar-dark {
-    @apply scrollbar-thin scrollbar-thumb-yellow-700 scrollbar-track-gray-600 px-2;
+    @apply scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-md scrollbar-thumb-yellow-700 scrollbar-track-gray-600 px-2;
+  }
+}
+
+.scrollbar-light-mini {
+  @apply scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent scrollbar-thumb-rounded-full;
+}
+
+.scrollbar-light-mini::-webkit-scrollbar {
+  @apply h-0.5 w-0.5 !important;
+}
+
+@variants dark {
+  .scrollbar-dark-mini {
+    @apply scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-transparent scrollbar-thumb-rounded-full;
+  }
+
+  .scrollbar-dark-mini::-webkit-scrollbar {
+    @apply h-0.5 w-0.5 !important;
   }
 }

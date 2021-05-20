@@ -36,7 +36,7 @@
         </div>
       </div>
       <div
-        class="flex flex-wrap w-full gap-2 justify-center p-4 items-center border-b-1 border-gray-200 dark:border-gray-800"
+        class="flex flex-wrap w-full justify-center p-4 items-center border-b-1 border-gray-200 dark:border-gray-800"
       >
         <input
           id="vary-colors"
@@ -44,25 +44,25 @@
           class="rounded-sm text-green-400 dark:text-yellow-600"
           v-model="varyColors"
         />
-        <label for="vary-colors" class="text-sm font-semibold"
+        <label for="vary-colors" class="mx-2 text-sm font-semibold"
           >Vary colors</label
         >
-        <div class="btn-help" @click="showHelp = !showHelp">
+        <button class="btn-help" @click="showHelp = !showHelp">
           {{ showHelp ? "Hide Help" : "Help" }}
-        </div>
-        <div v-if="showHelp" class="help-box w-full">
+        </button>
+        <div v-if="showHelp" class="help-box mt-4 w-full">
           Selecting "Vary colors" will generate 3 colors for every color you've
           entered: one that's lighter, one that's darker, and one that's the
           same.
         </div>
       </div>
       <div
-        class="h-8 w-full sticky bottom-0 bg-gradient-to-t from-white dark:from-gray-700"
+        class="h-8 w-full sticky bottom-0 bg-gradient-to-t from-white dark:from-gray-700 transition-colors"
       />
       <div
-        class="w-full -mt-2 z-50 justify-center flex gap-2 items-center bg-white dark:bg-gray-700"
+        class="w-full -mt-2 z-50 mb-1 justify-center flex items-center bg-white dark:bg-gray-700"
       >
-        <button class="btn-light dark:btn-dark" @click="checkAndGrow">
+        <button class="btn-light dark:btn-dark mr-2" @click="checkAndGrow">
           Grow your plant!
         </button>
         <button class="btn-red" @click="resetFields">

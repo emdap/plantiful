@@ -3,7 +3,11 @@
     id="controls"
     class="overflow-auto w-full scrollbar-light dark:scrollbar-dark"
   >
-    <div v-for="controlTuple in visibleControls" :key="controlTuple[0]">
+    <div
+      v-for="controlTuple in visibleControls"
+      :key="controlTuple[0]"
+      class="pr-1"
+    >
       <h4
         @mouseenter="toggleHighlight(controlTuple[0], true)"
         @mouseleave="toggleHighlight(controlTuple[0], false)"

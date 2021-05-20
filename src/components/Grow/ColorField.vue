@@ -26,13 +26,13 @@
       </div>
     </div>
     <div
-      class="col-span-2 mt-3 w-100 flex flex-wrap gap-2 justify-center"
+      class="col-span-2 mt-2 w-100 flex flex-wrap justify-center"
       :class="{ 'text-center': !singular }"
     >
       <div
         v-for="(color, index) in colorList"
         :key="index"
-        class="p-1 inline-block cursor-pointer text-right shadow-sm"
+        class="p-1 m-1 inline-block cursor-pointer text-right shadow-sm"
         :class="singular ? 'w-full h-9' : 'w-9 h-6'"
         title="Adjust color"
         @click.self="adjustColor($event, color, index)"

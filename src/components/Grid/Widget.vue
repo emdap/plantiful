@@ -8,9 +8,9 @@
     @focus="inFocus = true"
     @blur="inFocus = false"
   >
-    <main class="flex flex-grow flex-col w-full">
+    <main class="flex flex-grow flex-col w-full h-full">
       <nav
-        class="flex flex-row flex-shrink-0 h-6 items-center whitespace-nowrap mb-1 sticky left-0 w-full scrollbar-none overflow-x-auto"
+        class="flex flex-row flex-shrink-0 h-7 items-center whitespace-nowrap pb-1 sticky left-0 w-full scrollbar-light-mini dark:scrollbar-dark-mini overflow-x-auto"
       >
         <nav class="flex gap-3">
           <span
@@ -56,12 +56,12 @@
         </nav>
       </nav>
       <section
-        class="flex flex-grow scrollbar-light dark:scrollbar-dark overflow-auto px-1"
+        class="flex flex-grow scrollbar-light dark:scrollbar-dark overflow-auto p-1 h-full"
       >
-        <slot></slot>
+        <slot> </slot>
       </section>
       <footer
-        class="mt-auto pb-2 sticky left-0 text-gray-500 h-6 scrollbar-none"
+        class="mt-auto pb-2 sticky left-0 text-gray-500 h-6 scrollbar-light-mini dark:scrollbar-dark-mini overflow-y-hidden"
       >
         <span :title="messages.iconTitles.resize">
           <resize-icon

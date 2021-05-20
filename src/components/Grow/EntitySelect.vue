@@ -4,14 +4,11 @@
     class="pt-3 w-full h-full overflow-auto scrollbar-light dark:scrollbar-dark"
     style="scroll-behavior: smooth"
   >
-    <div
-      id="entity-select-wrapper"
-      class="flex flex-wrap self-start gap-2 mb-2 mr-2"
-    >
+    <div id="entity-select-wrapper" class="flex flex-wrap self-start mb-2">
       <div
         v-for="(key, index) in iterateDataKeys"
         :key="index"
-        class="select-wrapper relative"
+        class="select-wrapper mb-2 mr-2 relative"
       >
         <ul
           role="listbox"
@@ -90,7 +87,7 @@
         </li>
       </ul>
     </div>
-    <button @click="showHelp = !showHelp" class="btn-help">
+    <button @click="showHelp = !showHelp" class="btn-help ml-1 mb-1">
       {{ showHelp ? "Hide Help" : "Help" }}
     </button>
   </div>
@@ -480,6 +477,6 @@ export default class EntitySelect extends GrowMixin {
 <style>
 .select-wrapper {
   min-width: 200px;
-  flex: 1 1 calc(50% - 0.25rem);
+  flex: 1 1 calc(50% - 0.5rem);
 }
 </style>

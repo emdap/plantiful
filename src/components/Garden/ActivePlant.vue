@@ -14,7 +14,9 @@
     </div>
     <template v-else>
       <!-- use properties under main_species when possible, has more consistent capitalization, especially for common_name -->
-      <div class="my-2 p-2 bg-white dark:bg-gray-700 sticky top-0 shadow-sm">
+      <div
+        class="my-2 p-2 bg-white dark:bg-gray-700 sticky top-0 border-b-1 dark:border-gray-800"
+      >
         <h1>{{ activePlant.main_species.common_name }}</h1>
         <h3>{{ activePlant.main_species.scientific_name }}</h3>
       </div>
@@ -27,7 +29,7 @@
           @load="mainImgLoaded = true"
           @click="expandImg = !expandImg"
           :src="activePlant.image_url"
-          class="or-pointer inline object-cover transition-all"
+          class="cursor-pointer inline object-cover transition-all"
           :class="{
             hidden: !mainImgLoaded,
             'max-h-60': !expandImg,
@@ -37,7 +39,7 @@
         <ul class="mb-4">
           <li v-for="(info, index) in showFields" :key="index">
             <div
-              class="flex flex-wrap gap-2 items-center p-2 border-b-1 border-gray-200 dark:border-gray-800"
+              class="flex flex-wrap gap-2 items-center p-2 border-b-1 dark:border-gray-800"
               v-if="info.value"
             >
               <strong> {{ info.text }}: </strong>
@@ -46,15 +48,15 @@
           </li>
           <li v-for="(colors, index) in showColors" :key="'colors-' + index">
             <div
-              class="flex flex-wrap gap-3 py-4 px-2 w-full items-center border-b-1 border-gray-200 dark:border-gray-800"
+              class="flex flex-wrap gap-3 py-2 pl-2 w-full items-center border-b-1 dark:border-gray-800"
               v-if="colors.value"
             >
               <strong class="text-right"> {{ colors.text }}: </strong>
-              <div class="flex flex-wrap gap-2 justify-end flex-grow">
+              <div class="flex flex-wrap justify-end flex-grow">
                 <div
                   v-for="(color, index) in colors.value"
                   :key="'color-' + index"
-                  class="p-1 w-9 h-6 shadow-sm flex justify-end"
+                  class="p-1 m-1 w-9 h-6 shadow-sm flex justify-end"
                   :style="{ background: color }"
                 />
               </div>

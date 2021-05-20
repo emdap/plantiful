@@ -3,7 +3,23 @@ const plugin = require("tailwindcss/plugin")
 // const spacing = require("tailwindcss/spacing")
 
 module.exports = {
-  purge: [],
+  purge: {
+    content: ["./src/**/*.css", "./src/**/*.vue"],
+    options: {
+      safelist: {
+        standard: [
+          "bg-black",
+          /^bg-yellow/,
+          /^bg-green/,
+          /^bg-blue/,
+          /^bg-pink/,
+          /^text-pink/,
+          /^text-green/,
+          /^text-yellow/,
+        ],
+      },
+    },
+  },
   darkMode: "class", // or 'media' or 'class'
   options: {
     important: true,
@@ -42,6 +58,7 @@ module.exports = {
       opacity: ["dark"],
       borderWidth: ["hover"],
     },
+    scrollbar: ["rounded"],
   },
   plugins: [
     require("tailwind-scrollbar"),
@@ -77,9 +94,9 @@ module.exports = {
           fontWeight: theme("fontWeight.semibold"),
           borderRadius: theme("borderRadius.sm"),
         },
-        // "button:focus": {
-        //   outline: "none",
-        // },
+        "button:focus": {
+          outline: "none",
+        },
         "button:disabled": {
           color: theme("colors.gray.200"),
           cursor: theme("cursor[not-allowed]"),
@@ -118,8 +135,6 @@ module.exports = {
           ".btn-dark": {
             background: theme("colors.green.700"),
             color: theme("colors.gray.50"),
-            fontWeight: theme("fontWeight.semibold"),
-            borderRadius: theme("borderRadius.sm"),
           },
           ".btn-dark:hover:not(:disabled)": {
             background: theme("colors.green.600"),
