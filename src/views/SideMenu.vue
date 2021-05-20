@@ -10,11 +10,11 @@
       "
     />
     <div
-      class="transition-all duration-300 bg-white dark:bg-gray-900 h-screen pt-2 pb-4 px-3 flex flex-col shadow-md text-sm fixed overflow-y-auto scrollbar-light-mini dark:scrollbar-dark-mini"
+      class="transition-all duration-300 bg-white dark:bg-gray-900 h-screen pt-2 pb-4 px-3 flex flex-col shadow-md text-sm fixed overflow-y-auto overflow-x-auto scrollbar-light-mini dark:scrollbar-dark-mini"
       :class="expanded ? 'w-52' : 'w-12'"
     >
       <div
-        class="flex items-center w-full mb-6 cursor-pointer fill-current"
+        class="flex items-center w-full mb-6 cursor-pointer fill-current sticky top-0 bg-white dark:bg-gray-900"
         @click="expanded = !expanded"
         :class="
           expanded
@@ -37,7 +37,7 @@
       </div>
       <div v-for="(group, index) in menuGroups" :key="index" class="mb-4">
         <div
-          class="h-6 mb-2 whitespace-nowrap w-full 
+          class="h-6 mb-2 whitespace-nowrap
         border-gray-100 dark:border-gray-800 text-gray-500 dark:text-gray-300 border-t-1 transition-all"
           :class="
             expanded
@@ -47,7 +47,7 @@
         >
           <div
             class="font-mono dark:border-gray-500 border-b-1 pb-1 text-xs tracking-wider transition-all text-left font-bold "
-            :class="expanded ? 'duration-500 opacity-100' : 'opacity-0'"
+            :class="expanded ? 'duration-500 opacity-100' : 'opacity-0 hidden'"
           >
             {{ group }}
           </div>
