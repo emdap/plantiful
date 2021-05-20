@@ -94,7 +94,9 @@ export default class GrowModule extends VuexModule implements GrowState {
 
   @Action
   setActiveEntity(payload: { id: number; dataKey: GrowDataKey }) {
-    if (this[payload.dataKey][payload.id]) {
+    if (payload.dataKey == "plants") {
+      this.setActivePlant(payload.id)
+    } else if (this[payload.dataKey][payload.id]) {
       // may want to have separate active branch/leaf/flower properties in future
       this.ACTIVE_ENTITY(payload)
     }

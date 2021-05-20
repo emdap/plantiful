@@ -61,11 +61,11 @@
               ? 'text-green-600 hover:text-green-900 dark:text-yellow-500 dark:hover:text-yellow-700'
               : 'hover:tracking-wider text-gray-300 hover:text-pink-400 dark:text-gray-500 dark:hover:text-yellow-400'
           "
-          class="mb-4 transition-all cursor-pointer fill-current flex items-center gap-3 text-left font-medium tracking-wide"
+          class="mb-4 transition-all cursor-pointer fill-current flex items-center text-left font-medium tracking-wide"
           @click="toggleMenuWidget(mWidget.widget)"
           @mouseenter="flashWidget(mWidget.widget)"
         >
-          <div class="w-6">
+          <div class="w-6 mr-3">
             <icon :is="mWidget.icon" />
           </div>
           <div class="overflow-hidden whitespace-nowrap">

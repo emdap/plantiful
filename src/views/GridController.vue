@@ -326,14 +326,18 @@ export default class GridController extends mixins(GridMixin) {
   public trackMouse(track: boolean) {
     if (track) {
       document.addEventListener("mousemove", this.mouseHighlightsZones)
+      document.addEventListener("touchmove", this.mouseHighlightsZones)
     } else {
       document.removeEventListener("mousemove", this.mouseHighlightsZones)
+      document.removeEventListener("touchmove", this.mouseHighlightsZones)
     }
   }
 
-  public mouseHighlightsZones(e: MouseEvent) {
+  public mouseHighlightsZones(e: MouseEvent | TouchEvent) {
     // can't use mouseenter/mouseleaves on zone as widget is still child of zone as it's being dragged :(
-    const mousePos = { x: e.pageX, y: e.pageY }
+    const { pageX, pageY } =
+      e instanceof MouseEvent ? e : e.touches[0] || e.changedTouches[0]
+    const mousePos = { x: pageX, y: pageY }
     if (!grid.targetZone) {
       grid.setTargetZone(mousePos)
     } else {

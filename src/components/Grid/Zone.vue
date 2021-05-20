@@ -114,7 +114,7 @@ export default class Zone extends GridMixin {
     return outsideDims
   }
 
-  public newZoneSize(e: MouseEvent): Size {
+  public newZoneSize(e: MouseEvent | TouchEvent): Size {
     // applying mins/max to size after determining if size tracks mouse movement inverted or not
     const newSize: Size = this.updateSize(e, {
       minimum: NO_SIZE(),
@@ -153,7 +153,7 @@ export default class Zone extends GridMixin {
   }
 
   // Size updater
-  public updateDims(e: MouseEvent) {
+  public updateDims(e: MouseEvent | TouchEvent) {
     const newSize = this.newZoneSize(e)
 
     const newRatio = this.calcRatio(newSize)
@@ -211,10 +211,12 @@ export default class Zone extends GridMixin {
       // set to current size - useful if another zone resized the row/col
       grid.toggleZonesGrowing(this.zoneData.containerId)
       document.addEventListener("mousemove", this.updateDims)
+      document.addEventListener("touchmove", this.updateDims)
     } else {
       this.sizeStart = null
       grid.toggleZonesGrowing(this.zoneData.containerId)
       document.removeEventListener("mousemove", this.updateDims)
+      document.removeEventListener("touchmove", this.updateDims)
       this.emittedDivider = false
     }
   }
@@ -337,7 +339,7 @@ export default class Zone extends GridMixin {
         this.movingZones ? (this.isTargetZone ? targetBg : normalBg) : normalBg,
       ]
     }
-    return "z-50"
+    return ""
   }
 
   public get widgetWrapperStyle() {

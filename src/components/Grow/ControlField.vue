@@ -1,5 +1,8 @@
 <template>
-  <div class="text-left grid grid-cols-2 my-2 px-2 w-full">
+  <div
+    class="text-left grid grid-cols-2 my-2 px-2 w-full"
+    style="min-width: 175px"
+  >
     <strong
       v-if="control.dataType != 'color' && control.dataType != 'color-list'"
       class="text-right self-center mr-2 lg:mr-6"

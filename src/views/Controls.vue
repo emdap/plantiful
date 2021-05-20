@@ -24,7 +24,7 @@
           v-for="control in controls[controlTuple[0]][controlList]"
           :key="control.text"
           :id="`${controlTuple[0]}-${control.text}`"
-          class="border-t-1 border-gray-200 dark:border-gray-800 border-solid"
+          class="border-t-1 border-gray-200 dark:border-gray-800"
         >
           <template v-if="control.children">
             <h4 class="font-semibold my-2">{{ control.text }}</h4>

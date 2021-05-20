@@ -130,21 +130,22 @@ export default class GridMixin extends Vue {
   }
 
   public updateSize(
-    e: MouseEvent,
+    e: MouseEvent | TouchEvent,
     payload: {
       minimum: Size
       maximum: Size
       entity: GridWidget | GridZone | GridContainer
     }
   ) {
-    e.preventDefault()
     let startWidth!: number, startHeight!: number
     const { minimum, maximum, entity } = payload
+    const { pageX, pageY } =
+      e instanceof MouseEvent ? e : e.touches[0] || e.changedTouches[0]
 
     if (this.sizeStart == null) {
       this.sizeStart = {
-        x: e.pageX,
-        y: e.pageY,
+        x: pageX,
+        y: pageY,
       }
     }
     // initialize size if it is still 0
@@ -159,17 +160,17 @@ export default class GridMixin extends Vue {
 
     const height = Math.min(
       maximum.height,
-      Math.max(minimum.height, startHeight + e.pageY - this.sizeStart.y)
+      Math.max(minimum.height, startHeight + pageY - this.sizeStart.y)
     )
 
     const width = Math.min(
       maximum.width,
-      Math.max(minimum.width, startWidth + e.pageX - this.sizeStart.x)
+      Math.max(minimum.width, startWidth + pageX - this.sizeStart.x)
     )
 
     this.sizeStart = {
-      x: e.pageX,
-      y: e.pageY,
+      x: pageX,
+      y: pageY,
     }
 
     return {

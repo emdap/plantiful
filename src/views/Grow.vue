@@ -43,15 +43,15 @@ export default class Grow extends GrowMixin {
   public trackMouse = false
   public startPos: Position | null = null
 
-  public get el() {
-    return this.$el as HTMLElement
-  }
+  public touchStartTime = 0
 
   public mounted() {
     window.addEventListener("keydown", this.keyDown)
     window.addEventListener("keyup", this.keyUp)
     this.el.addEventListener("mousedown", this.mouseDown)
     this.el.addEventListener("mouseup", this.mouseUp)
+    this.el.addEventListener("touchstart", this.trackTouch)
+    this.el.addEventListener("touchend", this.trackTouch)
   }
 
   public beforeDestroy() {
@@ -60,6 +60,36 @@ export default class Grow extends GrowMixin {
     // thinking this is unnecessary since it's being destroyed?
     this.el.removeEventListener("mousedown", this.mouseDown)
     this.el.removeEventListener("mouseup", this.mouseUp)
+  }
+
+  public trackTouch(e: TouchEvent) {
+    if (e.type == "touchstart") {
+      e.preventDefault()
+      this.mouseDown()
+    } else {
+      this.mouseUp()
+    }
+  }
+
+  // overriding mixin function
+  public timeTouch(e: TouchEvent) {
+    if (e.type == "touchstart") {
+      this.touchStartSeconds = this.currentSeconds()
+      const { pageX, pageY } = e.touches[0] || e.changedTouches[0]
+      this.touchPos = {
+        x: pageX,
+        y: pageY,
+      }
+    } else {
+      if (this.currentSeconds() - this.touchStartSeconds > 0) {
+        const { pageX, pageY } = e.touches[0] || e.changedTouches[0]
+        if (pageX == this.touchPos?.x && pageY == this.touchPos?.y) {
+          e.preventDefault()
+          this.removeActive()
+        }
+        this.touchStartSeconds = 0
+      }
+    }
   }
 
   public removeActive() {
@@ -110,26 +140,33 @@ export default class Grow extends GrowMixin {
   public mouseUpdatesEntity(track: boolean) {
     if (track) {
       document.addEventListener("mousemove", this.updateEntity)
+      document.addEventListener("touchmove", this.updateEntity)
     } else {
       this.startPos = null
       document.removeEventListener("mousemove", this.updateEntity)
+      document.removeEventListener("touchmove", this.updateEntity)
     }
   }
 
-  public updateEntity(e: MouseEvent) {
-    e.preventDefault()
-    if (!grow.activeEntity || grow.activeEntityType != "plants") {
-      this.$toasted.info("Sorry, mouse controls only work for plants (so far!)")
+  public updateEntity(e: MouseEvent | TouchEvent) {
+    if (!grow.activeEntity || !grow.activeGrowPlant) {
+      // if (!grow.activeEntity || grow.activeEntityType != "plants") {
+      // this.$toasted.info("Sorry, mouse controls only work for plants (so far!)")
       document.removeEventListener("mousemove", this.updateEntity)
+      document.removeEventListener("touchmove", this.updateEntity)
       return
     }
 
-    const entity = grow.activeEntity
+    // just have mouse controls always move the plant for now, update when other movements supported
+    const entity = grow.activeGrowPlant
+
+    const { pageX, pageY } =
+      e instanceof MouseEvent ? e : e.touches[0] || e.changedTouches[0]
 
     if (this.startPos == null) {
       this.startPos = {
-        x: e.pageX,
-        y: e.pageY,
+        x: pageX,
+        y: pageY,
       }
     }
 
@@ -143,13 +180,13 @@ export default class Grow extends GrowMixin {
       }
 
       if (this.ctrlDown && this.shiftDown) {
-        newRotations.translate += e.pageX - this.startPos.x
+        newRotations.translate += pageX - this.startPos.x
       } else if (this.ctrlDown) {
-        newRotations.z += e.pageX - this.startPos.x
+        newRotations.z += pageX - this.startPos.x
       } else if (this.shiftDown) {
         // rotating along x/y axis more intuitively tracks the movement of the cursor along opposite axis
-        newRotations.x += e.pageY - this.startPos.y
-        newRotations.y += e.pageX - this.startPos.x
+        newRotations.x += pageY - this.startPos.y
+        newRotations.y += pageX - this.startPos.x
       }
       grow.setRotation({
         id: entity.id,
@@ -161,15 +198,15 @@ export default class Grow extends GrowMixin {
       const currentTop = (entity.position as Position).y
       const currentLeft = (entity.position as Position).x
       const newPositions: Position = {
-        y: currentTop + e.pageY - this.startPos.y,
-        x: currentLeft + e.pageX - this.startPos.x,
+        y: currentTop + pageY - this.startPos.y,
+        x: currentLeft + pageX - this.startPos.x,
       }
 
       grow.setPosition({ id: entity.id, dataKey: "plants", newPositions })
     }
     this.startPos = {
-      x: e.pageX,
-      y: e.pageY,
+      x: pageX,
+      y: pageY,
     }
   }
 }

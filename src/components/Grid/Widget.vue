@@ -12,7 +12,7 @@
       <nav
         class="flex flex-row flex-shrink-0 h-7 items-center whitespace-nowrap pb-1 sticky left-0 w-full scrollbar-light-mini dark:scrollbar-dark-mini overflow-x-auto"
       >
-        <nav class="flex gap-3">
+        <nav class="flex">
           <span
             :title="
               widgetData.docked
@@ -21,11 +21,11 @@
             "
           >
             <docked-icon
-              class="icon"
+              class="icon mr-2"
               v-if="widgetData.docked"
               @click="dockWidget()"
             />
-            <not-docked-icon class="icon" v-else @click="dockWidget()" />
+            <not-docked-icon class="icon mr-2" v-else @click="dockWidget()" />
           </span>
           <span
             ref="move-icon"
@@ -44,7 +44,7 @@
           </span>
         </nav>
         <header
-          class="flex flex-grow font-semibold text-left px-3 dark:text-black"
+          class="ml-1 flex flex-grow font-semibold text-left px-3 dark:text-black"
         >
           {{ widgetData.text }}
         </header>
@@ -63,7 +63,7 @@
       <footer
         class="mt-auto pb-2 sticky left-0 text-gray-500 h-6 scrollbar-light-mini dark:scrollbar-dark-mini overflow-y-hidden"
       >
-        <span :title="messages.iconTitles.resize">
+        <span :title="messages.iconTitles.resize" ref="size-icon">
           <resize-icon
             height="100%"
             viewBox="-5 0 25 25"
@@ -101,6 +101,7 @@ import ResizeIcon from "@/assets/icons/resize.svg"
 export default class Widget extends GridMixin {
   @Prop({ required: true }) widgetData!: GridWidget
   @Ref("move-icon") moveIcon!: HTMLElement
+  @Ref("size-icon") sizeIcon!: HTMLElement
 
   public trackPosition = false
   public posStart: Position | null = null
@@ -108,19 +109,21 @@ export default class Widget extends GridMixin {
   public active = false
 
   public mounted() {
-    this.initMouseUpListeners()
+    document.addEventListener("mouseup", this.mouseUpListener)
+    this.moveIcon.addEventListener("touchstart", this.touchMove)
+    this.sizeIcon.addEventListener("touchstart", this.touchSize)
+    this.moveIcon.addEventListener("touchend", this.touchMove)
+    this.sizeIcon.addEventListener("touchend", this.touchSize)
   }
 
+  // TODO: the 'el' and some aspects of touch listening could be moved to an overall mixin that both Grid and Grow extend
   public beforeDestroy() {
     document.removeEventListener("mouseup", this.mouseUpListener)
+    const el = this.$el as HTMLElement
+    el.removeEventListener("touchend", this.mouseUpListener)
   }
 
-  public initMouseUpListeners() {
-    // stop tracking position/size when mouse is up
-    document.addEventListener("mouseup", this.mouseUpListener)
-  }
-
-  public mouseUpListener(e: MouseEvent) {
+  public mouseUpListener(e: MouseEvent | TouchEvent) {
     if (this.trackPosition) {
       e.preventDefault()
       this.trackPosition = false
@@ -130,6 +133,26 @@ export default class Widget extends GridMixin {
       this.trackSize = false
     }
   }
+
+  public touchMove(e: TouchEvent) {
+    e.preventDefault()
+    this.trackPosition = e.type == "touchstart"
+  }
+
+  public touchSize(e: TouchEvent) {
+    e.preventDefault()
+    this.trackSize = e.type == "touchstart"
+  }
+
+  // public startTouch(tracking: "position" | "size") {
+  //   const el = this.$el as HTMLElement
+  //   if (tracking == "position") {
+  //     this.trackPosition = true
+  //   } else {
+  //     this.trackSize = true
+  //   }
+  //   el.addEventListener("touchend", this.mouseUpListener)
+  // }
 
   public setToCurrent() {
     let newSize!: Size
@@ -178,6 +201,7 @@ export default class Widget extends GridMixin {
         this.$emit("track-size")
       } else {
         document.addEventListener("mousemove", this.updateWidgetSize)
+        document.addEventListener("touchmove", this.updateWidgetSize)
       }
     } else {
       if (this.widgetData.docked) {
@@ -185,6 +209,7 @@ export default class Widget extends GridMixin {
       } else {
         this.sizeStart = null
         document.removeEventListener("mousemove", this.updateWidgetSize)
+        document.removeEventListener("touchmove", this.updateWidgetSize)
       }
     }
   }
@@ -193,12 +218,14 @@ export default class Widget extends GridMixin {
   mouseUpdatesPosition(track: boolean) {
     if (track) {
       document.addEventListener("mousemove", this.updatePosition)
+      document.addEventListener("touchmove", this.updatePosition)
       if (this.widgetData.docked) {
         this.setToCurrent()
         grid.zonesTrackMouse(true)
       }
     } else {
       document.removeEventListener("mousemove", this.updatePosition)
+      document.removeEventListener("touchmove", this.updatePosition)
       if (this.widgetData.docked) {
         this.moveToZone()
         this.setToCurrent()
@@ -261,7 +288,7 @@ export default class Widget extends GridMixin {
   }
 
   // Functions to modify display
-  public updateWidgetSize(e: MouseEvent) {
+  public updateWidgetSize(e: MouseEvent | TouchEvent) {
     const el = this.$el as HTMLElement
     const newSize = this.updateSize(e, {
       minimum: {
@@ -283,14 +310,15 @@ export default class Widget extends GridMixin {
     })
   }
 
-  public updatePosition(e: MouseEvent) {
-    e.preventDefault()
+  public updatePosition(e: MouseEvent | TouchEvent) {
     let startY!: number, startX!: number
+    const { pageX, pageY } =
+      e instanceof MouseEvent ? e : e.touches[0] || e.changedTouches[0]
 
     if (this.posStart == null) {
       this.posStart = {
-        x: e.pageX,
-        y: e.pageY,
+        x: pageX,
+        y: pageY,
       }
     }
 
@@ -310,8 +338,8 @@ export default class Widget extends GridMixin {
       20
 
     const remainingY = this.gridSize.height - this.widgetData.size.height
-    const rawX = startX + e.pageX - this.posStart.x
-    const rawY = startY + e.pageY - this.posStart.y
+    const rawX = startX + pageX - this.posStart.x
+    const rawY = startY + pageY - this.posStart.y
 
     const newPosition = {
       x: Math.max(48, Math.min(remainingX, rawX)), // 48 to prevent going under menu
@@ -320,8 +348,8 @@ export default class Widget extends GridMixin {
     grid.setWidgetPosition({ name: this.widgetData.name, newPosition })
 
     this.posStart = {
-      x: e.pageX,
-      y: e.pageY,
+      x: pageX,
+      y: pageY,
     }
   }
 }

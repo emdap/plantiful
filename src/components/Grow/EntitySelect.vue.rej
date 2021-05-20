@@ -1,0 +1,7 @@
+diff a/src/components/Grow/EntitySelect.vue b/src/components/Grow/EntitySelect.vue	(rejected hunks)
+@@ -7,4 +7 @@
+-    <div
+-      id="entity-select-wrapper"
+-      class="flex flex-wrap self-start mb-2"
+-    >
++    <div id="entity-select-wrapper" class="flex flex-wrap self-start mb-2">

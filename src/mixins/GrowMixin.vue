@@ -13,6 +13,7 @@ import {
   GrowData,
   GrowType,
   GrowDataKey,
+  Position,
 } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 
@@ -20,7 +21,7 @@ export const grow = getModule(GrowModule)
 
 @Component({})
 export default class GrowMixin extends Vue {
-  @Prop({ default: false }) allowSelection!: boolean
+  @Prop({ default: true }) allowSelection!: boolean
   @Prop({ default: false }) plantHighlight!: boolean
 
   public messages = growMessages
@@ -34,6 +35,62 @@ export default class GrowMixin extends Vue {
   public activeBg = { color: "pink", level: 700, darkLevel: 400 }
   public bgDuration = 1000
   public defaultBg = null as string | null
+
+  public touchStartSeconds = 0
+  public touchPos = null as null | Position
+
+  public get el() {
+    // necessary for touch events
+    return this.$el as HTMLElement
+  }
+
+  public mounted() {
+    this.el.addEventListener("touchstart", this.timeTouch)
+    this.el.addEventListener("touchend", this.timeTouch)
+  }
+
+  public destroyed() {
+    this.el.removeEventListener("touchstart", this.timeTouch)
+    this.el.removeEventListener("touchend", this.timeTouch)
+  }
+
+  public timeTouch(e: TouchEvent) {
+    if (
+      e.type == "touchstart" &&
+      this.entityType.length &&
+      this.entityId != -1
+    ) {
+      this.touchStartSeconds = this.currentSeconds()
+      const { pageX, pageY } = e.touches[0] || e.changedTouches[0]
+      this.touchPos = {
+        x: pageX,
+        y: pageY,
+      }
+    } else {
+      if (
+        this.touchStartSeconds &&
+        this.currentSeconds() - this.touchStartSeconds > 0
+      ) {
+        const { pageX, pageY } = e.touches[0] || e.changedTouches[0]
+        if (pageX == this.touchPos?.x && pageY == this.touchPos?.y) {
+          e.preventDefault()
+          if (this.allowSelection) {
+            e.stopPropagation()
+            grow.setActiveEntity({
+              dataKey: this.entityType,
+              id: this.entityId,
+            })
+          }
+        }
+        this.touchStartSeconds = 0
+      }
+    }
+  }
+
+  public currentSeconds() {
+    const date = new Date()
+    return date.getSeconds() + 60 * (date.getMinutes() * 60 + date.getHours())
+  }
 
   // TODO: reorg file a bit, added a lot to the end
   public toggleSearchPlants(forceShow?: boolean) {

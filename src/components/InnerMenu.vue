@@ -5,16 +5,11 @@
     :class="expanded ? 'w-1/6 ml-0' : 'ml-1 w-0'"
   >
     <div
-      class="absolute z-50 -right-2 top-1 cursor-pointer bg-white dark:bg-gray-700 rounded-full border-1 dark:border-gray-800 hover:text-pink-400 hover:border-pink-400 dark:hover:text-yellow-500 dark:hover:border-yellow-500 text-gray-300 dark:text-gray-800 w-4 h-4 transform transition-all"
+      class="absolute z-10 -right-2 top-1 cursor-pointer bg-white dark:bg-gray-700 rounded-full border-1 dark:border-gray-800 hover:text-pink-400 hover:border-pink-400 dark:hover:text-yellow-500 dark:hover:border-yellow-500 text-gray-300 dark:text-gray-800 w-4 h-4 transform transition-all"
       :style="arrowStyle"
       @click="expanded = !expanded"
     >
-      <arrow-icon
-        class="fill-current"
-        height="100%"
-        width="100%"
-        viewBox="0 0 24 24"
-      />
+      <arrow-icon class="fill-current" viewBox="0 0 40 40" />
     </div>
     <span
       :class="expanded ? 'opacity-100' : 'opacity-0'"
