@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="grid text-center overflow-hidden">
+  <div id="app" class="grid h-full text-center">
     <side-menu />
     <grid-controller />
   </div>
@@ -22,7 +22,11 @@ export default class App extends Vue {}
 
 <style lang="css">
 body {
-  @apply transition-colors bg-gray-50 dark:bg-gray-800;
+  @apply transition-colors bg-gray-50 dark:bg-gray-800 h-screen;
+}
+
+html {
+  height: -webkit-fill-available;
 }
 
 #app {

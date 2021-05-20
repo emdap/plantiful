@@ -1,6 +1,9 @@
 <template>
-  <div :id="mainId" class="h-screen w-full flex overflow-auto">
-    <template v-if="ready">
+  <div
+    :id="mainId"
+    class="h-screen w-full overflow-auto scrollbar-light-mini dark:scrollbar-dark-mini"
+  >
+    <div class="h-full w-full flex" style="min-width: 750px" v-if="ready">
       <template v-for="(container, index) in containers">
         <div
           v-if="
@@ -30,7 +33,7 @@
       </template>
       <!-- zone used for undocked widgets -->
       <zone v-if="ready" :zoneData="getZone(0)" />
-    </template>
+    </div>
   </div>
 </template>
 
@@ -78,6 +81,7 @@ export default class GridController extends mixins(GridMixin) {
     })
     // want users to notice the divider so they know it's draggable
     this.pulseDivider()
+    window.scrollTo(0, 1)
   }
 
   public pulseDivider() {

@@ -1,5 +1,5 @@
 <template>
-  <div id="side-menu" class="h-screen z-50">
+  <div id="side-menu" class="h-full z-50">
     <div
       @click="expanded = false"
       class="absolute top-0 left-0 bg-green-900 dark:bg-gray-900 transition-opacity duration-500"
@@ -10,11 +10,11 @@
       "
     />
     <div
-      class="transition-all duration-300 bg-white dark:bg-gray-900 h-screen pt-2 pb-4 px-3 flex flex-col shadow-md text-sm fixed overflow-y-auto overflow-x-auto scrollbar-light-mini dark:scrollbar-dark-mini"
+      class="transition-all duration-300 bg-white dark:bg-gray-900 h-full pt-2 pb-4 px-3 flex flex-col shadow-md text-sm fixed overflow-auto scrollbar-light-mini dark:scrollbar-dark-mini"
       :class="expanded ? 'w-52' : 'w-12'"
     >
       <div
-        class="flex items-center w-full mb-6 cursor-pointer fill-current sticky top-0 bg-white dark:bg-gray-900"
+        class="flex h-6 items-center w-full mb-6 cursor-pointer fill-current sticky top-0 bg-white dark:bg-gray-900"
         @click="expanded = !expanded"
         :class="
           expanded
@@ -167,5 +167,6 @@ export default class SideMenu extends Vue {
 <style>
 #side-menu {
   grid-area: side-menu;
+  min-height: -webkit-fill-available;
 }
 </style>
