@@ -3,7 +3,7 @@
     <template
       v-if="control.dataType != 'color' && control.dataType != 'color-list'"
     >
-      <div class="font-medium text-center pb-1 w-1/3 flex-grow">
+      <div class="font-medium text-center pb-1 w-1/3 flex-grow self-center">
         {{ control.text }}
       </div>
       <template
