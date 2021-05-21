@@ -1,8 +1,0 @@
-diff a/src/views/Controls.vue b/src/views/Controls.vue	(rejected hunks)
-@@ -6 +6,5 @@
--    <div v-for="controlTuple in visibleControls" :key="controlTuple[0]" class="pr-1">
-+    <div
-+      v-for="controlTuple in visibleControls"
-+      :key="controlTuple[0]"
-+      class="pr-1"
-+    >

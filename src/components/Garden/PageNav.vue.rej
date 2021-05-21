@@ -1,4 +1,0 @@
-diff a/src/components/Garden/PageNav.vue b/src/components/Garden/PageNav.vue	(rejected hunks)
-@@ -2 +2 @@
--  <div id="page-nav" :class="{hidden: lastPage == -1}">
-+  <div id="page-nav" :class="{ hidden: lastPage == -1 }">

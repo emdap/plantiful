@@ -1,5 +1,0 @@
-diff a/src/components/Grid/Widget.vue b/src/components/Grid/Widget.vue	(rejected hunks)
-@@ -61,2 +61 @@
--        <slot>
--        </slot>
-+        <slot> </slot>

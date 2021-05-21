@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="text-left grid grid-cols-2 my-2 px-2 w-full"
-    style="min-width: 175px"
-  >
+  <div class="text-left grid grid-cols-2 my-2 px-2 w-full">
     <strong
       v-if="control.dataType != 'color' && control.dataType != 'color-list'"
       class="text-right self-center mr-2 lg:mr-6"
@@ -14,6 +11,7 @@
     <template v-if="control.dataType == 'number' || control.dataType == 'text'">
       <input
         class="control-input dark:bg-gray-300 dark:text-black font-semibold self-center"
+        style="min-width: 50px"
         v-model="updatedValue"
         :placeholder="placeholder"
         :type="control.dataType"

@@ -1,6 +1,6 @@
 <template>
   <div class="col-span-2 px-2">
-    <div class="flex justify-center" ref="picker-base">
+    <div class="flex flex-wrap justify-center" ref="picker-base">
       <input
         class="control-input w-full dark:bg-gray-300 dark:text-black font-semibold self-center"
         placeholder="Enter color"

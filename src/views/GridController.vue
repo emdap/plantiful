@@ -6,19 +6,15 @@
     <div class="h-full w-full flex" style="min-width: 750px" v-if="ready">
       <template v-for="(container, index) in containers">
         <div
-          v-if="
-            index != 0 &&
-              container.size.width &&
-              containers[index - 1].size.width
-          "
+          v-if="addDivider(index)"
           :key="'divider-' + index"
           :title="messages.dividerTitle"
           class="divider h-full z-10 cursor-pointer"
-          @mousedown="resizeContainers($event, index)"
         >
           <div
             class="divider-line h-full opacity-30 transition-all border-l-0 border-pink-400 dark:border-yellow-400 border-dashed hover:border-l-2"
             :class="{ 'border-l-2': showDivider }"
+            @mousedown="mouseUpdatesContainers($event, index)"
           />
         </div>
         <container
@@ -49,7 +45,7 @@ import Container from "@/components/Grid/Container.vue"
 import Zone from "@/components/Grid/Zone.vue"
 import ThreeDotsIcon from "@/assets/icons/three-dots.svg"
 import util from "@/utilities/containerUtil"
-import { GrowPlant, Size } from "@/store/interfaces"
+import { GridContainer, GrowPlant, Size } from "@/store/interfaces"
 import { TEST_PLANT } from "@/fixtures/Grow/TestPlant"
 import { NO_SIZE } from "@/fixtures/Defaults"
 
@@ -64,6 +60,8 @@ export default class GridController extends mixins(GridMixin) {
   public ready = false
   public mainId = "grid-controller"
 
+  public dividers = {} as { [key: number]: HTMLDivElement }
+
   public containerIndex = 0
   public windowResizing = false
   public resizeTimer!: number
@@ -72,16 +70,19 @@ export default class GridController extends mixins(GridMixin) {
 
   public mounted() {
     this.addFixtures()
-    window.addEventListener("resize", this.windowResize)
-    document.addEventListener("mouseup", this.resizeContainers)
     this.ready = true
+    // want users to notice the divider so they know it's draggable
+    this.pulseDivider()
+
+    window.addEventListener("resize", this.windowResize)
+    document.addEventListener("mouseup", this.mouseUpdatesContainers)
+    document.addEventListener("touchend", this.mouseUpdatesContainers)
+    document.addEventListener("touchstart", this.checkDivider)
+
     this.$nextTick(() => {
       // containers won't be fully mounted until tick after ready = true
       this.setContainerSizes(true)
     })
-    // want users to notice the divider so they know it's draggable
-    this.pulseDivider()
-    window.scrollTo(0, 1)
   }
 
   public pulseDivider() {
@@ -101,6 +102,17 @@ export default class GridController extends mixins(GridMixin) {
         "To expand width further, click & drag the dotted line"
       )
       this.pulseDivider()
+    }
+  }
+
+  public checkDivider(e: TouchEvent) {
+    if (e.type == "touchstart") {
+      if (
+        e.touches[0].target instanceof HTMLDivElement &&
+        e.touches[0].target.classList.contains("divider-line")
+      ) {
+        e.touches[0].target.dispatchEvent(new Event("mousedown"))
+      }
     }
   }
 
@@ -124,6 +136,16 @@ export default class GridController extends mixins(GridMixin) {
 
     grow.addPlant(this.testPlant)
     grow.setActivePlant(this.testPlant.id)
+  }
+
+  public get addDivider() {
+    return (index: number) => {
+      return (
+        index != 0 &&
+        this.containers[index].size.width &&
+        this.containers[index - 1].size.width
+      )
+    }
   }
 
   public windowResize() {
@@ -248,36 +270,37 @@ export default class GridController extends mixins(GridMixin) {
     }
   }
 
-  public resizeContainers(e: MouseEvent, containerIndex?: number) {
+  public mouseUpdatesContainers(
+    e: MouseEvent | TouchEvent,
+    containerIndex?: number
+  ) {
     // container resizer only appears for indexes > 0
     if (containerIndex) {
-      e.preventDefault()
+      if (e instanceof MouseEvent) e.preventDefault()
       this.containerIndex = containerIndex
       this.trackSize = true
+
+      document.addEventListener("mousemove", this.updateContainerSizes)
+      document.addEventListener("touchmove", this.updateContainerSizes)
     } else {
       this.containerIndex = 0
       this.trackSize = false
-    }
-  }
-
-  @Watch("trackSize")
-  mouseUpdatesSize(track: boolean) {
-    if (track) {
-      document.addEventListener("mousemove", this.updateContainerSizes)
-    } else {
       this.sizeStart = null
       this.containersResizing = []
+
       document.removeEventListener("mousemove", this.updateContainerSizes)
+      document.removeEventListener("touchmove", this.updateContainerSizes)
     }
   }
 
-  public updateContainerSizes(e: MouseEvent) {
-    e.preventDefault()
+  public updateContainerSizes(e: MouseEvent | TouchEvent) {
+    const { pageX } =
+      e instanceof MouseEvent ? e : e.touches[0] || e.changedTouches[0]
 
     // initialize values
     if (this.sizeStart == null) {
       this.sizeStart = {
-        x: e.pageX,
+        x: pageX,
         y: 0, // only really need x in this case
       }
     }
@@ -290,7 +313,7 @@ export default class GridController extends mixins(GridMixin) {
 
     const leftWidth = Math.min(
       this.gridSize.width,
-      leftContainer.size.width + e.pageX - this.sizeStart.x
+      leftContainer.size.width + pageX - this.sizeStart.x
     )
 
     const leftWidthRatio = leftWidth / this.gridSize.width
@@ -322,7 +345,7 @@ export default class GridController extends mixins(GridMixin) {
         },
       })
 
-      this.sizeStart.x = e.pageX
+      this.sizeStart.x = pageX
     }
   }
 

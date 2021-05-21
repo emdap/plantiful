@@ -57,7 +57,7 @@
         </div>
       </div>
       <div
-        class="h-8 w-full sticky bottom-0 bg-gradient-to-t from-white dark:from-gray-700 transition-colors"
+        class="h-8 w-full sticky -bottom-1 bg-gradient-to-t from-white dark:from-gray-700 transition-colors"
       />
       <div
         class="w-full -mt-2 z-50 mb-1 justify-center flex items-center bg-white dark:bg-gray-700"
