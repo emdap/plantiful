@@ -51,9 +51,7 @@
           same.
         </div>
       </div>
-      <div
-        class="h-8 w-full sticky -bottom-1 bg-gradient-to-t from-white dark:from-gray-700 transition-colors"
-      />
+      <div class="fade-bar" />
       <div
         class="w-full -mt-2 z-50 mb-1 justify-center flex items-center bg-white dark:bg-gray-700"
       >
@@ -203,7 +201,8 @@ export default class EntityCreate extends GrowMixin {
   @apply text-red-600 dark:text-red-500;
 }
 
-.update-field input {
-  @apply bg-red-200 !important;
+.update-field input,
+.update-field select {
+  @apply bg-red-200 dark:bg-red-200 !important;
 }
 </style>

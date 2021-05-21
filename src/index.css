@@ -4,6 +4,11 @@
 
 @import "assets/styles/overrides.css";
 
+/* TODO: should add this as a component */
+.fade-bar {
+  @apply h-8 w-full sticky -bottom-1 bg-gradient-to-t from-white dark:from-gray-700 transition-colors;
+}
+
 .btn-help {
   @apply px-2 py-1 focus:outline-none text-xs hover:bg-gray-400 focus:bg-gray-400 dark:hover:bg-gray-600 dark:focus:bg-gray-600 bg-gray-500 text-gray-100 dark:bg-gray-800 dark:text-gray-300 cursor-pointer;
 }
@@ -21,7 +26,7 @@ button:focus {
 }
 
 select:required:invalid {
-  @apply text-gray-500;
+  @apply text-gray-500 dark:text-gray-500 !important;
 }
 
 .icon {

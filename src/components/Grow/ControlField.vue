@@ -10,8 +10,7 @@
         v-if="control.dataType == 'number' || control.dataType == 'text'"
       >
         <input
-          class="control-input flex-grow dark:bg-gray-300 dark:text-black font-semibold w-2/3 mx-2"
-          style="min-width: 50px"
+          class="control-input"
           v-model="updatedValue"
           :placeholder="placeholder"
           :type="control.dataType"
@@ -23,12 +22,7 @@
         />
       </template>
       <template v-else-if="control.dataType == 'dropdown'">
-        <select
-          required
-          v-model="updatedValue"
-          class="control-input flex-grow text-black dark:bg-gray-300 font-semibold w-2/3 mx-2 p-0"
-          style="min-width: 50px"
-        >
+        <select required v-model="updatedValue" class="control-input p-0">
           <option disabled selected value="">Select value</option>
           <option
             class="font-semibold text-black"
@@ -192,8 +186,9 @@ export default class ControlField extends Vue {
 <style>
 .control-input {
   max-width: 150px;
+  min-width: 50px;
 
-  @apply shadow-sm px-2 h-8 border-1 border-solid rounded-md !important;
+  @apply flex-grow shadow-sm px-2 h-8 border-1 border-solid rounded-md dark:bg-gray-300 dark:text-black font-semibold w-2/3 mx-2 !important;
 }
 
 .control-input[type="number"],

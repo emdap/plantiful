@@ -2,8 +2,8 @@
   <div class="flex flex-wrap justify-center">
     <div class="flex flex-wrap items-center justify-center" ref="picker-base">
       <input
-        class="control-input w-full dark:bg-gray-300 dark:text-black font-semibold self-center"
-        style="max-width: 200px"
+        class="control-input w-full self-center"
+        style="max-width: 150px"
         placeholder="Enter color"
         v-model="userEnteredColor"
         @keyup.enter="addColor()"

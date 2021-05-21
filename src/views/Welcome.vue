@@ -40,11 +40,12 @@
         Don't worry, it will come back again if you re-open the Welcome window.
       </p>
       <button
-        class="btn-light dark:btn-dark block mt-8 mb-1 mx-auto px-8"
+        class="btn-light dark:btn-dark block mt-8 mx-auto px-8"
         @click="toggleSearchPlants"
       >
         Start Searching
       </button>
+      <div class="fade-bar" />
     </div>
   </section>
 </template>

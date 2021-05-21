@@ -6,7 +6,7 @@
     <div
       v-for="controlTuple in visibleControls"
       :key="controlTuple[0]"
-      class="pr-1"
+      class="pr-1 mr-2"
     >
       <h4
         @focus="toggleHighlight(controlTuple[0], true)"
@@ -79,9 +79,7 @@
         </div>
       </div> -->
     </div>
-    <div
-      class="h-8 w-full sticky bottom-0 bg-gradient-to-t from-white dark:from-gray-700"
-    />
+    <div class="fade-bar" />
   </div>
 </template>
 

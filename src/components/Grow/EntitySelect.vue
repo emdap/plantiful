@@ -90,6 +90,7 @@
     <button @click="showHelp = !showHelp" class="btn-help ml-1 mb-1">
       {{ showHelp ? "Hide Help" : "Help" }}
     </button>
+    <div class="fade-bar" />
   </div>
 </template>
 
