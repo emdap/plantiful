@@ -355,7 +355,9 @@ export default class EntitySelect extends GrowMixin {
     if (this.activeEntity && this.activeEntityType) {
       if (
         this.activeEntityType == "flowers" ||
-        this.activeEntityType == "leafClusters"
+        this.activeEntityType == "leafClusters" ||
+        this.options.leaves.length ||
+        this.options.flowers.length
       ) {
         // FYI if this component is mounted when a leaf/petal is selected, selected cluster won't update; no reference from child -> parent
         this.setClusterChildrenOptions()
