@@ -11,8 +11,6 @@
         :loadingText="gardenMessages.searchBar.loading"
       />
     </div>
-    <!-- <trefle-warning widget="search" /> -->
-    <!-- <template v-if="plantList.length"> -->
     <plant-list
       @show-active="toggleActivePlant(true)"
       @grow-plant="growPlant(activePlant)"
@@ -25,7 +23,6 @@
           : 'text-green-800 dark:text-green-600'
       "
     />
-    <!-- </template> -->
   </div>
 </template>
 

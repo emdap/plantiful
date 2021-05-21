@@ -1,17 +1,19 @@
 <template>
-  <div class="col-span-2 px-2">
-    <div class="flex flex-wrap justify-center" ref="picker-base">
+  <div class="flex flex-wrap justify-center">
+    <div class="flex flex-wrap items-center justify-center" ref="picker-base">
       <input
         class="control-input w-full dark:bg-gray-300 dark:text-black font-semibold self-center"
+        style="max-width: 200px"
         placeholder="Enter color"
         v-model="userEnteredColor"
         @keyup.enter="addColor()"
         type="text"
       />
-      <div class="flex align-middle items-center -mr-2">
+      <div class="flex align-middle items-center">
         <button
           @click="addColor()"
-          class="py-1 text-sm focus:text-green-600 dark:focus:text-yellow-600"
+          class="py-2 text-sm focus:text-green-600 dark:focus:text-yellow-600"
+          :class="{ 'dark:text-gray-500': !allowAdd }"
           :disabled="!allowAdd"
         >
           {{ singular ? "Set" : "Add" }}
@@ -26,8 +28,8 @@
       </div>
     </div>
     <div
-      class="col-span-2 mt-2 w-100 flex flex-wrap justify-center"
-      :class="{ 'text-center': !singular }"
+      class="flex flex-wrap justify-center"
+      :class="{ 'text-center': !singular, 'mt-1 w-3/4': colorList.length }"
     >
       <div
         v-for="(color, index) in colorList"

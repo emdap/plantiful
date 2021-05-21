@@ -20,7 +20,7 @@
       <div
         v-for="controlList in ['onEntity', 'onOptions']"
         :key="controlList"
-        :id="`${controlTuple[0]}-${controlList}`"
+        :id="`${controlTuple[0]}-${controlList.toLowerCase()}`"
       >
         <div
           v-for="control in controls[controlTuple[0]][controlList]"
@@ -29,7 +29,9 @@
           class="border-t-1 border-gray-200 dark:border-gray-800"
         >
           <template v-if="control.children">
-            <h4 class="font-semibold my-2">{{ control.text }}</h4>
+            <h4 class="font-semibold my-2 text-gray-500 dark:text-gray-400">
+              {{ control.text }}
+            </h4>
             <div
               v-for="child in control.children"
               :key="child.text"
@@ -297,7 +299,8 @@ export default class Controls extends GrowMixin {
 
   public toggleHighlight(dataKey: GrowDataKey, highlight: boolean) {
     if (!highlight) {
-      grow.setHighlightType(null)
+      // don't want to reset type, as will mess with order of operations if plant-select is what caused the @blur
+      grow.setHighlightEntity(null)
     } else if (this.activeEntity?.id) {
       grow.setHighlightType(dataKey)
       grow.setHighlightEntity(this.activeEntity.id)

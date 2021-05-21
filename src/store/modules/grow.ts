@@ -108,7 +108,7 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Action
-  setHighlightEntity(id: number) {
+  setHighlightEntity(id: number | null) {
     this.HIGHLIGHT_ENTITY(id)
   }
 

@@ -1,30 +1,50 @@
 <template>
-  <div class="text-left grid grid-cols-2 my-2 px-2 w-full">
-    <strong
-      v-if="control.dataType != 'color' && control.dataType != 'color-list'"
-      class="text-right self-center mr-2 lg:mr-6"
-      >{{ control.text }}:</strong
-    >
-    <strong v-else class="text-center col-span-2 mb-2">{{
-      control.text
-    }}</strong>
-    <template v-if="control.dataType == 'number' || control.dataType == 'text'">
-      <input
-        class="control-input dark:bg-gray-300 dark:text-black font-semibold self-center"
-        style="min-width: 50px"
-        v-model="updatedValue"
-        :placeholder="placeholder"
-        :type="control.dataType"
-        @keydown.enter="$event.target.blur"
-        @focus="allowUpdate = controlList == 'onEntity' || dataKey != 'plants'"
-        @blur="allowUpdate = true"
-      />
-    </template>
+  <div class="text-left flex flex-wrap justify-center my-2 w-full self-center">
     <template
-      v-else-if="
-        control.dataType == 'color' || control.dataType == 'color-list'
-      "
+      v-if="control.dataType != 'color' && control.dataType != 'color-list'"
     >
+      <div class="font-medium text-center pb-1 w-1/3 flex-grow">
+        {{ control.text }}
+      </div>
+      <template
+        v-if="control.dataType == 'number' || control.dataType == 'text'"
+      >
+        <input
+          class="control-input flex-grow dark:bg-gray-300 dark:text-black font-semibold w-2/3 mx-2"
+          style="min-width: 50px"
+          v-model="updatedValue"
+          :placeholder="placeholder"
+          :type="control.dataType"
+          @keydown.enter="$event.target.blur"
+          @focus="
+            allowUpdate = controlList == 'onEntity' || dataKey != 'plants'
+          "
+          @blur="allowUpdate = true"
+        />
+      </template>
+      <template v-else-if="control.dataType == 'dropdown'">
+        <select
+          required
+          v-model="updatedValue"
+          class="control-input flex-grow text-black dark:bg-gray-300 font-semibold w-2/3 mx-2 p-0"
+          style="min-width: 50px"
+        >
+          <option disabled selected value="">Select value</option>
+          <option
+            class="font-semibold text-black"
+            v-for="option in control.options"
+            :key="option"
+            :value="option"
+          >
+            {{ option[0].toUpperCase() + option.substring(1) }}
+          </option>
+        </select>
+      </template>
+    </template>
+    <template v-else>
+      <div class="text-center font-medium w-full pb-1">
+        {{ control.text }}
+      </div>
       <color-field
         :colorList="control.dataType == 'color' ? [curValue] : curValue"
         :singular="control.dataType == 'color'"
@@ -33,23 +53,6 @@
         @remove-color="removeColor"
         @set-color-list="setColorList"
       />
-    </template>
-    <template v-else-if="control.dataType == 'dropdown'">
-      <select
-        required
-        v-model="updatedValue"
-        class="control-input p-0 text-black dark:bg-gray-300 font-semibold self-center"
-      >
-        <option disabled selected value="">Select value</option>
-        <option
-          class="font-semibold text-black"
-          v-for="option in control.options"
-          :key="option"
-          :value="option"
-        >
-          {{ option[0].toUpperCase() + option.substring(1) }}
-        </option>
-      </select>
     </template>
   </div>
 </template>
@@ -186,3 +189,19 @@ export default class ControlField extends Vue {
   }
 }
 </script>
+<style>
+.control-input {
+  max-width: 150px;
+
+  @apply shadow-sm px-2 h-8 border-1 border-solid rounded-md !important;
+}
+
+.control-input[type="number"],
+select {
+  @apply pr-1 !important;
+}
+
+.control-input:focus {
+  @apply ring-2 ring-green-400 dark:ring-green-500 border-transparent !important;
+}
+</style>

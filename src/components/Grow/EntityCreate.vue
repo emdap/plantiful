@@ -3,34 +3,29 @@
     id="entity-create"
     class="overflow-auto scrollbar-light dark:scrollbar-dark h-full"
   >
-    <div class="flex flex-wrap self-start justify-start">
+    <div class="flex flex-wrap pr-4">
       <div
-        class="control-wrapper p-2 border-b-1 border-gray-200 dark:border-gray-800 flex flex-wrap flex-grow"
+        class="control-wrapper p-2 flex flex-wrap flex-grow justify-center border-b-1 border-gray-200 dark:border-gray-800"
+        :class="[
+          colorControl(control.property) ? 'w-1/3 pl-2' : 'w-1/4 min-w-max',
+          { 'update-field': needsUpdate(control.property) },
+        ]"
         v-for="(control, index) in plantControls"
         :key="index"
       >
-        <div
-          class="max-w-xs"
-          :class="{
-            'pl-8': colorControl(control.property),
-            'self-center': !colorControl(control.property),
-          }"
-        >
-          <control-field
-            containerId="create-entity"
-            :control="control"
-            :placeholder="control.placeholder"
-            dataKey="plants"
-            :curValue="plantValues[control.property]"
-            @value-updated="updateProperty"
-          />
-        </div>
+        <control-field
+          containerId="create-entity"
+          class="flex-grow max-w-xs"
+          :control="control"
+          :placeholder="control.placeholder"
+          dataKey="plants"
+          :curValue="plantValues[control.property]"
+          @value-updated="updateProperty"
+        />
         <div
           v-if="needsUpdate(control.property)"
-          class="text-center font-semibold text-xs text-red-600 dark:text-red-500"
-          :class="
-            colorControl(control.property) ? 'my-auto pt-5' : 'ml-2 self-center'
-          "
+          class="text-center font-semibold text-xs self-start whitespace-nowrap w-full"
+          :class="colorControl(control.property) ? 'self-center' : ''"
         >
           * Required
         </div>
@@ -203,11 +198,12 @@ export default class EntityCreate extends GrowMixin {
   }
 }
 </script>
-
 <style>
-/* why doesn't select size like input ??  */
-.control-wrapper select {
-  width: 130px;
-  max-width: 100%;
+.update-field {
+  @apply text-red-600 dark:text-red-500;
+}
+
+.update-field input {
+  @apply bg-red-200 !important;
 }
 </style>

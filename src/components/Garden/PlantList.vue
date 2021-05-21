@@ -1,5 +1,8 @@
 <template>
-  <div class="h-full w-full overflow-auto scrollbar-light dark:scrollbar-dark">
+  <div
+    class="h-full w-full overflow-auto scrollbar-light dark:scrollbar-dark"
+    style="min-height: 100px"
+  >
     <trefle-warning widget="search" class="mb-2" />
     <div
       v-for="(plant, index) in plantList"
@@ -44,38 +47,22 @@
           {{ plant.scientific_name }}
         </h5>
       </div>
-      <loading v-if="!images[index] && !plantListLoading" />
-      <img
-        v-else-if="plant.image_url"
-        :src="plant.image_url"
-        @load="$set(images, index, true)"
-        class="h-full w-full"
-        :class="{ 'opacity-30': plantListLoading, hidden: !images[index] }"
-      />
-    </div>
-    <div>
-      <h3>
-        {{ plant.common_name }}
-      </h3>
-      <h5 class="font-semibold opacity-80">
-        {{ plant.scientific_name }}
-      </h5>
-    </div>
-    <div class="col-span-1 text-right cursor-pointer">
-      <span
-        v-for="option of plantListOptions"
-        :key="option.action"
-        :title="option.text"
-        class="ml-4"
-        :class="
-          plantLoading || plantListLoading
-            ? 'cursor-wait fill-current text-gray-300 dark:text-gray-400'
-            : 'cursor-pointer icon'
-        "
-        @click.stop="optionClicked(plant.id, option.action)"
-      >
-        <x :is="option.icon" class="inline" />
-      </span>
+      <div class="col-span-1 text-right cursor-pointer">
+        <span
+          v-for="option of plantListOptions"
+          :key="option.action"
+          :title="option.text"
+          class="ml-4"
+          :class="
+            plantLoading || plantListLoading
+              ? 'cursor-wait fill-current text-gray-300 dark:text-gray-400'
+              : 'cursor-pointer icon'
+          "
+          @click.stop="optionClicked(plant.id, option.action)"
+        >
+          <x :is="option.icon" class="inline" />
+        </span>
+      </div>
     </div>
   </div>
 </template>

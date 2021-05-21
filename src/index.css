@@ -12,25 +12,6 @@
   @apply p-2 border-1 rounded-md mb-2 m-1;
 }
 
-.control-input {
-  max-width: 200px;
-
-  @apply shadow-sm px-2 h-8 border-1 border-solid rounded-md;
-}
-
-.control-input[type="number"],
-select {
-  @apply pr-1;
-}
-
-select {
-  box-sizing: content-box;
-}
-
-.control-input:focus {
-  @apply ring-2 ring-green-400 dark:ring-green-500 border-transparent !important;
-}
-
 button:focus {
   @apply ring-2 ring-green-400 dark:ring-green-500;
 }
