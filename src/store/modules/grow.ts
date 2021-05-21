@@ -383,7 +383,6 @@ export default class GrowModule extends VuexModule implements GrowState {
           dataKey == "leafClusters"
             ? createLeaf(cluster.order, options as LeafOptions)
             : createPetal(cluster.order, options as PetalOptions)
-
         this.addFlowerLeaf({
           dataKey: childDataKey,
           entity: newEntity,
@@ -403,7 +402,7 @@ export default class GrowModule extends VuexModule implements GrowState {
 
     // update plant option ref
     const mergeData = {
-      [dataKey == "leafClusters" ? "leaves" : "petals"]: children,
+      children,
       height:
         dataKey == "leafClusters"
           ? processedOptions.clusterHeight

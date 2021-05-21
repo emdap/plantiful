@@ -132,9 +132,11 @@ export default class GrowMixin extends Vue {
   public activateEntity(
     plantActive: boolean,
     dataKey: GrowDataKey,
-    id: number
+    id: number,
+    e?: MouseEvent
   ) {
     if (plantActive) {
+      e?.stopPropagation()
       grow.setActiveEntity({ id, dataKey })
     }
   }

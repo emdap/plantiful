@@ -4,7 +4,9 @@
     class="absolute rounded-full"
     :class="[transformOrigin, backgroundClass]"
     :style="entityStyle(growData)"
-    @dblclick="activateEntity(clusterActive, petalsOrLeaves, growData.id)"
+    @dblclick="
+      activateEntity(clusterActive, petalsOrLeaves, growData.id, $event)
+    "
   >
     <shape
       v-for="(shape, index) in growData.shapes"

@@ -208,6 +208,10 @@ const leafClusterOptionsControls: ControlList<LeafClusterOptions> = [
     property: "sides",
     text: "Leaves in cluster",
     dataType: "number",
+    verify: {
+      upperBound: 100,
+      lowerBound: 2, // TODO: CSS bugs at 1 leaf, hence bound of 2..
+    },
   },
   {
     property: "area",
@@ -235,6 +239,10 @@ const flowerOptionsControls: ControlList<FlowerOptions> = [
     property: "sides",
     text: "Petals in flower",
     dataType: "number",
+    verify: {
+      upperBound: 100,
+      lowerBound: 2,
+    },
   },
   {
     property: "area",
