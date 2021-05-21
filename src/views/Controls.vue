@@ -3,6 +3,9 @@
     id="controls"
     class="overflow-auto w-full scrollbar-light dark:scrollbar-dark"
   >
+    <div v-if="!activeGrowPlant" class="font-semibold mt-10">
+      Select a plant to get started
+    </div>
     <div
       v-for="controlTuple in visibleControls"
       :key="controlTuple[0]"

@@ -4,9 +4,11 @@
 
 @import "assets/styles/overrides.css";
 
-/* TODO: should add this as a component */
+/* TODO: should add this as a component -- removed for now as can see it when hovering widget items/when their opacity decreases*/
 .fade-bar {
-  @apply h-8 w-full sticky -bottom-1 bg-gradient-to-t from-white dark:from-gray-700 transition-colors;
+  @apply h-8 w-full sticky -bottom-1;
+
+  /* bg-gradient-to-t from-white dark:from-gray-700 transition-colors; */
 }
 
 .btn-help {

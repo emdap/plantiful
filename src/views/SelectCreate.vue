@@ -60,20 +60,32 @@ export default class SelectCreate extends GrowMixin {
     show: false,
   }
 
-  public navItems = [this.selectEntity, this.createEntity]
+  // public navItems = [this.selectEntity, this.createEntity]
 
-  @Watch("hasGrowPlants")
-  public plantsUpdated(hasPlants: boolean) {
-    if (hasPlants) {
-      this.selectEntity.show = true
-      this.createEntity.show = false
-      this.navItems = [this.selectEntity, this.createEntity]
-    } else {
+  public get navItems() {
+    if (!this.hasGrowPlants) {
       this.selectEntity.show = false
       this.createEntity.show = true
-      this.navItems = [this.createEntity]
+      return [this.createEntity]
+    } else {
+      this.selectEntity.show = true
+      this.createEntity.show = false
+      return [this.selectEntity, this.createEntity]
     }
   }
+
+  // @Watch("hasGrowPlants")
+  // public plantsUpdated(hasPlants: boolean) {
+  //   if (hasPlants) {
+  //     this.selectEntity.show = true
+  //     this.createEntity.show = false
+  //     this.navItems = [this.selectEntity, this.createEntity]
+  //   } else {
+  //     this.selectEntity.show = false
+  //     this.createEntity.show = true
+  //     this.navItems = [this.createEntity]
+  //   }
+  // }
 
   public showChild(navId: "entitySelect" | "entityCreate") {
     for (const item of this.navItems) {
