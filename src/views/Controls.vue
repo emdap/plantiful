@@ -16,7 +16,7 @@
         @blur="toggleHighlight(controlTuple[0], false)"
         title="Highlight active entity"
         tabindex="1"
-        class="mt-2 py-1 mb-1 -mr-2 font-semibold sticky top-0 bg-white dark:bg-gray-700 text-black dark:text-gray-100 cursor-pointer ring-pink-400 dark:ring-yellow-500 focus:ring-2 focus:outline-none rounded-md"
+        class="mt-2 py-1 mb-1 -mr-2 font-semibold sticky top-0 transition-colors bg-white dark:bg-gray-700 text-black dark:text-gray-100 cursor-pointer ring-pink-400 dark:ring-yellow-500 focus:ring-2 focus:outline-none rounded-md"
       >
         {{ getControlSectionTitle(controlTuple[0]) }}
       </h4>

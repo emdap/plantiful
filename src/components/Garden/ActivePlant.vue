@@ -20,7 +20,7 @@
     <template v-else>
       <!-- use properties under main_species when possible, has more consistent capitalization, especially for common_name -->
       <div
-        class="my-2 p-2 bg-white dark:bg-gray-700 sticky top-0 border-b-1 dark:border-gray-800"
+        class="my-2 p-2 bg-white dark:bg-gray-700 sticky transition-colors top-0 border-b-1 dark:border-gray-800"
       >
         <h1>{{ activePlant.main_species.common_name }}</h1>
         <h3>{{ activePlant.main_species.scientific_name }}</h3>

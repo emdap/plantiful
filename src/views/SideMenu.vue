@@ -14,7 +14,7 @@
       :class="expanded ? 'w-52' : 'w-12'"
     >
       <div
-        class="flex h-6 items-center w-full mb-6 cursor-pointer fill-current sticky top-0 bg-white dark:bg-gray-900"
+        class="flex h-6 items-center w-full mb-6 cursor-pointer fill-current sticky top-0 bg-white dark:bg-gray-900 transition-colors duration-300"
         @click="expanded = !expanded"
         :class="
           expanded

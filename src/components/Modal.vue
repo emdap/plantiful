@@ -7,7 +7,7 @@
     >
       <div class="h-full flex flex-col px-2">
         <h1
-          class="sticky top-0 text-center p-4 pt-6 bg-white dark:bg-gray-600 border-b-1 dark:border-gray-800"
+          class="sticky top-0 text-center p-4 pt-6 transition-colors bg-white dark:bg-gray-600 border-b-1 dark:border-gray-800"
         >
           <!-- {{ header }} -->
           Delete oldest plant
@@ -26,7 +26,7 @@
           </h3>
         </div>
         <footer
-          class="sticky bottom-0 flex justify-end p-4 bg-white dark:bg-gray-600 border-t-1 dark:border-gray-800"
+          class="sticky bottom-0 flex justify-end p-4 transition-colors bg-white dark:bg-gray-600 border-t-1 dark:border-gray-800"
         >
           <!-- <button v-for="(button, index) in buttons" :key="index" class="btn-light dark:btn-dark" @click="$emit(button.emit)">
             {{ button.text }}
