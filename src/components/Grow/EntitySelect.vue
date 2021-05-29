@@ -150,9 +150,29 @@ export default class EntitySelect extends GrowMixin {
       )
       this.options = options
       this.clusterReferences = clusterReferences
-      this.setSelected(1)
+      this.setToCurrentSelected()
     } else {
       this.options.plants = Object.values(grow.plants)
+    }
+  }
+
+  public setToCurrentSelected() {
+    const plantIndex = this.options.plants.findIndex(p => {
+      return p.id == this.activeGrowPlant?.id
+    })
+    if (plantIndex > -1) {
+      this.selected.plants = plantIndex + 1
+    }
+    if (this.activeEntityType && this.activeEntityType != "plants") {
+      // will set to 1 if a leaf/petal was selected, and selection helper closed/opened
+      // as no reference to cluster is saved, freeze it on the last selected
+      const entityIndex = Math.max(
+        1,
+        this.options[this.activeEntityType].findIndex(e => {
+          return e.id == this.activeEntity?.id
+        })
+      )
+      this.setSelected(entityIndex)
     }
   }
 
@@ -353,7 +373,6 @@ export default class EntitySelect extends GrowMixin {
         // FYI if this component is mounted when a leaf/petal is selected, selected cluster won't update; no reference from child -> parent
         this.setClusterChildrenOptions()
       }
-
       this.selected[this.activeEntityType] = optIndex
       // reset other selections to null, unless a cluster child was just selected
       if (
