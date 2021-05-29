@@ -65,6 +65,8 @@ export default class Zone extends GridMixin {
   }
 
   public beforeDestroy() {
+    // reset size & start/end points to 0
+    this.setDimsCurrent()
     document.removeEventListener("mouseup", this.notSelected)
   }
 
@@ -235,10 +237,20 @@ export default class Zone extends GridMixin {
     }
   }
 
+  @Watch("myContainer.size")
+  public containerSizeChanged() {
+    // catch container size changes that result from another container being closed
+    if (!this.containerResizing) {
+      console.log("size")
+      this.setDimsCurrent(false)
+    }
+  }
+
   @Watch("containerResizing")
   public gridSizeChange(resizing: boolean) {
     // don't want to update until resize finished
     if (!resizing) {
+      console.log("resize")
       this.setDimsCurrent(false)
     }
   }

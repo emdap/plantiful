@@ -311,9 +311,16 @@ export default class Widget extends GridMixin {
   }
 
   public updatePosition(e: MouseEvent | TouchEvent) {
+    let event!: MouseEvent | Touch
+    if (e instanceof MouseEvent) {
+      e.preventDefault()
+      event = e
+    } else {
+      event = e.touches[0] || e.changedTouches[0]
+    }
+
     let startY!: number, startX!: number
-    const { pageX, pageY } =
-      e instanceof MouseEvent ? e : e.touches[0] || e.changedTouches[0]
+    const { pageX, pageY } = event
 
     if (this.posStart == null) {
       this.posStart = {

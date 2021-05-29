@@ -8,7 +8,7 @@
       <div
         v-for="(key, index) in iterateDataKeys"
         :key="index"
-        class="select-wrapper mb-2 relative"
+        class="select-wrapper m-1 relative"
       >
         <ul
           role="listbox"
