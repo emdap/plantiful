@@ -58,6 +58,7 @@ export default class Grow extends GrowMixin {
   }
 
   public beforeDestroy() {
+    grow.removeActivePlant()
     window.removeEventListener("keydown", this.keyDown)
     window.removeEventListener("keyup", this.keyUp)
     document.removeEventListener("mouseup", this.mouseUp)

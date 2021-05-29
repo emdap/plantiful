@@ -151,6 +151,8 @@ export default class EntitySelect extends GrowMixin {
       this.options = options
       this.clusterReferences = clusterReferences
       this.setSelected(1)
+    } else {
+      this.options.plants = Object.values(grow.plants)
     }
   }
 
