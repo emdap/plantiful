@@ -93,15 +93,29 @@ export default class GrowMixin extends Vue {
   }
 
   // TODO: reorg file a bit, added a lot to the end
+
+  // widgets
   public toggleSearchPlants(forceShow?: boolean) {
     grid.toggleWidgetName({ name: "search", forceShow })
+  }
+
+  public get growWidget() {
+    return grid.getWidget("grow")
+  }
+
+  // state
+  public get overBranchLimit(): boolean {
+    return (
+      Object.keys(grow.plants).length > 1 &&
+      Object.keys(grow.branches).length > grow.maxBranches
+    )
   }
 
   public setHighlightEntity(id: number) {
     return grow.setHighlightEntity(id)
   }
 
-  public get growPlants(): GrowData<GrowPlant> {
+  public get growPlantsDict(): GrowData<GrowPlant> {
     return grow.plants
   }
 
@@ -127,6 +141,10 @@ export default class GrowMixin extends Vue {
 
   public get hasGrowPlants() {
     return Object.entries(grow.plants).length != 0
+  }
+
+  public deleteOldestPlant() {
+    grow.deleteOldestPlant()
   }
 
   public activateEntity(
@@ -157,14 +175,18 @@ export default class GrowMixin extends Vue {
     }
   }
 
-  public async growPlant(basePlant: Plant) {
+  public async growPlant(basePlant: Plant, varyColors = true) {
     const plant = await grow.growPlant({
       basePlant,
-      varyColors: true,
+      varyColors,
     })
 
     grow.addPlant(plant)
     grow.setActivePlant(plant.id)
+
+    if (!this.growWidget?.open) {
+      grid.toggleWidgetName({ name: "grow", forceShow: true })
+    }
 
     return plant
   }

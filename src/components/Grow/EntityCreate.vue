@@ -3,7 +3,22 @@
     id="entity-create"
     class="overflow-auto scrollbar-light dark:scrollbar-dark h-full"
   >
+    <modal
+      v-if="showModal"
+      @close="showModal = false"
+      @continue="continueDelete"
+    />
     <div class="flex flex-wrap pr-4">
+      <div
+        class="w-full text-center p-4 border-b-1 border-gray-200 dark:border-gray-800"
+      >
+        <button
+          class="bg-pink-400 hover:bg-pink-500 text-white dark:bg-yellow-600 dark:hover:bg-yellow-500"
+          @click="randomPlant"
+        >
+          Random plant
+        </button>
+      </div>
       <div
         class="control-wrapper p-2 flex flex-wrap flex-grow justify-center border-b-1 border-gray-200 dark:border-gray-800"
         :class="[
@@ -51,9 +66,9 @@
           same.
         </div>
       </div>
-      <div class="fade-bar" />
+      <!-- <div class="fade-bar" /> -->
       <div
-        class="w-full -mt-2 z-50 mb-1 justify-center flex items-center bg-white dark:bg-gray-700"
+        class="w-full p-4 justify-center flex items-center bg-white dark:bg-gray-700"
       >
         <button class="btn-light dark:btn-dark mr-2" @click="checkAndGrow">
           Grow your plant!
@@ -68,7 +83,7 @@
 
 <script lang="ts">
 import Component from "vue-class-component"
-import GrowMixin, { grow } from "@/mixins/GrowMixin.vue"
+import GrowMixin from "@/mixins/GrowMixin.vue"
 import ControlField from "@/components/Grow/ControlField.vue"
 import ColorField from "@/components/Grow/ColorField.vue"
 import controlLists from "@/fixtures/Grow/ControlLists"
@@ -77,7 +92,11 @@ import {
   CustomGrowPlant,
   GrowDataKey,
   GrowPlant,
+  LeafTextureValues,
 } from "@/store/interfaces"
+import { garden } from "@/mixins/GardenMixin.vue"
+import { RGBObj, colorToStr } from "@/utilities/colorUtil"
+import Modal from "@/components/Modal.vue"
 
 const CustomValues = [
   "name",
@@ -92,9 +111,12 @@ const CustomValues = [
   components: {
     ControlField,
     ColorField,
+    Modal,
   },
 })
 export default class EntityCreate extends GrowMixin {
+  public showModal = false
+
   public plantValues = this.emptyValues() as {
     [key in typeof CustomValues[number]]: number | string | string[]
   }
@@ -151,7 +173,17 @@ export default class EntityCreate extends GrowMixin {
     this.plantValues[property] = value
   }
 
+  public continueDelete() {
+    this.deleteOldestPlant()
+    this.checkAndGrow()
+    this.showModal = false
+  }
+
   public async checkAndGrow() {
+    if (this.overBranchLimit) {
+      this.showModal = true
+      return
+    }
     let missingVal = false
     const emptyValues = this.emptyValues()
     for (const control of this.plantControls) {
@@ -169,13 +201,65 @@ export default class EntityCreate extends GrowMixin {
       this.$toasted.error("Please fill in all fields.")
       return
     }
-    const newPlant = await grow.growCustomPlant({
-      plant: this.plantValues as CustomGrowPlant,
-      varyColors: this.varyColors,
-    })
-    grow.addPlant(newPlant)
-    grow.setActivePlant(newPlant.id)
+    const basePlant = await garden.newCustomPlant(
+      this.plantValues as CustomGrowPlant
+    )
+    this.growPlant(basePlant, this.varyColors)
     this.plantValues = this.emptyValues()
+  }
+
+  public randomPlant() {
+    const heightBound = controlLists.plantOptionsControls.find(c => {
+      return c.property == "height"
+    })?.verify?.upperBound
+    const spreadBound = controlLists.plantOptionsControls.find(c => {
+      return c.property == "spread"
+    })?.verify?.upperBound
+
+    if (!heightBound || !spreadBound) {
+      this.$toasted.error(
+        `Error: missing ${
+          !heightBound
+            ? !spreadBound
+              ? "height and spread controls."
+              : "height control."
+            : "spread control."
+        }`
+      )
+      return
+    }
+
+    const specimenId = Math.random()
+      .toString(36)
+      .slice(7)
+      .toUpperCase()
+    const textureIndex = Math.round(Math.random() * 2)
+    const leafColors = Math.round(Math.random() * 6)
+    const flowerColors = Math.round(Math.random() * 6)
+    this.varyColors = Math.round(Math.random()) == 0
+
+    this.plantValues.name = "Specimen " + specimenId
+    this.plantValues.height = Math.round(Math.random() * heightBound)
+    this.plantValues.spread = Math.round(Math.random() * spreadBound)
+    this.plantValues.leafTexture = LeafTextureValues[textureIndex]
+    this.plantValues.leafColors = this.createRandomColors(leafColors)
+    this.plantValues.flowerColors = this.createRandomColors(flowerColors)
+
+    this.checkAndGrow()
+  }
+
+  public createRandomColors(amount: number) {
+    const colors = [] as string[]
+    for (let i = 0; i <= amount; i++) {
+      const color: RGBObj = {
+        r: Math.round(Math.random() * 255),
+        g: Math.round(Math.random() * 255),
+        b: Math.round(Math.random() * 255),
+        a: 1,
+      }
+      colors.push(colorToStr(color))
+    }
+    return colors
   }
 
   public get colorControl() {

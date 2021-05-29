@@ -3,6 +3,11 @@
     id="active-plant"
     class="flex-grow overflow-auto scrollbar-light dark:scrollbar-dark flex-col"
   >
+    <modal
+      v-if="showModal"
+      @close="showModal = false"
+      @continue="continueDelete"
+    />
     <trefle-warning widget="active-plant" />
     <loading
       v-if="plantLoading"
@@ -62,7 +67,7 @@
               </div>
             </div>
           </li>
-          <button class="btn-light px-6 mt-6" @click="growPlant(activePlant)">
+          <button class="btn-light px-6 mt-6" @click="checkAndGrow">
             Grow this plant
           </button>
         </ul>
@@ -79,17 +84,38 @@ import GrowMixin from "@/mixins/GrowMixin.vue"
 import { ActivePlantInfo } from "@/store/interfaces"
 import Loading from "@/components/Loading.vue"
 import TrefleWarning from "@/components/Garden/TrefleWarning.vue"
+import Modal from "@/components/Modal.vue"
 
 @Component({
   components: {
     Loading,
     TrefleWarning,
+    Modal,
   },
 })
 export default class ActivePlant extends mixins(GardenMixin, GrowMixin) {
+  public showModal = false
+
   // have ability to display additional images in future
   public mainImgLoaded = false
   public expandImg = false
+
+  public continueDelete() {
+    this.deleteOldestPlant()
+    this.checkAndGrow()
+    this.showModal = false
+  }
+
+  public checkAndGrow() {
+    if (!this.activePlant) {
+      return
+    }
+    if (this.overBranchLimit) {
+      this.showModal = true
+      return
+    }
+    this.growPlant(this.activePlant)
+  }
 
   public get showColors(): ActivePlantInfo[] {
     return [

@@ -65,10 +65,7 @@
     >
       <chrome :value="colorPickerStart" @input="pickerInput" />
       <div class="flex gap-1">
-        <button
-          @click="launchColorPicker(false)"
-          class="bg-gray-200 dark:bg-gray-500 font-semibold hover:text-green-500 hover:bg-gray-100 focus:bg-gray-100 dark:hover:bg-gray-400 dark:focus:bg-gray-400 dark:hover:text-green-800 rounded-sm"
-        >
+        <button @click="launchColorPicker(false)" class="btn-cancel">
           Cancel
         </button>
         <button
@@ -98,13 +95,12 @@ import { Chrome } from "vue-color"
 import colorConverter from "css-color-converter"
 import CloseIcon from "@/assets/icons/close.svg"
 import PopOutIcon from "@/assets/icons/pop-out.svg"
-
-type RGBObj = {
-  r: number
-  b: number
-  g: number
-  a: number
-}
+import {
+  RGBObj,
+  colorToObj,
+  colorToStr,
+  colorToList,
+} from "@/utilities/colorUtil"
 
 @Component({
   components: {
@@ -156,7 +152,7 @@ export default class ColorField extends Vue {
   }
 
   public addFromPicker(duplicate = false) {
-    const rgba = this.colorToStr(this.colorPickerPick)
+    const rgba = colorToStr(this.colorPickerPick)
     if (this.adjustIndex > -1 && !duplicate && !this.singular) {
       if (
         this.colorList.length > this.adjustIndex &&
@@ -179,7 +175,6 @@ export default class ColorField extends Vue {
   }
 
   public removeColor(index: number) {
-    // TODO: Show 'are you sure?' box
     this.$emit("remove-color", index)
   }
 
@@ -190,7 +185,7 @@ export default class ColorField extends Vue {
 
   public adjustColor(e: MouseEvent, color: string, index: number) {
     this.adjustIndex = index
-    this.colorPickerStart = this.colorToObj(color)
+    this.colorPickerStart = colorToObj(color, this.defaultColor)
     // pickerPick won't be updated otherwise until user changes it
     this.colorPickerPick = this.colorPickerStart
     this.launchColorPicker(true, e)
@@ -285,7 +280,7 @@ export default class ColorField extends Vue {
 
   public get getTextColor() {
     return (color: string) => {
-      const splitColor = this.colorToList(color)
+      const splitColor = colorToList(color)
       if (!splitColor) {
         return "rgba(0, 0, 0, 1)"
       }
@@ -295,38 +290,6 @@ export default class ColorField extends Vue {
       // if parseInt failed/returned NaN, NaN < 150 will be false -> black text
       return sum / 3 < 150 ? "rgba(255, 255, 255, .8)" : "rgba(0, 0, 0, .8)"
     }
-  }
-
-  // Converters
-  public colorToObj(color: string) {
-    const splitColor = this.colorToList(color)
-    if (!splitColor || splitColor.length < 3) {
-      return this.defaultColor
-    }
-    const colorObj = {
-      r: parseInt(splitColor[0]),
-      g: parseInt(splitColor[1]),
-      b: parseInt(splitColor[2]),
-      a: 1,
-    }
-    if (splitColor.length == 4) {
-      colorObj.a = parseInt(splitColor[3])
-    }
-    return colorObj
-  }
-
-  public colorToStr(parseColor: RGBObj) {
-    const { r, g, b, a } = parseColor
-    return `rgba(${r}, ${g}, ${b}, ${a})`
-  }
-
-  public colorToList(parseColor: string): false | string[] {
-    const dataStart = parseColor.indexOf("(")
-    const dataEnd = parseColor.indexOf(")")
-    if (dataStart == -1 || dataEnd == -1) {
-      return false
-    }
-    return parseColor.substring(dataStart + 1, dataEnd).split(",")
   }
 }
 </script>

@@ -3,6 +3,11 @@
     id="plant-search"
     class="flex overflow-auto scrollbar-light dark:scrollbar-dark flex-grow flex-col gap-1"
   >
+    <modal
+      v-if="showModal"
+      @close="showModal = false"
+      @continue="continueDelete"
+    />
     <search-bar class="p-4" />
     <div class="relative">
       <loading
@@ -13,7 +18,7 @@
     </div>
     <plant-list
       @show-active="toggleActivePlant(true)"
-      @grow-plant="growPlant(activePlant)"
+      @grow-plant="checkAndGrow"
       class="p-4"
     />
     <page-nav
@@ -34,7 +39,7 @@ import PlantList from "@/components/Garden/PlantList.vue"
 import PageNav from "@/components/Garden/PageNav.vue"
 import GardenMixin, { garden } from "@/mixins/GardenMixin.vue"
 import GrowMixin from "@/mixins/GrowMixin.vue"
-import TrefleWarning from "@/components/Garden/TrefleWarning.vue"
+import Modal from "@/components/Modal.vue"
 
 @Component({
   components: {
@@ -42,10 +47,29 @@ import TrefleWarning from "@/components/Garden/TrefleWarning.vue"
     SearchBar,
     PlantList,
     PageNav,
-    TrefleWarning,
+    Modal,
   },
 })
 export default class PlantSearch extends mixins(GardenMixin, GrowMixin) {
+  public showModal = false
+
+  public continueDelete() {
+    this.deleteOldestPlant()
+    this.checkAndGrow()
+    this.showModal = false
+  }
+
+  public checkAndGrow() {
+    if (!this.activePlant) {
+      return
+    }
+    if (this.overBranchLimit) {
+      this.showModal = true
+      return
+    }
+    this.growPlant(this.activePlant)
+  }
+
   public destroyed() {
     garden.clearPlantList()
   }

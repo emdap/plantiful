@@ -74,7 +74,7 @@
         </div>
       </div>
       <div
-        class="text-pink-400 hover:text-yellow-400 mt-auto ml-auto icon"
+        class="text-pink-400 dark:text-pink-400 hover:text-yellow-400 mt-auto ml-auto icon"
         :title="darkMode ? 'Day Mode' : 'Night Mode'"
         @click="darkMode = !darkMode"
       >
@@ -157,7 +157,7 @@ export default class SideMenu extends Vue {
   }
 
   public flashWidget(widget: GridWidget) {
-    if (widget.open) {
+    if (!this.expanded && widget.open) {
       grid.setActiveWidget(widget.name)
     }
   }

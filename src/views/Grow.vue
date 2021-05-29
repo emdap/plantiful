@@ -14,9 +14,12 @@
       id="plant-wrapper"
       class="h-full w-full relative overflow-hidden"
       @dblclick.self="removeActive()"
-      @mouseleave="trackMouse = false"
     >
-      <plant v-for="plant in growPlants" :key="plant.id" :growData="plant" />
+      <plant
+        v-for="plant in growPlantsDict"
+        :key="plant.id"
+        :growData="plant"
+      />
     </div>
   </div>
 </template>
@@ -48,8 +51,8 @@ export default class Grow extends GrowMixin {
   public mounted() {
     window.addEventListener("keydown", this.keyDown)
     window.addEventListener("keyup", this.keyUp)
+    document.addEventListener("mouseup", this.mouseUp)
     this.el.addEventListener("mousedown", this.mouseDown)
-    this.el.addEventListener("mouseup", this.mouseUp)
     this.el.addEventListener("touchstart", this.trackTouch)
     this.el.addEventListener("touchend", this.trackTouch)
   }
@@ -57,9 +60,11 @@ export default class Grow extends GrowMixin {
   public beforeDestroy() {
     window.removeEventListener("keydown", this.keyDown)
     window.removeEventListener("keyup", this.keyUp)
+    document.removeEventListener("mouseup", this.mouseUp)
     // thinking this is unnecessary since it's being destroyed?
     this.el.removeEventListener("mousedown", this.mouseDown)
-    this.el.removeEventListener("mouseup", this.mouseUp)
+    this.el.removeEventListener("touchstart", this.trackTouch)
+    this.el.removeEventListener("touchend", this.trackTouch)
   }
 
   public trackTouch(e: TouchEvent) {
@@ -169,7 +174,6 @@ export default class Grow extends GrowMixin {
         y: pageY,
       }
     }
-
     // update rotation
     if (this.ctrlDown || this.shiftDown) {
       const newRotations: Rotation = {
@@ -201,7 +205,6 @@ export default class Grow extends GrowMixin {
         y: currentTop + pageY - this.startPos.y,
         x: currentLeft + pageX - this.startPos.x,
       }
-
       grow.setPosition({ id: entity.id, dataKey: "plants", newPositions })
     }
     this.startPos = {

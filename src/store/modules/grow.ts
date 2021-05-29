@@ -24,7 +24,6 @@ import {
   PetalOptions,
   GrowEntitySnippet,
   GrowOptionsSnippet,
-  CustomGrowPlant,
 } from "@/store/interfaces"
 import Vue from "vue"
 import { NO_ROTATION } from "@/fixtures/Defaults"
@@ -59,13 +58,63 @@ export default class GrowModule extends VuexModule implements GrowState {
   activeEntityType: GrowDataKey | null = null
   highlightEntity: number | null = null
   highlightEntityType: GrowDataKey | null = null
-
   showControls = false
+
+  maxBranches = 12
 
   public get getEntity() {
     return (dataKey: GrowDataKey, id: number) => {
       return this[dataKey][id]
     }
+  }
+
+  public get getPlantChildrenIds() {
+    return (plant: GrowPlant) => {
+      const { branches, leafClusters, flowers } = plant
+      const leaves = [] as number[]
+      const petals = [] as number[]
+
+      for (const clusterId of leafClusters) {
+        const cluster = this.getEntity(
+          "leafClusters",
+          clusterId
+        ) as GrowLeafCluster
+        leaves.concat(cluster.children)
+      }
+
+      for (const clusterId of flowers) {
+        const cluster = this.getEntity("flowers", clusterId) as GrowFlower
+        petals.concat(cluster.children)
+      }
+
+      return {
+        branches,
+        leafClusters,
+        flowers,
+        leaves,
+        petals,
+      }
+    }
+  }
+
+  @Action
+  deletePlant(plant: GrowPlant) {
+    const childrenIds = this.getPlantChildrenIds(plant)
+    const dataKeys = [
+      "leaves",
+      "petals",
+      "leafClusters",
+      "flowers",
+      "branches",
+    ] as const
+
+    for (const dataKey of dataKeys) {
+      childrenIds[dataKey].forEach(id => {
+        this.deleteEntity({ dataKey, id })
+      })
+    }
+
+    this.deleteEntity({ dataKey: "plants", id: plant.id })
   }
 
   @Action
@@ -414,49 +463,18 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Action
-  growCustomPlant(payload: { plant: CustomGrowPlant; varyColors: boolean }) {
-    const { plant, varyColors } = payload
-    const blankFields = {
-      id: 0,
-      main_species_id: "",
-      scientific_name: "",
-      family_common_name: "",
-      family: "",
-      image_url: "",
+  deleteOldestPlant() {
+    const oldestBranch = Math.min(
+      ...Object.keys(this.branches).map(id => {
+        return parseInt(id)
+      })
+    )
+    const oldestPlant = Object.values(this.plants).find(p => {
+      return p.branches.indexOf(oldestBranch) != -1
+    }) as GrowPlant
+    if (oldestPlant) {
+      this.deletePlant(oldestPlant)
     }
-    const newPlant: Plant = {
-      ...blankFields,
-      common_name: plant.name,
-      main_species: {
-        ...blankFields,
-        common_name: plant.name,
-        specifications: {
-          shape_and_orientation: "",
-          average_height: { cm: plant.height },
-        },
-        growth: {
-          spread: {
-            cm: plant.spread,
-          },
-        },
-        flower: {
-          color: plant.flowerColors,
-        },
-        foliage: {
-          color: plant.leafColors,
-          texture: plant.leafTexture,
-        },
-      },
-    }
-
-    this.context.dispatch("garden/addCustomPlant", newPlant, {
-      root: true,
-    })
-
-    return this.growPlant({
-      basePlant: newPlant,
-      varyColors,
-    })
   }
 
   @Action
@@ -741,6 +759,9 @@ export default class GrowModule extends VuexModule implements GrowState {
     // need to refresh active entity reference
     if (this.activeEntity?.id == id && this.activeEntityType == dataKey) {
       this.activeEntity = this[dataKey][id] ? this[dataKey][id] : null
+      if (dataKey == "plants") {
+        this.activeGrowPlant = this.activeEntity as GrowPlant | null
+      }
     }
   }
 

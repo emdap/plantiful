@@ -4,7 +4,7 @@
 
 @import "assets/styles/overrides.css";
 
-/* TODO: should add this as a component -- removed for now as can see it when hovering widget items/when their opacity decreases*/
+/* TODO: should add this as a component -- removed for now as can see it when hovering widget items/when their opacity decreases */
 .fade-bar {
   @apply h-8 w-full sticky -bottom-1;
 
@@ -13,6 +13,10 @@
 
 .btn-help {
   @apply px-2 py-1 focus:outline-none text-xs hover:bg-gray-400 focus:bg-gray-400 dark:hover:bg-gray-600 dark:focus:bg-gray-600 bg-gray-500 text-gray-100 dark:bg-gray-800 dark:text-gray-300 cursor-pointer;
+}
+
+.btn-cancel {
+  @apply bg-gray-200 dark:bg-gray-500 font-semibold hover:text-green-500 hover:bg-gray-100 focus:bg-gray-100 dark:hover:bg-gray-400 dark:focus:bg-gray-400 dark:hover:text-green-800 rounded-sm;
 }
 
 .help-box {

@@ -154,11 +154,11 @@ export default class EntitySelect extends GrowMixin {
     }
   }
 
-  public deleteEach(dataKey: GrowDataKey, entityList: GrowType[]) {
-    entityList.forEach(entity => {
+  public deleteEach(dataKey: GrowDataKey, entityList: number[]) {
+    entityList.forEach(id => {
       grow.deleteEntity({
         dataKey,
-        id: entity.id,
+        id,
       })
     })
   }
@@ -166,31 +166,18 @@ export default class EntitySelect extends GrowMixin {
   public deletePlant(e: MouseEvent, id: number | undefined) {
     e.stopPropagation()
     // delete leaves/petals first
-    let deletePlant!: GrowPlant
+    let plant!: GrowPlant
     if (id != undefined && id != this.activeGrowPlant?.id) {
-      deletePlant = this.getEntity("plants", id) as GrowPlant
+      plant = this.getEntity("plants", id) as GrowPlant
     } else if (this.activeGrowPlant) {
-      deletePlant = this.activeGrowPlant
+      plant = this.activeGrowPlant
       this.selected.plants = null
     } else {
       this.$toasted.error(selectMessages.noDelete)
       return
     }
 
-    const { options, clusterReferences } = this.getOptionLists(deletePlant)
-    for (const dataKey of clusterKeys) {
-      for (const childList of Object.values(clusterReferences[dataKey])) {
-        this.deleteEach(dataKey, childList)
-      }
-    }
-    for (const dataKey of plantKeys) {
-      this.deleteEach(dataKey, options[dataKey])
-    }
-
-    grow.deleteEntity({
-      dataKey: "plants",
-      id: deletePlant.id,
-    })
+    grow.deletePlant(plant)
   }
 
   public toggleDropdown(e: MouseEvent, dataKey: GrowDataKey) {
@@ -296,6 +283,7 @@ export default class EntitySelect extends GrowMixin {
       const { options, clusterReferences } = this.getOptionLists(
         this.activeGrowPlant
       )
+
       this.options = options
       this.clusterReferences = clusterReferences
     }
@@ -312,9 +300,9 @@ export default class EntitySelect extends GrowMixin {
     }
   }
 
-  @Watch("growPlants")
+  @Watch("growPlantsDict")
   public plantsUpdated() {
-    this.options.plants = Object.values(this.growPlants)
+    this.options.plants = Object.values(this.growPlantsDict)
   }
   //#endregion
 
@@ -403,7 +391,7 @@ export default class EntitySelect extends GrowMixin {
   //#region Defaults
   public defaultOptions() {
     return {
-      plants: this.hasGrowPlants ? Object.values(this.growPlants) : [],
+      plants: this.hasGrowPlants ? Object.values(this.growPlantsDict) : [],
       branches: [] as GrowBranch[],
       leafClusters: [] as GrowLeafCluster[],
       leaves: [] as GrowLeaf[],

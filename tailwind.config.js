@@ -14,6 +14,7 @@ module.exports = {
           /^bg-blue/,
           /^bg-pink/,
           /^text-pink/,
+          /^dark/,
           /^text-green/,
           /^text-yellow/,
         ],

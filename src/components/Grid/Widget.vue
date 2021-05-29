@@ -61,7 +61,7 @@
         <slot> </slot>
       </section>
       <footer
-        class="mt-auto pb-2 text-gray-500 h-6 overflow-y-hidden scrollbar-light-mini dark:scrollbar-dark-mini"
+        class="pb-2 text-gray-500 h-6 overflow-y-hidden scrollbar-light-mini dark:scrollbar-dark-mini"
       >
         <span :title="messages.iconTitles.resize" ref="size-icon">
           <resize-icon

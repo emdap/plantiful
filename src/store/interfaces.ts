@@ -77,6 +77,7 @@ export interface GrowState {
   highlightEntity: number | null
   highlightEntityType: GrowDataKey | null
   showControls: boolean
+  maxBranches: number
 }
 
 // Plants
@@ -461,9 +462,7 @@ export interface DropdownControl<Type> extends ControlBase<Type> {
   options: readonly string[] | readonly number[]
 }
 
-export type NestedControl<Parent, Child> = {
-  property: keyof Parent
-  text: string
+export interface NestedControl<Parent, Child> extends ControlBase<Parent> {
   children: Control<Child>[]
 }
 

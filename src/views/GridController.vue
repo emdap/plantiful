@@ -45,7 +45,7 @@ import Container from "@/components/Grid/Container.vue"
 import Zone from "@/components/Grid/Zone.vue"
 import ThreeDotsIcon from "@/assets/icons/three-dots.svg"
 import util from "@/utilities/containerUtil"
-import { GridContainer, GrowPlant, Size } from "@/store/interfaces"
+import { GrowPlant, Size } from "@/store/interfaces"
 import { TEST_PLANT } from "@/fixtures/Grow/TestPlant"
 import { NO_SIZE } from "@/fixtures/Defaults"
 
@@ -389,8 +389,12 @@ export default class GridController extends mixins(GridMixin) {
       this.growTestPlant()
       this.toggleSearchers(false)
     } else {
-      grow.removeActivePlant()
-      grow.deleteEntity({ dataKey: "plants", id: this.testPlant.id })
+      if (grow.plants[this.testPlant.id] == this.testPlant) {
+        if (this.testPlant.id == grow.activeGrowPlant?.id) {
+          grow.removeActivePlant()
+        }
+        grow.deletePlant(this.testPlant)
+      }
     }
   }
 

@@ -8,6 +8,7 @@ import {
   PageLinks,
   PlantListPayload,
   GardenState,
+  CustomGrowPlant,
   // PageLinkPayload,
 } from "@/store/interfaces"
 // import { listPlants, getPlant, getLink, searchPlants } from "@/services/plants"
@@ -97,7 +98,41 @@ export default class GardenModule extends VuexModule implements GardenState {
   }
 
   @Action
-  addCustomPlant(plant: Plant) {
+  newCustomPlant(basePlant: CustomGrowPlant): Promise<Plant> {
+    const blankFields = {
+      id: 0,
+      main_species_id: "",
+      scientific_name: "",
+      family_common_name: "",
+      family: "",
+      image_url: "",
+    }
+
+    const plant: Plant = {
+      ...blankFields,
+      common_name: basePlant.name,
+      main_species: {
+        ...blankFields,
+        common_name: basePlant.name,
+        specifications: {
+          shape_and_orientation: "",
+          average_height: { cm: basePlant.height },
+        },
+        growth: {
+          spread: {
+            cm: basePlant.spread,
+          },
+        },
+        flower: {
+          color: basePlant.flowerColors,
+        },
+        foliage: {
+          color: basePlant.leafColors,
+          texture: basePlant.leafTexture,
+        },
+      },
+    }
+
     const nextKey =
       Math.max(
         0,
@@ -105,11 +140,13 @@ export default class GardenModule extends VuexModule implements GardenState {
           return parseInt(k)
         })
       ) + 1
+
     // is ok if this is duplicate, the id on Plants is not used -- see comment line 152
     plant.id = nextKey
     plant.main_species_id = "grow-" + nextKey
-
     this.CACHE_PLANT(plant)
+
+    return Promise.resolve(plant)
   }
   // no API :(
   // @Action
