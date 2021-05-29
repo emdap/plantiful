@@ -8,19 +8,25 @@
       @close="showModal = false"
       @continue="continueDelete"
     />
-    <div class="flex flex-wrap pr-4">
+    <div class="flex flex-wrap pr-4 min-w-min">
       <div
         class="w-full text-center p-4 border-b-1 border-gray-200 dark:border-gray-800"
       >
         <button
-          class="bg-pink-400 hover:bg-pink-500 text-white dark:bg-yellow-600 dark:hover:bg-yellow-500"
-          @click="randomPlant"
+          class="bg-pink-400 hover:bg-pink-500 text-white dark:bg-pink-500 dark:hover:bg-pink-400 m-1"
+          @click="growRandomPlant"
         >
-          Random plant
+          Grow random plant
+        </button>
+        <button
+          class="bg-green-400 hover:bg-green-500 text-white dark:bg-green-600 dark:hover:bg-green-500 m-1"
+          @click="randomizeFields"
+        >
+          Randomize fields
         </button>
       </div>
       <div
-        class="control-wrapper p-2 flex flex-wrap flex-grow justify-center border-b-1 border-gray-200 dark:border-gray-800"
+        class="p-2 flex flex-wrap flex-grow justify-center border-b-1 border-gray-200 dark:border-gray-800"
         :class="[
           colorControl(control.property) ? 'w-1/3 pl-2' : 'w-1/4 min-w-max',
           { 'update-field': needsUpdate(control.property) },
@@ -57,25 +63,45 @@
         <label for="vary-colors" class="mx-2 text-sm font-semibold"
           >Vary colors</label
         >
-        <button class="btn-help" @click="showHelp = !showHelp">
-          {{ showHelp ? "Hide Help" : "Help" }}
-        </button>
-        <div v-if="showHelp" class="help-box mt-4 w-full">
-          Selecting "Vary colors" will generate 3 colors for every color you've
-          entered: one that's lighter, one that's darker, and one that's the
-          same.
-        </div>
       </div>
       <!-- <div class="fade-bar" /> -->
       <div
-        class="w-full p-4 justify-center flex items-center bg-white dark:bg-gray-700"
+        class="w-full p-4 justify-center flex items-center bg-white dark:bg-gray-700 border-b-1 border-gray-200 dark:border-gray-800"
       >
-        <button class="btn-light dark:btn-dark mr-2" @click="checkAndGrow">
+        <button class="btn-light dark:btn-dark m-1" @click="checkAndGrow">
           Grow your plant!
         </button>
-        <button class="btn-red" @click="resetFields">
+        <button class="btn-red m-1" @click="resetFields">
           Reset Fields
         </button>
+      </div>
+      <button class="btn-help mx-auto my-4" @click="showHelp = !showHelp">
+        {{ showHelp ? "Hide Help" : "Help" }}
+      </button>
+      <div v-if="showHelp" class="help-box mt-4 w-full">
+        <ul class="list-disc pl-6">
+          <li>
+            <strong>Grow random plant:</strong> Will randomize all fields, and
+            grow the subsequent plant.
+            <p>
+              <strong>Note:</strong> if all fields are already filled in
+              correctly, this button will grow a plant using those values.
+            </p>
+          </li>
+          <li>
+            <strong>Randomize fields:</strong> Adds random values to all fields,
+            without growing the plant after.
+          </li>
+          <li>
+            <strong>Spread:</strong> This controls the width of the plant. The
+            field in the Trefle API is labelled 'Spread', and is measured in cm.
+          </li>
+          <li>
+            <strong>Vary colors:</strong> Selecting this will generate 3 colors
+            for every color you've entered: one that's lighter, one that's
+            darker, and one that's the same.
+          </li>
+        </ul>
       </div>
     </div>
   </div>
@@ -122,7 +148,7 @@ export default class EntityCreate extends GrowMixin {
   }
   public plantNameControl = {
     property: "name",
-    text: "Plant Name",
+    text: "Name",
     dataType: "text",
     placeholder: "Name your plant",
   } as Control<GrowPlant>
@@ -179,12 +205,11 @@ export default class EntityCreate extends GrowMixin {
     this.showModal = false
   }
 
-  public async checkAndGrow() {
-    if (this.overBranchLimit) {
-      this.showModal = true
-      return
+  public validate(): { pass: boolean; missing: typeof CustomValues[number][] } {
+    const result = {
+      pass: true,
+      missing: [] as typeof CustomValues[number][],
     }
-    let missingVal = false
     const emptyValues = this.emptyValues()
     for (const control of this.plantControls) {
       const typesafeProp = control.property as typeof CustomValues[number]
@@ -193,14 +218,29 @@ export default class EntityCreate extends GrowMixin {
           !(this.plantValues[typesafeProp] as string | string[]).length) ||
         this.plantValues[typesafeProp] === emptyValues[typesafeProp]
       ) {
-        this.failedValidation.push(typesafeProp)
-        missingVal = true
+        // this.failedValidation.push(typesafeProp)
+        result.missing.push(typesafeProp)
+        result.pass = false
       }
     }
-    if (missingVal) {
-      this.$toasted.error("Please fill in all fields.")
+    return result
+  }
+
+  public async checkAndGrow(checkValues = true) {
+    if (this.overBranchLimit) {
+      this.showModal = true
       return
     }
+
+    if (checkValues) {
+      const validateResult = this.validate()
+      if (!validateResult.pass) {
+        this.failedValidation = validateResult.missing
+        this.$toasted.error("Please fill in all fields.")
+        return
+      }
+    }
+
     const basePlant = await garden.newCustomPlant(
       this.plantValues as CustomGrowPlant
     )
@@ -208,7 +248,15 @@ export default class EntityCreate extends GrowMixin {
     this.plantValues = this.emptyValues()
   }
 
-  public randomPlant() {
+  public growRandomPlant() {
+    if (this.validate().pass) {
+      return this.checkAndGrow(false)
+    }
+    this.randomizeFields()
+    this.checkAndGrow()
+  }
+
+  public randomizeFields() {
     const heightBound = controlLists.plantOptionsControls.find(c => {
       return c.property == "height"
     })?.verify?.upperBound
@@ -244,8 +292,6 @@ export default class EntityCreate extends GrowMixin {
     this.plantValues.leafTexture = LeafTextureValues[textureIndex]
     this.plantValues.leafColors = this.createRandomColors(leafColors)
     this.plantValues.flowerColors = this.createRandomColors(flowerColors)
-
-    this.checkAndGrow()
   }
 
   public createRandomColors(amount: number) {

@@ -15,7 +15,9 @@
         {{ nav.name }}
       </div>
     </inner-menu>
-    <div class="flex-grow h-full pl-4">
+    <div
+      class="flex-grow h-full w-full overflow-auto scrollbar-light-mini dark:scrollbar-dark-mini pl-4"
+    >
       <entity-select :class="{ hidden: !selectEntity.show }" />
       <entity-create :class="{ hidden: !createEntity.show }" />
     </div>

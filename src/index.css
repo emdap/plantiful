@@ -6,9 +6,9 @@
 
 /* TODO: should add this as a component -- removed for now as can see it when hovering widget items/when their opacity decreases */
 .fade-bar {
-  @apply h-8 w-full sticky -bottom-1;
+  @apply h-0 w-full sticky -bottom-1;
 
-  /* bg-gradient-to-t from-white dark:from-gray-700 transition-colors; */
+  /* h-8 bg-gradient-to-t from-white dark:from-gray-700 transition-colors; */
 }
 
 .btn-help {

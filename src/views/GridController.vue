@@ -412,10 +412,10 @@ export default class GridController extends mixins(GridMixin) {
     }
   }
 
-  @Watch("controlsWidget.open")
-  public controlsOpen(open: boolean) {
+  @Watch("zone4.open")
+  public zone4Open(open: boolean) {
     if (this.growWidget.currentZone == this.growWidget.defaultZone) {
-      // want growWidget to take up all columns if controls closed, and it's in zone 3 (default zone)
+      // want growWidget to take up all columns if zone 4 is closed, and it's in zone 3 (default zone)
       if (open) {
         grid.updateZoneColumns({
           zone: this.growWidget.currentZone,
@@ -487,6 +487,10 @@ export default class GridController extends mixins(GridMixin) {
 
   public get welcomeWidget() {
     return this.getWidget("welcome")
+  }
+
+  public get zone4() {
+    return this.getZone(4)
   }
 }
 </script>

@@ -4,11 +4,11 @@
     class="pt-3 w-full h-full overflow-auto scrollbar-light dark:scrollbar-dark"
     style="scroll-behavior: smooth"
   >
-    <div id="entity-select-wrapper" class="flex flex-wrap self-start mb-2">
+    <div id="entity-select-wrapper" class="flex flex-wrap self-start mb-2 mr-2">
       <div
         v-for="(key, index) in iterateDataKeys"
         :key="index"
-        class="select-wrapper mb-2 mr-2 relative"
+        class="select-wrapper mb-2 relative"
       >
         <ul
           role="listbox"
@@ -75,22 +75,22 @@
           </div>
         </ul>
       </div>
-    </div>
-    <div v-if="showHelp" class="help-box">
-      Use this tool to select plants and parts of plants. Plants may also be
-      deleted from the "Plant" dropdown.
-      <br /><br />
-      <strong>Tips:</strong>
-      <ul class="list-disc pl-6">
-        <li v-for="(tip, index) in tips" :key="index">
-          {{ tip }}
-        </li>
-      </ul>
+      <div v-if="showHelp" class="help-box">
+        Use this tool to select plants and parts of plants. Plants may also be
+        deleted from the "Plant" dropdown.
+        <br /><br />
+        <strong>Tips:</strong>
+        <ul class="list-disc pl-6">
+          <li v-for="(tip, index) in tips" :key="index">
+            {{ tip }}
+          </li>
+        </ul>
+      </div>
     </div>
     <button @click="showHelp = !showHelp" class="btn-help ml-1 mb-1">
       {{ showHelp ? "Hide Help" : "Help" }}
     </button>
-    <div class="fade-bar" />
+    <!-- <div class="fade-bar" /> -->
   </div>
 </template>
 
@@ -467,7 +467,7 @@ export default class EntitySelect extends GrowMixin {
 
 <style>
 .select-wrapper {
-  min-width: 200px;
+  min-width: 190px;
   flex: 1 1 calc(50% - 0.5rem);
 }
 </style>
