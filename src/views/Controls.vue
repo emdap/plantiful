@@ -21,7 +21,7 @@
         {{ getControlSectionTitle(controlTuple[0]) }}
       </h4>
       <div
-        v-for="controlList in ['onEntity', 'onOptions']"
+        v-for="controlList in ['onOptions', 'onEntity']"
         :key="controlList"
         :id="`${controlTuple[0]}-${controlList.toLowerCase()}`"
       >
