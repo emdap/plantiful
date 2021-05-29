@@ -34,7 +34,7 @@ html {
   -moz-osx-font-smoothing: grayscale;
 
   /* adding padding instead of expanding/empty cols leads to weird effects when resizing containers */
-  grid-template-columns: 3.25rem 1fr 0.25rem;
+  grid-template-columns: 3rem 1fr 0.25rem;
   grid-template-areas: "side-menu main-grid";
 }
 </style>

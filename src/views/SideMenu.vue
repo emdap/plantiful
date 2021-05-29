@@ -10,7 +10,7 @@
       "
     />
     <div
-      class="transition-all duration-300 bg-white dark:bg-gray-900 h-full pt-2 pb-4 px-3 flex flex-col shadow-md text-sm fixed overflow-auto scrollbar-light-mini dark:scrollbar-dark-mini"
+      class="transition-all shadow-md duration-300 bg-white dark:bg-gray-900 h-full pt-2 pb-4 px-3 flex flex-col text-sm fixed overflow-auto scrollbar-light-mini dark:scrollbar-dark-mini"
       :class="expanded ? 'w-52' : 'w-12'"
     >
       <div

@@ -66,7 +66,7 @@ export default class Zone extends GridMixin {
 
   public beforeDestroy() {
     // reset size & start/end points to 0
-    this.setDimsCurrent()
+    // this.setDimsCurrent()
     document.removeEventListener("mouseup", this.notSelected)
   }
 

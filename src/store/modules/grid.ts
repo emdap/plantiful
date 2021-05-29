@@ -52,7 +52,7 @@ export default class GridModule extends VuexModule implements GridState {
       let approxZone!: GridZone
       let zone!: GridZone
       for (zone of Object.values(this.zones)) {
-        if (zone.id == 0) {
+        if (zone.id == 0 || !zone.open) {
           continue
         }
         const distance = util.checkMouseZoneDistance(

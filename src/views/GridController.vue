@@ -17,6 +17,8 @@
             @mousedown="mouseUpdatesContainers($event, index)"
           />
         </div>
+        <!-- adding an element instead of padding container as padding messes with resizing calcs -->
+        <div v-else :key="'padding-left-' + index" class="w-1 h-full" />
         <container
           :containerData="container"
           :containerIndex="index"
