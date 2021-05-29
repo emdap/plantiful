@@ -13,7 +13,7 @@
         <ul
           role="listbox"
           @mousedown="toggleDropdown($event, key)"
-          class="cursor-pointer focus:outline-none bg-green-200 dark:bg-yellow-200"
+          class="cursor-pointer focus:outline-none bg-green-100 dark:bg-yellow-200"
         >
           <div
             :id="key + '-selected'"
@@ -48,9 +48,9 @@
               :key="optIndex"
               :id="optionId(key, optIndex + 1)"
               :tabindex="showDropdown == key ? index + 1 : -1"
-              class="px-4 py-2 flex dark:text-black hover:bg-green-400 dark:hover:bg-yellow-500 focus:outline-none focus:bg-green-200 dark:focus:bg-yellow-300"
+              class="px-4 py-2 flex dark:text-black hover:bg-green-400 dark:hover:bg-yellow-500 focus:outline-none focus:bg-green-300 dark:focus:bg-yellow-300"
               :class="{
-                'bg-green-500 dark:bg-yellow-600':
+                'bg-green-500 text-white dark:text-white dark:bg-yellow-600':
                   selected[key] == optIndex + 1,
               }"
               @mouseover="setHighlightEntity(option.id)"
@@ -425,10 +425,10 @@ export default class EntitySelect extends GrowMixin {
       const disabled = this.disableSelect(key).disable
       return {
         "text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-300 cursor-not-allowed": disabled,
-        "hover:bg-green-300 dark:hover:bg-yellow-400 focus:bg-green-300 dark:focus:bg-yellow-400": !disabled,
-        "bg-green-400 dark:bg-yellow-500":
+        "hover:bg-green-200 dark:hover:bg-yellow-400 focus:bg-green-200 dark:focus:bg-yellow-400": !disabled,
+        "bg-green-300 dark:bg-yellow-500":
           this.selected[key] && this.showDropdown != key,
-        "bg-green-300 dark:bg-yellow-400":
+        "bg-green-200 dark:bg-yellow-400":
           !disabled && this.showDropdown == key,
       }
     }

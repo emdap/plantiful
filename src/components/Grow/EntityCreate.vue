@@ -227,11 +227,6 @@ export default class EntityCreate extends GrowMixin {
   }
 
   public async checkAndGrow(checkValues = true) {
-    if (this.overBranchLimit) {
-      this.showModal = true
-      return
-    }
-
     if (checkValues) {
       const validateResult = this.validate()
       if (!validateResult.pass) {
@@ -239,6 +234,11 @@ export default class EntityCreate extends GrowMixin {
         this.$toasted.error("Please fill in all fields.")
         return
       }
+    }
+
+    if (this.overBranchLimit) {
+      this.showModal = true
+      return
     }
 
     const basePlant = await garden.newCustomPlant(
@@ -292,6 +292,8 @@ export default class EntityCreate extends GrowMixin {
     this.plantValues.leafTexture = LeafTextureValues[textureIndex]
     this.plantValues.leafColors = this.createRandomColors(leafColors)
     this.plantValues.flowerColors = this.createRandomColors(flowerColors)
+
+    this.failedValidation = []
   }
 
   public createRandomColors(amount: number) {
