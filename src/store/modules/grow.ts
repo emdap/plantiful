@@ -60,7 +60,7 @@ export default class GrowModule extends VuexModule implements GrowState {
   highlightEntityType: GrowDataKey | null = null
   showControls = false
 
-  maxBranches = 12
+  maxBranches = 125
 
   public get getEntity() {
     return (dataKey: GrowDataKey, id: number) => {
