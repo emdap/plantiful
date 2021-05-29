@@ -241,7 +241,6 @@ export default class Zone extends GridMixin {
   public containerSizeChanged() {
     // catch container size changes that result from another container being closed
     if (!this.containerResizing) {
-      console.log("size")
       this.setDimsCurrent(false)
     }
   }
@@ -250,7 +249,6 @@ export default class Zone extends GridMixin {
   public gridSizeChange(resizing: boolean) {
     // don't want to update until resize finished
     if (!resizing) {
-      console.log("resize")
       this.setDimsCurrent(false)
     }
   }
