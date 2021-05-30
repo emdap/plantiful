@@ -646,6 +646,13 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Action
+  setPlantZoom(payload: { id: number; newZoom: number }) {
+    if (this.plants[payload.id]) {
+      this.UPDATE_ZOOM(payload)
+    }
+  }
+
+  @Action
   deleteEntity(payload: { dataKey: GrowDataKey; id: number }) {
     const { dataKey, id } = payload
     if (this[dataKey][id]) {
@@ -683,6 +690,12 @@ export default class GrowModule extends VuexModule implements GrowState {
     // this[dataKey][id].position = newPositions
     // plants start off with no position
     Vue.set(this[dataKey][id], "position", newPositions)
+  }
+
+  @Mutation
+  UPDATE_ZOOM(payload: { id: number; newZoom: number }) {
+    const { id, newZoom } = payload
+    Vue.set(this.plants[id], "zoom", newZoom)
   }
 
   @Mutation

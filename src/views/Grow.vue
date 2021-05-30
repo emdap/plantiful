@@ -122,6 +122,8 @@ export default class Grow extends GrowMixin {
       this.ctrlDown = true
     } else if (!this.shiftDown && e.shiftKey) {
       this.shiftDown = true
+    } else if (e.key == "+" || e.key == "-") {
+      this.zoomPlant(e.key == "+")
     }
     if (this.trackMouse) {
       e.preventDefault()
@@ -151,6 +153,15 @@ export default class Grow extends GrowMixin {
       this.startPos = null
       document.removeEventListener("mousemove", this.updateEntity)
       document.removeEventListener("touchmove", this.updateEntity)
+    }
+  }
+
+  public zoomPlant(increase: boolean) {
+    if (grow.activeGrowPlant) {
+      const newZoom = increase
+        ? Math.min(200, grow.activeGrowPlant.zoom + 1)
+        : Math.max(1, grow.activeGrowPlant.zoom - 1)
+      grow.setPlantZoom({ id: grow.activeGrowPlant.id, newZoom })
     }
   }
 

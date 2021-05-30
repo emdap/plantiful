@@ -3,7 +3,11 @@
     :id="mainId"
     class="h-screen w-full overflow-auto scrollbar-light-mini dark:scrollbar-dark-mini"
   >
-    <div class="h-full w-full flex" style="min-width: 750px" v-if="ready">
+    <div
+      class="h-full w-full flex"
+      :style="`min-width: ${minWidth}px`"
+      v-if="ready"
+    >
       <template v-for="(container, index) in containers">
         <div
           v-if="addDivider(index)"
@@ -209,19 +213,33 @@ export default class GridController extends mixins(GridMixin) {
     }
   }
 
+  public get containersWithWidth() {
+    return this.containers.filter(c => {
+      return c.size.width
+    })
+  }
+
+  public get minWidth() {
+    if (this.containersWithWidth.length > 1) {
+      return 750
+    } else {
+      return 100
+    }
+  }
+
   public closeContainer(containerIndex: number) {
     // prioritize 'next' container for getting remaining width, else previous container
     const nextIndex =
-      containerIndex < this.containers.length - 1
+      containerIndex < this.containersWithWidth.length - 1
         ? containerIndex + 1
         : containerIndex - 1
     // if there was only one container, do nothing
-    if (nextIndex >= 0) {
-      const nextContainer = this.containers[nextIndex]
-      if (!nextContainer.size.width) {
-        // next container already closed
-        return
-      }
+    if (nextIndex >= 0 && nextIndex < this.containersWithWidth.length) {
+      const nextContainer = this.containersWithWidth[nextIndex]
+      // if (!nextContainer.size.width) {
+      //   // next container already closed
+      //   return
+      // }
       const closeContainer = this.containers[containerIndex]
       // add the closing container's width/width ratio to the next container, and reset the closing container
       grid.setContainerSize({
@@ -436,12 +454,12 @@ export default class GridController extends mixins(GridMixin) {
     }
   }
 
-  @Watch("growWidget.open")
-  public growOpen(open: boolean) {
-    if (!open) {
-      this.toggleGrowHelpers(false)
-    }
-  }
+  // @Watch("growWidget.open")
+  // public growOpen(open: boolean) {
+  //   if (!open) {
+  //     this.toggleGrowHelpers(false)
+  //   }
+  // }
 
   public toggleSearchers(open: boolean) {
     if (this.searchWidget.open != open) {

@@ -4,7 +4,7 @@
     class="overflow-auto w-full scrollbar-light dark:scrollbar-dark"
   >
     <div v-if="!activeGrowPlant" class="font-semibold mt-10">
-      Select a plant to get started
+      {{ controlMessages.selectPlant }}
     </div>
     <div
       v-for="controlTuple in visibleControls"
@@ -117,6 +117,7 @@ import {
 } from "@/store/interfaces"
 import { Watch } from "vue-property-decorator"
 import { Position } from "node_modules/vue-router/types/router"
+import { controlMessages } from "@/fixtures/Messages"
 
 // this is hideous, not sure how to best improve. Define these types elsewhere? Stop with the options vs actual grow instance? remove nesting??
 type PropertyControls = {
@@ -143,6 +144,7 @@ type PropertyData<P, O = {}, C = {}> = {
 })
 export default class Controls extends GrowMixin {
   public controls: PropertyControls = this.allControlsDisabled()
+  public controlMessages = controlMessages
 
   public allControlsDisabled() {
     return {

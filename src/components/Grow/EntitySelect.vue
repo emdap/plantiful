@@ -364,6 +364,10 @@ export default class EntitySelect extends GrowMixin {
 
   public setSelected(optIndex: number) {
     if (this.activeEntity && this.activeEntityType) {
+      this.selected[this.activeEntityType] = optIndex
+      if (!this.growWidget.open) {
+        this.$toasted.info(selectMessages.growClosed)
+      }
       if (
         this.activeEntityType == "flowers" ||
         this.activeEntityType == "leafClusters" ||
@@ -373,7 +377,6 @@ export default class EntitySelect extends GrowMixin {
         // FYI if this component is mounted when a leaf/petal is selected, selected cluster won't update; no reference from child -> parent
         this.setClusterChildrenOptions()
       }
-      this.selected[this.activeEntityType] = optIndex
       // reset other selections to null, unless a cluster child was just selected
       if (
         (childrenKeys as readonly string[]).indexOf(this.activeEntityType) == -1

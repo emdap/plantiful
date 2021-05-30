@@ -225,6 +225,7 @@ export interface GrowPlant extends GrowEntity<PlantOptions> {
   leafClusters: number[]
   flowers: number[]
   branches: number[]
+  zoom: number
 }
 
 export interface CustomGrowPlant {

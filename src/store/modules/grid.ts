@@ -499,10 +499,10 @@ export default class GridModule extends VuexModule implements GridState {
   toggleWidgetName(payload: { name: string; forceShow?: boolean }) {
     const { name, forceShow } = payload
     const widget = this.getWidget(name)
-    if (widget && forceShow != undefined) {
+    if (widget) {
       if (widget.open != forceShow) {
         this.toggleWidget(widget)
-      } else if (forceShow == true) {
+      } else if (forceShow) {
         this.ACTIVE_WIDGET(name)
       }
     }

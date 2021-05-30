@@ -342,7 +342,7 @@ export default class Widget extends GridMixin {
       this.gridSize.width -
       this.widgetData.size.width +
       this.moveIcon.offsetLeft +
-      20
+      16
 
     const remainingY = this.gridSize.height - this.widgetData.size.height
     const rawX = startX + pageX - this.posStart.x

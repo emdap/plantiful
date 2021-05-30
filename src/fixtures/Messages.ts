@@ -1,6 +1,7 @@
 export const gardenMessages = {
   activePlant: {
-    info: "Search & select a plant to see more information",
+    info:
+      "Select a plant from the 'Plant Search' window, or double click on a plant in the 'Plants' window",
     loading: "Researching plant",
     error:
       "Sorry, this plant has incomplete information, and cannot be displayed. Please select another.",
@@ -49,6 +50,7 @@ export const selectMessages = {
   noPlants: "Create a plant first",
   default: "Select a ",
   noDelete: "No plant to delete",
+  growClosed: "Tip: Open up the 'Plants' window to see what you've selected",
 }
 
 export const controlMessages = {
@@ -56,5 +58,7 @@ export const controlMessages = {
     "Not a valid color name. Please try again, or use the color picker",
   upperBoundError: "Cannot exceed upper bound of ",
   lowerBoundError: "Cannot exceed lower bound of ",
-  placeholder: "Loading ...",
+  placeholder: "Enter value",
+  selectPlant:
+    "Double click on a plant in the 'Plants' window, or choose a plant from 'Select & Create'",
 }

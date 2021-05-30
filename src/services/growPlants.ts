@@ -515,6 +515,7 @@ export function createPlant(
     branches: [],
     leafClusters: [],
     flowers: [],
+    zoom: 100,
     ...plant,
   }
 

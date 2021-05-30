@@ -32,7 +32,7 @@ export default class TrefleWarning extends Vue {
     "The only data returned here is from sample data grabbed from the Trefle docs. If/when it comes back or is re-hosted, this will be updated."
 
   public activePlantMessage =
-    "The data in this box will remain the same no matter what plant is selected. In the past, this window updated by querying Trefle with the selected plant's id."
+    "When selecting plants from the 'Plant Search' window, the data in this box will remain the same. In the past, this window updated by querying Trefle with the selected plant's id."
   public searchMessage =
     "The search bar no longer impacts the results, clicking on a plant will always bring up the same plant, and most of the images are dead links."
 }

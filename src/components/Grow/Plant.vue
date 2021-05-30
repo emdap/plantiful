@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts">
-import { GrowDataKey, GrowPlant } from "@/store/interfaces"
+import { GrowDataKey, GrowPlant, Position } from "@/store/interfaces"
 import Component from "vue-class-component"
 import { Prop } from "vue-property-decorator"
 import Shape from "@/components/Grow/Shape.vue"
@@ -151,12 +151,26 @@ export default class Plant extends GrowMixin {
   }
 
   public get styleGeneral() {
+    // only plants have zoom attribute
+    const zoom = this.growData.zoom / 100
+    let position!: Position
+    if (this.growData.position) {
+      position = {
+        x: this.growData.position.x / zoom,
+        y: this.growData.position.y / zoom,
+      }
+    }
+
     const styleData = {
       ...this.growData,
+      position,
       height: 0, // branches grow out of top of plant barrier, don't want it selectable below name
       rotation: NO_ROTATION(),
     }
-    return this.entityStyle(styleData)
+    return {
+      zoom,
+      ...this.entityStyle(styleData),
+    }
   }
 
   public get styleRotation() {

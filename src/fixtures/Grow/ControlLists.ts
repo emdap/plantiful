@@ -67,6 +67,15 @@ const plantOptionsControls: ControlList<PlantOptions> = [
 
 const plantControls: ControlList<GrowPlant, Rotation & Position> = [
   {
+    property: "zoom",
+    text: "Scale (percent)",
+    dataType: "number",
+    verify: {
+      lowerBound: 1,
+      upperBound: 200,
+    },
+  },
+  {
     property: "zIndex",
     text: "Stack Order",
     dataType: "number",

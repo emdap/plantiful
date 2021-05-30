@@ -75,33 +75,36 @@
           Reset Fields
         </button>
       </div>
-      <button class="btn-help mx-auto my-4" @click="showHelp = !showHelp">
-        {{ showHelp ? "Hide Help" : "Help" }}
-      </button>
-      <div v-if="showHelp" class="help-box mt-4 w-full">
-        <ul class="list-disc pl-6">
-          <li>
-            <strong>Grow random plant:</strong> Will randomize all fields, and
-            grow the subsequent plant.
-            <p>
-              <strong>Note:</strong> if all fields are already filled in
-              correctly, this button will grow a plant using those values.
-            </p>
-          </li>
-          <li>
-            <strong>Randomize fields:</strong> Adds random values to all fields,
-            without growing the plant after.
-          </li>
-          <li>
-            <strong>Spread:</strong> This controls the width of the plant. The
-            field in the Trefle API is labelled 'Spread', and is measured in cm.
-          </li>
-          <li>
-            <strong>Vary colors:</strong> Selecting this will generate 3 colors
-            for every color you've entered: one that's lighter, one that's
-            darker, and one that's the same.
-          </li>
-        </ul>
+      <div class="my-4">
+        <div v-if="showHelp" class="help-box mt-4 w-full">
+          <ul class="list-disc pl-6">
+            <li>
+              <strong>Grow random plant:</strong> Will randomize all fields, and
+              grow the subsequent plant.
+              <p>
+                <strong>Note:</strong> if all fields are already filled in
+                correctly, this button will grow a plant using those values.
+              </p>
+            </li>
+            <li>
+              <strong>Randomize fields:</strong> Adds random values to all
+              fields, without growing the plant after.
+            </li>
+            <li>
+              <strong>Spread:</strong> This controls the width of the plant. The
+              field in the Trefle API is labelled 'Spread', and is measured in
+              cm.
+            </li>
+            <li>
+              <strong>Vary colors:</strong> Selecting this will generate 3
+              colors for every color you've entered: one that's lighter, one
+              that's darker, and one that's the same.
+            </li>
+          </ul>
+        </div>
+        <button class="btn-help" @click="showHelp = !showHelp">
+          {{ showHelp ? "Hide Help" : "Help" }}
+        </button>
       </div>
     </div>
   </div>
