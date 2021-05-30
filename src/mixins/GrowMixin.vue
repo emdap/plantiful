@@ -13,7 +13,6 @@ import {
   GrowData,
   GrowType,
   GrowDataKey,
-  Position,
 } from "@/store/interfaces"
 import { Prop, Watch } from "vue-property-decorator"
 
