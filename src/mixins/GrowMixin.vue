@@ -37,7 +37,6 @@ export default class GrowMixin extends Vue {
   public defaultBg = null as string | null
 
   public touchStartSeconds = 0
-  public touchPos = null as null | Position
 
   public get el() {
     // necessary for touch events
@@ -60,30 +59,26 @@ export default class GrowMixin extends Vue {
       this.entityType.length &&
       this.entityId != -1
     ) {
-      this.touchStartSeconds = this.currentSeconds()
-      const { pageX, pageY } = e.touches[0] || e.changedTouches[0]
-      this.touchPos = {
-        x: pageX,
-        y: pageY,
-      }
-    } else {
       if (
         this.touchStartSeconds &&
-        this.currentSeconds() - this.touchStartSeconds > 0
+        this.currentSeconds() - this.touchStartSeconds < 1
       ) {
-        const { pageX, pageY } = e.touches[0] || e.changedTouches[0]
-        if (pageX == this.touchPos?.x && pageY == this.touchPos?.y) {
-          e.preventDefault()
-          if (this.allowSelection) {
-            e.stopPropagation()
-            grow.setActiveEntity({
-              dataKey: this.entityType,
-              id: this.entityId,
-            })
-          }
-        }
+        this.activateFromTouch(e)
         this.touchStartSeconds = 0
+      } else {
+        this.touchStartSeconds = this.currentSeconds()
       }
+    }
+  }
+
+  public activateFromTouch(e: TouchEvent) {
+    e.preventDefault()
+    if (this.allowSelection) {
+      e.stopPropagation()
+      grow.setActiveEntity({
+        dataKey: this.entityType,
+        id: this.entityId,
+      })
     }
   }
 

@@ -46,15 +46,17 @@ export default class Grow extends GrowMixin {
   public trackMouse = false
   public startPos: Position | null = null
 
-  public touchStartTime = 0
+  public touchCache = [] as PointerEvent[]
+  public zoomDiff = null as number | null
 
   public mounted() {
     window.addEventListener("keydown", this.keyDown)
     window.addEventListener("keyup", this.keyUp)
     document.addEventListener("mouseup", this.mouseUp)
+    document.addEventListener("pointerup", this.handleTouch)
+    this.el.addEventListener("touchstart", this.handleTouch)
     this.el.addEventListener("mousedown", this.mouseDown)
-    this.el.addEventListener("touchstart", this.trackTouch)
-    this.el.addEventListener("touchend", this.trackTouch)
+    this.el.addEventListener("pointerdown", this.handleTouch)
   }
 
   public beforeDestroy() {
@@ -62,38 +64,48 @@ export default class Grow extends GrowMixin {
     window.removeEventListener("keydown", this.keyDown)
     window.removeEventListener("keyup", this.keyUp)
     document.removeEventListener("mouseup", this.mouseUp)
-    // thinking this is unnecessary since it's being destroyed?
+    document.removeEventListener("pointerup", this.handleTouch)
     this.el.removeEventListener("mousedown", this.mouseDown)
-    this.el.removeEventListener("touchstart", this.trackTouch)
-    this.el.removeEventListener("touchend", this.trackTouch)
+    this.el.removeEventListener("touchstart", this.handleTouch)
+    this.el.removeEventListener("pointerdown", this.handleTouch)
   }
 
-  public trackTouch(e: TouchEvent) {
-    if (e.type == "touchstart") {
-      e.preventDefault()
-      this.mouseDown()
+  public handleTouch(e: PointerEvent | TouchEvent) {
+    if (e instanceof PointerEvent && e.type == "pointerdown") {
+      this.touchCache.push(e)
+      if (this.touchCache.length < 2) {
+        this.mouseDown()
+      } else if (this.touchCache.length == 2) {
+        this.mouseUp()
+        this.el.addEventListener("pointermove", this.zoomGesture)
+        this.$toasted.info(
+          "Warning: Using zoom gestures to scale for too long may lead to render errors on iOS devices"
+        )
+      }
     } else {
-      this.mouseUp()
+      if (e instanceof TouchEvent && e.type == "touchstart") {
+        e.preventDefault()
+      } else {
+        this.touchCache = []
+        this.zoomDiff = null
+        this.mouseUp()
+        this.el.removeEventListener("pointermove", this.zoomGesture)
+      }
     }
   }
 
   // overriding mixin function
   public timeTouch(e: TouchEvent) {
     if (e.type == "touchstart") {
-      this.touchStartSeconds = this.currentSeconds()
-      const { pageX, pageY } = e.touches[0] || e.changedTouches[0]
-      this.touchPos = {
-        x: pageX,
-        y: pageY,
-      }
-    } else {
-      if (this.currentSeconds() - this.touchStartSeconds > 0) {
-        const { pageX, pageY } = e.touches[0] || e.changedTouches[0]
-        if (pageX == this.touchPos?.x && pageY == this.touchPos?.y) {
-          e.preventDefault()
-          this.removeActive()
-        }
+      if (
+        this.touchStartSeconds &&
+        this.currentSeconds() - this.touchStartSeconds < 1 &&
+        this.touchCache.length == 1
+      ) {
+        this.removeActive()
         this.touchStartSeconds = 0
+      } else {
+        this.touchStartSeconds = this.currentSeconds()
       }
     }
   }
@@ -165,6 +177,31 @@ export default class Grow extends GrowMixin {
     }
   }
 
+  public zoomGesture(e: PointerEvent) {
+    if (this.touchCache.length == 2) {
+      // e.preventDefault()
+      // e.stopPropagation()
+      this.touchCache = this.touchCache.map(t => {
+        if (t.pointerId == e.pointerId) {
+          return e
+        } else {
+          return t
+        }
+      })
+      const curDiff = Math.abs(
+        this.touchCache[0].clientX - this.touchCache[1].clientX
+      )
+      if (this.zoomDiff == null) {
+        this.zoomDiff = curDiff
+      } else if (this.zoomDiff < curDiff) {
+        this.zoomPlant(true)
+      } else if (this.zoomDiff > curDiff) {
+        this.zoomPlant(false)
+      }
+      this.zoomDiff = curDiff
+    }
+  }
+
   public updateEntity(e: MouseEvent | TouchEvent) {
     if (!grow.activeEntity || !grow.activeGrowPlant) {
       // if (!grow.activeEntity || grow.activeEntityType != "plants") {
@@ -173,10 +210,9 @@ export default class Grow extends GrowMixin {
       document.removeEventListener("touchmove", this.updateEntity)
       return
     }
-
     // just have mouse controls always move the plant for now, update when other movements supported
     const entity = grow.activeGrowPlant
-
+    e.stopPropagation()
     const { pageX, pageY } =
       e instanceof MouseEvent ? e : e.touches[0] || e.changedTouches[0]
 
