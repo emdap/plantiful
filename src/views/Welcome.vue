@@ -155,7 +155,8 @@
             </div>
             <strong>Pinch gesture:</strong>
             <div>
-              Zooms the plant in/out
+              Zooms the plant in/out. Warning: on some iOS devices, doing this
+              repeatedly may cause render issues.
             </div>
           </div>
         </section>
@@ -244,13 +245,13 @@
           <p>
             If a Zone is resized, it will recalculate its ratio, and
             redistribute that ratio across its columns/rows, while also updating
-            the ratio of all <span class="italic">other</span>columns/rows. When
-            a "sibling" Zone is added/removed from a container, the other Zones
-            in the container will try to take up the free space), or reset their
-            dimensions so that there is room for the new Zone. After resetting,
-            the Zones wait 2 ticks so that all other Zones are also updated, and
-            then record their new size, and set the column/row styling on the
-            Container.
+            the ratio of all <span class="italic">other</span> columns/rows.
+            When a "sibling" Zone is added/removed from a container, the other
+            Zones in the container will try to take up the free space), or reset
+            their dimensions so that there is room for the new Zone. After
+            resetting, the Zones wait 2 ticks so that all other Zones are also
+            updated, and then record their new size, and set the column/row
+            styling on the Container.
           </p>
           <p>
             Widgets can be moved around to different Zones. If a Widget is
@@ -480,7 +481,7 @@ export default class Welcome extends Vue {
   nav {
     grid-template-columns: repeat(3, minmax(100px, 1fr));
 
-    @apply transition-colors bg-white dark:bg-gray-700 w-full grid gap-2 overflow-auto p-2 border-b-1 dark:border-gray-500 h-8;
+    @apply transition-colors bg-white dark:bg-gray-700 w-full grid gap-2 overflow-x-auto p-2 border-b-1 dark:border-gray-500 h-8 overflow-y-hidden;
   }
 
   a {
@@ -492,6 +493,8 @@ export default class Welcome extends Vue {
   }
 
   p {
+    word-break: break-word;
+
     @apply p-2;
   }
 
@@ -513,14 +516,20 @@ export default class Welcome extends Vue {
 
   .grid-list {
     grid-template-columns: 3rem 1fr;
-
-    @apply grid pl-6 my-2 gap-2;
   }
 
   .grid-list-big {
     grid-template-columns: 1fr 3fr;
+  }
 
-    @apply grid pl-6 my-2 gap-2;
+  .grid-list,
+  .grid-list-big {
+    @apply grid pl-6 my-2 gap-2 w-full;
+  }
+
+  .grid-list > *,
+  .grid-list-big > a {
+    word-break: break-word;
   }
 }
 </style>

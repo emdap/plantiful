@@ -78,9 +78,9 @@ export default class Grow extends GrowMixin {
       } else if (this.touchCache.length == 2) {
         this.mouseUp()
         this.el.addEventListener("pointermove", this.zoomGesture)
-        this.$toasted.info(
-          "Warning: Frequent zooming may cause render issues on some iOS devices"
-        )
+        // this.$toasted.info(
+        //   "Warning: Frequent zooming may cause render issues on some iOS devices"
+        // )
       }
     } else {
       if (e instanceof TouchEvent && e.type == "touchstart") {
