@@ -43,7 +43,7 @@ const widgets: GridWidget[] = [
   {
     component: Controls,
     name: "controls",
-    text: "Control Plant",
+    text: "Edit Plant",
     open: true,
     defaultZone: 4,
     ...INIT_WIDGET(),

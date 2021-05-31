@@ -1,13 +1,9 @@
 <template>
   <div
-    :id="mainId"
+    ref="grid-parent"
     class="h-screen w-full overflow-auto scrollbar-light-mini dark:scrollbar-dark-mini"
   >
-    <div
-      class="h-full w-full flex"
-      :style="`min-width: ${minWidth}px`"
-      v-if="ready"
-    >
+    <div class="h-full w-full flex" v-if="ready">
       <template v-for="(container, index) in containers">
         <div
           v-if="addDivider(index)"
@@ -24,6 +20,7 @@
         <div
           v-else-if="index == 0"
           :key="'padding-left-' + index"
+          ref="grid-padding"
           class="h-full"
           style="min-width: 0.25rem"
         />
@@ -45,7 +42,7 @@
 
 <script lang="ts">
 import Component, { mixins } from "vue-class-component"
-import { Watch } from "vue-property-decorator"
+import { Watch, Ref } from "vue-property-decorator"
 import containerFixture from "@/fixtures/Grid/Containers"
 import zonesFixture from "@/fixtures/Grid/Zones"
 import widgetsFixture from "@/fixtures/Grid/Widgets"
@@ -67,13 +64,16 @@ import { NO_SIZE } from "@/fixtures/Defaults"
   },
 })
 export default class GridController extends mixins(GridMixin) {
+  @Ref("grid-parent") gridParent!: HTMLElement
+  @Ref("grid-padding") gridPadding!: HTMLElement[]
+
   public ready = false
-  public mainId = "grid-controller"
 
   public dividers = {} as { [key: number]: HTMLDivElement }
 
   public containerIndex = 0
   public windowResizing = false
+  public initGridWidth = 0
   public resizeTimer!: number
   public containersResizing = [] as number[]
   public showDivider = true
@@ -91,7 +91,7 @@ export default class GridController extends mixins(GridMixin) {
 
     this.$nextTick(() => {
       // containers won't be fully mounted until tick after ready = true
-      this.setContainerSizes(true)
+      this.setContainerSizes({ updateRatio: true, allContainers: true })
     })
   }
 
@@ -161,11 +161,18 @@ export default class GridController extends mixins(GridMixin) {
   public windowResize() {
     clearTimeout(this.resizeTimer)
 
+    // want to cache the grid size before resize, so that can calc container %
+    // taking into account the grid-padding elements
+    if (this.initGridWidth == 0) {
+      this.initGridWidth = grid.overallWidth
+    }
+
     this.windowResizing = true
     this.setContainerSizes()
 
     this.resizeTimer = setTimeout(() => {
       this.windowResizing = false
+      this.initGridWidth = 0
     }, 250)
   }
 
@@ -181,33 +188,51 @@ export default class GridController extends mixins(GridMixin) {
     }
   }
 
-  public setContainerSizes(updateRatio = false) {
-    const parentContainer = document.getElementById(this.mainId)
-    if (!parentContainer) {
+  @Watch("enforceContainerMin")
+  public stopEnforcing(enforce: boolean, wasEnforced: boolean) {
+    if (!enforce && wasEnforced) {
+      // update the size now that a minWidth is no longer being enforced
+      this.setContainerSizes({ updateRatio: true })
+    }
+  }
+
+  public setContainerSizes(
+    options: { updateRatio?: boolean; allContainers?: boolean } = {
+      updateRatio: false,
+      allContainers: false,
+    }
+  ) {
+    const { updateRatio, allContainers } = options
+    const updateContainers = allContainers
+      ? this.containers
+      : this.containersWithWidth
+    if (!(this.gridParent instanceof HTMLElement)) {
       this.$toasted.error(this.messages.generalError)
       return
     }
-    const parentRect = parentContainer.getBoundingClientRect()
+    const parentRect = this.gridParent.getBoundingClientRect()
     grid.setGridSize({ height: parentRect.height, width: parentRect.width })
 
-    for (const container of this.containers) {
+    for (const container of updateContainers) {
       const containerEl = document.getElementById(container.name)
       if (!containerEl) {
         this.$toasted.error(this.messages.generalError)
         return
       }
+
       const { height, width } = containerEl.getBoundingClientRect()
       let newRatio!: Size
+      const minWidth = this.enforceContainerMin ? 250 : width
 
-      if (updateRatio) {
+      if (updateRatio || this.enforceContainerMin) {
         newRatio = {
           height: height / parentRect.height,
-          width: width / parentRect.width,
+          width: minWidth / parentRect.width,
         }
       }
       grid.setContainerSize({
         id: container.id,
-        newSize: { height, width },
+        newSize: { height, width: minWidth },
         newRatio,
       })
     }
@@ -219,12 +244,10 @@ export default class GridController extends mixins(GridMixin) {
     })
   }
 
-  public get minWidth() {
-    if (this.containersWithWidth.length > 1) {
-      return 750
-    } else {
-      return 100
-    }
+  public get enforceContainerMin() {
+    return (
+      this.openContainers > 1 && grid.overallWidth < this.openContainers * 250
+    )
   }
 
   public closeContainer(containerIndex: number) {
@@ -236,21 +259,29 @@ export default class GridController extends mixins(GridMixin) {
     // if there was only one container, do nothing
     if (nextIndex >= 0 && nextIndex < this.containersWithWidth.length) {
       const nextContainer = this.containersWithWidth[nextIndex]
-      // if (!nextContainer.size.width) {
-      //   // next container already closed
-      //   return
-      // }
       const closeContainer = this.containers[containerIndex]
+
+      // tricky logic for small screens, want to enforce min-width/horizontal scroll
+      //  ONLY IF screen width is too small & open containers > 1
+      let newWidthRatio =
+        closeContainer.sizeRatio.width + nextContainer.sizeRatio.width
+      let newWidth = closeContainer.size.width + nextContainer.size.width
+      if (!this.enforceContainerMin && newWidthRatio > 1) {
+        const availWidth =
+          grid.overallWidth - this.gridPadding[0].getBoundingClientRect().width
+        newWidthRatio = availWidth / grid.overallWidth
+        newWidth = availWidth
+      }
       // add the closing container's width/width ratio to the next container, and reset the closing container
       grid.setContainerSize({
         id: nextContainer.id,
         newSize: {
           height: nextContainer.size.height,
-          width: closeContainer.size.width + nextContainer.size.width,
+          width: newWidth,
         },
         newRatio: {
           height: nextContainer.sizeRatio.height,
-          width: closeContainer.sizeRatio.width + nextContainer.sizeRatio.width,
+          width: newWidthRatio,
         },
       })
       grid.setContainerSize({
@@ -275,15 +306,33 @@ export default class GridController extends mixins(GridMixin) {
       const nextContainer = this.containers[nextIndex]
       const restoreContainer = this.containers[containerIndex]
 
+      let newWidth = nextContainer.size.width - restoreSize.width
+      let newWidthRatio = nextContainer.sizeRatio.width - restoreRatio.width
+      if (this.enforceContainerMin && this.containersWithWidth.length == 1) {
+        // previously had 1 container open, now opening second, need to re-enforce minWidth on ratios
+        // make both containers on small screen same size on restore
+        newWidth = 250
+        newWidthRatio = 250 / grid.overallWidth
+        restoreSize.width = newWidth
+        restoreRatio.width = newWidthRatio
+      } else if (!this.enforceContainerMin && restoreRatio.width > 1) {
+        // min was previously enforced, only way to get ratio > 1, but is no longer enforced
+        //  set restore/next container to share space taken by next container
+        newWidth = nextContainer.size.width / 2
+        newWidthRatio = nextContainer.sizeRatio.width / 2
+        restoreSize.width = newWidth
+        restoreRatio.width = newWidthRatio
+      }
+
       grid.setContainerSize({
         id: nextContainer.id,
         newSize: {
           height: nextContainer.size.height,
-          width: nextContainer.size.width - restoreSize.width,
+          width: newWidth,
         },
         newRatio: {
           height: nextContainer.sizeRatio.height,
-          width: nextContainer.sizeRatio.width - restoreRatio.width,
+          width: newWidthRatio,
         },
       })
       grid.setContainerSize({

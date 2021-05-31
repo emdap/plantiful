@@ -748,6 +748,10 @@ export default class GrowModule extends VuexModule implements GrowState {
     newEntity: GrowType
   }) {
     const { dataKey, id, newEntity } = payload
+    if (!this[dataKey][id]) {
+      // have timeout for animations -- this could get called after plant/entity deleted
+      return
+    }
     if (dataKey == "branches") {
       // when updating branches, need to maintain object refs instead of re-assigning
       const { startPoint, endPoint, rotation } = this[dataKey][id] as GrowBranch

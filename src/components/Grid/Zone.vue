@@ -55,18 +55,16 @@ export default class Zone extends GridMixin {
   }
 
   public mounted() {
-    // on application launch, container takes 1 tick to record its own size
-    this.$nextTick(() => {
-      if (this.zoneData.id) {
-        this.setDimsCurrent()
-      }
-    })
+    if (this.zoneData.id) {
+      // wait for next tick: give container time to set size, other zones time to reset-size and make room
+      this.$nextTick(() => {
+        this.setDimsCurrent(true)
+      })
+    }
     document.addEventListener("mouseup", this.notSelected)
   }
 
   public beforeDestroy() {
-    // reset size & start/end points to 0
-    // this.setDimsCurrent()
     document.removeEventListener("mouseup", this.notSelected)
   }
 
@@ -82,11 +80,23 @@ export default class Zone extends GridMixin {
     }
   }
 
-  public setDimsCurrent(distribute = true) {
+  public setDimsCurrent(matchDom = false) {
     const { width, height, x, y } = this.getCurrentRect()
-    this.maxSize.height = this.myContainer.size.height
-    this.maxSize.width = this.myContainer.size.width
+    let parentSize!: Size
 
+    // applies to first mount and window resize:
+    //  reference actual container element size, in case container.size not set or not updated
+    if (matchDom && this.myContainerEl instanceof HTMLElement) {
+      const { width, height } = this.myContainerEl.getBoundingClientRect()
+      parentSize = { width, height }
+    } else {
+      parentSize = {
+        width: this.myContainer.size.width,
+        height: this.myContainer.size.height,
+      }
+    }
+    this.maxSize.height = parentSize.height
+    this.maxSize.width = parentSize.width
     const newRatio = this.calcRatio({ height, width })
 
     grid.setZoneSize({
@@ -96,7 +106,7 @@ export default class Zone extends GridMixin {
         width,
       },
       newRatio,
-      distribute,
+      distribute: matchDom,
     })
 
     grid.setZonePoints({ zone: this.zoneData, startPoint: { x, y } })
@@ -227,7 +237,7 @@ export default class Zone extends GridMixin {
   public zonesGrowing(growing: boolean) {
     // update to current after growing done -- updates start/end points as well
     if (!growing) {
-      this.setDimsCurrent(false)
+      this.setDimsCurrent()
       if (
         this.zoneData.size.height < this.minSize.height ||
         this.zoneData.size.width < this.minSize.width
@@ -241,7 +251,7 @@ export default class Zone extends GridMixin {
   public containerSizeChanged() {
     // catch container size changes that result from another container being closed
     if (!this.containerResizing) {
-      this.setDimsCurrent(false)
+      this.setDimsCurrent()
     }
   }
 
@@ -249,7 +259,7 @@ export default class Zone extends GridMixin {
   public gridSizeChange(resizing: boolean) {
     // don't want to update until resize finished
     if (!resizing) {
-      this.setDimsCurrent(false)
+      this.setDimsCurrent()
     }
   }
 
@@ -284,8 +294,11 @@ export default class Zone extends GridMixin {
     }
     grid.resetDims({ containerId: this.zoneData.containerId, resetDims })
     this.$nextTick(() => {
-      // update size/ratio to current, now with the new zone opened/closed
-      this.setDimsCurrent()
+      // takes 2 ticks for DOM to be accurate new size
+      this.$nextTick(() => {
+        // update size/ratio to current, now with the new zone opened/closed
+        this.setDimsCurrent(true)
+      })
     })
   }
 
@@ -298,6 +311,10 @@ export default class Zone extends GridMixin {
 
   public get myContainer() {
     return this.getContainer(this.zoneData.containerId)
+  }
+
+  public get myContainerEl() {
+    return document.getElementById(this.myContainer.name)
   }
 
   public get openSiblings() {

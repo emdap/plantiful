@@ -79,7 +79,7 @@ export default class Grow extends GrowMixin {
         this.mouseUp()
         this.el.addEventListener("pointermove", this.zoomGesture)
         this.$toasted.info(
-          "Warning: Using zoom gestures to scale for too long may lead to render errors on iOS devices"
+          "Warning: Frequent zooming may cause render issues on some iOS devices"
         )
       }
     } else {
@@ -179,8 +179,6 @@ export default class Grow extends GrowMixin {
 
   public zoomGesture(e: PointerEvent) {
     if (this.touchCache.length == 2) {
-      // e.preventDefault()
-      // e.stopPropagation()
       this.touchCache = this.touchCache.map(t => {
         if (t.pointerId == e.pointerId) {
           return e
