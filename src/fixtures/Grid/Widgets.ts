@@ -11,7 +11,7 @@ const widgets: GridWidget[] = [
   {
     component: Welcome,
     name: "welcome",
-    text: "Introduction",
+    text: "Information",
     open: true,
     defaultZone: 1,
     ...INIT_WIDGET(),

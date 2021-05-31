@@ -59,7 +59,7 @@
           :class="
             mWidget.widget.open
               ? 'text-green-600 hover:text-green-900 dark:text-yellow-500 dark:hover:text-yellow-700'
-              : 'hover:tracking-wider text-gray-300 hover:text-pink-400 dark:text-gray-500 dark:hover:text-yellow-400'
+              : 'hover:tracking-wider text-gray-300 hover:text-pink-400 dark:text-gray-500 dark:hover:text-yellow-300'
           "
           class="mb-4 transition-all cursor-pointer fill-current flex items-center text-left font-medium tracking-wide"
           @click="toggleMenuWidget(mWidget.widget)"
