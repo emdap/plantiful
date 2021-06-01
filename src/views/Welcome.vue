@@ -77,8 +77,10 @@
         </p>
         <nav
           ref="features-menu"
-          v-if="showFeaturesMenu"
-          class="mt-4 scrollbar-light-mini dark:scrollbar-dark-mini sticky top-8"
+          :class="{
+            sticky: showFeaturesMenu,
+          }"
+          class="mt-4 scrollbar-light-mini dark:scrollbar-dark-mini top-8"
         >
           <div
             v-for="(nav, index) in featuresNav"
@@ -124,8 +126,8 @@
           </p>
         </section>
         <section ref="plant-features">
-          <h2>Plant Features</h2>
-          <h4>Mouse Controls</h4>
+          <h2>Plant Controls</h2>
+          <h4>Mouse and Keyboard Controls</h4>
           <div class="grid-list-big green-strong">
             <strong>Click + Drag:</strong>
             <div>
@@ -295,11 +297,11 @@
             <a href="https://good-movie.herokuapp.com/">Good Movies</a>
           </div>
         </div>
-        <div class="flex flex-col justify-center p-2 mt-4 text-center">
-          <img src="../../public/finn.jpg" />
+        <div class="p-2 mt-4 text-center max-w-md mx-auto">
+          <img src="../../public/finn.jpg" class="rounded-sm" />
           <span class="italic p-2">
-            <strong>Pictured:</strong> Finn, one of the friendlier feral cats I
-            volunteer with
+            <strong>Pictured:</strong> Finn, one of the friendlier feral cats at
+            a colony I volunteer with
           </span>
         </div>
       </section>
@@ -390,7 +392,7 @@ export default class Welcome extends Vue {
       {
         id: 5,
         active: false,
-        text: "Plant Features",
+        text: "Plant Controls",
         ref: this.plantFeatures,
       },
       {
@@ -477,7 +479,7 @@ export default class Welcome extends Vue {
   public get navClass() {
     return (nav: NavItem) => {
       return [
-        "uppercase flex-grow mx-2 text-center cursor-pointer text-xs font-medium whitespace-nowrap",
+        "uppercase flex-grow text-center cursor-pointer text-xs font-medium whitespace-nowrap w-20 min-w-max mx-2",
         nav.active
           ? "text-green-600 dark:text-yellow-500 font-bold"
           : "hover:text-pink-400 dark:hover:text-yellow-300",
