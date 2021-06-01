@@ -40,9 +40,9 @@
           Originally, Trefle was powering the
           <strong>'Plant Search'</strong> functionality, allowing users to
           search for different plants, inspect their properties, and "grow" an
-          HTML/CSS approximation. For now, all data returned from the 'Plant
-          Search' is static, and will always generate the same plant. Users can
-          still create custom plants by using the
+          HTML/CSS approximation. For now, all data returned from the
+          <strong>'Plant Search'</strong> is static, and will always generate
+          the same plant. Users can still create custom plants by using the
           <strong>'Select & Create'</strong> window.
         </p>
         <div class="flex justify-center p-2">
@@ -63,12 +63,17 @@
       <section ref="features">
         <h2>Features</h2>
         <p>
+          This website is built with Typescript, Vue, Tailwindcss, and uses
+          Heroku Container Registry for deployment. Best viewed on a laptop or
+          large screen, but mobile and touch gestures are supported as well.
+        </p>
+        <p>
           To the right, you will see a demo plant that has been built. This
           plant will be deleted if the <strong>'Information'</strong> window is
           closed, but will come back if it's opened again. You can drag the
-          plant around, double click on different parts of it to activate them,
-          and then use the 'Edit Plant' window to customize those parts. Keep
-          reading for a full list of features.
+          plant around, double click on different parts of the plant to activate
+          them, and then use the <strong>'Edit Plant'</strong> window to modify
+          aspects of those parts.
         </p>
         <nav
           ref="features-menu"
@@ -201,7 +206,7 @@
             </div>
             <undock-icon class="icon-ref mr-2" />
             <div>
-              Widget is currently undocked, and cdivcking this will dock it
+              Widget is currently undocked, and clicking this will dock it
             </div>
             <drag-icon class="icon-ref mr-2" />
             <div>
@@ -279,7 +284,7 @@
           around the city, paddling at the lake, or hanging out with some feral
           cats.
         </p>
-        <div class="grid-list-big green-strong my-2">
+        <div class="grid-list-big green-strong">
           <strong>Email</strong>
           <a href="mailto:ecodapo@gmail.com">ecodapo@gmail.com</a>
           <strong>Github</strong>
@@ -289,6 +294,13 @@
             <a href="https://contentcube.herokuapp.com/">contentCube</a> •
             <a href="https://good-movie.herokuapp.com/">Good Movies</a>
           </div>
+        </div>
+        <div class="flex flex-col justify-center p-2 mt-4 text-center">
+          <img src="../../public/finn.jpg" />
+          <span class="italic p-2">
+            <strong>Pictured:</strong> Finn, one of the friendlier feral cats I
+            volunteer with
+          </span>
         </div>
       </section>
     </main>
@@ -310,6 +322,7 @@ import DarkIcon from "@/assets/icons/dark-mode.svg"
 import LightIcon from "@/assets/icons/light-mode.svg"
 
 type NavItem = {
+  id: number
   active: boolean
   text: string
   ref: HTMLElement
@@ -348,16 +361,19 @@ export default class Welcome extends Vue {
     this.$el.addEventListener("scroll", this.updateActiveNav)
     this.navItems = [
       {
+        id: 1,
         active: true,
         text: "Introduction",
         ref: this.introduction,
       },
       {
+        id: 2,
         active: false,
-        text: "Website Features",
+        text: "Documentation",
         ref: this.features,
       },
       {
+        id: 3,
         active: false,
         text: "Contact",
         ref: this.contact,
@@ -366,16 +382,19 @@ export default class Welcome extends Vue {
 
     this.featuresNav = [
       {
+        id: 4,
         active: false,
         text: "Algorithm",
         ref: this.plantAlgorithm,
       },
       {
+        id: 5,
         active: false,
         text: "Plant Features",
         ref: this.plantFeatures,
       },
       {
+        id: 6,
         active: false,
         text: "UI Features",
         ref: this.uiFeatures,
@@ -385,7 +404,7 @@ export default class Welcome extends Vue {
 
   public get showFeaturesMenu() {
     return this.navItems.find(n => {
-      return n.text == "Website Features"
+      return n.id == 2
     })?.active
   }
 
@@ -458,7 +477,7 @@ export default class Welcome extends Vue {
   public get navClass() {
     return (nav: NavItem) => {
       return [
-        "uppercase mx-2 text-center cursor-pointer text-xs font-medium whitespace-nowrap",
+        "uppercase flex-grow mx-2 text-center cursor-pointer text-xs font-medium whitespace-nowrap",
         nav.active
           ? "text-green-600 dark:text-yellow-500 font-bold"
           : "hover:text-pink-400 dark:hover:text-yellow-300",
@@ -479,9 +498,7 @@ export default class Welcome extends Vue {
 <style lang="scss">
 #welcome {
   nav {
-    grid-template-columns: repeat(3, minmax(100px, 1fr));
-
-    @apply transition-colors bg-white dark:bg-gray-700 w-full grid gap-2 overflow-x-auto p-2 border-b-1 dark:border-gray-500 h-8 overflow-y-hidden;
+    @apply flex transition-colors bg-white dark:bg-gray-700 w-full overflow-x-auto p-2 border-b-1 dark:border-gray-500 h-8 overflow-y-hidden;
   }
 
   a {
