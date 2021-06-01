@@ -462,12 +462,16 @@ export default class Welcome extends Vue {
     let offset = this.navMenu.getBoundingClientRect().height + 8
     if (listName == "main") {
       navList = this.navItems
+      this.featuresNav = this.featuresNav.map(n => {
+        n.active = false
+        return n
+      })
     } else {
       navList = this.featuresNav
       offset += this.featuresMenu.getBoundingClientRect().height
     }
     navList = navList.map(n => {
-      if (n != nav) {
+      if (n.id != nav.id) {
         n.active = false
       }
       return n
