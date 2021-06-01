@@ -35,7 +35,7 @@
           </a>
           I am closely following some efforts to recreate Trefle, and will be
           re-implementing API functionality once the necessary endpoints are
-          added.
+          supported.
           <br /><br />
           Originally, Trefle was powering the
           <strong>'Plant Search'</strong> functionality, allowing users to
@@ -61,7 +61,7 @@
         </div>
       </section>
       <section ref="features">
-        <h2>Features</h2>
+        <h2>Documentation</h2>
         <p>
           This website is built with Typescript, Vue, Tailwindcss, and uses
           Heroku Container Registry for deployment. Best viewed on a laptop or
