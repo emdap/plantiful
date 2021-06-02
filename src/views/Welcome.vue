@@ -270,7 +270,7 @@
           </p>
           <p>
             Widgets may also be undocked and resized. Docking an undocked Widget
-            will place it into the closest Zone. Resizing a Widget while it's
+            will place it into its default Zone. Resizing a Widget while it's
             docked will change the size of the overall Zone. The overall width
             of the Container will not change during such a resizing. To change
             the sizes of the Containers, mouse over the gap between two
