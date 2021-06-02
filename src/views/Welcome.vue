@@ -173,8 +173,8 @@
             The UI is a dynamic grid made up of Containers, Zones, and Widgets.
             Each Zone defines how many rows/columns it takes up, and is assigned
             to a Container. Each Widget has a default Zone that it is opened
-            into. In this implementation, there are two Containers, 6 Zones, and
-            6 Widgets.
+            into. In this implementation, there are 2 Containers, 6 Zones, and 6
+            Widgets.
           </p>
           <h4>Implementation</h4>
           <ul class="list-disc pl-6 my-2">
