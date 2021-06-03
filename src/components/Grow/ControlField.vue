@@ -16,7 +16,9 @@
           :type="control.dataType"
           @keydown.enter="$event.target.blur"
           @focus="
-            allowUpdate = control.propertyOn == 'entity' || dataKey != 'plants'
+            allowUpdate =
+              (control.propertyOn == 'entity' && control.property != 'name') ||
+              dataKey != 'plants'
           "
           @blur="allowUpdate = true"
         />

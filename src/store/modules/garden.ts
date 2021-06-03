@@ -133,21 +133,44 @@ export default class GardenModule extends VuexModule implements GardenState {
       },
     }
 
+    return this.addGrowPlant(plant)
+  }
+
+  // TODO: see comment in grow.ts line 297
+  // @Action
+  // newPlantSpecies(payload: {id: number, newName: string}): Promise<Plant> {
+  //   // used when renaming an already-grown plant
+  //   const { id, newName } = payload
+  //   const existingPlant = this.plantCache[id]
+
+  //   const newPlant = {
+  //     ...existingPlant,
+  //     main_species: {
+  //       ...existingPlant.main_species,
+  //       scientific_name: existingPlant.scientific_name.length ? existingPlant.scientific_name : existingPlant.common_name,
+  //       common_name: newName,
+  //     }
+  //   }
+
+  //   return this.addGrowPlant(newPlant)
+  // }
+
+  @Action
+  addGrowPlant(plant: Plant): Promise<Plant> {
     const nextKey =
       Math.max(
         0,
-        ...Object.keys(this.plantCache).map(k => {
-          return parseInt(k)
+        ...Object.values(this.plantCache).map(plant => {
+          return plant.id
         })
       ) + 1
-
     // is ok if this is duplicate, the id on Plants is not used -- see comment line 152
     plant.id = nextKey
     plant.main_species_id = "grow-" + nextKey
     this.CACHE_PLANT(plant)
-
     return Promise.resolve(plant)
   }
+
   // no API :(
   // @Action
   // async getPageByLink(payload: PageLinkPayload) {

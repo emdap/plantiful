@@ -285,7 +285,7 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Action
-  mergeEntity(payload: {
+  async mergeEntity(payload: {
     dataKey: GrowDataKey
     id: number
     mergeData: GrowEntitySnippet
@@ -293,6 +293,27 @@ export default class GrowModule extends VuexModule implements GrowState {
     const { dataKey, id, mergeData } = payload
     const curEntity = this.getEntity(dataKey, id)
     const newEntity = { ...curEntity, ...mergeData } as GrowType
+    // TODO: this would be a cool feature, but should have way to browse these plants, and update
+    // their base properties
+    // if (dataKey == "plants") {
+    //   // if name has changed, add new plant species
+    //   curEntity = curEntity as GrowPlant
+    //   newEntity = newEntity as GrowPlant
+    //   if (curEntity.plantId && curEntity.name != newEntity.name) {
+    //     const newPlant = await this.context.dispatch(
+    //       "garden/newPlantSpecies",
+    //       {
+    //         id: newEntity.plantId,
+    //         newName: newEntity.name
+    //       },
+    //       {
+    //         root: true,
+    //       }
+    //     )
+    //     newEntity.plantId = newPlant.main_species_id
+
+    // }
+    // }
     this.UPDATE_ENTITY({ dataKey, id, newEntity })
   }
 

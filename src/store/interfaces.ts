@@ -489,6 +489,7 @@ export type AnyControl<Parent, Child> =
   | DropdownControl<Parent>
   | NestedControl<Parent, Child>
 
+// eslint-disable-next-line  @typescript-eslint/no-explicit-any
 export type ControlList<Parent = any, Child = any> = AnyControl<Parent, Child>[]
 
 // Grid

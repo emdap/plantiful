@@ -18,7 +18,7 @@
         tabindex="1"
         class="mt-2 py-1 mb-1 -mr-2 font-semibold sticky top-0 transition-colors bg-white dark:bg-gray-700 text-black dark:text-gray-100 cursor-pointer ring-pink-400 dark:ring-yellow-500 focus:ring-2 focus:outline-none rounded-md"
       >
-        {{ getControlSectionTitle(entityControl.dataKey) }}
+        {{ controlSectionTitle(entityControl.dataKey) }}
       </h4>
       <div
         v-for="(control, index) in entityControl.controls"
@@ -54,7 +54,7 @@
       </div>
       <!-- <div v-if="controls[controlTuple[0]].special">
         <h3 class="mb-2">
-          Special {{ getControlSectionTitle(controlTuple[0]) }}
+          Special {{ controlSectionTitle(controlTuple[0]) }}
         </h3>
         <div
           v-for="control in controls[controlTuple[0]].special"
@@ -93,18 +93,7 @@ import {
   GrowOptionsControlKeys,
 } from "@/store/interfaces"
 import { Watch } from "vue-property-decorator"
-import { Position } from "node_modules/vue-router/types/router"
 import { controlMessages } from "@/fixtures/Messages"
-
-// this is hideous, not sure how to best improve. Define these types elsewhere? Stop with the options vs actual grow instance? remove nesting??
-// type PropertyControls = {
-//   plants: EntityControls<GrowPlant, PlantOptions, Rotation & Position>
-//   branches: EntityControls<GrowBranch, BranchOptions>
-//   leaves: EntityControls<{}, LeafOptions>
-//   leafClusters: EntityControls<GrowLeafCluster, LeafClusterOptions, Rotation>
-//   flowers: EntityControls<GrowFlower, FlowerOptions, Rotation>
-//   petals: EntityControls<GrowPetal, PetalOptions>
-// }
 
 export type EntityControl = {
   dataKey: GrowDataKey
@@ -296,19 +285,14 @@ export default class Controls extends GrowMixin {
     }
   }
 
-  public get getControlList() {
-    return (dataKey: GrowDataKey) => {
-      return this.controls.find(c => {
-        return c.dataKey == dataKey
-      })
-    }
+  public controlSectionTitle(dataKey: GrowDataKey) {
+    return this.growDataKeyText(dataKey) + " Controls"
   }
 
-  // TODO: does this actually need to be a getter?
-  public get getControlSectionTitle() {
-    return (dataKey: GrowDataKey) => {
-      return this.growDataKeyText(dataKey) + " Controls"
-    }
+  public getControlList(dataKey: GrowDataKey) {
+    return this.controls.find(c => {
+      return c.dataKey == dataKey
+    })
   }
 
   public get visibleControls(): EntityControl[] {
