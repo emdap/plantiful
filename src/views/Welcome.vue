@@ -458,6 +458,8 @@ export default class Welcome extends Vue {
 
   public navClicked(nav: NavItem, listName: "main" | "features") {
     this.ignoreScroll = true
+    // eslint thinks that navList is not used, but it is
+    // eslint-disable-next-line
     let navList!: NavItem[]
     let offset = this.navMenu.getBoundingClientRect().height + 8
     if (listName == "main") {
