@@ -98,8 +98,9 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Action
-  deletePlant(plant: GrowPlant) {
+  deletePlantChildren(plant: GrowPlant) {
     const childrenIds = this.getPlantChildrenIds(plant)
+    this.RESET_PLANT_CHILDREN(plant.id)
     const dataKeys = [
       "leaves",
       "petals",
@@ -113,7 +114,11 @@ export default class GrowModule extends VuexModule implements GrowState {
         this.deleteEntity({ dataKey, id })
       })
     }
+  }
 
+  @Action
+  deletePlant(plant: GrowPlant) {
+    this.deletePlantChildren(plant)
     this.deleteEntity({ dataKey: "plants", id: plant.id })
   }
 
@@ -486,19 +491,20 @@ export default class GrowModule extends VuexModule implements GrowState {
   }): Promise<GrowPlant> {
     const { basePlant, varyColors, fromOptions } = payload
     let plantReturn!: GrowPlantReturn
-
     if (basePlant) {
       // create whole plant from Plant API data
       plantReturn = createPlant(basePlant, varyColors)
     } else if (fromOptions) {
       // use the custom options to update existing GrowPlant
-      const curPlant = this.getEntity("plants", fromOptions.curId)
+      const curPlant = this.getEntity("plants", fromOptions.curId) as GrowPlant
       if (!curPlant) {
         return Promise.reject("Original plant did not exist")
       }
       plantReturn = processPlantOptions(fromOptions.options)
       // add the new options to the existing plant
       plantReturn.plant = { ...curPlant, ...plantReturn.plant }
+      // remove the original plant's children, will be replaced
+      this.deletePlantChildren(curPlant)
     } else {
       return Promise.reject("Need to include a base plant, or plant options")
     }
@@ -671,6 +677,13 @@ export default class GrowModule extends VuexModule implements GrowState {
   }
 
   @Mutation
+  RESET_PLANT_CHILDREN(id: number) {
+    this.plants[id].branches = []
+    this.plants[id].leafClusters = []
+    this.plants[id].flowers = []
+  }
+
+  @Mutation
   UPDATE_ROTATION(payload: {
     id: number
     dataKey: GrowDataKey
@@ -749,7 +762,7 @@ export default class GrowModule extends VuexModule implements GrowState {
   }) {
     const { dataKey, id, newEntity } = payload
     if (!this[dataKey][id]) {
-      // have timeout for animations -- this could get called after plant/entity deleted
+      // have timeout for leaf/branch animations -- this could get called after plant/entity deleted
       return
     }
     if (dataKey == "branches") {
@@ -785,6 +798,8 @@ export default class GrowModule extends VuexModule implements GrowState {
   @Mutation
   DELETE_ENTITY(payload: { dataKey: GrowDataKey; id: number }) {
     const { dataKey, id } = payload
+    // in case another part of app has a variable tied to this reference
+    this[dataKey][id].deleted = true
     Vue.delete(this[dataKey], id)
   }
 }

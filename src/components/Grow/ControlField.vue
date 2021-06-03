@@ -16,7 +16,7 @@
           :type="control.dataType"
           @keydown.enter="$event.target.blur"
           @focus="
-            allowUpdate = controlList == 'onEntity' || dataKey != 'plants'
+            allowUpdate = control.propertyOn == 'entity' || dataKey != 'plants'
           "
           @blur="allowUpdate = true"
         />
@@ -76,14 +76,14 @@ export default class ControlField extends Vue {
     | DropdownControl<GrowType | GrowOptionsType>
   @Prop({ required: true }) curValue!: number | string | string[]
   @Prop({ required: true }) dataKey!: GrowDataKey
-  @Prop({ default: controlMessages.placeholder }) placeholder!: string
-  // updates on entity can get fired right away, on options wait till input blur
-  @Prop({ default: "onOptions" }) controlList!: "onEntity" | "onOptions"
   @Prop({ default: "controls" }) containerId!: string
 
   public updatedValue = this.curValue
   public showColorPicker = false
   public allowUpdate = true
+  public placeholder = this.control.placeholder
+    ? this.control.placeholder
+    : controlMessages.placeholder
 
   public emitUpdate() {
     if (
@@ -102,12 +102,7 @@ export default class ControlField extends Vue {
           return // don't update
         }
       }
-      this.$emit(
-        "value-updated",
-        this.dataKey,
-        this.control.property,
-        emitValue
-      )
+      this.$emit("value-updated", this.dataKey, this.control, emitValue)
     }
   }
 

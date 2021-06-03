@@ -63,7 +63,7 @@ export default class PlantSearch extends mixins(GardenMixin, GrowMixin) {
     if (!this.activePlant) {
       return
     }
-    if (this.overBranchLimit) {
+    if (!this.showModal && this.overBranchLimit) {
       this.showModal = true
       return
     }

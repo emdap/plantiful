@@ -57,13 +57,13 @@
               @mouseleave="setHighlightEntity(null)"
               @focus="setHighlightEntity(option.id)"
               @blur="setHighlightEntity(null)"
-              @click="selectEntity(key, option.id)"
+              @click.self="selectEntity(key, option.id)"
               @keypress.enter="selectEntity(key, option.id)"
             >
               {{ optionText(key, false, option.id, optIndex + 1) }}
               <button
                 v-if="key == 'plants'"
-                @mousedown="deletePlant($event, option.id)"
+                @mousedown="deletePlant($event, option.id, optIndex + 1)"
                 class="py-1 px-2 text-xs ml-auto mr-4 btn-red"
               >
                 DELETE
@@ -176,32 +176,7 @@ export default class EntitySelect extends GrowMixin {
     }
   }
 
-  public deleteEach(dataKey: GrowDataKey, entityList: number[]) {
-    entityList.forEach(id => {
-      grow.deleteEntity({
-        dataKey,
-        id,
-      })
-    })
-  }
-
-  public deletePlant(e: MouseEvent, id: number | undefined) {
-    e.stopPropagation()
-    // delete leaves/petals first
-    let plant!: GrowPlant
-    if (id != undefined && id != this.activeGrowPlant?.id) {
-      plant = this.getEntity("plants", id) as GrowPlant
-    } else if (this.activeGrowPlant) {
-      plant = this.activeGrowPlant
-      this.selected.plants = null
-    } else {
-      this.$toasted.error(selectMessages.noDelete)
-      return
-    }
-
-    grow.deletePlant(plant)
-  }
-
+  //#region handlers
   public toggleDropdown(e: MouseEvent, dataKey: GrowDataKey) {
     e.stopPropagation()
     const eventTarget = e.target as HTMLElement
@@ -221,30 +196,39 @@ export default class EntitySelect extends GrowMixin {
     }
   }
 
-  public optionId(key: GrowDataKey, optIndex: number | null) {
-    return key + "-" + (optIndex != null ? optIndex : 0)
-  }
-
-  @Watch("showDropdown")
-  public setHighlight(dataKey: GrowDataKey | null) {
-    if (dataKey) {
-      grow.setHighlightType(dataKey)
-      document.addEventListener("mousedown", this.mousedownWatch)
+  public selectEntity(dataKey: GrowDataKey, id: number) {
+    if (dataKey == "plants") {
+      grow.setActivePlant(id)
+      grow.setActiveEntity({ dataKey, id })
     } else {
-      this.clearHighlight()
+      grow.setActiveEntity({ dataKey, id })
     }
   }
 
-  public clearHighlight() {
-    grow.setHighlightType(null)
-    this.dropdownTarget = null
-    this.showDropdown = null
-    document.removeEventListener("mousedown", this.mousedownWatch)
-  }
+  public deletePlant(e: MouseEvent, id: number | undefined, optIndex: number) {
+    e.stopPropagation()
+    e.preventDefault()
+    // delete leaves/petals first
+    let plant!: GrowPlant
+    if (id != undefined && id != this.activeGrowPlant?.id) {
+      plant = this.getEntity("plants", id) as GrowPlant
+    } else if (this.activeGrowPlant) {
+      plant = this.activeGrowPlant
+      this.selected.plants = null
+    } else {
+      this.$toasted.error(selectMessages.noDelete)
+      return
+    }
 
-  public mousedownWatch() {
-    this.showDropdown = null
+    grow.deletePlant(plant)
+
+    // update the selected index
+    if (this.selected.plants && optIndex <= this.selected.plants) {
+      this.selected.plants =
+        optIndex == this.selected.plants ? null : this.selected.plants - 1
+    }
   }
+  //#endregion
 
   //#region Getters & Watchers
   public get iterateDataKeys() {
@@ -298,6 +282,16 @@ export default class EntitySelect extends GrowMixin {
     }
   }
 
+  @Watch("showDropdown")
+  public setHighlight(dataKey: GrowDataKey | null) {
+    if (dataKey) {
+      grow.setHighlightType(dataKey)
+      document.addEventListener("mousedown", this.mousedownWatch)
+    } else {
+      this.clearHighlight()
+    }
+  }
+
   @Watch("activeEntity")
   public newActive() {
     if (!this.activeEntityType || this.activeEntityType == "plants") {
@@ -328,16 +322,13 @@ export default class EntitySelect extends GrowMixin {
   }
   //#endregion
 
-  //#region Setters
-  public selectEntity(dataKey: GrowDataKey, id: number) {
-    if (dataKey == "plants") {
-      grow.setActivePlant(id)
-      grow.setActiveEntity({ dataKey, id })
-    } else {
-      grow.setActiveEntity({ dataKey, id })
-    }
+  //#region Helpers
+  public clearHighlight() {
+    grow.setHighlightType(null)
+    this.dropdownTarget = null
+    this.showDropdown = null
+    document.removeEventListener("mousedown", this.mousedownWatch)
   }
-
   public getOptionLists(plant: GrowPlant | null) {
     const optionLists = this.defaults()
     if (!plant) {
@@ -404,15 +395,23 @@ export default class EntitySelect extends GrowMixin {
     }
   }
 
+  public optionId(key: GrowDataKey, optIndex: number | null) {
+    return key + "-" + (optIndex != null ? optIndex : 0)
+  }
+
+  public mousedownWatch() {
+    this.showDropdown = null
+  }
+  //#endregion
+
+  //#region Defaults
   public defaults() {
     return {
       options: this.defaultOptions(),
       clusterReferences: this.defaultClusterReferences(),
     }
   }
-  //#endregion
 
-  //#region Defaults
   public defaultOptions() {
     return {
       plants: this.hasGrowPlants ? Object.values(this.growPlantsDict) : [],

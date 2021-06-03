@@ -216,6 +216,7 @@ export interface GrowBasis extends InteractableBasis {
 export interface GrowEntity<OptionsType = {}> extends GrowBasis {
   id: number
   optionsReference: OptionsType
+  deleted?: boolean
 }
 
 export interface GrowPlant extends GrowEntity<PlantOptions> {
@@ -416,6 +417,7 @@ export const ControlInputTypes = [
   "color-list",
   "color",
   "text",
+  "dropdown",
 ] as const
 
 export type GrowControlKeys =
@@ -442,6 +444,11 @@ export type PossibleNestedControl =
   | (Rotation & Position)
   | {}
 
+export type VerifyBounds = {
+  lowerBound: number
+  upperBound: number
+}
+
 type ControlBase<Type> = {
   property: keyof Type
   text: string
@@ -449,22 +456,32 @@ type ControlBase<Type> = {
   placeholder?: string
 }
 
-export type VerifyBounds = {
-  lowerBound: number
-  upperBound: number
-}
-
-export interface Control<Type> extends ControlBase<Type> {
+interface DataControl<Type> extends ControlBase<Type> {
   dataType: typeof ControlInputTypes[number]
 }
 
-export interface DropdownControl<Type> extends ControlBase<Type> {
+interface PropertyControl<Type> extends ControlBase<Type> {
+  propertyOn: "entity" | "options"
+  order: number
+}
+
+// export interface Control<Type> extends DataControl<Type> {
+//   dataType: typeof ControlInputTypes[number]
+// }
+
+export type Control<Type> = DataControl<Type> & PropertyControl<Type>
+
+export interface DropdownControl<Type>
+  extends DataControl<Type>,
+    PropertyControl<Type> {
   dataType: "dropdown"
   options: readonly string[] | readonly number[]
 }
 
-export interface NestedControl<Parent, Child> extends ControlBase<Parent> {
-  children: Control<Child>[]
+export interface NestedControl<Parent, Child> extends PropertyControl<Parent> {
+  propertyOn: "entity" | "options"
+  order: number
+  children: DataControl<Child>[]
 }
 
 export type AnyControl<Parent, Child> =
@@ -472,7 +489,7 @@ export type AnyControl<Parent, Child> =
   | DropdownControl<Parent>
   | NestedControl<Parent, Child>
 
-export type ControlList<Parent, Child = {}> = AnyControl<Parent, Child>[]
+export type ControlList<Parent = any, Child = any> = AnyControl<Parent, Child>[]
 
 // Grid
 export interface GridWidget {

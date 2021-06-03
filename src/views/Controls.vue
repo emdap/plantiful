@@ -7,60 +7,50 @@
       {{ controlMessages.selectPlant }}
     </div>
     <div
-      v-for="controlTuple in visibleControls"
-      :key="controlTuple[0]"
+      v-for="(entityControl, index) in visibleControls"
+      :key="index"
       class="pr-1 mr-2"
     >
       <h4
-        @focus="toggleHighlight(controlTuple[0], true)"
-        @blur="toggleHighlight(controlTuple[0], false)"
+        @focus="toggleHighlight(entityControl.dataKey, true)"
+        @blur="toggleHighlight(entityControl.dataKey, false)"
         title="Highlight active entity"
         tabindex="1"
         class="mt-2 py-1 mb-1 -mr-2 font-semibold sticky top-0 transition-colors bg-white dark:bg-gray-700 text-black dark:text-gray-100 cursor-pointer ring-pink-400 dark:ring-yellow-500 focus:ring-2 focus:outline-none rounded-md"
       >
-        {{ getControlSectionTitle(controlTuple[0]) }}
+        {{ getControlSectionTitle(entityControl.dataKey) }}
       </h4>
       <div
-        v-for="controlList in ['onOptions', 'onEntity']"
-        :key="controlList"
-        :id="`${controlTuple[0]}-${controlList.toLowerCase()}`"
+        v-for="(control, index) in entityControl.controls"
+        :key="index"
+        :id="`${entityControl.dataKey}-${control.property}`"
+        class="border-t-1 border-gray-200 dark:border-gray-800"
       >
-        <div
-          v-for="control in controls[controlTuple[0]][controlList]"
-          :key="control.text"
-          :id="`${controlTuple[0]}-${control.text}`"
-          class="border-t-1 border-gray-200 dark:border-gray-800"
-        >
-          <template v-if="control.children">
-            <h4 class="font-semibold my-2 text-gray-500 dark:text-gray-400">
-              {{ control.text }}
-            </h4>
-            <div
-              v-for="child in control.children"
-              :key="child.text"
-              :id="`${controlTuple[0]}-${control.text}-${child.text}`"
-            >
-              <control-field
-                :control="child"
-                :dataKey="controlTuple[0]"
-                :controlList="controlList"
-                :curValue="getCurValue(controlList, control, child)"
-                @value-updated="
-                  updateProperty(...arguments, controlList, control.property)
-                "
-              />
-            </div>
-          </template>
-          <template v-else>
+        <template v-if="control.children">
+          <h4 class="font-semibold my-2 text-gray-500 dark:text-gray-400">
+            {{ control.text }}
+          </h4>
+          <div
+            v-for="child in control.children"
+            :key="child.text"
+            :id="`${entityControl.dataKey}-${control.text}-${child.text}`"
+          >
             <control-field
-              :control="control"
-              :dataKey="controlTuple[0]"
-              :controlList="controlList"
-              :curValue="getCurValue(controlList, control)"
-              @value-updated="updateProperty(...arguments, controlList)"
+              :control="child"
+              :dataKey="entityControl.dataKey"
+              :curValue="getCurValue(control, child)"
+              @value-updated="updateProperty(...arguments, control.property)"
             />
-          </template>
-        </div>
+          </div>
+        </template>
+        <template v-else>
+          <control-field
+            :control="control"
+            :dataKey="entityControl.dataKey"
+            :curValue="getCurValue(control)"
+            @value-updated="updateProperty"
+          />
+        </template>
       </div>
       <!-- <div v-if="controls[controlTuple[0]].special">
         <h3 class="mb-2">
@@ -94,45 +84,32 @@ import ControlField from "@/components/Grow/ControlField.vue"
 import {
   GrowDataKey,
   ControlList,
-  GrowPlant,
-  Rotation,
-  PlantOptions,
   AnyControl,
   DropdownControl,
   Control,
   GrowType,
-  LeafOptions,
-  GrowLeafCluster,
-  LeafClusterOptions,
-  GrowBranch,
-  GrowOptionsType,
   PossibleNestedControl,
-  BranchOptions,
-  GrowFlower,
-  FlowerOptions,
   GrowControlKeys,
   GrowOptionsControlKeys,
-  GrowPetal,
-  PetalOptions,
 } from "@/store/interfaces"
 import { Watch } from "vue-property-decorator"
 import { Position } from "node_modules/vue-router/types/router"
 import { controlMessages } from "@/fixtures/Messages"
 
 // this is hideous, not sure how to best improve. Define these types elsewhere? Stop with the options vs actual grow instance? remove nesting??
-type PropertyControls = {
-  plants: PropertyData<GrowPlant, PlantOptions, Rotation & Position>
-  branches: PropertyData<GrowBranch, BranchOptions>
-  leaves: PropertyData<{}, LeafOptions>
-  leafClusters: PropertyData<GrowLeafCluster, LeafClusterOptions, Rotation>
-  flowers: PropertyData<GrowFlower, FlowerOptions, Rotation>
-  petals: PropertyData<GrowPetal, PetalOptions>
-}
+// type PropertyControls = {
+//   plants: EntityControls<GrowPlant, PlantOptions, Rotation & Position>
+//   branches: EntityControls<GrowBranch, BranchOptions>
+//   leaves: EntityControls<{}, LeafOptions>
+//   leafClusters: EntityControls<GrowLeafCluster, LeafClusterOptions, Rotation>
+//   flowers: EntityControls<GrowFlower, FlowerOptions, Rotation>
+//   petals: EntityControls<GrowPetal, PetalOptions>
+// }
 
-type PropertyData<P, O = {}, C = {}> = {
+export type EntityControl = {
+  dataKey: GrowDataKey
   show: boolean
-  onEntity?: ControlList<P, C>
-  onOptions?: ControlList<O>
+  controls: ControlList
   special?: { text: string; code: string }[]
   // user doesn't care if it's on the entity or on the build options for the entity, but i do
 }
@@ -143,41 +120,49 @@ type PropertyData<P, O = {}, C = {}> = {
   },
 })
 export default class Controls extends GrowMixin {
-  public controls: PropertyControls = this.allControlsDisabled()
+  public controls: EntityControl[] = this.allControlsDisabled()
   public controlMessages = controlMessages
 
   public allControlsDisabled() {
-    return {
-      plants: {
+    return [
+      {
+        dataKey: "plants" as const,
         show: false,
-        onEntity: controlLists.plantControls,
-        onOptions: controlLists.plantOptionsControls,
+        controls: controlLists.plantControls.sort(controlLists.sortControlList),
         special: controlLists.specialPlantControls,
       },
-      branches: {
+      {
+        dataKey: "branches" as const,
         show: false,
-        onEntity: controlLists.branchControls,
-        onOptions: controlLists.branchOptionsControls,
+        controls: controlLists.branchControls.sort(
+          controlLists.sortControlList
+        ),
       },
-      leafClusters: {
+      {
+        dataKey: "leafClusters" as const,
         show: false,
-        onEntity: controlLists.leafClusterControls,
-        onOptions: controlLists.leafClusterOptionsControls,
+        controls: controlLists.leafClusterControls.sort(
+          controlLists.sortControlList
+        ),
       },
-      leaves: {
+      {
+        dataKey: "leaves" as const,
         show: false,
-        onOptions: controlLists.leafOptionsControls,
+        controls: controlLists.leafControls.sort(controlLists.sortControlList),
       },
-      flowers: {
+      {
+        dataKey: "flowers" as const,
         show: false,
-        onEntity: controlLists.flowerControls,
-        onOptions: controlLists.flowerOptionsControls,
+        controls: controlLists.flowerControls.sort(
+          controlLists.sortControlList
+        ),
       },
-      petals: {
+      {
+        dataKey: "petals" as const,
         show: false,
-        onOptions: controlLists.petalOptionsControls,
+        controls: controlLists.petalControls.sort(controlLists.sortControlList),
       },
-    }
+    ]
   }
 
   public mounted() {
@@ -186,14 +171,14 @@ export default class Controls extends GrowMixin {
 
   public initVisibleControls() {
     if (this.activeGrowPlant) {
-      this.controls.plants.show = true
+      const plantList = this.getControlList("plants")
+      if (plantList) plantList.show = true
     } else {
       this.controls = this.allControlsDisabled()
     }
   }
 
   public getCurValue(
-    controlList: "onEntity" | "onOptions",
     control: AnyControl<GrowType, PossibleNestedControl>,
     child: Control<GrowType> | DropdownControl<GrowType>
   ) {
@@ -207,7 +192,7 @@ export default class Controls extends GrowMixin {
       return
     }
     if (!child) {
-      if (controlList == "onOptions") {
+      if (control.propertyOn == "options") {
         const typesafeProp = control as Control<
           typeof sourceEntity.optionsReference
         >
@@ -229,9 +214,8 @@ export default class Controls extends GrowMixin {
 
   public updateProperty(
     dataKey: GrowDataKey,
-    property: GrowControlKeys | GrowOptionsControlKeys,
+    control: AnyControl<GrowType, PossibleNestedControl>,
     newValue: number | string | string[],
-    propertyList: "onEntity" | "onOptions",
     parentProperty?: "rotation" | "position"
   ) {
     if (!grow.activeEntity) {
@@ -241,7 +225,7 @@ export default class Controls extends GrowMixin {
       id: grow.activeEntity.id,
       dataKey,
     }
-    if (propertyList == "onEntity") {
+    if (control.propertyOn == "entity") {
       let mergeData!: { [key in GrowControlKeys]?: GrowType[keyof GrowType] }
 
       if (parentProperty) {
@@ -249,21 +233,21 @@ export default class Controls extends GrowMixin {
           // merge with other parentcontrolLists, as updating only 1 child property at a time (rotation.x, position.y, etc)
           [parentProperty]: {
             ...grow.activeEntity[parentProperty],
-            [property]: newValue,
+            [control.property]: newValue,
           },
         }
       } else {
-        mergeData = { [property]: newValue }
+        mergeData = { [control.property]: newValue }
       }
       grow.mergeEntity({ ...entityPayload, mergeData })
-    } else if (propertyList == "onOptions") {
+    } else if (control.propertyOn == "options") {
       const optionsDup = {
         ...grow.activeEntity.optionsReference,
-        [property]: newValue,
+        [control.property]: newValue,
       }
       grow.setEntityOptions({
         ...entityPayload,
-        propertyRef: property as GrowOptionsControlKeys,
+        propertyRef: control.property as GrowOptionsControlKeys,
         newOptions: optionsDup,
       })
     }
@@ -289,8 +273,10 @@ export default class Controls extends GrowMixin {
         this.controls = this.allControlsDisabled()
         return
       }
-      if (previous) this.controls[previous].show = false
-      if (current) this.controls[current].show = true
+      const prevList = this.getControlList(previous)
+      const curList = this.getControlList(current)
+      if (prevList) prevList.show = false
+      if (curList) curList.show = true
     }
   }
 
@@ -310,6 +296,14 @@ export default class Controls extends GrowMixin {
     }
   }
 
+  public get getControlList() {
+    return (dataKey: GrowDataKey) => {
+      return this.controls.find(c => {
+        return c.dataKey == dataKey
+      })
+    }
+  }
+
   // TODO: does this actually need to be a getter?
   public get getControlSectionTitle() {
     return (dataKey: GrowDataKey) => {
@@ -317,16 +311,10 @@ export default class Controls extends GrowMixin {
     }
   }
 
-  public get visibleControls(): [
-    GrowDataKey[number],
-    PropertyData<GrowType, GrowOptionsType, PossibleNestedControl>
-  ][] {
-    return Object.entries(this.controls).filter(c => {
-      return c[1].show
-    }) as [
-      GrowDataKey[number],
-      PropertyData<GrowType, GrowOptionsType, PossibleNestedControl>
-    ][]
+  public get visibleControls(): EntityControl[] {
+    return this.controls.filter(c => {
+      return c.show == true
+    })
   }
 }
 </script>

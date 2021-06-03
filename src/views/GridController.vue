@@ -461,13 +461,8 @@ export default class GridController extends mixins(GridMixin) {
     if (open) {
       this.growTestPlant()
       this.toggleSearchers(false)
-    } else {
-      if (grow.plants[this.testPlant.id] == this.testPlant) {
-        if (this.testPlant.id == grow.activeGrowPlant?.id) {
-          grow.removeActivePlant()
-        }
-        grow.deletePlant(this.testPlant)
-      }
+    } else if (!this.testPlant.deleted) {
+      grow.deletePlant(this.testPlant)
     }
   }
 

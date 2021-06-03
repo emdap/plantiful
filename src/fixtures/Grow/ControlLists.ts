@@ -15,9 +15,21 @@ import {
 } from "@/store/interfaces"
 import { Position } from "vue-router/types/router"
 
-const plantOptionsControls: ControlList<PlantOptions> = [
+const plantControls: ControlList<
+  PlantOptions & GrowPlant,
+  Rotation & Position
+> = [
+  {
+    property: "name",
+    propertyOn: "entity",
+    order: 0,
+    text: "Name",
+    dataType: "text",
+  },
   {
     property: "height",
+    propertyOn: "options",
+    order: 1,
     text: "Height",
     dataType: "number",
     verify: {
@@ -27,6 +39,8 @@ const plantOptionsControls: ControlList<PlantOptions> = [
   },
   {
     property: "spread",
+    propertyOn: "options",
+    order: 2,
     text: "Spread",
     dataType: "number",
     verify: {
@@ -36,17 +50,23 @@ const plantOptionsControls: ControlList<PlantOptions> = [
   },
   {
     property: "leafTexture",
+    propertyOn: "options",
+    order: 3,
     text: "Leaf Texture",
     dataType: "dropdown",
     options: LeafTextureValues,
   },
   {
     property: "leafColors",
+    propertyOn: "options",
+    order: 4,
     text: "Leaf Colors",
     dataType: "color-list",
   },
   {
     property: "flowerColors",
+    propertyOn: "options",
+    order: 5,
     text: "Flower Colors",
     dataType: "color-list",
   },
@@ -63,11 +83,10 @@ const plantOptionsControls: ControlList<PlantOptions> = [
   //   dataType: "dropdown",
   //   options: ?
   // },
-]
-
-const plantControls: ControlList<GrowPlant, Rotation & Position> = [
   {
     property: "zoom",
+    propertyOn: "entity",
+    order: 6,
     text: "Scale (percent)",
     dataType: "number",
     verify: {
@@ -77,11 +96,15 @@ const plantControls: ControlList<GrowPlant, Rotation & Position> = [
   },
   {
     property: "zIndex",
+    propertyOn: "entity",
+    order: 7,
     text: "Stack Order",
     dataType: "number",
   },
   {
     property: "position",
+    propertyOn: "entity",
+    order: 7,
     text: "Position",
     children: [
       {
@@ -98,6 +121,8 @@ const plantControls: ControlList<GrowPlant, Rotation & Position> = [
   },
   {
     property: "rotation",
+    propertyOn: "entity",
+    order: 8,
     text: "Rotation",
     children: [
       {
@@ -124,7 +149,7 @@ const plantControls: ControlList<GrowPlant, Rotation & Position> = [
   },
 ]
 
-const branchControls: ControlList<GrowBranch> = [
+const branchControls: ControlList<BranchOptions & GrowBranch> = [
   // {
   //   property: "branchHeight",
   //   text: "Height",
@@ -132,14 +157,15 @@ const branchControls: ControlList<GrowBranch> = [
   // },
   {
     property: "zIndex",
+    propertyOn: "entity",
+    order: 1,
     text: "Stack Order",
     dataType: "number",
   },
-]
-
-const branchOptionsControls: ControlList<BranchOptions> = [
   {
     property: "branchHeight",
+    propertyOn: "options",
+    order: 2,
     text: "Height",
     dataType: "number",
     verify: {
@@ -149,6 +175,8 @@ const branchOptionsControls: ControlList<BranchOptions> = [
   },
   {
     property: "branchWidth",
+    propertyOn: "options",
+    order: 3,
     text: "Width",
     dataType: "number",
     verify: {
@@ -158,6 +186,8 @@ const branchOptionsControls: ControlList<BranchOptions> = [
   },
   {
     property: "angle",
+    propertyOn: "options",
+    order: 4,
     text: "Angle",
     dataType: "number",
     verify: {
@@ -167,14 +197,21 @@ const branchOptionsControls: ControlList<BranchOptions> = [
   },
 ]
 
-const leafClusterControls: ControlList<GrowLeafCluster, Rotation> = [
+const leafClusterControls: ControlList<
+  GrowLeafCluster & LeafClusterOptions,
+  Rotation
+> = [
   {
     property: "zIndex",
+    propertyOn: "entity",
+    order: 1,
     text: "Stack Order",
     dataType: "number",
   },
   {
     property: "rotation",
+    propertyOn: "entity",
+    order: 2,
     text: "Rotation",
     children: [
       {
@@ -194,27 +231,32 @@ const leafClusterControls: ControlList<GrowLeafCluster, Rotation> = [
       },
     ],
   },
-]
-
-const leafClusterOptionsControls: ControlList<LeafClusterOptions> = [
   {
     property: "colors",
+    propertyOn: "options",
+    order: -5,
     text: "Leaf Colors",
     dataType: "color-list",
   },
   {
     property: "texture",
+    propertyOn: "options",
+    order: -4,
     text: "Leaf Texture",
     dataType: "dropdown",
     options: LeafTextureValues,
   },
   {
     property: "spacing",
+    propertyOn: "options",
+    order: -3,
     text: "Gap between leaves",
     dataType: "number",
   },
   {
     property: "sides",
+    propertyOn: "options",
+    order: -2,
     text: "Leaves in cluster",
     dataType: "number",
     verify: {
@@ -224,6 +266,8 @@ const leafClusterOptionsControls: ControlList<LeafClusterOptions> = [
   },
   {
     property: "area",
+    propertyOn: "options",
+    order: -1,
     text: "Cluster area",
     dataType: "number",
     verify: {
@@ -233,19 +277,25 @@ const leafClusterOptionsControls: ControlList<LeafClusterOptions> = [
   },
 ]
 
-const flowerOptionsControls: ControlList<FlowerOptions> = [
+const flowerControls: ControlList<GrowFlower & FlowerOptions, Rotation> = [
   {
     property: "colors",
+    propertyOn: "options",
+    order: 1,
     text: "Flower Colors",
     dataType: "color-list",
   },
   {
     property: "spacing",
+    propertyOn: "options",
+    order: 2,
     text: "Gap between petals",
     dataType: "number",
   },
   {
     property: "sides",
+    propertyOn: "options",
+    order: 3,
     text: "Petals in flower",
     dataType: "number",
     verify: {
@@ -255,6 +305,8 @@ const flowerOptionsControls: ControlList<FlowerOptions> = [
   },
   {
     property: "area",
+    propertyOn: "options",
+    order: 4,
     text: "Flower area",
     dataType: "number",
     verify: {
@@ -262,21 +314,24 @@ const flowerOptionsControls: ControlList<FlowerOptions> = [
       lowerBound: 0,
     },
   },
-]
-
-const flowerControls: ControlList<GrowFlower, Rotation> = [
   {
     property: "zIndex",
+    propertyOn: "entity",
+    order: 5,
     text: "Stack Order",
     dataType: "number",
   },
   {
     property: "color",
+    propertyOn: "entity",
+    order: 6,
     text: "Flower center color",
     dataType: "color",
   },
   {
     property: "rotation",
+    propertyOn: "entity",
+    order: 7,
     text: "Rotation",
     children: [
       {
@@ -311,27 +366,35 @@ const flowerControls: ControlList<GrowFlower, Rotation> = [
 //   }
 // ]
 
-const leafOptionsControls: ControlList<LeafOptions> = [
+const leafControls: ControlList<LeafOptions> = [
   {
     property: "color",
+    propertyOn: "options",
+    order: 1,
     text: "Color",
     dataType: "color",
   },
   {
     property: "topHeight",
+    propertyOn: "options",
+    order: 2,
     text: "Top height of leaf",
     dataType: "number",
   },
   {
     property: "bottomHeight",
+    propertyOn: "options",
+    order: 3,
     text: "Bottom height of leaf",
     dataType: "number",
   },
 ]
 
-const petalOptionsControls: ControlList<PetalOptions> = [
+const petalControls: ControlList<PetalOptions> = [
   {
     property: "color",
+    propertyOn: "options",
+    order: 1,
     text: "Color",
     dataType: "color",
   },
@@ -354,17 +417,17 @@ const specialPlantControls = [
   },
 ]
 
+function sortControlList(a: { order: number }, b: { order: number }) {
+  return a.order - b.order
+}
+
 export default {
-  plantOptionsControls,
   plantControls,
   branchControls,
-  branchOptionsControls,
   leafClusterControls,
-  leafClusterOptionsControls,
-  // allLeafOptionsControls,
-  leafOptionsControls,
+  leafControls,
   flowerControls,
-  flowerOptionsControls,
-  petalOptionsControls,
+  petalControls,
   specialPlantControls,
+  sortControlList,
 }

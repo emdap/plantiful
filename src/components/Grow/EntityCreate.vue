@@ -158,10 +158,7 @@ export default class EntityCreate extends GrowMixin {
   public varyColors = true
   public showHelp = false
 
-  public plantControls = [
-    this.plantNameControl,
-    ...controlLists.plantOptionsControls,
-  ]
+  public plantControls = this.usePlantControls()
   public failedValidation = [] as typeof CustomValues[number][]
 
   public emptyValues() {
@@ -173,6 +170,14 @@ export default class EntityCreate extends GrowMixin {
       flowerColors: [] as string[],
       leafTexture: "",
     }
+  }
+
+  public usePlantControls() {
+    return controlLists.plantControls
+      .filter(c => {
+        return c.propertyOn == "options" || c.property == "name"
+      })
+      .sort(controlLists.sortControlList)
   }
 
   public mounted() {
@@ -239,7 +244,9 @@ export default class EntityCreate extends GrowMixin {
       }
     }
 
-    if (this.overBranchLimit) {
+    // TODO: should intelligently delete plants until branch limit is satisfied.
+    // Will need way to compute how many branches new plant will have
+    if (!this.showModal && this.overBranchLimit) {
       this.showModal = true
       return
     }
@@ -260,10 +267,10 @@ export default class EntityCreate extends GrowMixin {
   }
 
   public randomizeFields() {
-    const heightBound = controlLists.plantOptionsControls.find(c => {
+    const heightBound = controlLists.plantControls.find(c => {
       return c.property == "height"
     })?.verify?.upperBound
-    const spreadBound = controlLists.plantOptionsControls.find(c => {
+    const spreadBound = controlLists.plantControls.find(c => {
       return c.property == "spread"
     })?.verify?.upperBound
 
