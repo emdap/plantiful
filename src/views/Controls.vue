@@ -37,6 +37,7 @@
           >
             <control-field
               :control="child"
+              :propertyOn="control.propertyOn"
               :dataKey="entityControl.dataKey"
               :curValue="getCurValue(control, child)"
               @value-updated="updateProperty(...arguments, control.property)"
@@ -202,11 +203,15 @@ export default class Controls extends GrowMixin {
   }
 
   public updateProperty(
-    dataKey: GrowDataKey,
-    control: AnyControl<GrowType, PossibleNestedControl>,
-    newValue: number | string | string[],
+    payload: {
+      dataKey: GrowDataKey
+      control: AnyControl<GrowType, PossibleNestedControl>
+      propertyOn: "entity" | "options"
+      newValue: number | string | string[]
+    },
     parentProperty?: "rotation" | "position"
   ) {
+    const { dataKey, control, propertyOn, newValue } = payload
     if (!grow.activeEntity) {
       return // should be impossible
     }
@@ -214,7 +219,7 @@ export default class Controls extends GrowMixin {
       id: grow.activeEntity.id,
       dataKey,
     }
-    if (control.propertyOn == "entity") {
+    if (propertyOn == "entity") {
       let mergeData!: { [key in GrowControlKeys]?: GrowType[keyof GrowType] }
 
       if (parentProperty) {
@@ -229,7 +234,7 @@ export default class Controls extends GrowMixin {
         mergeData = { [control.property]: newValue }
       }
       grow.mergeEntity({ ...entityPayload, mergeData })
-    } else if (control.propertyOn == "options") {
+    } else if (propertyOn == "options") {
       const optionsDup = {
         ...grow.activeEntity.optionsReference,
         [control.property]: newValue,

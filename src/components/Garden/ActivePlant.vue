@@ -162,7 +162,6 @@ export default class ActivePlant extends mixins(GardenMixin, GrowMixin) {
 
   @Watch("activePlant")
   public newMainImg() {
-    console.log("active plant change", this.activePlant)
     this.mainImgLoaded = false
   }
 }

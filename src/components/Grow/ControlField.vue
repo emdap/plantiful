@@ -9,6 +9,7 @@
       <template
         v-if="control.dataType == 'number' || control.dataType == 'text'"
       >
+        {{ control.propertyOn }} {{ control.property != "name" }}
         <input
           class="control-input"
           v-model="updatedValue"
@@ -17,7 +18,7 @@
           @keydown.enter="$event.target.blur"
           @focus="
             allowUpdate =
-              (control.propertyOn == 'entity' && control.property != 'name') ||
+              (propertyType == 'entity' && control.property != 'name') ||
               dataKey != 'plants'
           "
           @blur="allowUpdate = true"
@@ -76,6 +77,7 @@ export default class ControlField extends Vue {
   @Prop({ required: true }) control!:
     | Control<GrowType | GrowOptionsType>
     | DropdownControl<GrowType | GrowOptionsType>
+  @Prop({ default: null }) propertyOn!: "entity" | "options" | null
   @Prop({ required: true }) curValue!: number | string | string[]
   @Prop({ required: true }) dataKey!: GrowDataKey
   @Prop({ default: "controls" }) containerId!: string
@@ -83,9 +85,18 @@ export default class ControlField extends Vue {
   public updatedValue = this.curValue
   public showColorPicker = false
   public allowUpdate = true
+  public propertyType = this.control.propertyOn
   public placeholder = this.control.placeholder
     ? this.control.placeholder
     : controlMessages.placeholder
+
+  public mounted() {
+    if (!this.propertyType && this.propertyOn) {
+      this.propertyType = this.propertyOn
+    } else if (!this.propertyType) {
+      throw console.error("Missing prop propertyOn")
+    }
+  }
 
   public emitUpdate() {
     if (
@@ -93,18 +104,24 @@ export default class ControlField extends Vue {
       this.updatedValue != this.curValue &&
       this.verifyUpdate()
     ) {
-      let emitValue = this.updatedValue
+      let newValue = this.updatedValue
       if (
         this.control.dataType == "number" &&
         typeof this.updatedValue == "string"
       ) {
-        emitValue = parseInt(this.updatedValue)
-        if (isNaN(emitValue)) {
+        newValue = parseInt(this.updatedValue)
+        if (isNaN(newValue)) {
           this.updatedValue = this.curValue
           return // don't update
         }
       }
-      this.$emit("value-updated", this.dataKey, this.control, emitValue)
+      const payload = {
+        dataKey: this.dataKey,
+        control: this.control,
+        propertyOn: this.propertyType,
+        newValue,
+      }
+      this.$emit("value-updated", payload)
     }
   }
 
