@@ -9,7 +9,6 @@
       <template
         v-if="control.dataType == 'number' || control.dataType == 'text'"
       >
-        {{ control.propertyOn }} {{ control.property != "name" }}
         <input
           class="control-input"
           v-model="updatedValue"
@@ -85,17 +84,17 @@ export default class ControlField extends Vue {
   public updatedValue = this.curValue
   public showColorPicker = false
   public allowUpdate = true
-  public propertyType = this.control.propertyOn
   public placeholder = this.control.placeholder
     ? this.control.placeholder
     : controlMessages.placeholder
 
-  public mounted() {
-    if (!this.propertyType && this.propertyOn) {
-      this.propertyType = this.propertyOn
-    } else if (!this.propertyType) {
-      throw console.error("Missing prop propertyOn")
+  public get propertyType() {
+    if (this.control.propertyOn) {
+      return this.control.propertyOn
+    } else if (this.propertyOn) {
+      return this.propertyOn
     }
+    throw console.error("Missing prop propertyOn")
   }
 
   public emitUpdate() {

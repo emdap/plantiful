@@ -21,8 +21,8 @@
         {{ controlSectionTitle(entityControl.dataKey) }}
       </h4>
       <div
-        v-for="(control, index) in entityControl.controls"
-        :key="index"
+        v-for="control in entityControl.controls"
+        :key="`${entityControl.dataKey}-${control.property}`"
         :id="`${entityControl.dataKey}-${control.property}`"
         class="border-t-1 border-gray-200 dark:border-gray-800"
       >
