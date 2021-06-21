@@ -15,13 +15,10 @@
           :placeholder="placeholder"
           :type="control.dataType"
           @keydown.enter="$event.target.blur"
-          @focus="
-            allowUpdate =
-              (propertyType == 'entity' && control.property != 'name') ||
-              dataKey != 'plants'
-          "
+          @focus="allowUpdate = propertyType == 'entity' || dataKey != 'plants'"
           @blur="allowUpdate = true"
         />
+        <!-- && control.property != 'name' -->
       </template>
       <template v-else-if="control.dataType == 'dropdown'">
         <select required v-model="updatedValue" class="control-input p-0">
