@@ -114,6 +114,7 @@ export default class ControlField extends Vue {
       const payload = {
         dataKey: this.dataKey,
         control: this.control,
+        property: this.control.property,
         propertyOn: this.propertyType,
         newValue,
       }

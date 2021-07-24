@@ -8,51 +8,53 @@
       @close="showModal = false"
       @continue="continueDelete"
     />
-    <div class="flex flex-wrap pr-4 min-w-min">
+    <main class="pr-6">
       <div
         class="w-full text-center p-4 border-b-1 border-gray-200 dark:border-gray-800"
       >
         <button
-          class="bg-pink-400 hover:bg-pink-500 text-white dark:bg-pink-500 dark:hover:bg-pink-400 m-1"
+          class="bg-green-400 hover:bg-green-500 text-white dark:bg-green-600 dark:hover:bg-green-500 m-1"
           @click="growRandomPlant"
         >
           Grow random plant
         </button>
         <button
-          class="bg-green-400 hover:bg-green-500 text-white dark:bg-green-600 dark:hover:bg-green-500 m-1"
+          class="bg-pink-400 hover:bg-pink-500 text-white dark:bg-pink-500 dark:hover:bg-pink-400 m-1"
           @click="randomizeFields"
         >
           Randomize fields
         </button>
       </div>
-      <div
-        class="p-2 flex flex-wrap flex-grow justify-center border-b-1 border-gray-200 dark:border-gray-800"
-        :class="[
-          colorControl(control.property) ? 'w-1/3 pl-2' : 'w-1/4 min-w-max',
-          { 'update-field': needsUpdate(control.property) },
-        ]"
-        v-for="(control, index) in plantControls"
-        :key="index"
-      >
-        <control-field
-          containerId="create-entity"
-          class="flex-grow max-w-xs"
-          :control="control"
-          :placeholder="control.placeholder"
-          dataKey="plants"
-          :curValue="plantValues[control.property]"
-          @value-updated="updateProperty"
-        />
+      <div class="flex flex-wrap min-w-min form-row-size mx-auto">
         <div
-          v-if="needsUpdate(control.property)"
-          class="text-center font-semibold text-xs self-start whitespace-nowrap w-full"
-          :class="colorControl(control.property) ? 'self-center' : ''"
+          class="flex flex-wrap flex-grow justify-center my-2"
+          :class="[
+            colorControl(control.property) ? 'w-1/3 pl-2' : 'w-1/4 min-w-max',
+            { 'update-field': needsUpdate(control.property) },
+          ]"
+          v-for="(control, index) in plantControls"
+          :key="index"
         >
-          * Required
+          <control-field
+            containerId="create-entity"
+            class="flex-grow max-w-xs"
+            :control="control"
+            :placeholder="control.placeholder"
+            dataKey="plants"
+            :curValue="plantValues[control.property]"
+            @value-updated="updateProperty"
+          />
+          <div
+            v-if="needsUpdate(control.property)"
+            class="text-center font-semibold text-xs self-start whitespace-nowrap w-full"
+            :class="colorControl(control.property) ? 'self-center' : ''"
+          >
+            * Required
+          </div>
         </div>
       </div>
       <div
-        class="flex flex-wrap w-full justify-center p-4 items-center border-b-1 border-gray-200 dark:border-gray-800"
+        class="flex w-full justify-center p-4 items-center border-b-1 border-t-1 border-gray-200 dark:border-gray-800"
       >
         <input
           id="vary-colors"
@@ -106,7 +108,7 @@
           {{ showHelp ? "Hide Help" : "Help" }}
         </button>
       </div>
-    </div>
+    </main>
   </div>
 </template>
 
@@ -192,19 +194,19 @@ export default class EntityCreate extends GrowMixin {
     })
   }
 
-  public updateProperty(
-    _dataKey: GrowDataKey,
-    property: typeof CustomValues[number],
-    value: number | string | string[]
-  ) {
+  public updateProperty(payload: {
+    property: typeof CustomValues[number]
+    newValue: number | string | string[]
+  }) {
+    const { property, newValue } = payload
     if (this.failedValidation.indexOf(property) != -1) {
-      if (value != this.emptyValues()[property]) {
+      if (newValue != this.emptyValues()[property]) {
         this.failedValidation = this.failedValidation.filter(f => {
           return f != property
         })
       }
     }
-    this.plantValues[property] = value
+    this.plantValues[property] = newValue
   }
 
   public continueDelete() {
@@ -226,7 +228,6 @@ export default class EntityCreate extends GrowMixin {
           !(this.plantValues[typesafeProp] as string | string[]).length) ||
         this.plantValues[typesafeProp] === emptyValues[typesafeProp]
       ) {
-        // this.failedValidation.push(typesafeProp)
         result.missing.push(typesafeProp)
         result.pass = false
       }
@@ -346,5 +347,9 @@ export default class EntityCreate extends GrowMixin {
 .update-field input,
 .update-field select {
   @apply bg-red-200 dark:bg-red-200 !important;
+}
+
+.form-row-size {
+  @apply max-w-6xl;
 }
 </style>

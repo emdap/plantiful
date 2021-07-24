@@ -34,6 +34,7 @@ import { Watch, Ref } from "vue-property-decorator"
 
 type NavItem = {
   id: string
+  order: number
   name: string
   show: boolean
 }
@@ -52,28 +53,32 @@ export default class SelectCreate extends GrowMixin {
 
   public selectEntity: NavItem = {
     id: "entitySelect",
+    order: 2,
     name: "Selection Helper",
-    show: true,
+    show: false,
   }
 
   public createEntity: NavItem = {
     id: "entityCreate",
+    order: 1,
     name: "Create Custom",
     show: false,
   }
 
-  public navItems = [this.selectEntity, this.createEntity]
+  public navItems: NavItem[] = []
+
+  public mounted() {
+    this.setNavItems([this.selectEntity, this.createEntity])
+  }
 
   @Watch("hasGrowPlants")
   public plantsUpdated(hasPlants: boolean) {
     if (hasPlants) {
-      this.selectEntity.show = true
-      this.createEntity.show = false
-      this.navItems = [this.selectEntity, this.createEntity]
+      this.setNavItems([this.selectEntity, this.createEntity])
     } else {
+      // hide this menu item completely
       this.selectEntity.show = false
-      this.createEntity.show = true
-      this.navItems = [this.createEntity]
+      this.setNavItems([this.createEntity])
     }
   }
 
@@ -85,6 +90,22 @@ export default class SelectCreate extends GrowMixin {
         item.show = false
       }
     }
+  }
+
+  public setNavItems(navItems: NavItem[]) {
+    navItems
+      .sort((a, b) => {
+        return a.order - b.order
+      })
+      .forEach((nav, index) => {
+        if (index == 0) {
+          nav.show = true
+        } else {
+          nav.show = false
+        }
+      })
+
+    this.navItems = navItems
   }
 }
 </script>
