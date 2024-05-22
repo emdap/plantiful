@@ -33,10 +33,11 @@
           <a href="https://twitter.com/trefle_api/status/1389232291302490117">
             the Trefle API was unexpectedly discontinued.
           </a>
-          I am closely following some efforts to recreate Trefle, and will be
-          re-implementing API functionality once the necessary endpoints are
-          supported.
-          <br /><br />
+          As of 2024 there is still not a suitable replacement. If you know of
+          one, please
+          <span class="link" @click="navClicked(navItems[2], 'main')"
+            >let me know</span
+          >! <br /><br />
           Originally, Trefle was powering the
           <strong>'Plant Search'</strong> functionality, allowing users to
           search for different plants, inspect their properties, and "grow" an
@@ -281,10 +282,10 @@
       <section ref="contact">
         <h2>Contact</h2>
         <p>
-          Hi! My name's Emma, and I'm a Software Developer currently residing in
-          Toronto. When I'm not working on my computer, you might find me biking
-          around the city, paddling at the lake, or hanging out with some feral
-          cats.
+          Hi! My name's Emma, and I'm a Software Engineer currently residing in
+          Portland, Oregon. When I'm not working on my computer, you might find
+          me biking around the city, paddling up a river, or making some clay
+          sculptures.
         </p>
         <div class="grid-list-big green-strong">
           <strong>Email</strong>
@@ -292,16 +293,12 @@
           <strong>Github</strong>
           <a href="https://github.com/emdap">emdap</a>
           <strong>Other apps</strong>
-          <div>
-            <a href="https://contentcube.herokuapp.com/">contentCube</a> •
-            <a href="https://good-movie.herokuapp.com/">Good Movies</a>
-          </div>
+          <a href="https://content-cube.fly.dev/">contentCube</a>
         </div>
         <div class="p-2 mt-4 text-center max-w-md mx-auto">
-          <img src="../../public/finn.jpg" class="rounded-sm" />
+          <img src="../../public/vessel.jpg" class="rounded-sm" />
           <span class="italic p-2">
-            <strong>Pictured:</strong> Finn, one of the friendlier feral cats at
-            a colony I volunteer with
+            <strong>Pictured:</strong> A marbled ceramic vessel I made in 2024.
           </span>
         </div>
       </section>
@@ -509,8 +506,9 @@ export default class Welcome extends Vue {
     @apply flex transition-colors bg-white dark:bg-gray-700 w-full overflow-x-auto p-2 border-b-1 dark:border-gray-500 h-8 overflow-y-hidden;
   }
 
-  a {
-    @apply dark:text-yellow-600 text-green-500 hover:text-pink-400 dark:hover:text-yellow-400 font-medium;
+  a,
+  .link {
+    @apply dark:text-yellow-600 text-green-500 hover:text-pink-400 dark:hover:text-yellow-400 font-medium cursor-pointer;
   }
 
   section {
