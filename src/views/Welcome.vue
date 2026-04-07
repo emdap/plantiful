@@ -289,7 +289,7 @@
         </p>
         <div class="grid-list-big green-strong">
           <strong>Email</strong>
-          <a href="mailto:ecodapo@gmail.com">ecodapo@gmail.com</a>
+          <a href="mailto:emma.daponte@gmail.com">emma.daponte@gmail.com</a>
           <strong>Github</strong>
           <a href="https://github.com/emdap">emdap</a>
           <strong>Other apps</strong>
