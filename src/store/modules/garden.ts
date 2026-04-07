@@ -1,18 +1,18 @@
-import Vue from "vue"
-import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
+import { API_VERSION } from "@/services/api"
+import { getLink, getPlant, listPlants, searchPlants } from "@/services/plants"
 import store from "@/store"
 import {
-  Plant,
-  PlantSnippet,
-  PlantListResponse,
-  PageLinks,
-  PlantListPayload,
-  GardenState,
   CustomGrowPlant,
-  // PageLinkPayload,
+  GardenState,
+  PageLinkPayload,
+  PageLinks,
+  Plant,
+  PlantListPayload,
+  PlantListResponse,
+  PlantSnippet,
 } from "@/store/interfaces"
-// import { listPlants, getPlant, getLink, searchPlants } from "@/services/plants"
-import { listSample, plantSample } from "@/fixtures/SampleResponses"
+import Vue from "vue"
+import { Action, Module, Mutation, VuexModule } from "vuex-module-decorators"
 
 @Module({
   dynamic: true,
@@ -36,15 +36,14 @@ export default class GardenModule extends VuexModule implements GardenState {
 
   @Action
   async getPlantList(payload: PlantListPayload) {
-    // let apiFunc: (payload: PlantListPayload) => Promise<PlantListResponse>
+    let apiFunc: (payload: PlantListPayload) => Promise<PlantListResponse>
     // different API endpoint if user has a search query (?q="onion")
 
-    // API no longer exists :(
-    // if (payload.query.length) {
-    //   apiFunc = searchPlants
-    // } else {
-    //   apiFunc = listPlants
-    // }
+    if (payload.query.length) {
+      apiFunc = searchPlants
+    } else {
+      apiFunc = listPlants
+    }
 
     if (payload.newSearch) {
       this.CLEAR_PAGE_CACHE()
@@ -56,9 +55,7 @@ export default class GardenModule extends VuexModule implements GardenState {
     } else {
       this.SET_LOADING({ which: "plantList", loading: true })
       try {
-        // API no longer exists
-        // pageData = await apiFunc(payload)
-        pageData = listSample
+        pageData = await apiFunc(payload)
         this.CACHE_PAGE({ page: payload.page, pageData })
       } catch (error) {
         this.API_ERROR(error)
@@ -78,8 +75,8 @@ export default class GardenModule extends VuexModule implements GardenState {
     } else {
       this.SET_LOADING({ which: "plant", loading: true })
       try {
-        // const plantResponse = await getPlant(id)
-        plant = plantSample
+        const { data } = await getPlant(id)
+        plant = data
         this.CACHE_PLANT(plant)
       } catch (error) {
         this.API_ERROR(error)
@@ -171,28 +168,27 @@ export default class GardenModule extends VuexModule implements GardenState {
     return Promise.resolve(plant)
   }
 
-  // no API :(
-  // @Action
-  // async getPageByLink(payload: PageLinkPayload) {
-  //   const { page, apiLink } = payload
-  //   let pageData!: PlantListResponse
-  //   this.SET_LOADING({ which: "plantList", loading: true })
+  @Action
+  async getPageByLink(payload: PageLinkPayload) {
+    const { page, apiLink } = payload
+    let pageData!: PlantListResponse
+    this.SET_LOADING({ which: "plantList", loading: true })
 
-  //   if (this.pageCache[page]) {
-  //     pageData = this.pageCache[page]
-  //   } else {
-  //     try {
-  //       pageData = await getLink(apiLink)
-  //       this.CACHE_PAGE({ page, pageData })
-  //     } catch (error) {
-  //       this.API_ERROR(error)
-  //     }
-  //   }
-  //   if (pageData) {
-  //     this.PLANT_LIST_SUCCESS({ page, pageData })
-  //   }
-  //   this.SET_LOADING({ which: "plantList", loading: false })
-  // }
+    if (this.pageCache[page]) {
+      pageData = this.pageCache[page]
+    } else {
+      try {
+        pageData = await getLink(apiLink.replace(API_VERSION, ""))
+        this.CACHE_PAGE({ page, pageData })
+      } catch (error) {
+        this.API_ERROR(error)
+      }
+    }
+    if (pageData) {
+      this.PLANT_LIST_SUCCESS({ page, pageData })
+    }
+    this.SET_LOADING({ which: "plantList", loading: false })
+  }
 
   @Mutation
   CACHE_PAGE(payload: { page: number; pageData: PlantListResponse }) {
@@ -247,7 +243,10 @@ export default class GardenModule extends VuexModule implements GardenState {
   }
 
   @Action
-  private API_ERROR(error: string) {
-    Vue.toasted.error(error)
+  private API_ERROR(error: unknown) {
+    const stringError = String(error)
+    Vue.toasted.error(
+      stringError ?? "Unknown error occurred, please try again."
+    )
   }
 }

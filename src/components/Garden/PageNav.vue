@@ -19,7 +19,7 @@
           : 'text-green-800 dark:text-yellow-600 hover:tracking-wide hover:text-purple-700 dark:hover:text-yellow-500',
         disablePageButton(page.nav) ? 'cursor-not-allowed' : '',
       ]"
-      class="transition-text text-sm font-medium focus:outline-none tracking-normal dark:btn-dark-transparent"
+      class="transition-text text-sm font-medium focus:outline-none tracking-normal dark:btn-dark-transparent m-1"
     >
       {{ page.text }}
     </button>
@@ -29,8 +29,7 @@
 <script lang="ts">
 import Component from "vue-class-component"
 import pageButtons from "@/fixtures/PageButtons"
-// import GardenMixin, { garden } from "@/mixins/GardenMixin.vue"
-import GardenMixin from "@/mixins/GardenMixin.vue"
+import GardenMixin, { garden } from "@/mixins/GardenMixin.vue"
 import { PageLinkKey } from "@/store/interfaces"
 
 @Component({})
@@ -49,33 +48,32 @@ export default class PageNav extends GardenMixin {
     return false
   }
 
-  public iteratePage() {
-    // public iteratePage(link: PageLinkKey) {
+  public iteratePage(link: PageLinkKey) {
     // Trefle provides direct links to specific pages, use that when possible instead of re-constructing query
-    // let page = this.currentPage
-    // switch (link) {
-    //   case "prev":
-    //     page--
-    //     break
-    //   case "next":
-    //     page++
-    //     break
-    //   case "first":
-    //     page = 1
-    //     break
-    //   case "last":
-    //     page = this.lastPage
-    //     break
-    // }
-    // const apiLink = this.pageLinks[link]
-    this.$toasted.info(
-      "Hmmm, not sure how you pressed that. Page links are disabled due to the Trefle API being discontinued! :("
-    )
-    // if (apiLink) {
-    //   garden.getPageByLink({ page, apiLink })
-    // } else {
-    //   this.$toasted.error(`'${link}' ${this.gardenMessages.pageNav.error}`)
-    // }
+    let page = this.currentPage
+    switch (link) {
+      case "prev":
+        page--
+        break
+      case "next":
+        page++
+        break
+      case "first":
+        page = 1
+        break
+      case "last":
+        page = this.lastPage
+        break
+    }
+    const apiLink = this.pageLinks[link]
+    // this.$toasted.info(
+    //   "Hmmm, not sure how you pressed that. Page links are disabled due to the Trefle API being discontinued! :("
+    // )
+    if (apiLink) {
+      garden.getPageByLink({ page, apiLink })
+    } else {
+      this.$toasted.error(`'${link}' ${this.gardenMessages.pageNav.error}`)
+    }
   }
 }
 </script>

@@ -83,13 +83,13 @@ import GardenMixin from "@/mixins/GardenMixin.vue"
 import GrowMixin from "@/mixins/GrowMixin.vue"
 import { ActivePlantInfo } from "@/store/interfaces"
 import Loading from "@/components/Loading.vue"
-import TrefleWarning from "@/components/Garden/TrefleWarning.vue"
+// import TrefleWarning from "@/components/Garden/TrefleWarning.vue"
 import Modal from "@/components/Modal.vue"
 
 @Component({
   components: {
     Loading,
-    TrefleWarning,
+    // TrefleWarning,
     Modal,
   },
 })

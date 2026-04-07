@@ -21,7 +21,7 @@
       <section ref="introduction">
         <h2>Welcome</h2>
         <p>
-          Hello and welcome to the CSS garden! The intent of this website was to
+          Hello and welcome to the CSS garden! The intent of this website is to
           make use of the
           <a href="https://docs.trefle.io/">
             Trefle API
@@ -29,22 +29,19 @@
           to gather and display plant information and create HTML/CSS
           approximations.
           <br /><br />
-          Unfortunately, as of May 3, 2021,
-          <a href="https://twitter.com/trefle_api/status/1389232291302490117">
-            the Trefle API was unexpectedly discontinued.
-          </a>
-          As of 2024 there is still not a suitable replacement. If you know of
-          one, please
-          <span class="link" @click="navClicked(navItems[2], 'main')"
-            >let me know</span
-          >! <br /><br />
-          Originally, Trefle was powering the
-          <strong>'Plant Search'</strong> functionality, allowing users to
+          On May 3, 2021, the Trefle API was unexpectedly discontinued. But
+          luckily, as of 2026 it has been rebooted! Though there may be some
+          missing functionality. <br /><br />Requests to Trefle are being
+          forwarded through
+          <a href="https://hotplants.fly.dev/"> Hotplants </a> (another plant
+          project I'm working on!) so that Hotplants-server can attach a secure
+          token to make requests to Trefle. Like this app, Hotplants is hosted
+          on <a href="https://fly.io"> fly.io's </a> free tier. Initial requests
+          will take some time as the app wakes up.<br /><br />Trefle is powering
+          the <strong>'Plant Search'</strong> functionality, allowing users to
           search for different plants, inspect their properties, and "grow" an
-          HTML/CSS approximation. For now, all data returned from the
-          <strong>'Plant Search'</strong> is static, and will always generate
-          the same plant. Users can still create custom plants by using the
-          <strong>'Select & Create'</strong> window.
+          HTML/CSS approximation. Users can also create custom plants by using
+          the <strong>'Select & Create'</strong> window.
         </p>
         <div class="flex justify-center p-2">
           <button
@@ -289,7 +286,7 @@
         </p>
         <div class="grid-list-big green-strong">
           <strong>Email</strong>
-          <a href="mailto:ecodapo@gmail.com">ecodapo@gmail.com</a>
+          <a href="mailto:emma.daponte@gmail.com">emma.daponte@gmail.com</a>
           <strong>Github</strong>
           <a href="https://github.com/emdap">emdap</a>
           <strong>Other apps</strong>
