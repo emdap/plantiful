@@ -43,9 +43,7 @@
             <move-icon v-else class="icon" @mousedown="trackPosition = true" />
           </span>
         </nav>
-        <header
-          class="ml-1 flex flex-grow font-semibold text-left px-3 dark:text-black"
-        >
+        <header class="ml-1 flex flex-grow font-semibold text-left px-3">
           {{ widgetData.text }}
         </header>
         <nav
