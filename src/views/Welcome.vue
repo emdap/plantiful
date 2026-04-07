@@ -29,16 +29,16 @@
           to gather and display plant information and create HTML/CSS
           approximations.
           <br /><br />
-          On May 3, 2021,
-          <a href="https://twitter.com/trefle_api/status/1389232291302490117">
-            the Trefle API was unexpectedly discontinued.
-          </a>
-          But luckily, as of 2026 it has been rebooted! Though may be missing
-          some functionality. <br /><br />Requests to Trefle are being forwarded
-          through <a href="https://hotplants.fly.dev/"> Hotplants </a> (another
-          plant project I'm working on!) so that hotplants-server can attach a
-          secure token to make requests. <br /><br />Trefle is powering the
-          <strong>'Plant Search'</strong> functionality, allowing search for
+          On May 3, 2021, the Trefle API was unexpectedly discontinued. But
+          luckily, as of 2026 it has been rebooted! Though there may be some
+          missing functionality. <br /><br />Requests to Trefle are being
+          forwarded through
+          <a href="https://hotplants.fly.dev/"> Hotplants </a> (another plant
+          project I'm working on!) so that Hotplants-server can attach a secure
+          token to make requests to Trefle. Like this app, Hotplants is hosted
+          on <a href="https://fly.io"> fly.io's </a> free tier. Initial requests
+          will take some time as the app wakes up.<br /><br />Trefle is powering
+          the <strong>'Plant Search'</strong> functionality, allowing search for
           different plants, inspect their properties, and "grow" an HTML/CSS
           approximation. For now, all data returned from the
           <strong>'Plant Search'</strong> is static, and will always generate
