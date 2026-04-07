@@ -40,9 +40,7 @@
           will take some time as the app wakes up.<br /><br />Trefle is powering
           the <strong>'Plant Search'</strong> functionality, allowing search for
           different plants, inspect their properties, and "grow" an HTML/CSS
-          approximation. For now, all data returned from the
-          <strong>'Plant Search'</strong> is static, and will always generate
-          the same plant. Users can still create custom plants by using the
+          approximation. Users can also create custom plants by using the
           <strong>'Select & Create'</strong> window.
         </p>
         <div class="flex justify-center p-2">
