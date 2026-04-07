@@ -38,10 +38,10 @@
           token to make requests to Trefle. Like this app, Hotplants is hosted
           on <a href="https://fly.io"> fly.io's </a> free tier. Initial requests
           will take some time as the app wakes up.<br /><br />Trefle is powering
-          the <strong>'Plant Search'</strong> functionality, allowing search for
-          different plants, inspect their properties, and "grow" an HTML/CSS
-          approximation. Users can also create custom plants by using the
-          <strong>'Select & Create'</strong> window.
+          the <strong>'Plant Search'</strong> functionality, allowing users to
+          search for different plants, inspect their properties, and "grow" an
+          HTML/CSS approximation. Users can also create custom plants by using
+          the <strong>'Select & Create'</strong> window.
         </p>
         <div class="flex justify-center p-2">
           <button
