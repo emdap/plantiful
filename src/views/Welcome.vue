@@ -21,7 +21,7 @@
       <section ref="introduction">
         <h2>Welcome</h2>
         <p>
-          Hello and welcome to the CSS garden! The intent of this website was to
+          Hello and welcome to the CSS garden! The intent of this website is to
           make use of the
           <a href="https://docs.trefle.io/">
             Trefle API
@@ -29,19 +29,18 @@
           to gather and display plant information and create HTML/CSS
           approximations.
           <br /><br />
-          Unfortunately, as of May 3, 2021,
+          On May 3, 2021,
           <a href="https://twitter.com/trefle_api/status/1389232291302490117">
             the Trefle API was unexpectedly discontinued.
           </a>
-          As of 2024 there is still not a suitable replacement. If you know of
-          one, please
-          <span class="link" @click="navClicked(navItems[2], 'main')"
-            >let me know</span
-          >! <br /><br />
-          Originally, Trefle was powering the
-          <strong>'Plant Search'</strong> functionality, allowing users to
-          search for different plants, inspect their properties, and "grow" an
-          HTML/CSS approximation. For now, all data returned from the
+          But luckily, as of 2026 it has been rebooted! Though may be missing
+          some functionality. <br /><br />Requests to Trefle are being forwarded
+          through <a href="https://hotplants.fly.dev/"> Hotplants </a> (another
+          plant project I'm working on!) so that hotplants-server can attach a
+          secure token to make requests. <br /><br />Trefle is powering the
+          <strong>'Plant Search'</strong> functionality, allowing search for
+          different plants, inspect their properties, and "grow" an HTML/CSS
+          approximation. For now, all data returned from the
           <strong>'Plant Search'</strong> is static, and will always generate
           the same plant. Users can still create custom plants by using the
           <strong>'Select & Create'</strong> window.

@@ -71,18 +71,18 @@
 <script lang="ts">
 import Component from "vue-class-component"
 import GardenMixin, { garden } from "@/mixins/GardenMixin.vue"
-import { Ref, Watch } from "vue-property-decorator"
+import { Watch } from "vue-property-decorator"
 import PlantLineIcon from "@/assets/icons/plant-line.svg"
 import PopOutIcon from "@/assets/icons/pop-out.svg"
 import NotFoundIcon from "@/assets/icons/not-found.svg"
 import Loading from "@/components/Loading.vue"
-import TrefleWarning from "@/components/Garden/TrefleWarning.vue"
+// import TrefleWarning from "@/components/Garden/TrefleWarning.vue"
 
 @Component({
   components: {
     Loading,
     NotFoundIcon,
-    TrefleWarning,
+    // TrefleWarning,
   },
 })
 export default class PlantList extends GardenMixin {
