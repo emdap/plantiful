@@ -22,6 +22,7 @@ import { Action, Module, Mutation, VuexModule } from "vuex-module-decorators"
 })
 export default class GardenModule extends VuexModule implements GardenState {
   plantList: PlantSnippet[] = []
+  previousSearch: PlantListPayload | null = null
   pageLinks: PageLinks = {}
   activePlant: Plant | null = null
   currentPage = -1
@@ -49,6 +50,8 @@ export default class GardenModule extends VuexModule implements GardenState {
       this.CLEAR_PAGE_CACHE()
     }
 
+    this.SET_PREVIOUS_SEARCH(payload)
+
     let pageData!: PlantListResponse
     if (this.pageCache[payload.page]) {
       pageData = this.pageCache[payload.page]
@@ -58,6 +61,7 @@ export default class GardenModule extends VuexModule implements GardenState {
         pageData = await apiFunc(payload)
         this.CACHE_PAGE({ page: payload.page, pageData })
       } catch (error) {
+        this.SET_PREVIOUS_SEARCH(null)
         this.API_ERROR(error)
       } finally {
         this.SET_LOADING({ which: "plantList", loading: false })
@@ -188,6 +192,11 @@ export default class GardenModule extends VuexModule implements GardenState {
       this.PLANT_LIST_SUCCESS({ page, pageData })
     }
     this.SET_LOADING({ which: "plantList", loading: false })
+  }
+
+  @Mutation
+  SET_PREVIOUS_SEARCH(payload: PlantListPayload | null) {
+    this.previousSearch = payload
   }
 
   @Mutation

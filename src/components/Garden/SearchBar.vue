@@ -49,13 +49,13 @@ import SearchIcon from "@/assets/icons/search.svg"
 })
 export default class SearchBar extends GardenMixin {
   public filterParams = {} as FilterParams
-  public searchQuery = ""
-  public searchUpdated = true
+  public searchQuery = garden.previousSearch?.query ?? ""
+  public searchUpdated = false
   public inputFocus = false
 
   public mounted() {
     // [redacted: no API] TODO: add an actual filter UI and make these optional
-    this.plantSearch()
+    !garden.previousSearch && this.plantSearch()
     this.addFilterParam("flower_color", "null", false)
     this.addFilterParam("foliage_color", "null", false)
   }
