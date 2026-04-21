@@ -4,12 +4,12 @@
     class="border-b-1 border-gray-100 dark:border-gray-800 mb-4 w-full"
   >
     <div
-      class="ring-pink-400 dark:ring-gray-300 flex rounded-sm"
+      class="ring-pink-400 dark:ring-gray-500 flex rounded-sm"
       :class="{ 'ring-2': inputFocus }"
     >
       <input
         id="search-input"
-        class="font-semibold w-full border-0 rounded-sm rounded-r-none bg-gray-50 dark:bg-gray-800 focus:bg-green-50 dark:focus:bg-gray-500 p-2 pl-4 flex-grow text-left focus:ring-0 dark:focus:ring-0"
+        class="font-semibold w-full border-0 rounded-sm rounded-r-none bg-gray-50 dark:bg-gray-800 focus:bg-green-50 dark:focus:bg-green-800 dark:focus:bg-opacity-10 p-2 pl-4 flex-grow text-left focus:ring-0 dark:focus:ring-0"
         type="text"
         v-model="searchQuery"
         :placeholder="gardenMessages.searchBar.placeholder"
@@ -55,6 +55,7 @@ export default class SearchBar extends GardenMixin {
 
   public mounted() {
     // [redacted: no API] TODO: add an actual filter UI and make these optional
+    this.plantSearch()
     this.addFilterParam("flower_color", "null", false)
     this.addFilterParam("foliage_color", "null", false)
   }
