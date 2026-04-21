@@ -4,7 +4,7 @@ import { ApiResponse, create } from "apisauce"
 // const TOKEN_API = process.env.VUE_APP_TOKEN_API
 // let JWT!: JWTResponse
 
-export const API_VERSION = "/api/v1"
+export const API_VERSION = "api/v1"
 
 const plantAPI = create({
   baseURL: `${process.env.VUE_APP_HOTPLANTS_URL}/trefle/${API_VERSION}`,
