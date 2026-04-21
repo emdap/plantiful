@@ -290,7 +290,10 @@
           <strong>Github</strong>
           <a href="https://github.com/emdap">emdap</a>
           <strong>Other apps</strong>
-          <a href="https://content-cube.fly.dev/">contentCube</a>
+          <div class="flex flex-col gap-0.5">
+            <a href="https://hotplants.fly.dev/">Hotplants (latest)</a>
+            <a href="https://content-cube.fly.dev/">contentCube</a>
+          </div>
         </div>
         <div class="p-2 mt-4 text-center max-w-md mx-auto">
           <img src="../../public/vessel.jpg" class="rounded-sm" />
@@ -550,6 +553,10 @@ export default class Welcome extends Vue {
   .grid-list > *,
   .grid-list-big > a {
     word-break: break-word;
+  }
+
+  a {
+    max-width: fit-content;
   }
 }
 </style>
