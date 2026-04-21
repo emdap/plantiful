@@ -8,7 +8,7 @@
       @close="showModal = false"
       @continue="continueDelete"
     />
-    <trefle-warning widget="active-plant" />
+    <!-- <trefle-warning widget="active-plant" /> -->
     <loading
       v-if="plantLoading"
       class="mt-12"
