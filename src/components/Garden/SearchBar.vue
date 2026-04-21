@@ -1,7 +1,7 @@
 <template>
   <div
     id="search-bar"
-    class="border-b-1 border-gray-100 dark:border-gray-800 mb-4 w-full"
+    class="border-b-1 border-gray-100 dark:border-gray-800 w-full"
   >
     <div
       class="ring-pink-400 dark:ring-gray-500 flex rounded-sm"
@@ -27,6 +27,12 @@
         <search-icon />
       </button>
     </div>
+    <span
+      @click="resetSearch()"
+      class="font-medium text-pink-600 dark:text-yellow-700 hover:underline cursor-pointer text-sm"
+      v-if="searchQuery && !searchUpdated"
+      >Clear</span
+    >
   </div>
 </template>
 
@@ -55,22 +61,29 @@ export default class SearchBar extends GardenMixin {
 
   public mounted() {
     // [redacted: no API] TODO: add an actual filter UI and make these optional
-    !garden.previousSearch && this.plantSearch()
+    if (!garden.previousSearch) {
+      this.plantSearch()
+    }
     this.addFilterParam("flower_color", "null", false)
     this.addFilterParam("foliage_color", "null", false)
   }
 
   public plantSearch() {
-    if (this.searchUpdated) {
-      this.searchUpdated = false
-      const payload: PlantListPayload = {
-        page: 1,
-        filter: this.formatFilterParams(),
-        query: this.searchQuery,
-        newSearch: true,
-      }
-      garden.getPlantList(payload)
+    const payload: PlantListPayload = {
+      page: 1,
+      filter: this.formatFilterParams(),
+      query: this.searchQuery,
+      newSearch: true,
     }
+    garden.getPlantList(payload).then(() => {
+      this.searchUpdated = false
+    })
+  }
+
+  public resetSearch() {
+    this.searchQuery = ""
+    this.searchUpdated = true
+    this.plantSearch()
   }
 
   @Watch("searchQuery")
