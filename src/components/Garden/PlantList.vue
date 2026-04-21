@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="h-full w-full overflow-auto scrollbar-light dark:scrollbar-dark"
-    style="min-height: 100px"
-  >
+  <div class="h-full w-full overflow-auto scrollbar-light dark:scrollbar-dark">
     <!-- <trefle-warning widget="search" class="mb-2" /> -->
     <div
       v-for="(plant, index) in plantList"

@@ -9,18 +9,18 @@
       @continue="continueDelete"
     />
     <search-bar class="p-4" />
-    <div class="relative">
+    <div class="relative h-full" style="min-height: 100px">
       <loading
-        class="absolute text-center mt-8 h-full w-full"
+        class="absolute w-full h-full bg-green-50 dark:bg-gray-600 bg-opacity-90 dark:bg-opacity-90 rounded text-center top-0 left-0 z-50 flex justify-center items-center"
         v-if="plantListLoading"
         :loadingText="gardenMessages.searchBar.loading"
       />
+      <plant-list
+        @show-active="toggleActivePlant(true)"
+        @grow-plant="checkAndGrow"
+        class="pb-4"
+      />
     </div>
-    <plant-list
-      @show-active="toggleActivePlant(true)"
-      @grow-plant="checkAndGrow"
-      class="p-4"
-    />
     <page-nav
       :class="
         plantListLoading
@@ -37,7 +37,7 @@ import Loading from "@/components/Loading.vue"
 import SearchBar from "@/components/Garden/SearchBar.vue"
 import PlantList from "@/components/Garden/PlantList.vue"
 import PageNav from "@/components/Garden/PageNav.vue"
-import GardenMixin, { garden } from "@/mixins/GardenMixin.vue"
+import GardenMixin from "@/mixins/GardenMixin.vue"
 import GrowMixin from "@/mixins/GrowMixin.vue"
 import Modal from "@/components/Modal.vue"
 
@@ -68,10 +68,6 @@ export default class PlantSearch extends mixins(GardenMixin, GrowMixin) {
       return
     }
     this.growPlant(this.activePlant)
-  }
-
-  public destroyed() {
-    garden.clearPlantList()
   }
 }
 </script>

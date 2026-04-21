@@ -16,9 +16,7 @@
       <div></div>
       <div></div>
     </div>
-    <span v-if="loadingText.length" class="bg-white dark:bg-transparent ml-2">{{
-      loadingText
-    }}</span>
+    <span v-if="loadingText.length" class="ml-2">{{ loadingText }}</span>
   </div>
 </template>
 
